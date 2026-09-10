@@ -6,7 +6,6 @@
     <Nullable>enable</Nullable>
     <AssemblyVersion>1.0.19.26253</AssemblyVersion>
 	  
-	  
     <Title>HandyUI</Title>
 	<Description>Platform-agnostic Code-Only C# UI framework powered by SkiaSharp.</Description>
 	<PackageReleaseNotes>Initial Release</PackageReleaseNotes>
@@ -17,6 +16,9 @@
     <PackageIcon>HandyUI-Logo.png</PackageIcon>
     <NeutralLanguage>en</NeutralLanguage>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+	<RepositoryUrl>https://github.com/davpnuser/HandyUI</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>

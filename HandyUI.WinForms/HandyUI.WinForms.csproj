@@ -7,7 +7,28 @@
 	<UseWindowsForms>True</UseWindowsForms>
 	<NoWarn>$(NoWarn);NU1701</NoWarn>
 	<AssemblyVersion>1.0.22.26253</AssemblyVersion>
+
+	<Title>HandyUI.WinForms</Title>
+	<Description>Platform-agnostic Code-Only C# UI framework powered by SkiaSharp.</Description>
+	<PackageReleaseNotes>Initial Release</PackageReleaseNotes>
+	<PackageTags>ui;framework;skiasharp;code-only;gui;rendering</PackageTags>
+	<PackageId>HandyUI.WinForms</PackageId>
+	<Version>$(AssemblyVersion)</Version>
+	<Authors>davpnuser</Authors>
+	<PackageIcon>HandyUI-Logo.png</PackageIcon>
+	<NeutralLanguage>en</NeutralLanguage>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+	<RepositoryUrl>https://github.com/davpnuser/HandyUI</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\Ubeyde\Downloads\HandyUI-Logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="SkiaSharp.Views.WindowsForms" Version="4.152.0" />
@@ -15,6 +36,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HandyUI.Core\HandyUI.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="HandyUI-Logo.png">
+      <PackagePath>\</PackagePath>
+      <Pack>True</Pack>
+    </None>
   </ItemGroup>
 
 </Project>
