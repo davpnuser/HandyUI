@@ -129,6 +129,8 @@ public class UIRenderer : IDisposable
 
         foreach (var control in snapshot)
         {
+            if (!control.IsVisible) continue;
+
             var localPos = GetLocalMousePosition(control, context.ClientPosition);
             var localContext = context with { ClientPosition = localPos };
 
@@ -192,7 +194,10 @@ public class UIRenderer : IDisposable
                 canvas.Save();
 
                 if (control.RetainedModePositioning)
-                    canvas.Translate(control.Location.X, control.Location.Y);
+                {
+                    var absolutePos = GetAbsoluteLocation(control);
+                    canvas.Translate(absolutePos.X, absolutePos.Y);
+                }
 
                 var localCursor = GetLocalMousePosition(control, cursorPosition);
                 control.Update(deltaTime, localCursor);
@@ -206,12 +211,30 @@ public class UIRenderer : IDisposable
 
     private static SKPoint GetLocalMousePosition(IUIControl control, SKPoint globalPoint)
     {
-        return !control.RetainedModePositioning
-            ? globalPoint
-            : new SKPoint(
-            globalPoint.X - (int)control.Location.X,
-            globalPoint.Y - (int)control.Location.Y
+        if (!control.RetainedModePositioning)
+            return globalPoint;
+
+        var absolutePos = GetAbsoluteLocation(control);
+        return new SKPoint(
+            globalPoint.X - absolutePos.X,
+            globalPoint.Y - absolutePos.Y
         );
+    }
+
+    private static SKPoint GetAbsoluteLocation(IUIControl control)
+    {
+        var x = 0f;
+        var y = 0f;
+        var current = control;
+
+        while (current != null && current.RetainedModePositioning)
+        {
+            x += current.Location.X;
+            y += current.Location.Y;
+            current = current.Parent;
+        }
+
+        return new SKPoint(x, y);
     }
 
     public void Dispose()

@@ -6,6 +6,21 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class TextButton : UIControlBase
 {
+    private float _width;
+    private float _height;
+
+    public float Width
+    {
+        get => _width;
+        set { _width = value; RecalculateBounds(); }
+    }
+
+    public float Height
+    {
+        get => _height;
+        set { _height = value; RecalculateBounds(); }
+    }
+
     public string Text { get; set; } = "Button";
     public float CornerRadius { get; set; } = 6f;
 
@@ -23,25 +38,33 @@ public class TextButton : UIControlBase
 
     public Action? OnClick { get; set; }
 
+    private SKColor _animatedColor;
     private readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
     private readonly SKPaint _textPaint = new() { IsAntialias = true };
     private readonly SKFont _font = new(SKTypeface.Default, 14f) { Subpixel = true };
 
-    public TextButton(string text, float width = 120f, float height = 36f)
+    public TextButton(string text = "Button", float width = 120f, float height = 36f)
     {
         Text = text;
-        Bounds = SKRect.Create(Location.X, Location.Y, width, height);
+        _width = width;
+        _height = height;
+        _animatedColor = NormalColor;
+        RecalculateBounds();
+    }
+
+    private void RecalculateBounds()
+    {
+        Bounds = SKRect.Create(Location.X, Location.Y, _width, _height);
     }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
-        var rect = SKRect.Create(Location.X, Location.Y, Bounds.Width, Bounds.Height);
+        var rect = SKRect.Create(Location.X, Location.Y, _width, _height);
 
-        _fillPaint.Color = IsMouseDown && IsHovered ? PressedColor : IsHovered ? HoverColor : NormalColor;
-
+        _fillPaint.Color = _animatedColor;
         _borderPaint.Color = BorderColor;
 
         canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _fillPaint);
@@ -50,7 +73,7 @@ public class TextButton : UIControlBase
         _textPaint.Color = TextColor;
 
         var textWidth = _font.MeasureText(Text);
-        SKFontMetrics metrics = _font.Metrics;
+        var metrics = _font.Metrics;
         var textHeight = metrics.Descent - metrics.Ascent;
 
         var textX = rect.Left + ((rect.Width - textWidth) / 2f);
@@ -61,7 +84,13 @@ public class TextButton : UIControlBase
 
     public override bool Intersects(SKPoint clientPoint)
     {
-        var rect = SKRect.Create(Location.X, Location.Y, Bounds.Width, Bounds.Height);
+        if (RetainedModePositioning)
+        {
+            var localRect = SKRect.Create(0, 0, _width, _height);
+            return localRect.Contains(clientPoint);
+        }
+
+        var rect = SKRect.Create(Location.X, Location.Y, _width, _height);
         return rect.Contains(clientPoint);
     }
 
@@ -69,8 +98,21 @@ public class TextButton : UIControlBase
     {
         if (Bounds.Left != Location.X || Bounds.Top != Location.Y)
         {
-            Bounds = SKRect.Create(Location.X, Location.Y, Bounds.Width, Bounds.Height);
+            RecalculateBounds();
         }
+
+        SKColor targetColor = IsMouseDown && IsHovered ? PressedColor : IsHovered ? HoverColor : NormalColor;
+        _animatedColor = LerpColor(_animatedColor, targetColor, deltaTime * 12f);
+    }
+
+    private static SKColor LerpColor(SKColor from, SKColor to, float progress)
+    {
+        progress = Math.Clamp(progress, 0f, 1f);
+        var r = (byte)(from.Red + ((to.Red - from.Red) * progress));
+        var g = (byte)(from.Green + ((to.Green - from.Green) * progress));
+        var b = (byte)(from.Blue + ((to.Blue - from.Blue) * progress));
+        var a = (byte)(from.Alpha + ((to.Alpha - from.Alpha) * progress));
+        return new SKColor(r, g, b, a);
     }
 
     protected override bool OnMouse(MouseEventContext mouseContext)

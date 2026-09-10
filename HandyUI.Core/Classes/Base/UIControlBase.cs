@@ -8,6 +8,7 @@ public abstract class UIControlBase : IUIControl
 {
     private bool _isDisposed;
 
+    public IUIControl? Parent { get; set; }
     public SKPoint Location { get; set; } = SKPoint.Empty;
     public SKRect Bounds { get; set; }
     public int ZIndex { get; set; }

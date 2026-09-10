@@ -5,6 +5,7 @@ namespace HandyUI.Core.Interfaces;
 
 public interface IUIControl : IDisposable
 {
+    IUIControl? Parent { get; set; }
     SKPoint Location { get; set; }
     SKRect Bounds { get; set; }
     int ZIndex { get; set; }

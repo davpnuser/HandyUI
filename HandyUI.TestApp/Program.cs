@@ -1,16 +1,24 @@
 ﻿using HandyUI.Core.Classes.Controls;
 using HandyUI.WinForms.Classes.Helper;
 using HandyUI.WinForms.Components;
+using System.Diagnostics;
+
+#region Setting up the window
 
 using var MainForm = new Form();
 MainForm.Text = "Example HandyUI App";
-MainForm.MinimumSize = new Size(427, 294);
-MainForm.Size = new Size(427, 294);
+MainForm.MinimumSize = new Size(750, 362);
+MainForm.MaximizeBox = false;
+MainForm.Size = new Size(437, 362);
 MainForm.StartPosition = FormStartPosition.CenterScreen;
+MainForm.FormBorderStyle = FormBorderStyle.FixedSingle;
 
-if (ResourceManager.GetResourceByPath("Resources/HandyUI-SmallIcon-Tt.ico", out var resourceStream, false))
+if (ResourceManager.GetResourceByPath("Resources/HandyUI-SmallIcon.ico", out var resourceStream, false))
     MainForm.Icon = new Icon(resourceStream!);
 
+#endregion
+
+#region Setting up the rendering surface
 var skiaPanel = new HandyUIGLControl
 {
     Dock = DockStyle.Fill,
@@ -18,10 +26,17 @@ var skiaPanel = new HandyUIGLControl
 };
 
 var renderer = RendererHelper.Attach(skiaPanel);
+#endregion
+
+#region Setting up controls
+
+var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+var fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
+var version = fvi.FileVersion ?? "Could not find";
 
 var label1 = new TextLabel()
 {
-    Text = "Hi! This is a example HandyUI app.",
+    Text = $"Hi! This is an example HandyUI app. (Test App v{version})",
     TextSize = 24f,
     Location = new(25, 25),
     TextColor = new(0, 0, 0)
@@ -113,6 +128,21 @@ var toggleSwitch = new ToggleSwitch()
     OnToggled = toggle
 };
 
+void bla()
+{
+    Debugger.Break();
+}
+
+var button5 = new TextButton("Debugger Break", 160)
+{
+    TextSize = 16f,
+    Location = new(25, 258),
+    OnClick = bla
+};
+
+#endregion
+
+#region Registering controls
 renderer.AddControl(label1);
 renderer.AddControl(label2);
 renderer.AddControl(button1);
@@ -121,6 +151,8 @@ renderer.AddControl(button3);
 renderer.AddControl(button4);
 renderer.AddControl(label3);
 renderer.AddControl(toggleSwitch);
+renderer.AddControl(button5);
+#endregion
 
 MainForm.Controls.Add(skiaPanel);
 Application.Run(MainForm);
