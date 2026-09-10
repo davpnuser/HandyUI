@@ -18,7 +18,7 @@
 	<PackageIcon>HandyUI-Logo.png</PackageIcon>
 	<NeutralLanguage>en</NeutralLanguage>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
-
+	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<RepositoryUrl>https://github.com/davpnuser/HandyUI/</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageProjectUrl>https://github.com/davpnuser/HandyUI/</PackageProjectUrl>
