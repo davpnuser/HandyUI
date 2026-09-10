@@ -1,17 +1,17 @@
 ﻿using HandyUI.Core.Classes.Controls;
 using HandyUI.WinForms.Classes.Helper;
 using HandyUI.WinForms.Components;
-using System.Diagnostics;
+using SkiaSharp;
 
 #region Setting up the window
 
-using var MainForm = new Form();
-MainForm.Text = "Example HandyUI App";
-MainForm.MinimumSize = new Size(750, 362);
+using var MainForm = new HandyForm();
+MainForm.AutoScaleMode = AutoScaleMode.None;
 MainForm.MaximizeBox = false;
-MainForm.Size = new Size(437, 362);
+MainForm.Text = "HandyUI Testing App";
+MainForm.ClientSize = new Size(306, 306);
+MainForm.MinimumClientSize = new Size(306, 306);
 MainForm.StartPosition = FormStartPosition.CenterScreen;
-MainForm.FormBorderStyle = FormBorderStyle.FixedSingle;
 
 if (ResourceManager.GetResourceByPath("Resources/HandyUI-SmallIcon.ico", out var resourceStream, false))
     MainForm.Icon = new Icon(resourceStream!);
@@ -28,130 +28,49 @@ var skiaPanel = new HandyUIGLControl
 var renderer = RendererHelper.Attach(skiaPanel);
 #endregion
 
-#region Setting up controls
+#region Setting up the controls
 
-var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-var fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
-var version = fvi.FileVersion ?? "Could not find";
-
-var label1 = new TextLabel()
+var background = new Frame()
 {
-    Text = $"Hi! This is an example HandyUI app. (Test App v{version})",
-    TextSize = 24f,
-    Location = new(25, 25),
-    TextColor = new(0, 0, 0)
+    CornerRadius = 0,
+    NormalColor = new(0, 0, 0),
+    BorderColor = new(0, 0, 0, 0),
+    Width = MainForm.Width,
+    Height = MainForm.Height
 };
+renderer.AddControl(background);
 
-var label2 = new TextLabel()
+static void toggled(bool state)
 {
-    Text = "+0",
-    TextSize = 24f,
-    Location = new(25, 60),
-    TextColor = new(0, 0, 0, 155)
-};
-
-var i = 0;
-void Add()
-{
-    i++;
-    Change();
-}
-void Remove()
-{
-    i--;
-    Change();
+    //MessageBox.Show($"Toggled to: {state}");
 }
 
-void AddMore()
+if (ResourceManager.GetResourceByPath("Resources/HandyUI-Logo-T.png", out resourceStream))
 {
-    i += 10;
-    Change();
+    var image = SKImage.FromEncodedData(resourceStream!);
+    var imageControl = new ImageToggleButton(image, image)
+    {
+        ZIndex = 1,
+        Location = new(25, 25),
+        Height = 256,
+        Width = 256,
+        ImageHeight = 256,
+        ImageWidth = 256,
+        OnToggled = toggled
+    };
+    renderer.AddControl(imageControl);
 }
-void RemoveMore()
+else
 {
-    i -= 10;
-    Change();
-}
-
-void Change()
-{
-    var sign = i < 0 ? '-' : '+';
-
-    label2.Text = $"{sign}{Math.Abs(i)}";
-}
-
-var button1 = new TextButton("+1")
-{
-    TextSize = 16f,
-    Location = new(25, 104),
-    OnClick = Add
-};
-
-var button2 = new TextButton("-1")
-{
-    TextSize = 16f,
-    Location = new(155, 104),
-    OnClick = Remove
-};
-
-var button3 = new TextButton("+10")
-{
-    TextSize = 16f,
-    Location = new(25, 150),
-    OnClick = AddMore
-};
-
-var button4 = new TextButton("-10")
-{
-    TextSize = 16f,
-    Location = new(155, 150),
-    OnClick = RemoveMore
-};
-
-var label3 = new TextLabel()
-{
-    Text = "Im toggled off!",
-    TextSize = 24f,
-    Location = new(90, 206),
-    TextColor = new(0, 0, 0)
-};
-
-void toggle(bool state)
-{
-    var stateText = state == true ? "on" : "off";
-    label3.Text = $"Im toggled {stateText}!";
+    var textControl = new ToggleButton("Could not load image.")
+    {
+        Location = new SKPoint(25, 25),
+        TextSize = 18,
+        OnToggled = toggled
+    };
+    renderer.AddControl(textControl);
 }
 
-var toggleSwitch = new ToggleSwitch()
-{
-    Location = new(25, 211),
-    OnToggled = toggle
-};
-
-void bla()
-{
-    Debugger.Break();
-}
-
-var button5 = new TextButton("Debugger Break", 160)
-{
-    TextSize = 16f,
-    Location = new(25, 258),
-    OnClick = bla
-};
-
-#endregion
-
-#region Registering controls
-renderer.AddControl(label1);
-renderer.AddControl(label2);
-renderer.AddControl(button1);
-renderer.AddControl(button2);
-renderer.AddControl(button3);
-renderer.AddControl(button4);
-renderer.AddControl(label3);
-renderer.AddControl(toggleSwitch);
-renderer.AddControl(button5);
 #endregion
 
 MainForm.Controls.Add(skiaPanel);

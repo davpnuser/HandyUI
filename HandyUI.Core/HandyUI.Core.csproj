@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>1.0.23.26253</AssemblyVersion>
+    <AssemblyVersion>1.0.28.26253</AssemblyVersion>
 	  
     <Title>HandyUI</Title>
 	<Description>Platform-agnostic Code-Only C# UI framework powered by SkiaSharp.</Description>
