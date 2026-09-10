@@ -42,13 +42,18 @@ renderer.AddControl(background);
 
 static void toggled(bool state)
 {
-    //MessageBox.Show($"Toggled to: {state}");
+    MessageBox.Show($"Toggled to: {state}");
+}
+
+static void clicked()
+{
+    MessageBox.Show($"Toggled to: clicked");
 }
 
 if (ResourceManager.GetResourceByPath("Resources/HandyUI-Logo-T.png", out resourceStream))
 {
     var image = SKImage.FromEncodedData(resourceStream!);
-    var imageControl = new ImageToggleButton(image, image)
+    var imageControl = new ImageButton(image)
     {
         ZIndex = 1,
         Location = new(25, 25),
@@ -56,7 +61,7 @@ if (ResourceManager.GetResourceByPath("Resources/HandyUI-Logo-T.png", out resour
         Width = 256,
         ImageHeight = 256,
         ImageWidth = 256,
-        OnToggled = toggled
+        OnClicked = clicked
     };
     renderer.AddControl(imageControl);
 }
