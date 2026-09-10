@@ -71,6 +71,10 @@ Improvements &amp; Bug Fixes
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Update="Resources\HandyUI-Logo.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
