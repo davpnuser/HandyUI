@@ -1,0 +1,65 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyVersion>1.0.19.26253</AssemblyVersion>
+	  
+	  
+    <Title>HandyUI</Title>
+	<Description>Platform-agnostic Code-Only C# UI framework powered by SkiaSharp.</Description>
+	<PackageReleaseNotes>Initial Release</PackageReleaseNotes>
+	<PackageTags>ui;framework;skiasharp;code-only;gui;rendering</PackageTags>
+	<PackageId>HandyUI.Core</PackageId>
+	<Version>$(AssemblyVersion)</Version>
+	<Authors>davpnuser</Authors>
+    <PackageIcon>HandyUI-Logo.png</PackageIcon>
+    <NeutralLanguage>en</NeutralLanguage>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\HandyUI-BigIcon-T.ico" />
+    <None Remove="Resources\HandyUI-BigIcon.ico" />
+    <None Remove="Resources\HandyUI-Logo-T.png" />
+    <None Remove="Resources\HandyUI-SmallIcon-T.ico" />
+    <None Remove="Resources\HandyUI-SmallIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\HandyUI-BigIcon-T.ico" />
+    <EmbeddedResource Include="Resources\HandyUI-BigIcon.ico" />
+    <EmbeddedResource Include="Resources\HandyUI-Logo-T.png" />
+    <EmbeddedResource Include="Resources\HandyUI-Logo.png" />
+    <EmbeddedResource Include="Resources\HandyUI-SmallIcon-T.ico" />
+    <EmbeddedResource Include="Resources\HandyUI-SmallIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="4.152.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Classes\Helper\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\Ubeyde\Downloads\HandyUI-Logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="HandyUI-Logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="Resources\HandyUI-Logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

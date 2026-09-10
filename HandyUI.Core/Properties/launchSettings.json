@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "HandyUI.TestApp": {
+      "commandName": "Project",
+      "debugEngines": "managed,native"
+    }
+  }
+}
