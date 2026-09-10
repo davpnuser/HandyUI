@@ -19,8 +19,9 @@
 	<NeutralLanguage>en</NeutralLanguage>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 
-	<RepositoryUrl>https://github.com/davpnuser/HandyUI</RepositoryUrl>
+	<RepositoryUrl>https://github.com/davpnuser/HandyUI/</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
+	<PackageProjectUrl>https://github.com/davpnuser/HandyUI/</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
