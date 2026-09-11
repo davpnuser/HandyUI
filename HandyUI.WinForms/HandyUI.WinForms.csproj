@@ -10,19 +10,22 @@
 
 	<Title>HandyUI.WinForms</Title>
 	<Description>Platform-agnostic Code-Only C# UI framework powered by SkiaSharp.</Description>
-	<PackageReleaseNotes>Release notes for:
- - HandyUI.Core v1.0.2x (v1.0.2x instead of v1.0.29 to account for automatic versioning.)
- - HandyUI.WinForms v1.0.3x (v1.0.3x instead of v1.0.33 to account for automatic versioning.)
+	<PackageReleaseNotes>(NuGet) Release notes for:
+ - HandyUI.Core (v1.0.50.26254)
+ - HandyUI.WinForms (v1.0.52.26254)
 
-New Features &amp; UI Controls
- - Added new controls: ImageButton, ImageLabel, ToggleButton, ImageToggleButton, and Frame
- - Introduced the HandyForm subclass in HandyUI.WinForms
- - Added animations to select controls
- - Added control parenting support
+Changes
+ - Made retained positioning mode on by default. (Child-Parent positioning)
 
 Improvements &amp; Bug Fixes
- - Fixed UI Renderer bugs
- - Improved retained mode positioning</PackageReleaseNotes>
+ - Fixed some control bugs.
+ - Made controls consistent.
+ - Made controls work with retained positioning mode.
+ - Made the Resource Manager platform-agnostic.
+
+New Features &amp; UI Controls
+ - Added new controls: CheckBox, ProgressBar, Slider, TextBox, and Frame
+ - Created the Resource Manager Helper.</PackageReleaseNotes>
 	<PackageTags>ui;framework;skiasharp;code-only;gui;rendering</PackageTags>
 	<PackageId>HandyUI.WinForms</PackageId>
 	<Version>$(AssemblyVersion)</Version>
