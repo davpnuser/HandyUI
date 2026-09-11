@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="THIRD-PARTY-NOTICES.txt" />
+  </Folder>
   <Project Path="HandyUI.Core/HandyUI.Core.csproj" />
   <Project Path="HandyUI.TestApp/HandyUI.TestApp.csproj" />
   <Project Path="HandyUI.WinForms/HandyUI.WinForms.csproj" />

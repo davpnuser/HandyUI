@@ -44,6 +44,10 @@ Improvements &amp; Bug Fixes
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="SkiaSharp.Views.WindowsForms" Version="4.152.0" />
   </ItemGroup>
 
