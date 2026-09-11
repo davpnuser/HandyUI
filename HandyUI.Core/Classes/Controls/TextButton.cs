@@ -55,14 +55,14 @@ public class TextButton : UIControlBase
 
     private void RecalculateBounds()
     {
-        Bounds = SKRect.Create(Location.X, Location.Y, _width, _height);
+        Bounds = SKRect.Create(0, 0, _width, _height);
     }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
-        var rect = SKRect.Create(Location.X, Location.Y, _width, _height);
+        var rect = SKRect.Create(0, 0, _width, _height);
 
         _fillPaint.Color = _animatedColor;
         _borderPaint.Color = BorderColor;
@@ -76,32 +76,20 @@ public class TextButton : UIControlBase
         var metrics = _font.Metrics;
         var textHeight = metrics.Descent - metrics.Ascent;
 
-        var textX = rect.Left + ((rect.Width - textWidth) / 2f);
-        var textY = rect.Top + ((rect.Height + textHeight) / 2f) - metrics.Descent;
+        var textX = (rect.Width - textWidth) / 2f;
+        var textY = ((rect.Height + textHeight) / 2f) - metrics.Descent;
 
         canvas.DrawText(Text, textX, textY, SKTextAlign.Left, _font, _textPaint);
     }
 
     public override bool Intersects(SKPoint clientPoint)
     {
-        if (RetainedModePositioning)
-        {
-            var localRect = SKRect.Create(0, 0, _width, _height);
-            return localRect.Contains(clientPoint);
-        }
-
-        var rect = SKRect.Create(Location.X, Location.Y, _width, _height);
-        return rect.Contains(clientPoint);
+        return Bounds.Contains(clientPoint);
     }
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        if (Bounds.Left != Location.X || Bounds.Top != Location.Y)
-        {
-            RecalculateBounds();
-        }
-
-        SKColor targetColor = IsMouseDown && IsHovered ? PressedColor : IsHovered ? HoverColor : NormalColor;
+        var targetColor = IsMouseDown && IsHovered ? PressedColor : IsHovered ? HoverColor : NormalColor;
         _animatedColor = LerpColor(_animatedColor, targetColor, deltaTime * 12f);
     }
 

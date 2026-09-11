@@ -37,14 +37,14 @@ public class Frame : UIControlBase
 
     private void RecalculateBounds()
     {
-        Bounds = SKRect.Create(Location.X, Location.Y, _width, _height);
+        Bounds = SKRect.Create(0, 0, _width, _height);
     }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
-        var rect = SKRect.Create(Location.X, Location.Y, _width, _height);
+        var rect = SKRect.Create(0, 0, _width, _height);
 
         _fillPaint.Color = NormalColor;
         _borderPaint.Color = BorderColor;
@@ -55,22 +55,12 @@ public class Frame : UIControlBase
 
     public override bool Intersects(SKPoint clientPoint)
     {
-        if (RetainedModePositioning)
-        {
-            var localRect = SKRect.Create(0, 0, _width, _height);
-            return localRect.Contains(clientPoint);
-        }
-
-        var rect = SKRect.Create(Location.X, Location.Y, _width, _height);
-        return rect.Contains(clientPoint);
+        return Bounds.Contains(clientPoint);
     }
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        if (Bounds.Left != Location.X || Bounds.Top != Location.Y)
-        {
-            RecalculateBounds();
-        }
+        ;
     }
 
     protected override void OnDispose()

@@ -1,24 +1,31 @@
 ﻿using HandyUI.Core.Classes.Controls;
+using HandyUI.Core.Components;
 using HandyUI.WinForms.Classes.Helper;
 using HandyUI.WinForms.Components;
 using SkiaSharp;
+using TextBox = HandyUI.Core.Classes.Controls.TextBox;
 
 #region Setting up the window
+
+ResourceManagerHelper.InitializeResourceManager();
 
 using var MainForm = new HandyForm();
 MainForm.AutoScaleMode = AutoScaleMode.None;
 MainForm.MaximizeBox = false;
-MainForm.Text = "HandyUI Testing App";
-MainForm.ClientSize = new Size(306, 306);
-MainForm.MinimumClientSize = new Size(306, 306);
+MainForm.Text = "handyui showcase app";
+MainForm.ClientSize = new Size(780, 580);
+MainForm.MinimumClientSize = new Size(780, 580);
 MainForm.StartPosition = FormStartPosition.CenterScreen;
 
-if (ResourceManager.GetResourceByPath("Resources/HandyUI-SmallIcon.ico", out var resourceStream, false))
-    MainForm.Icon = new Icon(resourceStream!);
+if (ResourceManager.GetResourceByPath("Resources/HandyUI-SmallIcon.ico", out var iconStream, false))
+{
+    MainForm.Icon = new Icon(iconStream!);
+}
 
 #endregion
 
-#region Setting up the rendering surface
+#region Setting up the renderer
+
 var skiaPanel = new HandyUIGLControl
 {
     Dock = DockStyle.Fill,
@@ -26,55 +33,33 @@ var skiaPanel = new HandyUIGLControl
 };
 
 var renderer = RendererHelper.Attach(skiaPanel);
+
+#endregion
+
+#region Setting up the assets
+
+SKImage? logoImage = null;
+if (ResourceManager.GetResourceByPath("Resources/HandyUI-Logo.png", out var imageStream))
+{
+    logoImage = SKImage.FromEncodedData(imageStream!);
+}
+
 #endregion
 
 #region Setting up the controls
 
-var background = new Frame()
+var tb = new TextBox(placeholder: "hekko")
 {
-    CornerRadius = 0,
-    NormalColor = new(0, 0, 0),
-    BorderColor = new(0, 0, 0, 0),
-    Width = MainForm.Width,
-    Height = MainForm.Height
+    Location = new SKPoint(20, 20),
 };
-renderer.AddControl(background);
+renderer.AddControl(tb);
 
-static void toggled(bool state)
+var interactiveSlider = new Slider(305f, 0f, 100f, 50f)
 {
-    MessageBox.Show($"Toggled to: {state}");
-}
-
-static void clicked()
-{
-    MessageBox.Show($"Toggled to: clicked");
-}
-
-if (ResourceManager.GetResourceByPath("Resources/HandyUI-Logo-T.png", out resourceStream))
-{
-    var image = SKImage.FromEncodedData(resourceStream!);
-    var imageControl = new ImageButton(image)
-    {
-        ZIndex = 1,
-        Location = new(25, 25),
-        Height = 256,
-        Width = 256,
-        ImageHeight = 256,
-        ImageWidth = 256,
-        OnClicked = clicked
-    };
-    renderer.AddControl(imageControl);
-}
-else
-{
-    var textControl = new ToggleButton("Could not load image.")
-    {
-        Location = new SKPoint(25, 25),
-        TextSize = 18,
-        OnToggled = toggled
-    };
-    renderer.AddControl(textControl);
-}
+    Location = new SKPoint(20, 120),
+    ZIndex = 1,
+};
+renderer.AddControl(interactiveSlider);
 
 #endregion
 
