@@ -63,10 +63,6 @@ New Features &amp; UI Controls
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Classes\Helper\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="C:\Users\Ubeyde\Downloads\HandyUI-Logo.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
@@ -86,6 +82,10 @@ New Features &amp; UI Controls
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Classes\Helper\" />
   </ItemGroup>
 
 </Project>
