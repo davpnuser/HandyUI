@@ -64,7 +64,7 @@ public class ImageButton : UIControlBase
     public SKColor BorderColor { get; set; } = SKColor.Parse("#585B70");
     public SKColor TextColor { get; set; } = SKColor.Parse("#CDD6F4");
 
-    public Action? OnClicked { get; set; }
+    public Action? OnClick { get; set; }
 
     private bool _isPressed;
     private SKColor _animatedFillColor;
@@ -217,7 +217,7 @@ public class ImageButton : UIControlBase
         {
             if (_isPressed && IsHovered)
             {
-                OnClicked?.Invoke();
+                OnClick?.Invoke();
             }
             _isPressed = false;
             return true;
