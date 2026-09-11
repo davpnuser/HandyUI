@@ -37,7 +37,6 @@ public class ImageToggleButton : UIControlBase
         set => _explicitImageHeight = value;
     }
 
-    // Legacy fallback property that sets both dimensions simultaneously
     public float ImageSize
     {
         get => ImageWidth;
@@ -127,19 +126,14 @@ public class ImageToggleButton : UIControlBase
 
     private void RecalculateBounds()
     {
-        var startX = RetainedModePositioning ? 0 : Location.X;
-        var startY = RetainedModePositioning ? 0 : Location.Y;
-
-        Bounds = SKRect.Create(startX, startY, _width, _height);
+        Bounds = SKRect.Create(0, 0, _width, _height);
     }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
-        var renderX = RetainedModePositioning ? 0f : Location.X;
-        var renderY = RetainedModePositioning ? 0f : Location.Y;
-        var rect = SKRect.Create(renderX, renderY, _width, _height);
+        var rect = SKRect.Create(0, 0, _width, _height);
 
         _fillPaint.Color = _animatedFillColor;
         _borderPaint.Color = BorderColor;
@@ -152,15 +146,14 @@ public class ImageToggleButton : UIControlBase
         var (targetImgWidth, targetImgHeight) = GetTargetImageSize();
 
         var totalWidth = (currentImage != null ? targetImgWidth + (textWidth > 0 ? Spacing : 0f) : 0f) + textWidth;
-        var currentX = rect.Left + ((rect.Width - totalWidth) / 2f);
+        var currentX = (rect.Width - totalWidth) / 2f;
 
         if (currentImage != null)
         {
             SKRect destRect;
             var imageContainerX = currentX;
-            var imageContainerY = rect.Top + ((rect.Height - targetImgHeight) / 2f);
+            var imageContainerY = (rect.Height - targetImgHeight) / 2f;
 
-            // Replicate ImageLabel aspect ratio scaling logic when explicit bounds exist
             if (AutoSizeImage && _explicitImageWidth.HasValue && _explicitImageHeight.HasValue)
             {
                 var imgWidth = (float)currentImage.Width;
@@ -172,7 +165,7 @@ public class ImageToggleButton : UIControlBase
                 var fitHeight = imgHeight * scale;
 
                 var offsetX = imageContainerX + ((targetImgWidth - fitWidth) / 2f);
-                var offsetY = rect.Top + ((rect.Height - fitHeight) / 2f);
+                var offsetY = (rect.Height - fitHeight) / 2f;
 
                 destRect = SKRect.Create(offsetX, offsetY, fitWidth, fitHeight);
             }
@@ -190,7 +183,7 @@ public class ImageToggleButton : UIControlBase
             _textPaint.Color = IsChecked ? TextOnColor : TextOffColor;
             var metrics = _font.Metrics;
             var textHeight = metrics.Descent - metrics.Ascent;
-            var textY = rect.Top + ((rect.Height + textHeight) / 2f) - metrics.Descent;
+            var textY = ((rect.Height + textHeight) / 2f) - metrics.Descent;
 
             canvas.DrawText(Text, currentX, textY, SKTextAlign.Left, _font, _textPaint);
         }
@@ -198,23 +191,11 @@ public class ImageToggleButton : UIControlBase
 
     public override bool Intersects(SKPoint clientPoint)
     {
-        if (RetainedModePositioning)
-        {
-            var localRect = SKRect.Create(0, 0, _width, _height);
-            return localRect.Contains(clientPoint);
-        }
-
-        var rect = SKRect.Create(Location.X, Location.Y, _width, _height);
-        return rect.Contains(clientPoint);
+        return Bounds.Contains(clientPoint);
     }
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        if (!RetainedModePositioning && (Bounds.Left != Location.X || Bounds.Top != Location.Y))
-        {
-            RecalculateBounds();
-        }
-
         var targetColor = IsChecked ? OnColor : IsHovered ? HoverColor : OffColor;
         _animatedFillColor = LerpColor(_animatedFillColor, targetColor, deltaTime * 12f);
     }

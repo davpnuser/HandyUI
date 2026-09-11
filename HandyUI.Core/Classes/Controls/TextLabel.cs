@@ -11,14 +11,19 @@ public class TextLabel : UIControlBase
     public string Text
     {
         get;
-        set { field = value; RecalculateBounds(); }
+        set
+        {
+            field = value;
+            RecalculateBounds();
+        }
     } = string.Empty;
 
     public SKColor TextColor { get; set; } = SKColors.White;
 
     public float TextSize
     {
-        get; set
+        get;
+        set
         {
             field = value;
             _font.Size = value;
@@ -28,7 +33,8 @@ public class TextLabel : UIControlBase
 
     public SKTypeface Typeface
     {
-        get; set
+        get;
+        set
         {
             field = value;
             _font.Typeface = value;
@@ -47,7 +53,7 @@ public class TextLabel : UIControlBase
         var metrics = _font.Metrics;
         var height = metrics.Descent - metrics.Ascent;
 
-        Bounds = SKRect.Create(Location.X, Location.Y, width, height);
+        Bounds = SKRect.Create(0, 0, width, height);
     }
 
     public override void Draw(SKCanvas canvas)
@@ -56,8 +62,8 @@ public class TextLabel : UIControlBase
 
         _paint.Color = TextColor;
 
-        var baselineY = Location.Y - _font.Metrics.Ascent;
-        canvas.DrawText(Text, Location.X, baselineY, SKTextAlign.Left, _font, _paint);
+        var baselineY = -_font.Metrics.Ascent;
+        canvas.DrawText(Text, 0, baselineY, SKTextAlign.Left, _font, _paint);
     }
 
     public override bool Intersects(SKPoint clientPoint)
@@ -67,10 +73,7 @@ public class TextLabel : UIControlBase
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        if (Bounds.Left != Location.X || Bounds.Top != Location.Y)
-        {
-            RecalculateBounds();
-        }
+        ;
     }
 
     protected override void OnDispose()

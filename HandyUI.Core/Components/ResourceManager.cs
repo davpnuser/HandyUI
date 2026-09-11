@@ -1,22 +1,39 @@
-﻿using HandyUI.Core.Classes.Base;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
-namespace HandyUI.WinForms.Components;
+namespace HandyUI.Core.Components;
 
 public static class ResourceManager
 {
-    private static readonly Assembly[] TargetAssemblies =
-    [
-        Assembly.GetEntryAssembly()!,
-        Assembly.GetExecutingAssembly(),
-        typeof(UIControlBase).Assembly
-    ];
+    private static readonly List<Assembly> SearchAssemblies = [];
+
+    static ResourceManager()
+    {
+        if (Assembly.GetEntryAssembly() is { } entryAssembly)
+        {
+            SearchAssemblies.Add(entryAssembly);
+        }
+
+        SearchAssemblies.Add(Assembly.GetExecutingAssembly());
+    }
+
+    public static Action<string, string>? OnError { get; set; }
+
+    public static void RegisterAssembly(Assembly assembly)
+    {
+        ArgumentNullException.ThrowIfNull(assembly);
+
+        if (!SearchAssemblies.Contains(assembly))
+        {
+            SearchAssemblies.Add(assembly);
+        }
+    }
 
     public static bool GetResourceByPath(
         string relativePath,
         [NotNullWhen(true)] out Stream? resourceStream,
-        bool ignoreErrors = true)
+        bool ignoreErrors = true,
+        IEnumerable<Assembly>? additionalAssemblies = null)
     {
         resourceStream = null;
 
@@ -45,7 +62,11 @@ public static class ResourceManager
                                                .Replace('/', '.')
                                                .Replace('\\', '.');
 
-        foreach (var assembly in TargetAssemblies)
+        var assembliesToSearch = additionalAssemblies != null
+            ? SearchAssemblies.Concat(additionalAssemblies).Distinct()
+            : SearchAssemblies;
+
+        foreach (var assembly in assembliesToSearch)
         {
             var manifestNames = assembly.GetManifestResourceNames();
 
@@ -77,10 +98,13 @@ public static class ResourceManager
     {
         if (ignoreErrors) return;
 
-        MessageBox.Show(
-            $"Resource Manager Error!\nPath: '{path}'\nDetail: {detail}",
-            "HandyUI Resource Manager",
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Error);
+        if (OnError != null)
+        {
+            OnError(detail, path);
+        }
+        else
+        {
+            throw new FileNotFoundException($"Resource Manager Error!\nPath: '{path}'\nDetail: {detail}", path);
+        }
     }
 }

@@ -12,7 +12,7 @@ public abstract class UIControlBase : IUIControl
     public SKPoint Location { get; set; } = SKPoint.Empty;
     public SKRect Bounds { get; set; }
     public int ZIndex { get; set; }
-    public bool RetainedModePositioning { get; set; } = false;
+    public bool RetainedModePositioning { get; set; } = true;
 
     public bool IsHovered { get; private set; }
     public bool IsMouseDown { get; private set; }

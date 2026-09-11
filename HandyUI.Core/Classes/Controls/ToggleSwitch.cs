@@ -51,14 +51,14 @@ public class ToggleSwitch : UIControlBase
 
     private void RecalculateBounds()
     {
-        Bounds = SKRect.Create(Location.X, Location.Y, _width, _height);
+        Bounds = SKRect.Create(0, 0, _width, _height);
     }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
-        var rect = SKRect.Create(Location.X, Location.Y, _width, _height);
+        var rect = SKRect.Create(0, 0, _width, _height);
 
         _trackPaint.Color = _animatedTrackColor;
         _borderPaint.Color = BorderColor;
@@ -69,10 +69,10 @@ public class ToggleSwitch : UIControlBase
 
         var padding = 4f;
         var knobRadius = (rect.Height - (padding * 2f)) / 2f;
-        var knobY = rect.Top + padding + knobRadius;
+        var knobY = padding + knobRadius;
 
-        var startX = rect.Left + padding + knobRadius;
-        var endX = rect.Right - padding - knobRadius;
+        var startX = padding + knobRadius;
+        var endX = _width - padding - knobRadius;
         var knobX = startX + ((endX - startX) * _animProgress);
 
         canvas.DrawCircle(knobX, knobY, knobRadius, _knobPaint);
@@ -80,27 +80,15 @@ public class ToggleSwitch : UIControlBase
 
     public override bool Intersects(SKPoint clientPoint)
     {
-        if (RetainedModePositioning)
-        {
-            var localRect = SKRect.Create(0, 0, _width, _height);
-            return localRect.Contains(clientPoint);
-        }
-
-        var rect = SKRect.Create(Location.X, Location.Y, _width, _height);
-        return rect.Contains(clientPoint);
+        return Bounds.Contains(clientPoint);
     }
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        if (Bounds.Left != Location.X || Bounds.Top != Location.Y)
-        {
-            RecalculateBounds();
-        }
-
         var targetProgress = IsChecked ? 1f : 0f;
         _animProgress += (targetProgress - _animProgress) * deltaTime * 14f;
 
-        SKColor targetTrack = IsChecked ? TrackOnColor : IsHovered ? TrackHoverColor : TrackOffColor;
+        var targetTrack = IsChecked ? TrackOnColor : IsHovered ? TrackHoverColor : TrackOffColor;
         _animatedTrackColor = LerpColor(_animatedTrackColor, targetTrack, deltaTime * 12f);
     }
 

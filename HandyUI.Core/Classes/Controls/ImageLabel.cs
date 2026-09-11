@@ -91,18 +91,12 @@ public class ImageLabel : UIControlBase
             targetHeight = _explicitHeight ?? _image?.Height ?? 24f;
         }
 
-        var startX = RetainedModePositioning ? 0 : Location.X;
-        var startY = RetainedModePositioning ? 0 : Location.Y;
-
-        Bounds = SKRect.Create(startX, startY, targetWidth, targetHeight);
+        Bounds = SKRect.Create(0, 0, targetWidth, targetHeight);
     }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible || _image == null) return;
-
-        var renderX = RetainedModePositioning ? 0f : Location.X;
-        var renderY = RetainedModePositioning ? 0f : Location.Y;
 
         SKRect destRect;
 
@@ -116,14 +110,14 @@ public class ImageLabel : UIControlBase
             var fitWidth = imgWidth * scale;
             var fitHeight = imgHeight * scale;
 
-            var offsetX = renderX + ((Bounds.Width - fitWidth) / 2f);
-            var offsetY = renderY + ((Bounds.Height - fitHeight) / 2f);
+            var offsetX = (Bounds.Width - fitWidth) / 2f;
+            var offsetY = (Bounds.Height - fitHeight) / 2f;
 
             destRect = SKRect.Create(offsetX, offsetY, fitWidth, fitHeight);
         }
         else
         {
-            destRect = SKRect.Create(renderX, renderY, Bounds.Width, Bounds.Height);
+            destRect = SKRect.Create(0, 0, Bounds.Width, Bounds.Height);
         }
 
         canvas.DrawImage(_image, destRect, HighSampling, _imagePaint);
@@ -131,19 +125,12 @@ public class ImageLabel : UIControlBase
 
     public override bool Intersects(SKPoint clientPoint)
     {
-        var rect = RetainedModePositioning
-            ? SKRect.Create(0, 0, Bounds.Width, Bounds.Height)
-            : Bounds;
-
-        return rect.Contains(clientPoint);
+        return Bounds.Contains(clientPoint);
     }
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        if (!RetainedModePositioning && (Bounds.Left != Location.X || Bounds.Top != Location.Y))
-        {
-            RecalculateBounds();
-        }
+        ;
     }
 
     protected override void OnDispose()
