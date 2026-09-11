@@ -84,14 +84,15 @@ public class CheckBox : UIControlBase
         {
             _checkPaint.Color = CheckMarkColor.WithAlpha((byte)(CheckMarkColor.Alpha * _animProgress));
 
-            using var path = new SKPath();
             var p1 = new SKPoint(boxRect.Left + (boxRect.Width * 0.25f), boxRect.Top + (boxRect.Height * 0.5f));
             var p2 = new SKPoint(boxRect.Left + (boxRect.Width * 0.45f), boxRect.Top + (boxRect.Height * 0.7f));
             var p3 = new SKPoint(boxRect.Left + (boxRect.Width * 0.75f), boxRect.Top + (boxRect.Height * 0.3f));
 
-            path.MoveTo(p1);
-            path.LineTo(p2);
-            path.LineTo(p3);
+            using var builder = new SKPathBuilder();
+            builder.MoveTo(p1);
+            builder.LineTo(p2);
+            builder.LineTo(p3);
+            using var path = builder.Detach();
 
             canvas.DrawPath(path, _checkPaint);
         }
