@@ -9,13 +9,13 @@ public class ToggleButton : UIControlBase
     private float _width;
     private float _height;
 
-    public float Width
+    public override float Width
     {
         get => _width;
         set { _width = value; RecalculateBounds(); }
     }
 
-    public float Height
+    public override float Height
     {
         get => _height;
         set { _height = value; RecalculateBounds(); }

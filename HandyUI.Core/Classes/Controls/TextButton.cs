@@ -9,13 +9,13 @@ public class TextButton : UIControlBase
     private float _width;
     private float _height;
 
-    public float Width
+    public override float Width
     {
         get => _width;
         set { _width = value; RecalculateBounds(); }
     }
 
-    public float Height
+    public override float Height
     {
         get => _height;
         set { _height = value; RecalculateBounds(); }
@@ -89,6 +89,8 @@ public class TextButton : UIControlBase
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
+        base.Update(deltaTime, clientMousePosition);
+
         var targetColor = IsMouseDown && IsHovered ? PressedColor : IsHovered ? HoverColor : NormalColor;
         _animatedColor = LerpColor(_animatedColor, targetColor, deltaTime * 12f);
     }

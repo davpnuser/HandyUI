@@ -8,13 +8,13 @@ public class Frame : UIControlBase
     private float _height;
     private float _width;
 
-    public float Height
+    public override float Height
     {
         get => _height;
         set { _height = value; RecalculateBounds(); }
     }
 
-    public float Width
+    public override float Width
     {
         get => _width;
         set { _width = value; RecalculateBounds(); }

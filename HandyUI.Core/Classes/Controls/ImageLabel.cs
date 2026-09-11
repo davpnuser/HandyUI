@@ -30,7 +30,7 @@ public class ImageLabel : UIControlBase
         }
     }
 
-    public float Width
+    public override float Width
     {
         get => Bounds.Width;
         set
@@ -40,7 +40,7 @@ public class ImageLabel : UIControlBase
         }
     }
 
-    public float Height
+    public override float Height
     {
         get => Bounds.Height;
         set

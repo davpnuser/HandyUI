@@ -11,13 +11,13 @@ public class ImageToggleButton : UIControlBase
     private float? _explicitImageWidth;
     private float? _explicitImageHeight;
 
-    public float Width
+    public override float Width
     {
         get => _width;
         set { _width = value; RecalculateBounds(); }
     }
 
-    public float Height
+    public override float Height
     {
         get => _height;
         set { _height = value; RecalculateBounds(); }
