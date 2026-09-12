@@ -11,6 +11,12 @@ public class Slider : UIControlBase
     private float _maximum = 100f;
     private bool _isDragging;
 
+    public float Width
+    {
+        get => Bounds.Width;
+        set => RecalculateBounds(value, Math.Max(ThumbRadius * 2, TrackHeight));
+    }
+
     public float Minimum
     {
         get => _minimum;
@@ -68,8 +74,13 @@ public class Slider : UIControlBase
         _minimum = min;
         _maximum = max;
         _value = Math.Clamp(value, min, max);
-        Bounds = SKRect.Create(0, 0, width, Math.Max(ThumbRadius * 2, TrackHeight));
+        RecalculateBounds(width, Math.Max(ThumbRadius * 2, TrackHeight));
         _animatedThumbRadius = ThumbRadius;
+    }
+
+    private void RecalculateBounds(float width, float height)
+    {
+        Bounds = SKRect.Create(Bounds.Left, Bounds.Top, Math.Max(0f, width), height);
     }
 
     public override bool Intersects(SKPoint clientPoint)

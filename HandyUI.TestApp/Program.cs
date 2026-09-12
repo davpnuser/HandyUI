@@ -321,7 +321,7 @@ var imgBtn = new ImageButton(logoImage, "Image Btn", width: 165f, height: 38f)
     CornerRadius = 6f,
     Spacing = 8f,
     ZIndex = 1,
-    OnClicked = () => statusLabel.Text = "ImageButton clicked"
+    OnClick = () => statusLabel.Text = "ImageButton clicked"
 };
 renderer.AddControl(imgBtn);
 
