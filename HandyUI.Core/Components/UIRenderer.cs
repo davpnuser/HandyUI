@@ -1,4 +1,5 @@
-﻿using HandyUI.Core.Classes.Records;
+﻿using HandyUI.Core.Classes.Base;
+using HandyUI.Core.Classes.Records;
 using HandyUI.Core.Interfaces;
 using SkiaSharp;
 using System.Diagnostics;
@@ -10,7 +11,7 @@ public class UIRenderer : IDisposable
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
     private double _lastFrameTime;
 
-    private readonly List<IUIControl> _controls = [];
+    private readonly List<IUIControl> _rootControls = [];
     private readonly List<IUIControl> _pendingAdd = [];
     private readonly List<IUIControl> _pendingRemove = [];
 
@@ -21,104 +22,59 @@ public class UIRenderer : IDisposable
     private IUIControl? _pressedControl;
     private IUIControl? _focusedControl;
 
-    public void AddControl(IUIControl control)
+    public void AddRootControl(IUIControl control)
     {
         ArgumentNullException.ThrowIfNull(control);
-
-        lock (_pendingAdd)
-        {
-            _pendingAdd.Add(control);
-        }
+        lock (_pendingAdd) _pendingAdd.Add(control);
     }
 
-    public void RemoveControl(IUIControl control)
+    public void RemoveRootControl(IUIControl control)
     {
         ArgumentNullException.ThrowIfNull(control);
-
-        lock (_pendingRemove)
-        {
-            _pendingRemove.Add(control);
-        }
+        lock (_pendingRemove) _pendingRemove.Add(control);
     }
 
     private void ProcessPendingControls()
     {
-        List<IUIControl> toAdd = [];
-        List<IUIControl> toRemove = [];
+        IUIControl[] toAdd, toRemove;
+        lock (_pendingAdd) { toAdd = [.. _pendingAdd]; _pendingAdd.Clear(); }
+        lock (_pendingRemove) { toRemove = [.. _pendingRemove]; _pendingRemove.Clear(); }
 
-        lock (_pendingAdd)
-        {
-            if (_pendingAdd.Count > 0)
-            {
-                toAdd.AddRange(_pendingAdd);
-                _pendingAdd.Clear();
-            }
-        }
-
-        lock (_pendingRemove)
-        {
-            if (_pendingRemove.Count > 0)
-            {
-                toRemove.AddRange(_pendingRemove);
-                _pendingRemove.Clear();
-            }
-        }
-
-        if (toAdd.Count == 0 && toRemove.Count == 0) return;
+        if (toAdd.Length == 0 && toRemove.Length == 0) return;
 
         lock (_controlsLock)
         {
-            if (toAdd.Count > 0)
+            foreach (var control in toAdd)
             {
-                foreach (var control in toAdd)
-                {
-                    control.FocusRequested += OnControlFocusRequested;
-                }
-
-                _controls.AddRange(toAdd);
+                control.FocusRequested += OnControlFocusRequested;
+                _rootControls.Add(control);
                 _isDirty = true;
             }
 
-            if (toRemove.Count > 0)
+            foreach (var control in toRemove)
             {
-                foreach (var control in toRemove)
-                {
-                    if (_controls.Remove(control))
-                    {
-                        if (_focusedControl == control) _focusedControl = null;
-                        if (_pressedControl == control) _pressedControl = null;
-                        control.Dispose();
-                    }
-                }
+                if (!_rootControls.Remove(control)) continue;
+                if (_focusedControl == control) _focusedControl = null;
+                if (_pressedControl == control) _pressedControl = null;
+                control.Dispose();
             }
         }
     }
 
     public void ProcessMouseEvent(MouseEventContext context)
     {
-        IUIControl[] snapshot;
-
+        IUIControl[] rootSnapshot;
         lock (_controlsLock)
         {
-            snapshot = [.. _controls];
+            if (_isDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isDirty = false; }
+            rootSnapshot = [.. _rootControls];
         }
 
         IUIControl? hitControl = null;
-
-        for (var i = snapshot.Length - 1; i >= 0; i--)
+        for (var i = rootSnapshot.Length - 1; i >= 0; i--)
         {
-            var control = snapshot[i];
-
-            if (control.IsVisible && control.IsEnabled)
-            {
-                var localPos = GetLocalMousePosition(control, context.ClientPosition);
-
-                if (control.Intersects(localPos))
-                {
-                    hitControl = control;
-                    break;
-                }
-            }
+            hitControl = HitTestRecursive(rootSnapshot[i], context.ClientPosition);
+            if (hitControl != null) break;
         }
 
         if (context.Type == MouseEventType.MouseDown)
@@ -127,43 +83,60 @@ public class UIRenderer : IDisposable
             SetFocus(hitControl);
         }
 
-        foreach (var control in snapshot)
-        {
-            if (!control.IsVisible) continue;
-
-            var localPos = GetLocalMousePosition(control, context.ClientPosition);
-            var localContext = context with { ClientPosition = localPos };
-
-            control.ProcessMouseEvent(localContext);
-        }
+        foreach (var root in rootSnapshot) DispatchMouseEventRecursive(root, context);
 
         if (context.Type == MouseEventType.MouseUp)
         {
             if (_pressedControl != null && _pressedControl == hitControl)
             {
                 var localPos = GetLocalMousePosition(_pressedControl, context.ClientPosition);
-                var clickContext = context with { Type = MouseEventType.Click, ClientPosition = localPos };
-                _pressedControl.ProcessMouseEvent(clickContext);
+                _pressedControl.ProcessMouseEvent(context with { Type = MouseEventType.Click, ClientPosition = localPos });
             }
-
             _pressedControl = null;
         }
     }
 
-    public bool ProcessKeyEvent(KeyEventContext context)
+    private static IUIControl? HitTestRecursive(IUIControl control, SKPoint cursorPosition, bool isMouseClipped = false)
     {
-        return _focusedControl != null && _focusedControl.IsVisible && _focusedControl.IsEnabled && _focusedControl.ProcessKeyEvent(context);
+        if (!control.IsVisible || !control.IsEnabled) return null;
+
+        var localCursor = GetLocalMousePosition(control, cursorPosition);
+        isMouseClipped = isMouseClipped || (control.ScissoringEnabled && !control.Bounds.Contains(localCursor));
+
+        if (isMouseClipped) return null;
+        if (control is UIControlBase baseCtrl) baseCtrl.EnsureChildrenSorted();
+
+        for (var i = control.Children.Count - 1; i >= 0; i--)
+        {
+            var hit = HitTestRecursive(control.Children[i], cursorPosition, isMouseClipped);
+            if (hit != null) return hit;
+        }
+
+        return control.Intersects(localCursor) ? control : null;
     }
 
-    private void OnControlFocusRequested(IUIControl control)
+    private void DispatchMouseEventRecursive(IUIControl control, MouseEventContext context, bool isMouseClipped = false)
     {
-        SetFocus(control);
+        if (!control.IsVisible) return;
+
+        var localPos = GetLocalMousePosition(control, context.ClientPosition);
+        var clipForSubtree = isMouseClipped || (control.ScissoringEnabled && !control.Bounds.Contains(localPos));
+        var effectivePos = (clipForSubtree && control != _pressedControl) ? new SKPoint(-99999f, -99999f) : localPos;
+
+        control.ProcessMouseEvent(context with { ClientPosition = effectivePos });
+
+        foreach (var child in control.Children)
+            DispatchMouseEventRecursive(child, context, clipForSubtree);
     }
+
+    public bool ProcessKeyEvent(KeyEventContext context) =>
+        _focusedControl?.IsVisible == true && _focusedControl.IsEnabled && _focusedControl.ProcessKeyEvent(context);
+
+    private void OnControlFocusRequested(IUIControl control) => SetFocus(control);
 
     private void SetFocus(IUIControl? target)
     {
         if (_focusedControl == target) return;
-
         _focusedControl?.IsFocused = false;
         _focusedControl = target;
         _focusedControl?.IsFocused = true;
@@ -179,61 +152,64 @@ public class UIRenderer : IDisposable
 
         lock (_controlsLock)
         {
-            if (_isDirty)
-            {
-                _controls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
-                _isDirty = false;
-            }
-
+            if (_isDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isDirty = false; }
             canvas.Clear(SKColors.White);
 
-            foreach (var control in _controls)
-            {
-                if (!control.IsVisible) continue;
-
-                canvas.SaveLayer(control.AlphaPaint);
-
-                if (control.RetainedModePositioning)
-                {
-                    var absolutePos = GetAbsoluteLocation(control);
-                    canvas.Translate(absolutePos.X, absolutePos.Y);
-                }
-
-                var localCursor = GetLocalMousePosition(control, cursorPosition);
-                control.Update(deltaTime, localCursor);
-
-                control.Draw(canvas);
-
-                canvas.Restore();
-            }
+            foreach (var control in _rootControls)
+                RenderRecursive(canvas, control, cursorPosition, deltaTime);
         }
+    }
+
+    private void RenderRecursive(SKCanvas canvas, IUIControl control, SKPoint cursorPosition, float deltaTime, bool isMouseClipped = false)
+    {
+        if (!control.IsVisible) return;
+
+        var localCursor = GetLocalMousePosition(control, cursorPosition);
+        var clipForSubtree = isMouseClipped || (control.ScissoringEnabled && !control.Bounds.Contains(localCursor));
+        var effectiveCursor = (clipForSubtree && control != _pressedControl) ? new SKPoint(-99999f, -99999f) : localCursor;
+
+        var saveCount = canvas.SaveCount;
+
+        if (control.Opacity < 0.999f)
+        {
+            using var layerPaint = new SKPaint { Color = SKColors.White.WithAlpha((byte)(Math.Clamp(control.Opacity, 0f, 1f) * 255)) };
+            canvas.SaveLayer(layerPaint);
+        }
+
+        canvas.Save();
+        if (control.RetainedModePositioning) canvas.Translate(control.Location.X, control.Location.Y);
+
+        control.Update(deltaTime, effectiveCursor);
+        control.Draw(canvas);
+
+        if (control.ScissoringEnabled)
+        {
+            canvas.Save();
+            canvas.ClipRect(control.Bounds, SKClipOperation.Intersect, antialias: true);
+        }
+
+        if (control is UIControlBase baseCtrl) baseCtrl.EnsureChildrenSorted();
+
+        for (var i = 0; i < control.Children.Count; i++)
+            RenderRecursive(canvas, control.Children[i], cursorPosition, deltaTime, clipForSubtree);
+
+        canvas.RestoreToCount(saveCount);
     }
 
     private static SKPoint GetLocalMousePosition(IUIControl control, SKPoint globalPoint)
     {
-        if (!control.RetainedModePositioning)
-            return globalPoint;
-
+        if (!control.RetainedModePositioning) return globalPoint;
         var absolutePos = GetAbsoluteLocation(control);
-        return new SKPoint(
-            globalPoint.X - absolutePos.X,
-            globalPoint.Y - absolutePos.Y
-        );
+        return new SKPoint(globalPoint.X - absolutePos.X, globalPoint.Y - absolutePos.Y);
     }
 
     private static SKPoint GetAbsoluteLocation(IUIControl control)
     {
-        var x = 0f;
-        var y = 0f;
-        var current = control;
-
-        while (current != null && current.RetainedModePositioning)
+        float x = 0, y = 0;
+        for (var current = control; current != null; current = current.Parent)
         {
-            x += current.Location.X;
-            y += current.Location.Y;
-            current = current.Parent;
+            if (current.RetainedModePositioning) { x += current.Location.X; y += current.Location.Y; }
         }
-
         return new SKPoint(x, y);
     }
 
@@ -249,27 +225,9 @@ public class UIRenderer : IDisposable
 
         if (disposing)
         {
-            lock (_controlsLock)
-            {
-                foreach (var control in _controls)
-                    control.Dispose();
-
-                _controls.Clear();
-            }
-
-            lock (_pendingAdd)
-            {
-                foreach (var control in _pendingAdd)
-                    control.Dispose();
-
-                _pendingAdd.Clear();
-            }
-
-            lock (_pendingRemove)
-            {
-                _pendingRemove.Clear();
-            }
-
+            lock (_controlsLock) { foreach (var control in _rootControls) control.Dispose(); _rootControls.Clear(); }
+            lock (_pendingAdd) { foreach (var control in _pendingAdd) control.Dispose(); _pendingAdd.Clear(); }
+            lock (_pendingRemove) _pendingRemove.Clear();
             _focusedControl = null;
             _pressedControl = null;
         }
