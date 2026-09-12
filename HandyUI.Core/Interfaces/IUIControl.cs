@@ -11,6 +11,9 @@ public interface IUIControl : IDisposable
     int ZIndex { get; set; }
     bool RetainedModePositioning { get; set; }
 
+    SKPaint AlphaPaint { get; }
+    float Opacity { get; set; }
+
     bool IsHovered { get; }
     bool IsMouseDown { get; }
     bool IsFocused { get; set; }

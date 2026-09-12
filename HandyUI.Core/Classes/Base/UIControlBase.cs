@@ -14,6 +14,18 @@ public abstract class UIControlBase : IUIControl
     public int ZIndex { get; set; }
     public bool RetainedModePositioning { get; set; } = true;
 
+    public SKPaint AlphaPaint { get; } = new();
+
+    public float Opacity
+    {
+        get;
+        set
+        {
+            field = Math.Clamp(value, 0f, 1f);
+            AlphaPaint.Color = SKColors.White.WithAlpha((byte)(255 * field));
+        }
+    } = 1.0f;
+
     public bool IsHovered { get; private set; }
     public bool IsMouseDown { get; private set; }
     public bool IsFocused { get; set; }
