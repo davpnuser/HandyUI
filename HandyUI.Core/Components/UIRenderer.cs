@@ -191,7 +191,7 @@ public class UIRenderer : IDisposable
             {
                 if (!control.IsVisible) continue;
 
-                canvas.Save();
+                canvas.SaveLayer(control.AlphaPaint);
 
                 if (control.RetainedModePositioning)
                 {
