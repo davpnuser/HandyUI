@@ -8,11 +8,85 @@ public abstract class UIControlBase : IUIControl
 {
     private bool _isDisposed;
 
-    public IUIControl? Parent { get; set; }
+    private readonly List<IUIControl> _children = [];
+    private bool _childrenDirty = false;
+
+    public IReadOnlyList<IUIControl> Children => _children.AsReadOnly();
+
+    public UIControlBase? Parent
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+
+            if (field is UIControlBase oldBase)
+            {
+                oldBase.RemoveChildInternal(this);
+            }
+
+            field = value;
+
+            if (field is UIControlBase newBase)
+            {
+                newBase.AddChildInternal(this);
+            }
+        }
+    }
+
+    internal void AddChildInternal(IUIControl child)
+    {
+        if (!_children.Contains(child))
+        {
+            _children.Add(child);
+            _childrenDirty = true;
+            OnChildAdded(child);
+        }
+    }
+
+    internal void RemoveChildInternal(IUIControl child)
+    {
+        if (_children.Remove(child))
+        {
+            _childrenDirty = true;
+            OnChildRemoved(child);
+        }
+    }
+
+    public void InvalidateChildrenOrder()
+    {
+        _childrenDirty = true;
+    }
+
+    internal void EnsureChildrenSorted()
+    {
+        if (_childrenDirty)
+        {
+            _children.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
+            _childrenDirty = false;
+        }
+    }
+
+    protected virtual void OnChildAdded(IUIControl control) { }
+    protected virtual void OnChildRemoved(IUIControl control) { }
+
     public SKPoint Location { get; set; } = SKPoint.Empty;
     public SKRect Bounds { get; set; }
     public int ZIndex { get; set; }
-    public bool RetainedModePositioning { get; set; } = true;
+    public bool InheritedPositioningEnabled { get; set; } = true;
+    public bool ScissoringEnabled { get; set; } = true;
+
+    public SKPaint AlphaPaint { get; } = new();
+
+    public float Opacity
+    {
+        get;
+        set
+        {
+            field = Math.Clamp(value, 0f, 1f);
+            AlphaPaint.Color = SKColors.White.WithAlpha((byte)(255 * field));
+        }
+    } = 1.0f;
 
     public bool IsHovered { get; private set; }
     public bool IsMouseDown { get; private set; }

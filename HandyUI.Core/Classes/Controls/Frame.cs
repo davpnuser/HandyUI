@@ -28,7 +28,7 @@ public class Frame : UIControlBase
     private readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
 
-    public Frame(float height = 150f, float width = 150f)
+    public Frame(float width = 150f, float height = 150f)
     {
         _height = height;
         _width = width;
