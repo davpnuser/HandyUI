@@ -4,26 +4,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>1.0.75.26256</AssemblyVersion>
+    <AssemblyVersion>1.1.0.26256</AssemblyVersion>
 	  
     <Title>HandyUI</Title>
 	<Description>Platform-agnostic Code-Only C# UI framework powered by SkiaSharp.</Description>
-	<PackageReleaseNotes>(NuGet) Release notes for:
- - HandyUI.Core (v1.0.50.26254)
- - HandyUI.WinForms (v1.0.52.26254)
-
-Changes
- - Made retained positioning mode on by default. (Child-Parent positioning)
-
-Improvements &amp; Bug Fixes
- - Fixed some control bugs.
- - Made controls consistent.
- - Made controls work with retained positioning mode.
- - Made the Resource Manager platform-agnostic.
-
-New Features &amp; UI Controls
- - Added new controls: CheckBox, ProgressBar, Slider, TextBox, and Frame
- - Created the Resource Manager Helper.</PackageReleaseNotes>
+	<PackageReleaseNotes>To see the release changelog, view the CHANGELOG.md file in the HandyUI GitHub repository root.</PackageReleaseNotes>
 	<PackageTags>ui;framework;skiasharp;code-only;gui;rendering</PackageTags>
 	<PackageId>HandyUI.Core</PackageId>
 	<Version>$(AssemblyVersion)</Version>
