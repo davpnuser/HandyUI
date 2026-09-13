@@ -177,7 +177,7 @@ public class UIRenderer : IDisposable
         }
 
         canvas.Save();
-        if (control.RetainedModePositioning) canvas.Translate(control.Location.X, control.Location.Y);
+        if (control.InheritedPositioningEnabled) canvas.Translate(control.Location.X, control.Location.Y);
 
         control.Update(deltaTime, effectiveCursor);
         control.Draw(canvas);
@@ -198,7 +198,7 @@ public class UIRenderer : IDisposable
 
     private static SKPoint GetLocalMousePosition(IUIControl control, SKPoint globalPoint)
     {
-        if (!control.RetainedModePositioning) return globalPoint;
+        if (!control.InheritedPositioningEnabled) return globalPoint;
         var absolutePos = GetAbsoluteLocation(control);
         return new SKPoint(globalPoint.X - absolutePos.X, globalPoint.Y - absolutePos.Y);
     }
@@ -208,7 +208,7 @@ public class UIRenderer : IDisposable
         float x = 0, y = 0;
         for (var current = control; current != null; current = current.Parent)
         {
-            if (current.RetainedModePositioning) { x += current.Location.X; y += current.Location.Y; }
+            if (current.InheritedPositioningEnabled) { x += current.Location.X; y += current.Location.Y; }
         }
         return new SKPoint(x, y);
     }
@@ -219,13 +219,31 @@ public class UIRenderer : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    private static void DisposeRecursively(IUIControl control)
+    {
+        foreach (var childControl in control.Children)
+        {
+            DisposeRecursively(childControl);
+        }
+
+        control.Dispose();
+    }
+
     protected virtual void Dispose(bool disposing)
     {
         if (_isDisposed) return;
 
         if (disposing)
         {
-            lock (_controlsLock) { foreach (var control in _rootControls) control.Dispose(); _rootControls.Clear(); }
+            lock (_controlsLock)
+            {
+                foreach (var control in _rootControls)
+                {
+                    DisposeRecursively(control);
+                }
+
+                _rootControls.Clear();
+            }
             lock (_pendingAdd) { foreach (var control in _pendingAdd) control.Dispose(); _pendingAdd.Clear(); }
             lock (_pendingRemove) _pendingRemove.Clear();
             _focusedControl = null;

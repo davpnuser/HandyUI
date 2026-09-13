@@ -40,6 +40,7 @@ public abstract class UIControlBase : IUIControl
         {
             _children.Add(child);
             _childrenDirty = true;
+            OnChildAdded(child);
         }
     }
 
@@ -48,6 +49,7 @@ public abstract class UIControlBase : IUIControl
         if (_children.Remove(child))
         {
             _childrenDirty = true;
+            OnChildRemoved(child);
         }
     }
 
@@ -65,10 +67,13 @@ public abstract class UIControlBase : IUIControl
         }
     }
 
+    protected virtual void OnChildAdded(IUIControl control) { }
+    protected virtual void OnChildRemoved(IUIControl control) { }
+
     public SKPoint Location { get; set; } = SKPoint.Empty;
     public SKRect Bounds { get; set; }
     public int ZIndex { get; set; }
-    public bool RetainedModePositioning { get; set; } = true;
+    public bool InheritedPositioningEnabled { get; set; } = true;
     public bool ScissoringEnabled { get; set; } = true;
 
     public SKPaint AlphaPaint { get; } = new();

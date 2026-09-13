@@ -49,14 +49,14 @@ if (ResourceManager.GetResourceByPath("Resources/HandyUI-Logo.png", out var imag
 
 #region Setting up the background
 
-//var backgroundFrame = new Frame(width: 820, height: 695)
-//{
-//    NormalColor = SKColor.Parse("#111117"),
-//    BorderColor = new(0, 0, 0, 0),
-//    CornerRadius = 0,
-//    ZIndex = -1
-//};
-//renderer.AddRootControl(backgroundFrame);
+var backgroundFrame = new Frame(width: 820, height: 695)
+{
+    NormalColor = SKColor.Parse("#111117"),
+    BorderColor = new(0, 0, 0, 0),
+    CornerRadius = 0,
+    ZIndex = -1
+};
+renderer.AddRootControl(backgroundFrame);
 
 #endregion
 
@@ -66,6 +66,7 @@ var bg = new Frame(200, 500)
 {
     Location = new(25, 25),
     BorderColor = new(0, 0, 0, 0),
+    NormalColor = new(0, 255, 0),
     CornerRadius = 0f,
 };
 renderer.AddRootControl(bg);
