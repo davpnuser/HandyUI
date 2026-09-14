@@ -3,6 +3,7 @@
     <File Path="THIRD-PARTY-NOTICES.txt" />
   </Folder>
   <Project Path="HandyUI.Core/HandyUI.Core.csproj" />
+  <Project Path="HandyUI.SilkNet/HandyUI.SilkNet.csproj" Id="26fe0261-0cb9-4f94-ade8-cce4f0bdd934" />
   <Project Path="HandyUI.TestApp/HandyUI.TestApp.csproj" />
   <Project Path="HandyUI.WinForms/HandyUI.WinForms.csproj" />
 </Solution>
