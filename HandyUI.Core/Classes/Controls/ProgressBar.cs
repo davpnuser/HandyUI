@@ -66,6 +66,50 @@ public class ProgressBar : UIControlBase
         Bounds = SKRect.Create(0, 0, width, height);
     }
 
+    public override Dictionary<string, object> Serialize()
+    {
+        return new Dictionary<string, object>
+        {
+            ["Width"] = Bounds.Width,
+            ["Height"] = Bounds.Height,
+            ["Minimum"] = Minimum,
+            ["Maximum"] = Maximum,
+            ["Value"] = Value,
+            ["CornerRadius"] = CornerRadius,
+            ["ShowPercentage"] = ShowPercentage,
+            ["TextSize"] = TextSize,
+            ["TrackColor"] = TrackColor.ToString(),
+            ["ProgressColor"] = ProgressColor.ToString(),
+            ["BorderColor"] = BorderColor.ToString(),
+            ["TextColorOnTrack"] = TextColorOnTrack.ToString(),
+            ["TextColorOnProgress"] = TextColorOnProgress.ToString()
+        };
+    }
+
+    public override void Deserialize(Dictionary<string, object> values)
+    {
+        var w = Bounds.Width;
+        var h = Bounds.Height;
+        if (values.TryGetValue("Width", out var wObj) && float.TryParse(wObj.ToString(), out var wVal)) w = wVal;
+        if (values.TryGetValue("Height", out var hObj) && float.TryParse(hObj.ToString(), out var hVal)) h = hVal;
+        Bounds = SKRect.Create(0, 0, w, h);
+
+        // Apply min/max before value so it doesn't clamp incorrectly
+        if (values.TryGetValue("Minimum", out var min) && float.TryParse(min.ToString(), out var minVal)) Minimum = minVal;
+        if (values.TryGetValue("Maximum", out var max) && float.TryParse(max.ToString(), out var maxVal)) Maximum = maxVal;
+        if (values.TryGetValue("Value", out var val) && float.TryParse(val.ToString(), out var vVal)) Value = vVal;
+
+        if (values.TryGetValue("CornerRadius", out var cr) && float.TryParse(cr.ToString(), out var crVal)) CornerRadius = crVal;
+        if (values.TryGetValue("ShowPercentage", out var sp) && bool.TryParse(sp.ToString(), out var spVal)) ShowPercentage = spVal;
+        if (values.TryGetValue("TextSize", out var ts) && float.TryParse(ts.ToString(), out var tsVal)) TextSize = tsVal;
+
+        if (values.TryGetValue("TrackColor", out var tc) && tc != null) TrackColor = SKColor.Parse(tc.ToString());
+        if (values.TryGetValue("ProgressColor", out var pc) && pc != null) ProgressColor = SKColor.Parse(pc.ToString());
+        if (values.TryGetValue("BorderColor", out var bc) && bc != null) BorderColor = SKColor.Parse(bc.ToString());
+        if (values.TryGetValue("TextColorOnTrack", out var tct) && tct != null) TextColorOnTrack = SKColor.Parse(tct.ToString());
+        if (values.TryGetValue("TextColorOnProgress", out var tcp) && tcp != null) TextColorOnProgress = SKColor.Parse(tcp.ToString());
+    }
+
     public override bool Intersects(SKPoint clientPoint)
     {
         return Bounds.Contains(clientPoint);

@@ -24,6 +24,9 @@ public interface IUIControl : IDisposable
     bool IsVisible { get; set; }
     bool IsEnabled { get; set; }
 
+    Dictionary<string, object> Serialize();
+    void Deserialize(Dictionary<string, object> values);
+
     event Action<IUIControl>? FocusRequested;
 
     void RequestFocus();

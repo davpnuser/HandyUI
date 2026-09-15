@@ -35,6 +35,28 @@ public class Frame : UIControlBase
         RecalculateBounds();
     }
 
+    public override Dictionary<string, object> Serialize()
+    {
+        return new Dictionary<string, object>
+        {
+            ["Width"] = Width,
+            ["Height"] = Height,
+            ["CornerRadius"] = CornerRadius,
+            ["NormalColor"] = NormalColor.ToString(),
+            ["BorderColor"] = BorderColor.ToString()
+        };
+    }
+
+    public override void Deserialize(Dictionary<string, object> values)
+    {
+        if (values.TryGetValue("Width", out var w) && float.TryParse(w.ToString(), out var wVal)) Width = wVal;
+        if (values.TryGetValue("Height", out var h) && float.TryParse(h.ToString(), out var hVal)) Height = hVal;
+        if (values.TryGetValue("CornerRadius", out var cr) && float.TryParse(cr.ToString(), out var crVal)) CornerRadius = crVal;
+
+        if (values.TryGetValue("NormalColor", out var nc) && nc != null) NormalColor = SKColor.Parse(nc.ToString());
+        if (values.TryGetValue("BorderColor", out var bc) && bc != null) BorderColor = SKColor.Parse(bc.ToString());
+    }
+
     private void RecalculateBounds()
     {
         Bounds = SKRect.Create(0, 0, _width, _height);

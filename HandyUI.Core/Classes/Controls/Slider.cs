@@ -78,6 +78,39 @@ public class Slider : UIControlBase
         _animatedThumbRadius = ThumbRadius;
     }
 
+    public override Dictionary<string, object> Serialize()
+    {
+        return new Dictionary<string, object>
+        {
+            ["Width"] = Width,
+            ["Minimum"] = Minimum,
+            ["Maximum"] = Maximum,
+            ["Value"] = Value,
+            ["TrackHeight"] = TrackHeight,
+            ["ThumbRadius"] = ThumbRadius,
+            ["TrackColor"] = TrackColor.ToString(),
+            ["ProgressColor"] = ProgressColor.ToString(),
+            ["ThumbColor"] = ThumbColor.ToString(),
+            ["ThumbHoverColor"] = ThumbHoverColor.ToString()
+        };
+    }
+
+    public override void Deserialize(Dictionary<string, object> values)
+    {
+        if (values.TryGetValue("Minimum", out var min) && float.TryParse(min.ToString(), out var minVal)) Minimum = minVal;
+        if (values.TryGetValue("Maximum", out var max) && float.TryParse(max.ToString(), out var maxVal)) Maximum = maxVal;
+        if (values.TryGetValue("Value", out var val) && float.TryParse(val.ToString(), out var vVal)) Value = vVal;
+
+        if (values.TryGetValue("TrackHeight", out var th) && float.TryParse(th.ToString(), out var thVal)) TrackHeight = thVal;
+        if (values.TryGetValue("ThumbRadius", out var tr) && float.TryParse(tr.ToString(), out var trVal)) ThumbRadius = trVal;
+        if (values.TryGetValue("Width", out var w) && float.TryParse(w.ToString(), out var wVal)) Width = wVal;
+
+        if (values.TryGetValue("TrackColor", out var tc) && tc != null) TrackColor = SKColor.Parse(tc.ToString());
+        if (values.TryGetValue("ProgressColor", out var pc) && pc != null) ProgressColor = SKColor.Parse(pc.ToString());
+        if (values.TryGetValue("ThumbColor", out var thc) && thc != null) ThumbColor = SKColor.Parse(thc.ToString());
+        if (values.TryGetValue("ThumbHoverColor", out var thhc) && thhc != null) ThumbHoverColor = SKColor.Parse(thhc.ToString());
+    }
+
     private void RecalculateBounds(float width, float height)
     {
         Bounds = SKRect.Create(Bounds.Left, Bounds.Top, Math.Max(0f, width), height);

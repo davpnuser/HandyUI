@@ -55,6 +55,42 @@ public class CheckBox : UIControlBase
         RecalculateBounds();
     }
 
+    public override Dictionary<string, object> Serialize()
+    {
+        return new Dictionary<string, object>
+        {
+            ["Text"] = Text,
+            ["IsChecked"] = IsChecked,
+            ["BoxSize"] = BoxSize,
+            ["Spacing"] = Spacing,
+            ["CornerRadius"] = CornerRadius,
+            ["TextSize"] = TextSize,
+            ["BoxOffColor"] = BoxOffColor.ToString(),
+            ["BoxOnColor"] = BoxOnColor.ToString(),
+            ["BoxHoverColor"] = BoxHoverColor.ToString(),
+            ["BorderColor"] = BorderColor.ToString(),
+            ["CheckMarkColor"] = CheckMarkColor.ToString(),
+            ["TextColor"] = TextColor.ToString()
+        };
+    }
+
+    public override void Deserialize(Dictionary<string, object> values)
+    {
+        if (values.TryGetValue("Text", out var t)) Text = t?.ToString() ?? string.Empty;
+        if (values.TryGetValue("IsChecked", out var chk) && bool.TryParse(chk.ToString(), out var chkVal)) IsChecked = chkVal;
+        if (values.TryGetValue("BoxSize", out var bs) && float.TryParse(bs.ToString(), out var bsVal)) BoxSize = bsVal;
+        if (values.TryGetValue("Spacing", out var sp) && float.TryParse(sp.ToString(), out var spVal)) Spacing = spVal;
+        if (values.TryGetValue("CornerRadius", out var cr) && float.TryParse(cr.ToString(), out var crVal)) CornerRadius = crVal;
+        if (values.TryGetValue("TextSize", out var ts) && float.TryParse(ts.ToString(), out var tsVal)) TextSize = tsVal;
+
+        if (values.TryGetValue("BoxOffColor", out var boc) && boc != null) BoxOffColor = SKColor.Parse(boc.ToString());
+        if (values.TryGetValue("BoxOnColor", out var bonc) && bonc != null) BoxOnColor = SKColor.Parse(bonc.ToString());
+        if (values.TryGetValue("BoxHoverColor", out var bhc) && bhc != null) BoxHoverColor = SKColor.Parse(bhc.ToString());
+        if (values.TryGetValue("BorderColor", out var bc) && bc != null) BorderColor = SKColor.Parse(bc.ToString());
+        if (values.TryGetValue("CheckMarkColor", out var cmc) && cmc != null) CheckMarkColor = SKColor.Parse(cmc.ToString());
+        if (values.TryGetValue("TextColor", out var tc) && tc != null) TextColor = SKColor.Parse(tc.ToString());
+    }
+
     private void RecalculateBounds()
     {
         var textWidth = string.IsNullOrEmpty(_text) ? 0f : _font.MeasureText(_text);

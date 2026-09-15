@@ -94,6 +94,10 @@ public abstract class UIControlBase : IUIControl
     public bool IsVisible { get; set; } = true;
     public bool IsEnabled { get; set; } = true;
 
+    public virtual Dictionary<string, object> Serialize()
+        => [];
+    public virtual void Deserialize(Dictionary<string, object> values) { }
+
     public event Action<IUIControl>? FocusRequested;
 
     public void RequestFocus()

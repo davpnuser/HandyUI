@@ -60,6 +60,24 @@ public class ImageLabel : UIControlBase
         RecalculateBounds();
     }
 
+    public override Dictionary<string, object> Serialize()
+    {
+        return new Dictionary<string, object>
+        {
+            ["AutoSize"] = AutoSize,
+            ["Width"] = _explicitWidth ?? -1f,
+            ["Height"] = _explicitHeight ?? -1f
+        };
+    }
+
+    public override void Deserialize(Dictionary<string, object> values)
+    {
+        if (values.TryGetValue("AutoSize", out var auto) && bool.TryParse(auto.ToString(), out var autoVal)) AutoSize = autoVal;
+
+        if (values.TryGetValue("Width", out var w) && float.TryParse(w.ToString(), out var wVal) && wVal >= 0) Width = wVal;
+        if (values.TryGetValue("Height", out var h) && float.TryParse(h.ToString(), out var hVal) && hVal >= 0) Height = hVal;
+    }
+
     public void ClearExplicitSize()
     {
         _explicitWidth = null;

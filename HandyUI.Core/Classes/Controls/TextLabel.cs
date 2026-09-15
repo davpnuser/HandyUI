@@ -47,6 +47,23 @@ public class TextLabel : UIControlBase
         Text = text;
     }
 
+    public override Dictionary<string, object> Serialize()
+    {
+        return new Dictionary<string, object>
+        {
+            ["Text"] = Text,
+            ["TextSize"] = TextSize,
+            ["TextColor"] = TextColor.ToString()
+        };
+    }
+
+    public override void Deserialize(Dictionary<string, object> values)
+    {
+        if (values.TryGetValue("Text", out var t)) Text = t?.ToString() ?? string.Empty;
+        if (values.TryGetValue("TextSize", out var ts) && float.TryParse(ts.ToString(), out var tsVal)) TextSize = tsVal;
+        if (values.TryGetValue("TextColor", out var tc) && tc != null) TextColor = SKColor.Parse(tc.ToString());
+    }
+
     private void RecalculateBounds()
     {
         var width = _font.MeasureText(Text);

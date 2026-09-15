@@ -2,9 +2,34 @@
 
 using HandyUI.Core.Classes.Controls;
 using HandyUI.Core.Components;
+using HandyUI.Core.Interfaces;
 using HandyUI.WinForms.Classes.Helper;
 using HandyUI.WinForms.Components;
 using SkiaSharp;
+using System.Runtime.CompilerServices;
+
+static async void HotReloadControl(IUIControl control, UIRenderer renderer, int wait = 1000)
+{
+    var objectType = control.GetType();
+    var state = control.Serialize();
+
+    if (control.Parent == null)
+    {
+        renderer.RemoveRootControl(control);
+    }
+    else if (control.Parent != null)
+    {
+        control.Parent = null;
+    }
+
+    control.Dispose();
+
+    await Task.Delay(wait);
+
+    var newObject = (IUIControl)RuntimeHelpers.GetUninitializedObject(objectType);
+    renderer.AddRootControl(newObject);
+    newObject.Deserialize(state);
+}
 
 #region Setting up the window
 
@@ -62,18 +87,9 @@ renderer.AddRootControl(backgroundFrame);
 
 #region Setting up the controls showcase
 
-var bg = new Frame(200, 500)
-{
-    Location = new(25, 25),
-    BorderColor = new(0, 0, 0, 0),
-    NormalColor = new(0, 255, 0),
-    CornerRadius = 0f,
-};
-renderer.AddRootControl(bg);
-
 var bg2 = new Frame(300, 300)
 {
-    Parent = bg,
+    Parent = backgroundFrame,
     Location = new(50, 25),
     BorderColor = new(0, 0, 0, 0),
     CornerRadius = 0f,
@@ -85,6 +101,19 @@ var childButton = new TextButton("click me!")
     Parent = bg2,
     Location = new(90, -18)
 };
+
+var btn = new TextButton("controls")
+{
+    ZIndex = 1,
+    Location = new(25, 25),
+    OnClick = async () =>
+    {
+        HotReloadControl(backgroundFrame, renderer);
+        HotReloadControl(bg2, renderer);
+        HotReloadControl(childButton, renderer);
+    }
+};
+renderer.AddRootControl(btn);
 
 #endregion
 

@@ -85,6 +85,48 @@ public class ImageButton : UIControlBase
         RecalculateBounds();
     }
 
+    public override Dictionary<string, object> Serialize()
+    {
+        return new Dictionary<string, object>
+        {
+            ["Width"] = Width,
+            ["Height"] = Height,
+            ["AutoSizeImage"] = AutoSizeImage,
+            ["ImageWidth"] = _explicitImageWidth ?? -1f,
+            ["ImageHeight"] = _explicitImageHeight ?? -1f,
+            ["Text"] = Text,
+            ["CornerRadius"] = CornerRadius,
+            ["Spacing"] = Spacing,
+            ["TextSize"] = TextSize,
+            ["BackgroundColor"] = BackgroundColor.ToString(),
+            ["HoverColor"] = HoverColor.ToString(),
+            ["PressedColor"] = PressedColor.ToString(),
+            ["BorderColor"] = BorderColor.ToString(),
+            ["TextColor"] = TextColor.ToString()
+        };
+    }
+
+    public override void Deserialize(Dictionary<string, object> values)
+    {
+        if (values.TryGetValue("Width", out var w) && float.TryParse(w.ToString(), out var wVal)) Width = wVal;
+        if (values.TryGetValue("Height", out var h) && float.TryParse(h.ToString(), out var hVal)) Height = hVal;
+        if (values.TryGetValue("AutoSizeImage", out var auto) && bool.TryParse(auto.ToString(), out var autoVal)) AutoSizeImage = autoVal;
+
+        if (values.TryGetValue("ImageWidth", out var iw) && float.TryParse(iw.ToString(), out var iwVal) && iwVal >= 0) ImageWidth = iwVal;
+        if (values.TryGetValue("ImageHeight", out var ih) && float.TryParse(ih.ToString(), out var ihVal) && ihVal >= 0) ImageHeight = ihVal;
+
+        if (values.TryGetValue("Text", out var t)) Text = t?.ToString() ?? string.Empty;
+        if (values.TryGetValue("CornerRadius", out var cr) && float.TryParse(cr.ToString(), out var crVal)) CornerRadius = crVal;
+        if (values.TryGetValue("Spacing", out var sp) && float.TryParse(sp.ToString(), out var spVal)) Spacing = spVal;
+        if (values.TryGetValue("TextSize", out var ts) && float.TryParse(ts.ToString(), out var tsVal)) TextSize = tsVal;
+
+        if (values.TryGetValue("BackgroundColor", out var bg) && bg != null) BackgroundColor = SKColor.Parse(bg.ToString());
+        if (values.TryGetValue("HoverColor", out var hc) && hc != null) HoverColor = SKColor.Parse(hc.ToString());
+        if (values.TryGetValue("PressedColor", out var pc) && pc != null) PressedColor = SKColor.Parse(pc.ToString());
+        if (values.TryGetValue("BorderColor", out var bc) && bc != null) BorderColor = SKColor.Parse(bc.ToString());
+        if (values.TryGetValue("TextColor", out var tc) && tc != null) TextColor = SKColor.Parse(tc.ToString());
+    }
+
     public void ClearExplicitImageSize()
     {
         _explicitImageWidth = null;

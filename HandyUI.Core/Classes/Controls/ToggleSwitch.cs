@@ -49,6 +49,38 @@ public class ToggleSwitch : UIControlBase
         RecalculateBounds();
     }
 
+    public override Dictionary<string, object> Serialize()
+    {
+        return new Dictionary<string, object>
+        {
+            ["Width"] = Width,
+            ["Height"] = Height,
+            ["IsChecked"] = IsChecked,
+            ["CornerRadius"] = CornerRadius,
+            ["TrackOffColor"] = TrackOffColor.ToString(),
+            ["TrackOnColor"] = TrackOnColor.ToString(),
+            ["TrackHoverColor"] = TrackHoverColor.ToString(),
+            ["BorderColor"] = BorderColor.ToString(),
+            ["KnobColor"] = KnobColor.ToString(),
+            ["KnobOnColor"] = KnobOnColor.ToString()
+        };
+    }
+
+    public override void Deserialize(Dictionary<string, object> values)
+    {
+        if (values.TryGetValue("Width", out var w) && float.TryParse(w.ToString(), out var wVal)) Width = wVal;
+        if (values.TryGetValue("Height", out var h) && float.TryParse(h.ToString(), out var hVal)) Height = hVal;
+        if (values.TryGetValue("IsChecked", out var chk) && bool.TryParse(chk.ToString(), out var chkVal)) IsChecked = chkVal;
+        if (values.TryGetValue("CornerRadius", out var cr) && float.TryParse(cr.ToString(), out var crVal)) CornerRadius = crVal;
+
+        if (values.TryGetValue("TrackOffColor", out var toc) && toc != null) TrackOffColor = SKColor.Parse(toc.ToString());
+        if (values.TryGetValue("TrackOnColor", out var tonc) && tonc != null) TrackOnColor = SKColor.Parse(tonc.ToString());
+        if (values.TryGetValue("TrackHoverColor", out var thc) && thc != null) TrackHoverColor = SKColor.Parse(thc.ToString());
+        if (values.TryGetValue("BorderColor", out var bc) && bc != null) BorderColor = SKColor.Parse(bc.ToString());
+        if (values.TryGetValue("KnobColor", out var kc) && kc != null) KnobColor = SKColor.Parse(kc.ToString());
+        if (values.TryGetValue("KnobOnColor", out var konc) && konc != null) KnobOnColor = SKColor.Parse(konc.ToString());
+    }
+
     private void RecalculateBounds()
     {
         Bounds = SKRect.Create(0, 0, _width, _height);

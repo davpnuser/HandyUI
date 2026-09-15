@@ -56,6 +56,42 @@ public class ToggleButton : UIControlBase
         RecalculateBounds();
     }
 
+    public override Dictionary<string, object> Serialize()
+    {
+        return new Dictionary<string, object>
+        {
+            ["Width"] = Width,
+            ["Height"] = Height,
+            ["Text"] = Text,
+            ["IsChecked"] = IsChecked,
+            ["CornerRadius"] = CornerRadius,
+            ["TextSize"] = TextSize,
+            ["OffColor"] = OffColor.ToString(),
+            ["OnColor"] = OnColor.ToString(),
+            ["HoverColor"] = HoverColor.ToString(),
+            ["BorderColor"] = BorderColor.ToString(),
+            ["TextOffColor"] = TextOffColor.ToString(),
+            ["TextOnColor"] = TextOnColor.ToString()
+        };
+    }
+
+    public override void Deserialize(Dictionary<string, object> values)
+    {
+        if (values.TryGetValue("Width", out var w) && float.TryParse(w.ToString(), out var wVal)) Width = wVal;
+        if (values.TryGetValue("Height", out var h) && float.TryParse(h.ToString(), out var hVal)) Height = hVal;
+        if (values.TryGetValue("Text", out var t)) Text = t?.ToString() ?? string.Empty;
+        if (values.TryGetValue("IsChecked", out var chk) && bool.TryParse(chk.ToString(), out var chkVal)) IsChecked = chkVal;
+        if (values.TryGetValue("CornerRadius", out var cr) && float.TryParse(cr.ToString(), out var crVal)) CornerRadius = crVal;
+        if (values.TryGetValue("TextSize", out var ts) && float.TryParse(ts.ToString(), out var tsVal)) TextSize = tsVal;
+
+        if (values.TryGetValue("OffColor", out var oc) && oc != null) OffColor = SKColor.Parse(oc.ToString());
+        if (values.TryGetValue("OnColor", out var onc) && onc != null) OnColor = SKColor.Parse(onc.ToString());
+        if (values.TryGetValue("HoverColor", out var hc) && hc != null) HoverColor = SKColor.Parse(hc.ToString());
+        if (values.TryGetValue("BorderColor", out var bc) && bc != null) BorderColor = SKColor.Parse(bc.ToString());
+        if (values.TryGetValue("TextOffColor", out var toc) && toc != null) TextOffColor = SKColor.Parse(toc.ToString());
+        if (values.TryGetValue("TextOnColor", out var tnc) && tnc != null) TextOnColor = SKColor.Parse(tnc.ToString());
+    }
+
     private void RecalculateBounds()
     {
         Bounds = SKRect.Create(0, 0, _width, _height);
