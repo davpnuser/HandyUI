@@ -5,35 +5,44 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class ProgressBar : UIControlBase
 {
-    private float _value;
-    private float _minimum;
-    private float _maximum = 100f;
     private float _animatedValue;
+
+    public float Width
+    {
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = 200f;
+
+    public float Height
+    {
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = 20f;
 
     public float Minimum
     {
-        get => _minimum;
+        get;
         set
         {
-            _minimum = value;
-            Value = Math.Clamp(_value, _minimum, _maximum);
+            field = value;
+            Value = Math.Clamp(Value, field, Maximum);
         }
     }
 
     public float Maximum
     {
-        get => _maximum;
+        get;
         set
         {
-            _maximum = value;
-            Value = Math.Clamp(_value, _minimum, _maximum);
+            field = value;
+            Value = Math.Clamp(Value, Minimum, field);
         }
-    }
+    } = 100f;
 
     public float Value
     {
-        get => _value;
-        set => _value = Math.Clamp(value, _minimum, _maximum);
+        get;
+        set => field = Math.Clamp(value, Minimum, Maximum);
     }
 
     public float CornerRadius { get; set; } = 6f;
@@ -45,11 +54,11 @@ public class ProgressBar : UIControlBase
         set => _font.Size = value;
     }
 
-    public SKColor TrackColor { get; set; } = SKColor.Parse("#313244");
-    public SKColor ProgressColor { get; set; } = SKColor.Parse("#CBA6F7");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#45475A");
-    public SKColor TextColorOnTrack { get; set; } = SKColor.Parse("#CDD6F4");
-    public SKColor TextColorOnProgress { get; set; } = SKColor.Parse("#11111B");
+    public SKColor TrackColor { get; set; } = SKColor.Parse("#7abdff");
+    public SKColor ProgressColor { get; set; } = SKColor.Parse("#1d72eb");
+    public SKColor BorderColor { get; set; } = SKColor.Parse("#3b82f6");
+    public SKColor TextColorOnTrack { get; set; } = SKColor.Parse("#040316");
+    public SKColor TextColorOnProgress { get; set; } = SKColor.Parse("#fbfbfe");
 
     private readonly SKPaint _trackPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _progressPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
@@ -57,13 +66,9 @@ public class ProgressBar : UIControlBase
     private readonly SKPaint _textPaint = new() { IsAntialias = true };
     private readonly SKFont _font = new(SKTypeface.Default, 12f) { Subpixel = true };
 
-    public ProgressBar(float width = 200f, float height = 20f, float min = 0f, float max = 100f, float value = 0f)
+    private void RecalculateBounds()
     {
-        _minimum = min;
-        _maximum = max;
-        _value = Math.Clamp(value, min, max);
-        _animatedValue = _value;
-        Bounds = SKRect.Create(0, 0, width, height);
+        Bounds = SKRect.Create(0, 0, Width, Height);
     }
 
     public override bool Intersects(SKPoint clientPoint)
@@ -73,19 +78,20 @@ public class ProgressBar : UIControlBase
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        _animatedValue += (_value - _animatedValue) * deltaTime * 12f;
+        _animatedValue += (Value - _animatedValue) * deltaTime * 12f;
     }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
+        RecalculateBounds();
         var rect = SKRect.Create(0, 0, Bounds.Width, Bounds.Height);
 
         _trackPaint.Color = TrackColor;
         canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _trackPaint);
 
-        var normalized = (_maximum > _minimum) ? (_animatedValue - _minimum) / (_maximum - _minimum) : 0f;
+        var normalized = (Maximum > Minimum) ? (_animatedValue - Minimum) / (Maximum - Minimum) : 0f;
         normalized = Math.Clamp(normalized, 0f, 1f);
         var fillWidth = Bounds.Width * normalized;
 

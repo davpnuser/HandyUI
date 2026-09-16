@@ -6,21 +6,27 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class CheckBox : UIControlBase
 {
-    private string _text = "CheckBox";
-
     public string Text
     {
-        get => _text;
-        set { _text = value; RecalculateBounds(); }
-    }
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = "CheckBox";
 
     public bool IsChecked { get; set; }
 
-    public float BoxSize { get; set { field = value; RecalculateBounds(); } } = 20f;
+    public float BoxSize
+    {
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = 20f;
 
-    public float Spacing { get; set { field = value; RecalculateBounds(); } } = 8f;
+    public float Spacing
+    {
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = 8f;
 
-    public float CornerRadius { get; set; } = 4f;
+    public float CornerRadius { get; set; } = 0f;
 
     public float TextSize
     {
@@ -28,17 +34,17 @@ public class CheckBox : UIControlBase
         set { _font.Size = value; RecalculateBounds(); }
     }
 
-    public SKColor BoxOffColor { get; set; } = SKColor.Parse("#1E1E2E");
-    public SKColor BoxOnColor { get; set; } = SKColor.Parse("#CBA6F7");
-    public SKColor BoxHoverColor { get; set; } = SKColor.Parse("#313244");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#585B70");
-    public SKColor CheckMarkColor { get; set; } = SKColor.Parse("#11111B");
-    public SKColor TextColor { get; set; } = SKColor.Parse("#CDD6F4");
+    public SKColor BoxOffColor { get; set; } = SKColor.Parse("#fbfbfe");
+    public SKColor BoxOnColor { get; set; } = SKColor.Parse("#1d72eb");
+    public SKColor BoxHoverColor { get; set; } = SKColor.Parse("#7abdff");
+    public SKColor BorderColor { get; set; } = SKColor.Parse("#3b82f6");
+    public SKColor CheckMarkColor { get; set; } = SKColor.Parse("#fbfbfe");
+    public SKColor TextColor { get; set; } = SKColor.Parse("#040316");
 
     public Action<bool>? OnCheckChanged { get; set; }
 
     private float _animProgress;
-    private SKColor _animatedBoxColor;
+    private SKColor _animatedBoxColor = SKColor.Parse("#1E1E2E");
 
     private readonly SKPaint _boxPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
@@ -46,22 +52,13 @@ public class CheckBox : UIControlBase
     private readonly SKPaint _textPaint = new() { IsAntialias = true };
     private readonly SKFont _font = new(SKTypeface.Default, 14f) { Subpixel = true };
 
-    public CheckBox(string text = "CheckBox", bool isChecked = false)
-    {
-        _text = text;
-        IsChecked = isChecked;
-        _animProgress = isChecked ? 1f : 0f;
-        _animatedBoxColor = isChecked ? BoxOnColor : BoxOffColor;
-        RecalculateBounds();
-    }
-
     private void RecalculateBounds()
     {
-        var textWidth = string.IsNullOrEmpty(_text) ? 0f : _font.MeasureText(_text);
+        var textWidth = string.IsNullOrEmpty(Text) ? 0f : _font.MeasureText(Text);
         var metrics = _font.Metrics;
         var textHeight = metrics.Descent - metrics.Ascent;
 
-        var totalWidth = BoxSize + (string.IsNullOrEmpty(_text) ? 0f : Spacing + textWidth);
+        var totalWidth = BoxSize + (string.IsNullOrEmpty(Text) ? 0f : Spacing + textWidth);
         var totalHeight = Math.Max(BoxSize, textHeight);
 
         Bounds = SKRect.Create(0, 0, totalWidth, totalHeight);
@@ -71,6 +68,7 @@ public class CheckBox : UIControlBase
     {
         if (!IsVisible) return;
 
+        RecalculateBounds();
         var boxY = (Bounds.Height - BoxSize) / 2f;
         var boxRect = SKRect.Create(0, boxY, BoxSize, BoxSize);
 
@@ -97,7 +95,7 @@ public class CheckBox : UIControlBase
             canvas.DrawPath(path, _checkPaint);
         }
 
-        if (!string.IsNullOrEmpty(_text))
+        if (!string.IsNullOrEmpty(Text))
         {
             _textPaint.Color = TextColor;
             var metrics = _font.Metrics;
@@ -105,7 +103,7 @@ public class CheckBox : UIControlBase
             var textX = BoxSize + Spacing;
             var textY = ((Bounds.Height + textHeight) / 2f) - metrics.Descent;
 
-            canvas.DrawText(_text, textX, textY, SKTextAlign.Left, _font, _textPaint);
+            canvas.DrawText(Text, textX, textY, SKTextAlign.Left, _font, _textPaint);
         }
     }
 

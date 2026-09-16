@@ -6,20 +6,17 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class TextButton : UIControlBase
 {
-    private float _width;
-    private float _height;
-
     public float Width
     {
-        get => _width;
-        set { _width = value; RecalculateBounds(); }
-    }
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = 120f;
 
     public float Height
     {
-        get => _height;
-        set { _height = value; RecalculateBounds(); }
-    }
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = 36f;
 
     public string Text { get; set; } = "Button";
     public float CornerRadius { get; set; } = 6f;
@@ -30,39 +27,31 @@ public class TextButton : UIControlBase
         set => _font.Size = value;
     }
 
-    public SKColor NormalColor { get; set; } = SKColor.Parse("#1E1E2E");
-    public SKColor HoverColor { get; set; } = SKColor.Parse("#313244");
-    public SKColor PressedColor { get; set; } = SKColor.Parse("#585B70");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#CBA6F7");
-    public SKColor TextColor { get; set; } = SKColor.Parse("#CDD6F4");
+    public SKColor NormalColor { get; set; } = SKColor.Parse("#fbfbfe");
+    public SKColor HoverColor { get; set; } = SKColor.Parse("#7abdff");
+    public SKColor PressedColor { get; set; } = SKColor.Parse("#3b82f6");
+    public SKColor BorderColor { get; set; } = SKColor.Parse("#1d72eb");
+    public SKColor TextColor { get; set; } = SKColor.Parse("#040316");
 
     public Action? OnClick { get; set; }
 
-    private SKColor _animatedColor;
+    private SKColor _animatedColor = SKColor.Parse("#fbfbfe");
     private readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
     private readonly SKPaint _textPaint = new() { IsAntialias = true };
     private readonly SKFont _font = new(SKTypeface.Default, 14f) { Subpixel = true };
 
-    public TextButton(string text = "Button", float width = 120f, float height = 36f)
-    {
-        Text = text;
-        _width = width;
-        _height = height;
-        _animatedColor = NormalColor;
-        RecalculateBounds();
-    }
-
     private void RecalculateBounds()
     {
-        Bounds = SKRect.Create(0, 0, _width, _height);
+        Bounds = SKRect.Create(0, 0, Width, Height);
     }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
-        var rect = SKRect.Create(0, 0, _width, _height);
+        RecalculateBounds();
+        var rect = SKRect.Create(0, 0, Width, Height);
 
         _fillPaint.Color = _animatedColor;
         _borderPaint.Color = BorderColor;

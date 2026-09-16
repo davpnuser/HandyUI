@@ -6,22 +6,20 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class ImageButton : UIControlBase
 {
-    private float _width;
-    private float _height;
     private float? _explicitImageWidth;
     private float? _explicitImageHeight;
 
     public float Width
     {
-        get => _width;
-        set { _width = value; RecalculateBounds(); }
-    }
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = 120f;
 
     public float Height
     {
-        get => _height;
-        set { _height = value; RecalculateBounds(); }
-    }
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = 36f;
 
     public bool AutoSizeImage { get; set; } = true;
 
@@ -58,32 +56,22 @@ public class ImageButton : UIControlBase
         set => _font.Size = value;
     }
 
-    public SKColor BackgroundColor { get; set; } = SKColor.Parse("#1E1E2E");
-    public SKColor HoverColor { get; set; } = SKColor.Parse("#313244");
-    public SKColor PressedColor { get; set; } = SKColor.Parse("#45475A");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#585B70");
-    public SKColor TextColor { get; set; } = SKColor.Parse("#CDD6F4");
+    public SKColor BackgroundColor { get; set; } = SKColor.Parse("#fbfbfe");
+    public SKColor HoverColor { get; set; } = SKColor.Parse("#7abdff");
+    public SKColor PressedColor { get; set; } = SKColor.Parse("#3b82f6");
+    public SKColor BorderColor { get; set; } = SKColor.Parse("#3b82f6");
+    public SKColor TextColor { get; set; } = SKColor.Parse("#040316");
 
     public Action? OnClick { get; set; }
 
     private bool _isPressed;
-    private SKColor _animatedFillColor;
+    private SKColor _animatedFillColor = SKColor.Parse("#fbfbfe");
     private static readonly SKSamplingOptions HighSampling = new(SKFilterMode.Linear, SKMipmapMode.Linear);
     private readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
     private readonly SKPaint _imagePaint = new() { IsAntialias = true };
     private readonly SKPaint _textPaint = new() { IsAntialias = true };
     private readonly SKFont _font = new(SKTypeface.Default, 14f) { Subpixel = true };
-
-    public ImageButton(SKImage? image = null, string text = "", float width = 120f, float height = 36f)
-    {
-        Image = image;
-        Text = text;
-        _width = width;
-        _height = height;
-        _animatedFillColor = BackgroundColor;
-        RecalculateBounds();
-    }
 
     public void ClearExplicitImageSize()
     {
@@ -120,14 +108,15 @@ public class ImageButton : UIControlBase
 
     private void RecalculateBounds()
     {
-        Bounds = SKRect.Create(0, 0, _width, _height);
+        Bounds = SKRect.Create(0, 0, Width, Height);
     }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
-        var rect = SKRect.Create(0, 0, _width, _height);
+        RecalculateBounds();
+        var rect = SKRect.Create(0, 0, Width, Height);
 
         _fillPaint.Color = _animatedFillColor;
         _borderPaint.Color = BorderColor;

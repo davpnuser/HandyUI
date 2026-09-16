@@ -7,10 +7,21 @@ namespace HandyUI.Core.Classes.Controls;
 public class TextBox : UIControlBase
 {
     private string _text = string.Empty;
-    private string _placeholderText = "Type here...";
     private int _caretIndex;
     private float _blinkTimer;
     private bool _showCaret = true;
+
+    public float Width
+    {
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = 200f;
+
+    public float Height
+    {
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = 36f;
 
     public string Text
     {
@@ -25,9 +36,9 @@ public class TextBox : UIControlBase
 
     public string PlaceholderText
     {
-        get => _placeholderText;
-        set => _placeholderText = value ?? string.Empty;
-    }
+        get;
+        set => field = value ?? string.Empty;
+    } = "Type here...";
 
     public float CornerRadius { get; set; } = 6f;
     public float PaddingX { get; set; } = 10f;
@@ -38,12 +49,12 @@ public class TextBox : UIControlBase
         set => _font.Size = value;
     }
 
-    public SKColor BackgroundColor { get; set; } = SKColor.Parse("#1E1E2E");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#45475A");
-    public SKColor FocusBorderColor { get; set; } = SKColor.Parse("#CBA6F7");
-    public SKColor TextColor { get; set; } = SKColor.Parse("#CDD6F4");
-    public SKColor PlaceholderColor { get; set; } = SKColor.Parse("#6C7086");
-    public SKColor CaretColor { get; set; } = SKColor.Parse("#CBA6F7");
+    public SKColor BackgroundColor { get; set; } = SKColor.Parse("#fbfbfe");
+    public SKColor BorderColor { get; set; } = SKColor.Parse("#7abdff");
+    public SKColor FocusBorderColor { get; set; } = SKColor.Parse("#1d72eb");
+    public SKColor TextColor { get; set; } = SKColor.Parse("#040316");
+    public SKColor PlaceholderColor { get; set; } = SKColor.Parse("#3b82f6");
+    public SKColor CaretColor { get; set; } = SKColor.Parse("#1d72eb");
 
     public Action<string>? OnTextChanged { get; set; }
     public Action<string>? OnSubmit { get; set; }
@@ -54,12 +65,9 @@ public class TextBox : UIControlBase
     private readonly SKPaint _caretPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
     private readonly SKFont _font = new(SKTypeface.Default, 13f) { Subpixel = true };
 
-    public TextBox(float width = 200f, float height = 36f, string text = "", string placeholder = "Type here...")
+    private void RecalculateBounds()
     {
-        _text = text ?? string.Empty;
-        _placeholderText = placeholder ?? string.Empty;
-        _caretIndex = _text.Length;
-        Bounds = SKRect.Create(0, 0, width, height);
+        Bounds = SKRect.Create(0, 0, Width, Height);
     }
 
     public override bool Intersects(SKPoint clientPoint)
@@ -89,6 +97,7 @@ public class TextBox : UIControlBase
     {
         if (!IsVisible) return;
 
+        RecalculateBounds();
         var rect = SKRect.Create(0, 0, Bounds.Width, Bounds.Height);
 
         _bgPaint.Color = BackgroundColor;
@@ -110,10 +119,10 @@ public class TextBox : UIControlBase
             _textPaint.Color = TextColor;
             canvas.DrawText(_text, PaddingX, textY, SKTextAlign.Left, _font, _textPaint);
         }
-        else if (!string.IsNullOrEmpty(_placeholderText) && !IsFocused)
+        else if (!string.IsNullOrEmpty(PlaceholderText) && !IsFocused)
         {
             _textPaint.Color = PlaceholderColor;
-            canvas.DrawText(_placeholderText, PaddingX, textY, SKTextAlign.Left, _font, _textPaint);
+            canvas.DrawText(PlaceholderText, PaddingX, textY, SKTextAlign.Left, _font, _textPaint);
         }
 
         if (IsFocused && _showCaret)

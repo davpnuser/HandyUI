@@ -13,12 +13,12 @@ public class TextLabel : UIControlBase
         get;
         set
         {
-            field = value;
+            field = value ?? string.Empty;
             RecalculateBounds();
         }
     } = string.Empty;
 
-    public SKColor TextColor { get; set; } = SKColors.White;
+    public SKColor TextColor { get; set; } = SKColor.Parse("#040316");
 
     public float TextSize
     {
@@ -42,11 +42,6 @@ public class TextLabel : UIControlBase
         }
     } = SKTypeface.Default;
 
-    public TextLabel(string text = "")
-    {
-        Text = text;
-    }
-
     private void RecalculateBounds()
     {
         var width = _font.MeasureText(Text);
@@ -60,6 +55,7 @@ public class TextLabel : UIControlBase
     {
         if (!IsVisible || string.IsNullOrEmpty(Text)) return;
 
+        RecalculateBounds();
         _paint.Color = TextColor;
 
         var baselineY = -_font.Metrics.Ascent;
@@ -73,7 +69,6 @@ public class TextLabel : UIControlBase
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        ;
     }
 
     protected override void OnDispose()

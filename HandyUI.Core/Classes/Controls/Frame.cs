@@ -5,46 +5,37 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class Frame : UIControlBase
 {
-    private float _height;
-    private float _width;
-
     public float Height
     {
-        get => _height;
-        set { _height = value; RecalculateBounds(); }
-    }
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = 150f;
 
     public float Width
     {
-        get => _width;
-        set { _width = value; RecalculateBounds(); }
-    }
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = 150f;
 
-    public float CornerRadius { get; set; } = 6f;
+    public float CornerRadius { get; set; } = 0f;
 
-    public SKColor NormalColor { get; set; } = SKColor.Parse("#1E1E2E");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#CBA6F7");
+    public SKColor NormalColor { get; set; } = SKColor.Parse("#fbfbfe");
+    public SKColor BorderColor { get; set; } = SKColor.Parse("#1d72eb");
 
     private readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
 
-    public Frame(float width = 150f, float height = 150f)
-    {
-        _height = height;
-        _width = width;
-        RecalculateBounds();
-    }
-
     private void RecalculateBounds()
     {
-        Bounds = SKRect.Create(0, 0, _width, _height);
+        Bounds = SKRect.Create(0, 0, Width, Height);
     }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
-        var rect = SKRect.Create(0, 0, _width, _height);
+        RecalculateBounds();
+        var rect = SKRect.Create(0, 0, Width, Height);
 
         _fillPaint.Color = NormalColor;
         _borderPaint.Color = BorderColor;
@@ -60,7 +51,6 @@ public class Frame : UIControlBase
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        ;
     }
 
     protected override void OnDispose()

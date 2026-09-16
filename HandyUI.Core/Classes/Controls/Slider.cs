@@ -6,47 +6,48 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class Slider : UIControlBase
 {
-    private float _value;
-    private float _minimum;
-    private float _maximum = 100f;
     private bool _isDragging;
 
     public float Width
     {
-        get => Bounds.Width;
-        set => RecalculateBounds(value, Math.Max(ThumbRadius * 2, TrackHeight));
-    }
+        get;
+        set
+        {
+            field = Math.Max(0f, value);
+            RecalculateBounds();
+        }
+    } = 200f;
 
     public float Minimum
     {
-        get => _minimum;
+        get;
         set
         {
-            _minimum = value;
-            Value = Math.Clamp(_value, _minimum, _maximum);
+            field = value;
+            Value = Math.Clamp(Value, field, Maximum);
         }
     }
 
     public float Maximum
     {
-        get => _maximum;
+        get;
         set
         {
-            _maximum = value;
-            Value = Math.Clamp(_value, _minimum, _maximum);
+            field = value;
+            Value = Math.Clamp(Value, Minimum, field);
         }
-    }
+    } = 100f;
 
     public float Value
     {
-        get => _value;
+        get;
         set
         {
-            var clamped = Math.Clamp(value, _minimum, _maximum);
-            if (Math.Abs(_value - clamped) > 0.0001f)
+            var clamped = Math.Clamp(value, Minimum, Maximum);
+            if (Math.Abs(field - clamped) > 0.0001f)
             {
-                _value = clamped;
-                OnValueChanged?.Invoke(_value);
+                field = clamped;
+                OnValueChanged?.Invoke(field);
             }
         }
     }
@@ -54,33 +55,21 @@ public class Slider : UIControlBase
     public float TrackHeight { get; set; } = 6f;
     public float ThumbRadius { get; set; } = 10f;
 
-    public SKColor TrackColor { get; set; } = SKColor.Parse("#313244");
-    public SKColor ProgressColor { get; set; } = SKColor.Parse("#CBA6F7");
-    public SKColor ThumbColor { get; set; } = SKColor.Parse("#B4BEFE");
-    public SKColor ThumbHoverColor { get; set; } = SKColor.Parse("#aab5fa");
-
-    //#aab5fa
-    //#89B4FA
+    public SKColor TrackColor { get; set; } = SKColor.Parse("#7abdff");
+    public SKColor ProgressColor { get; set; } = SKColor.Parse("#1d72eb");
+    public SKColor ThumbColor { get; set; } = SKColor.Parse("#1d72eb");
+    public SKColor ThumbHoverColor { get; set; } = SKColor.Parse("#3b82f6");
 
     public Action<float>? OnValueChanged { get; set; }
 
-    private float _animatedThumbRadius;
+    private float _animatedThumbRadius = 10f;
     private readonly SKPaint _trackPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _progressPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _thumbPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
 
-    public Slider(float width = 200f, float min = 0f, float max = 100f, float value = 0f)
+    private void RecalculateBounds()
     {
-        _minimum = min;
-        _maximum = max;
-        _value = Math.Clamp(value, min, max);
-        RecalculateBounds(width, Math.Max(ThumbRadius * 2, TrackHeight));
-        _animatedThumbRadius = ThumbRadius;
-    }
-
-    private void RecalculateBounds(float width, float height)
-    {
-        Bounds = SKRect.Create(Bounds.Left, Bounds.Top, Math.Max(0f, width), height);
+        Bounds = SKRect.Create(0, 0, Width, Math.Max(ThumbRadius * 2f, TrackHeight));
     }
 
     public override bool Intersects(SKPoint clientPoint)
@@ -92,10 +81,11 @@ public class Slider : UIControlBase
     {
         if (!IsVisible) return;
 
+        RecalculateBounds();
         var trackY = Bounds.Height / 2f;
         var padding = ThumbRadius;
         var availableWidth = Math.Max(1f, Bounds.Width - (padding * 2f));
-        var normalized = (_maximum > _minimum) ? (_value - _minimum) / (_maximum - _minimum) : 0f;
+        var normalized = (Maximum > Minimum) ? (Value - Minimum) / (Maximum - Minimum) : 0f;
         var thumbX = padding + (normalized * availableWidth);
 
         var trackRect = SKRect.Create(padding, trackY - (TrackHeight / 2f), availableWidth, TrackHeight);
@@ -130,7 +120,7 @@ public class Slider : UIControlBase
         var availableWidth = Math.Max(1f, Bounds.Width - (padding * 2f));
         var relativeX = mouseX - padding;
         var normalized = Math.Clamp(relativeX / availableWidth, 0f, 1f);
-        Value = _minimum + (normalized * (_maximum - _minimum));
+        Value = Minimum + (normalized * (Maximum - Minimum));
     }
 
     protected override bool OnMouse(MouseEventContext mouseContext)

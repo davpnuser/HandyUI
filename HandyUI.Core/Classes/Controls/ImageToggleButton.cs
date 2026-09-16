@@ -6,22 +6,20 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class ImageToggleButton : UIControlBase
 {
-    private float _width;
-    private float _height;
     private float? _explicitImageWidth;
     private float? _explicitImageHeight;
 
     public float Width
     {
-        get => _width;
-        set { _width = value; RecalculateBounds(); }
-    }
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = 120f;
 
     public float Height
     {
-        get => _height;
-        set { _height = value; RecalculateBounds(); }
-    }
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = 36f;
 
     public bool AutoSizeImage { get; set; } = true;
 
@@ -60,34 +58,22 @@ public class ImageToggleButton : UIControlBase
         set => _font.Size = value;
     }
 
-    public SKColor OffColor { get; set; } = SKColor.Parse("#1E1E2E");
-    public SKColor OnColor { get; set; } = SKColor.Parse("#CBA6F7");
-    public SKColor HoverColor { get; set; } = SKColor.Parse("#313244");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#585B70");
-    public SKColor TextOffColor { get; set; } = SKColor.Parse("#CDD6F4");
-    public SKColor TextOnColor { get; set; } = SKColor.Parse("#11111B");
+    public SKColor OffColor { get; set; } = SKColor.Parse("#fbfbfe");
+    public SKColor OnColor { get; set; } = SKColor.Parse("#1d72eb");
+    public SKColor HoverColor { get; set; } = SKColor.Parse("#7abdff");
+    public SKColor BorderColor { get; set; } = SKColor.Parse("#3b82f6");
+    public SKColor TextOffColor { get; set; } = SKColor.Parse("#040316");
+    public SKColor TextOnColor { get; set; } = SKColor.Parse("#fbfbfe");
 
     public Action<bool>? OnToggled { get; set; }
 
-    private SKColor _animatedFillColor;
+    private SKColor _animatedFillColor = SKColor.Parse("#fbfbfe");
     private static readonly SKSamplingOptions HighSampling = new(SKFilterMode.Linear, SKMipmapMode.Linear);
     private readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
     private readonly SKPaint _imagePaint = new() { IsAntialias = true };
     private readonly SKPaint _textPaint = new() { IsAntialias = true };
     private readonly SKFont _font = new(SKTypeface.Default, 14f) { Subpixel = true };
-
-    public ImageToggleButton(SKImage? offImage = null, SKImage? onImage = null, string text = "", bool isChecked = false, float width = 120f, float height = 36f)
-    {
-        OffImage = offImage;
-        OnImage = onImage;
-        Text = text;
-        IsChecked = isChecked;
-        _width = width;
-        _height = height;
-        _animatedFillColor = isChecked ? OnColor : OffColor;
-        RecalculateBounds();
-    }
 
     public void ClearExplicitImageSize()
     {
@@ -126,14 +112,15 @@ public class ImageToggleButton : UIControlBase
 
     private void RecalculateBounds()
     {
-        Bounds = SKRect.Create(0, 0, _width, _height);
+        Bounds = SKRect.Create(0, 0, Width, Height);
     }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
-        var rect = SKRect.Create(0, 0, _width, _height);
+        RecalculateBounds();
+        var rect = SKRect.Create(0, 0, Width, Height);
 
         _fillPaint.Color = _animatedFillColor;
         _borderPaint.Color = BorderColor;

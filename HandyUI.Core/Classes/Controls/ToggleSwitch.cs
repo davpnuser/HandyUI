@@ -6,59 +6,47 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class ToggleSwitch : UIControlBase
 {
-    private float _width;
-    private float _height;
-
     public float Width
     {
-        get => _width;
-        set { _width = value; RecalculateBounds(); }
-    }
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = 50f;
 
     public float Height
     {
-        get => _height;
-        set { _height = value; RecalculateBounds(); }
-    }
+        get;
+        set { field = value; RecalculateBounds(); }
+    } = 26f;
 
     public bool IsChecked { get; set; }
     public float CornerRadius { get; set; } = 13f;
 
-    public SKColor TrackOffColor { get; set; } = SKColor.Parse("#1E1E2E");
-    public SKColor TrackOnColor { get; set; } = SKColor.Parse("#CBA6F7");
-    public SKColor TrackHoverColor { get; set; } = SKColor.Parse("#313244");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#585B70");
-    public SKColor KnobColor { get; set; } = SKColor.Parse("#CDD6F4");
-    public SKColor KnobOnColor { get; set; } = SKColor.Parse("#11111B");
+    public SKColor TrackOffColor { get; set; } = SKColor.Parse("#fbfbfe");
+    public SKColor TrackOnColor { get; set; } = SKColor.Parse("#1d72eb");
+    public SKColor TrackHoverColor { get; set; } = SKColor.Parse("#7abdff");
+    public SKColor BorderColor { get; set; } = SKColor.Parse("#3b82f6");
+    public SKColor KnobColor { get; set; } = SKColor.Parse("#3b82f6");
+    public SKColor KnobOnColor { get; set; } = SKColor.Parse("#fbfbfe");
 
     public Action<bool>? OnToggled { get; set; }
 
     private float _animProgress;
-    private SKColor _animatedTrackColor;
+    private SKColor _animatedTrackColor = SKColor.Parse("#fbfbfe");
     private readonly SKPaint _trackPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
     private readonly SKPaint _knobPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
 
-    public ToggleSwitch(bool isChecked = false, float width = 50f, float height = 26f)
-    {
-        IsChecked = isChecked;
-        _width = width;
-        _height = height;
-        _animProgress = isChecked ? 1f : 0f;
-        _animatedTrackColor = isChecked ? TrackOnColor : TrackOffColor;
-        RecalculateBounds();
-    }
-
     private void RecalculateBounds()
     {
-        Bounds = SKRect.Create(0, 0, _width, _height);
+        Bounds = SKRect.Create(0, 0, Width, Height);
     }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
-        var rect = SKRect.Create(0, 0, _width, _height);
+        RecalculateBounds();
+        var rect = SKRect.Create(0, 0, Width, Height);
 
         _trackPaint.Color = _animatedTrackColor;
         _borderPaint.Color = BorderColor;
@@ -72,7 +60,7 @@ public class ToggleSwitch : UIControlBase
         var knobY = padding + knobRadius;
 
         var startX = padding + knobRadius;
-        var endX = _width - padding - knobRadius;
+        var endX = Width - padding - knobRadius;
         var knobX = startX + ((endX - startX) * _animProgress);
 
         canvas.DrawCircle(knobX, knobY, knobRadius, _knobPaint);
