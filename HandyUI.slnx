@@ -1,5 +1,7 @@
 <Solution>
   <Folder Name="/Solution Items/">
+    <File Path="HandyUI-Logo.png" />
+    <File Path="NuGet-README.md" />
     <File Path="THIRD-PARTY-NOTICES.txt" />
   </Folder>
   <Project Path="HandyUI.Core/HandyUI.Core.csproj" />

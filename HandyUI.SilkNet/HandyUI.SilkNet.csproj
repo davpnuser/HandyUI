@@ -4,8 +4,29 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>1.0.5.26256</AssemblyVersion>
+    <AssemblyVersion>1.1.0.26259</AssemblyVersion>
+
+	<Title>HandyUI.Silk.NET</Title>
+	<Description>Platform-agnostic Code-Only C# UI framework powered by SkiaSharp.</Description>
+	<PackageReleaseNotes>To see the release changelog, view the CHANGELOG.md file in the HandyUI GitHub repository root.</PackageReleaseNotes>
+	<PackageTags>ui;framework;skiasharp;code-only;gui;rendering</PackageTags>
+	<PackageId>HandyUI.SilkNet</PackageId>
+	<Version>$(AssemblyVersion)</Version>
+	<Authors>davpnuser</Authors>
+	<PackageIcon>HandyUI-Logo.png</PackageIcon>
+	<NeutralLanguage>en</NeutralLanguage>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<PackageReadmeFile>NuGet-README.md</PackageReadmeFile>
+	<RepositoryUrl>https://github.com/davpnuser/HandyUI/</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<PackageProjectUrl>https://github.com/davpnuser/HandyUI/</PackageProjectUrl>
   </PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="\" />
+		<None Include="..\HandyUI-Logo.png" Pack="true" PackagePath="" Link="HandyUI-Logo.png" />
+		<None Include="..\NuGet-README.md" Pack="true" PackagePath="" Link="NuGet-README.md" />
+	</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Silk.NET.Input" Version="2.23.0" />

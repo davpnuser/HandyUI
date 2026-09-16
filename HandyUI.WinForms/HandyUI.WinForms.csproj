@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
 	<UseWindowsForms>True</UseWindowsForms>
 	<NoWarn>$(NoWarn);NU1701</NoWarn>
-	<AssemblyVersion>1.1.0.26256</AssemblyVersion>
+	<AssemblyVersion>1.1.1.26259</AssemblyVersion>
 
 	<Title>HandyUI.WinForms</Title>
 	<Description>Platform-agnostic Code-Only C# UI framework powered by SkiaSharp.</Description>
@@ -18,22 +18,17 @@
 	<PackageIcon>HandyUI-Logo.png</PackageIcon>
 	<NeutralLanguage>en</NeutralLanguage>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
-	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<PackageReadmeFile>NuGet-README.md</PackageReadmeFile>
 	<RepositoryUrl>https://github.com/davpnuser/HandyUI/</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageProjectUrl>https://github.com/davpnuser/HandyUI/</PackageProjectUrl>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="C:\Users\Ubeyde\Downloads\HandyUI-Logo.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="\" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="\" />
+		<None Include="..\HandyUI-Logo.png" Pack="true" PackagePath="" Link="HandyUI-Logo.png" />
+		<None Include="..\NuGet-README.md" Pack="true" PackagePath="" Link="NuGet-README.md" />
+	</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="SkiaSharp.Views.WindowsForms" Version="4.152.0" />
@@ -41,17 +36,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HandyUI.Core\HandyUI.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="HandyUI-Logo.png">
-      <PackagePath>\</PackagePath>
-      <Pack>True</Pack>
-    </None>
-    <None Update="README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
   </ItemGroup>
 
 </Project>
