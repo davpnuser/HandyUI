@@ -49,12 +49,12 @@ public class TextBox : UIControlBase
         set => _font.Size = value;
     }
 
-    public SKColor BackgroundColor { get; set; } = SKColor.Parse("#fbfbfe");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#7abdff");
-    public SKColor FocusBorderColor { get; set; } = SKColor.Parse("#1d72eb");
-    public SKColor TextColor { get; set; } = SKColor.Parse("#040316");
-    public SKColor PlaceholderColor { get; set; } = SKColor.Parse("#3b82f6");
-    public SKColor CaretColor { get; set; } = SKColor.Parse("#1d72eb");
+    public SKColor BackgroundColor { get; set; } = SKColor.Parse("#150d0c");
+    public SKColor BorderColor { get; set; } = SKColor.Parse("#922a1e");
+    public SKColor FocusBorderColor { get; set; } = SKColor.Parse("#e19090");
+    public SKColor TextColor { get; set; } = SKColor.Parse("#eeebeb");
+    public SKColor PlaceholderColor { get; set; } = SKColor.Parse("#922a1e");
+    public SKColor CaretColor { get; set; } = SKColor.Parse("#d79a92");
 
     public Action<string>? OnTextChanged { get; set; }
     public Action<string>? OnSubmit { get; set; }

@@ -21,17 +21,17 @@ public class ToggleSwitch : UIControlBase
     public bool IsChecked { get; set; }
     public float CornerRadius { get; set; } = 13f;
 
-    public SKColor TrackOffColor { get; set; } = SKColor.Parse("#fbfbfe");
-    public SKColor TrackOnColor { get; set; } = SKColor.Parse("#1d72eb");
-    public SKColor TrackHoverColor { get; set; } = SKColor.Parse("#7abdff");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#3b82f6");
-    public SKColor KnobColor { get; set; } = SKColor.Parse("#3b82f6");
-    public SKColor KnobOnColor { get; set; } = SKColor.Parse("#fbfbfe");
+    public SKColor TrackOffColor { get; set; } = SKColor.Parse("#150d0c");
+    public SKColor TrackOnColor { get; set; } = SKColor.Parse("#d79a92");
+    public SKColor TrackHoverColor { get; set; } = SKColor.Parse("#922a1e");
+    public SKColor BorderColor { get; set; } = SKColor.Parse("#e19090");
+    public SKColor KnobColor { get; set; } = SKColor.Parse("#e19090");
+    public SKColor KnobOnColor { get; set; } = SKColor.Parse("#150d0c");
 
     public Action<bool>? OnToggled { get; set; }
 
     private float _animProgress;
-    private SKColor _animatedTrackColor = SKColor.Parse("#fbfbfe");
+    private SKColor _animatedTrackColor = SKColor.Parse("#150d0c");
     private readonly SKPaint _trackPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
     private readonly SKPaint _knobPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };

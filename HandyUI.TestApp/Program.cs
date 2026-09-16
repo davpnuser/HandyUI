@@ -54,7 +54,7 @@ var backgroundFrame = new Frame
 {
     Width = 820,
     Height = 695,
-    NormalColor = SKColor.Parse("#d7d7e0"),
+    NormalColor = SKColor.Parse("#050300"),
     BorderColor = new(0, 0, 0, 0),
     ZIndex = -1
 };

@@ -55,10 +55,10 @@ public class Slider : UIControlBase
     public float TrackHeight { get; set; } = 6f;
     public float ThumbRadius { get; set; } = 10f;
 
-    public SKColor TrackColor { get; set; } = SKColor.Parse("#7abdff");
-    public SKColor ProgressColor { get; set; } = SKColor.Parse("#1d72eb");
-    public SKColor ThumbColor { get; set; } = SKColor.Parse("#1d72eb");
-    public SKColor ThumbHoverColor { get; set; } = SKColor.Parse("#3b82f6");
+    public SKColor TrackColor { get; set; } = SKColor.Parse("#922a1e");
+    public SKColor ProgressColor { get; set; } = SKColor.Parse("#d79a92");
+    public SKColor ThumbColor { get; set; } = SKColor.Parse("#d79a92");
+    public SKColor ThumbHoverColor { get; set; } = SKColor.Parse("#e19090");
 
     public Action<float>? OnValueChanged { get; set; }
 

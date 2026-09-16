@@ -34,17 +34,17 @@ public class CheckBox : UIControlBase
         set { _font.Size = value; RecalculateBounds(); }
     }
 
-    public SKColor BoxOffColor { get; set; } = SKColor.Parse("#fbfbfe");
-    public SKColor BoxOnColor { get; set; } = SKColor.Parse("#1d72eb");
-    public SKColor BoxHoverColor { get; set; } = SKColor.Parse("#7abdff");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#3b82f6");
-    public SKColor CheckMarkColor { get; set; } = SKColor.Parse("#fbfbfe");
-    public SKColor TextColor { get; set; } = SKColor.Parse("#040316");
+    public SKColor BoxOffColor { get; set; } = SKColor.Parse("#150d0c");
+    public SKColor BoxOnColor { get; set; } = SKColor.Parse("#d79a92");
+    public SKColor BoxHoverColor { get; set; } = SKColor.Parse("#922a1e");
+    public SKColor BorderColor { get; set; } = SKColor.Parse("#e19090");
+    public SKColor CheckMarkColor { get; set; } = SKColor.Parse("#150d0c");
+    public SKColor TextColor { get; set; } = SKColor.Parse("#eeebeb");
 
     public Action<bool>? OnCheckChanged { get; set; }
 
     private float _animProgress;
-    private SKColor _animatedBoxColor = SKColor.Parse("#1E1E2E");
+    private SKColor _animatedBoxColor = SKColor.Parse("#150d0c");
 
     private readonly SKPaint _boxPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };

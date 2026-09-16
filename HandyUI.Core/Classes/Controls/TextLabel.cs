@@ -18,7 +18,7 @@ public class TextLabel : UIControlBase
         }
     } = string.Empty;
 
-    public SKColor TextColor { get; set; } = SKColor.Parse("#040316");
+    public SKColor TextColor { get; set; } = SKColor.Parse("#eeebeb");
 
     public float TextSize
     {

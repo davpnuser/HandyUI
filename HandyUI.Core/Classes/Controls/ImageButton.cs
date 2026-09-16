@@ -56,16 +56,16 @@ public class ImageButton : UIControlBase
         set => _font.Size = value;
     }
 
-    public SKColor BackgroundColor { get; set; } = SKColor.Parse("#fbfbfe");
-    public SKColor HoverColor { get; set; } = SKColor.Parse("#7abdff");
-    public SKColor PressedColor { get; set; } = SKColor.Parse("#3b82f6");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#3b82f6");
-    public SKColor TextColor { get; set; } = SKColor.Parse("#040316");
+    public SKColor BackgroundColor { get; set; } = SKColor.Parse("#150d0c");
+    public SKColor HoverColor { get; set; } = SKColor.Parse("#922a1e");
+    public SKColor PressedColor { get; set; } = SKColor.Parse("#541c15");
+    public SKColor BorderColor { get; set; } = SKColor.Parse("#e19090");
+    public SKColor TextColor { get; set; } = SKColor.Parse("#eeebeb");
 
     public Action? OnClick { get; set; }
 
     private bool _isPressed;
-    private SKColor _animatedFillColor = SKColor.Parse("#fbfbfe");
+    private SKColor _animatedFillColor = SKColor.Parse("#150d0c");
     private static readonly SKSamplingOptions HighSampling = new(SKFilterMode.Linear, SKMipmapMode.Linear);
     private readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };

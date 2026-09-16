@@ -58,16 +58,16 @@ public class ImageToggleButton : UIControlBase
         set => _font.Size = value;
     }
 
-    public SKColor OffColor { get; set; } = SKColor.Parse("#fbfbfe");
-    public SKColor OnColor { get; set; } = SKColor.Parse("#1d72eb");
-    public SKColor HoverColor { get; set; } = SKColor.Parse("#7abdff");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#3b82f6");
-    public SKColor TextOffColor { get; set; } = SKColor.Parse("#040316");
-    public SKColor TextOnColor { get; set; } = SKColor.Parse("#fbfbfe");
+    public SKColor OffColor { get; set; } = SKColor.Parse("#150d0c");
+    public SKColor OnColor { get; set; } = SKColor.Parse("#d79a92");
+    public SKColor HoverColor { get; set; } = SKColor.Parse("#922a1e");
+    public SKColor BorderColor { get; set; } = SKColor.Parse("#e19090");
+    public SKColor TextOffColor { get; set; } = SKColor.Parse("#eeebeb");
+    public SKColor TextOnColor { get; set; } = SKColor.Parse("#150d0c");
 
     public Action<bool>? OnToggled { get; set; }
 
-    private SKColor _animatedFillColor = SKColor.Parse("#fbfbfe");
+    private SKColor _animatedFillColor = SKColor.Parse("#150d0c");
     private static readonly SKSamplingOptions HighSampling = new(SKFilterMode.Linear, SKMipmapMode.Linear);
     private readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };

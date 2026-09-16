@@ -19,8 +19,8 @@ public class Frame : UIControlBase
 
     public float CornerRadius { get; set; } = 0f;
 
-    public SKColor NormalColor { get; set; } = SKColor.Parse("#fbfbfe");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#1d72eb");
+    public SKColor NormalColor { get; set; } = SKColor.Parse("#150d0c");
+    public SKColor BorderColor { get; set; } = SKColor.Parse("#e19090");
 
     private readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
