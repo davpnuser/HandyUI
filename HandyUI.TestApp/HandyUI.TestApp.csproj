@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <UseWindowsForms>True</UseWindowsForms>
+    <UseWindowsForms>False</UseWindowsForms>
 	<NoWarn>$(NoWarn);NU1701</NoWarn>
-	<AssemblyVersion>1.0.208.26256</AssemblyVersion>
+	<AssemblyVersion>1.0.220.26259</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,11 +15,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\THIRD-PARTY-NOTICES.txt" Link="THIRD-PARTY-NOTICES.txt">
+      <PackagePath>\</PackagePath>
+      <Pack>true</Pack>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="SkiaSharp.Views.WindowsForms" Version="4.152.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HandyUI.WinForms\HandyUI.WinForms.csproj" />
+    <ProjectReference Include="..\HandyUI.SilkNet\HandyUI.SilkNet.csproj" />
   </ItemGroup>
 
 </Project>

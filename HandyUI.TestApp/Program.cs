@@ -1,39 +1,26 @@
-﻿// the bounds testing code
-
-using HandyUI.Core.Classes.Controls;
+﻿using HandyUI.Core.Classes.Controls;
 using HandyUI.Core.Components;
-using HandyUI.WinForms.Classes.Helper;
-using HandyUI.WinForms.Components;
+using HandyUI.SilkNet.Classes.Helper;
+using Silk.NET.Maths;
+using Silk.NET.Windowing;
 using SkiaSharp;
 
 #region Setting up the window
 
-ResourceManagerHelper.InitializeResourceManager();
+var options = WindowOptions.Default;
+options.Size = new Vector2D<int>(820, 695);
+options.Title = "HandyUI Control Showcase";
+options.WindowBorder = WindowBorder.Fixed;
+options.VSync = true;
+options.FramesPerSecond = 0;
 
-using var MainForm = new HandyForm();
-MainForm.AutoScaleMode = AutoScaleMode.None;
-MainForm.MaximizeBox = false;
-MainForm.Text = "HandyUI Control Showcase";
-MainForm.ClientSize = new Size(820, 695);
-MainForm.MinimumClientSize = new Size(820, 695);
-MainForm.FormBorderStyle = FormBorderStyle.FixedSingle;
-MainForm.StartPosition = FormStartPosition.CenterScreen;
-
-if (ResourceManager.GetResourceByPath("Resources/HandyUI-SmallIcon.ico", out var iconStream, false))
-{
-    MainForm.Icon = new Icon(iconStream!);
-}
+using var window = Window.Create(options);
 
 #endregion
 
 #region Setting up the renderer
 
-var skiaPanel = new HandyUIGLControl
-{
-    Dock = DockStyle.Fill,
-    VSync = true
-};
-var renderer = RendererHelper.Attach(skiaPanel);
+var renderer = SilkRendererHelper.Attach(window);
 
 #endregion
 
@@ -88,5 +75,4 @@ var childButton = new TextButton("click me!")
 
 #endregion
 
-MainForm.Controls.Add(skiaPanel);
-Application.Run(MainForm);
+window.Run();
