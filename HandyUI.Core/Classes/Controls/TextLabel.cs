@@ -1,4 +1,5 @@
 ﻿using HandyUI.Core.Classes.Base;
+using HandyUI.Core.Classes.Enums;
 using HandyUI.Core.Classes.Themes;
 using SkiaSharp;
 
@@ -7,6 +8,8 @@ namespace HandyUI.Core.Classes.Controls;
 public class TextLabel : UIControlBase
 {
     private SKPoint _padding = new(8f, 4f);
+
+    private SKTypeface? _cachedTypeface;
 
     public float Width
     {
@@ -73,8 +76,26 @@ public class TextLabel : UIControlBase
     public string FontFamily
     {
         get;
-        set { if (field == value) return; field = value; RecalculateBounds(); Invalidate(); }
+        set { if (field == value) return; field = value; InvalidateTypeface(); RecalculateBounds(); Invalidate(); }
     } = "Segoe UI";
+
+    public SKFontStyleWeight FontWeight
+    {
+        get;
+        set { if (field == value) return; field = value; InvalidateTypeface(); RecalculateBounds(); Invalidate(); }
+    } = SKFontStyleWeight.Normal;
+
+    public SKFontStyleWidth FontWidth
+    {
+        get;
+        set { if (field == value) return; field = value; InvalidateTypeface(); RecalculateBounds(); Invalidate(); }
+    } = SKFontStyleWidth.Normal;
+
+    public SKFontStyleSlant FontSlant
+    {
+        get;
+        set { if (field == value) return; field = value; InvalidateTypeface(); RecalculateBounds(); Invalidate(); }
+    } = SKFontStyleSlant.Upright;
 
     public SKTextAlign Alignment
     {
@@ -100,11 +121,25 @@ public class TextLabel : UIControlBase
         set { if (Math.Abs(field - value) < 0.001f) return; field = value; Invalidate(); }
     } = 0.0f;
 
+    public BorderDirection BorderDirection
+    {
+        get;
+        set { if (field == value) return; field = value; Invalidate(); }
+    } = BorderDirection.Inside;
+
+    private SKTypeface GetOrCreateTypeface() => _cachedTypeface ??= SKTypeface.FromFamilyName(FontFamily, FontWeight, FontWidth, FontSlant);
+
+    private void InvalidateTypeface()
+    {
+        _cachedTypeface?.Dispose();
+        _cachedTypeface = null;
+    }
+
     public void RecalculateBounds()
     {
         if (!AutoSize || string.IsNullOrEmpty(Text)) return;
 
-        using var font = new SKFont(SKTypeface.FromFamilyName(FontFamily), TextSize);
+        using var font = new SKFont(GetOrCreateTypeface(), TextSize);
         font.MeasureText(Text, out var textBounds);
 
         Width = textBounds.Width + (Padding.X * 2f);
@@ -128,24 +163,46 @@ public class TextLabel : UIControlBase
         if (BorderThickness > 0 && BorderColor.Alpha > 0)
         {
             using var borderPaint = new SKPaint { Color = BorderColor, Style = SKPaintStyle.Stroke, StrokeWidth = BorderThickness, IsAntialias = false };
-            canvas.DrawRect(Bounds, borderPaint);
+
+            var borderRect = BorderDirection switch
+            {
+                BorderDirection.Inside => SKRect.Create(
+                    Bounds.Left + (BorderThickness / 2f),
+                    Bounds.Top + (BorderThickness / 2f),
+                    Bounds.Width - BorderThickness,
+                    Bounds.Height - BorderThickness),
+                BorderDirection.Outside => SKRect.Create(
+                    Bounds.Left - (BorderThickness / 2f),
+                    Bounds.Top - (BorderThickness / 2f),
+                    Bounds.Width + BorderThickness,
+                    Bounds.Height + BorderThickness),
+                _ => Bounds
+            };
+
+            canvas.DrawRect(borderRect, borderPaint);
         }
 
         if (!string.IsNullOrEmpty(Text))
         {
-            using var font = new SKFont(SKTypeface.FromFamilyName(FontFamily), TextSize);
+            using var font = new SKFont(GetOrCreateTypeface(), TextSize);
             using var textPaint = new SKPaint { Color = IsEnabled ? TextColor : VS2017Theme.TextDisabled, IsAntialias = true };
 
             var x = Alignment switch
             {
                 SKTextAlign.Center => Bounds.MidX,
-                SKTextAlign.Right => Bounds.Right - 4,
+                SKTextAlign.Right => Bounds.Right - Padding.X,
                 _ => Bounds.Left + Padding.X
             };
 
             var y = Bounds.MidY + (font.Metrics.CapHeight / 2f);
             canvas.DrawText(Text, x, y, Alignment, font, textPaint);
         }
+    }
+
+    protected override void OnDispose()
+    {
+        InvalidateTypeface();
+        base.OnDispose();
     }
 
     public TextLabel WithWidth(float width) { Width = width; return this; }
@@ -156,10 +213,28 @@ public class TextLabel : UIControlBase
     public TextLabel WithText(string text) { Text = text; return this; }
     public TextLabel WithTextColor(SKColor color) { TextColor = color; return this; }
     public TextLabel WithTextSize(float size) { TextSize = size; return this; }
-    public TextLabel WithFontFamily(string fontFamily) { FontFamily = fontFamily; return this; }
+    public TextLabel WithFont(string family, float size = 13f, SKFontStyleWeight weight = SKFontStyleWeight.Normal, SKFontStyleSlant slant = SKFontStyleSlant.Upright)
+    {
+        FontFamily = family;
+        TextSize = size;
+        FontWeight = weight;
+        FontSlant = slant;
+        return this;
+    }
+    public TextLabel WithFontWeight(SKFontStyleWeight weight) { FontWeight = weight; return this; }
+    public TextLabel WithFontSlant(SKFontStyleSlant slant) { FontSlant = slant; return this; }
     public TextLabel WithAlignment(SKTextAlign alignment) { Alignment = alignment; return this; }
     public TextLabel WithBackgroundColor(SKColor color) { BackgroundColor = color; return this; }
-    public TextLabel WithBorder(SKColor color, float thickness = 1.0f) { BorderColor = color; BorderThickness = thickness; return this; }
+    public TextLabel WithBorder(SKColor color, float thickness = 1.0f, BorderDirection direction = BorderDirection.Inside)
+    {
+        BorderColor = color;
+        BorderThickness = thickness;
+        BorderDirection = direction;
+        return this;
+    }
+    public TextLabel WithBorderColor(SKColor color) { BorderColor = color; return this; }
+    public TextLabel WithBorderThickness(float thickness) { BorderThickness = thickness; return this; }
+    public TextLabel WithBorderDirection(BorderDirection direction) { BorderDirection = direction; return this; }
     public TextLabel WithBounds(SKRect bounds) { Bounds = bounds; return this; }
     public TextLabel WithParent(UIControlBase? parent) { Parent = parent; return this; }
 }

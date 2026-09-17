@@ -1,4 +1,5 @@
 ﻿using HandyUI.Core.Classes.Base;
+using HandyUI.Core.Classes.Enums;
 using HandyUI.Core.Classes.Records;
 using HandyUI.Core.Classes.Themes;
 using SkiaSharp;
@@ -8,6 +9,8 @@ namespace HandyUI.Core.Classes.Controls;
 public class TextButton : UIControlBase
 {
     private SKPoint _padding = new(12f, 6f);
+
+    private SKTypeface? _cachedTypeface;
 
     public float Width
     {
@@ -74,8 +77,26 @@ public class TextButton : UIControlBase
     public string FontFamily
     {
         get;
-        set { if (field == value) return; field = value; RecalculateBounds(); Invalidate(); }
+        set { if (field == value) return; field = value; InvalidateTypeface(); RecalculateBounds(); Invalidate(); }
     } = "Segoe UI";
+
+    public SKFontStyleWeight FontWeight
+    {
+        get;
+        set { if (field == value) return; field = value; InvalidateTypeface(); RecalculateBounds(); Invalidate(); }
+    } = SKFontStyleWeight.Normal;
+
+    public SKFontStyleWidth FontWidth
+    {
+        get;
+        set { if (field == value) return; field = value; InvalidateTypeface(); RecalculateBounds(); Invalidate(); }
+    } = SKFontStyleWidth.Normal;
+
+    public SKFontStyleSlant FontSlant
+    {
+        get;
+        set { if (field == value) return; field = value; InvalidateTypeface(); RecalculateBounds(); Invalidate(); }
+    } = SKFontStyleSlant.Upright;
 
     public SKColor NormalBackgroundColor
     {
@@ -113,13 +134,27 @@ public class TextButton : UIControlBase
         set { if (Math.Abs(field - value) < 0.001f) return; field = value; Invalidate(); }
     } = 1.0f;
 
+    public BorderDirection BorderDirection
+    {
+        get;
+        set { if (field == value) return; field = value; Invalidate(); }
+    } = BorderDirection.Inside;
+
     public event Action? Clicked;
+
+    private SKTypeface GetOrCreateTypeface() => _cachedTypeface ??= SKTypeface.FromFamilyName(FontFamily, FontWeight, FontWidth, FontSlant);
+
+    private void InvalidateTypeface()
+    {
+        _cachedTypeface?.Dispose();
+        _cachedTypeface = null;
+    }
 
     public void RecalculateBounds()
     {
         if (!AutoSize || string.IsNullOrEmpty(Text)) return;
 
-        using var font = new SKFont(SKTypeface.FromFamilyName(FontFamily), TextSize);
+        using var font = new SKFont(GetOrCreateTypeface(), TextSize);
         font.MeasureText(Text, out var textBounds);
 
         Width = textBounds.Width + (Padding.X * 2f);
@@ -165,20 +200,27 @@ public class TextButton : UIControlBase
         {
             using var borderPaint = new SKPaint { Color = currentBorder, Style = SKPaintStyle.Stroke, StrokeWidth = BorderThickness, IsAntialias = false };
 
-            var halfBorder = BorderThickness / 2f;
-            var insetBorderRect = SKRect.Create(
-                Bounds.Left + halfBorder,
-                Bounds.Top + halfBorder,
-                Bounds.Width - BorderThickness,
-                Bounds.Height - BorderThickness
-            );
+            SKRect borderRect = BorderDirection switch
+            {
+                BorderDirection.Inside => SKRect.Create(
+                    Bounds.Left + (BorderThickness / 2f),
+                    Bounds.Top + (BorderThickness / 2f),
+                    Bounds.Width - BorderThickness,
+                    Bounds.Height - BorderThickness),
+                BorderDirection.Outside => SKRect.Create(
+                    Bounds.Left - (BorderThickness / 2f),
+                    Bounds.Top - (BorderThickness / 2f),
+                    Bounds.Width + BorderThickness,
+                    Bounds.Height + BorderThickness),
+                _ => Bounds
+            };
 
-            canvas.DrawRect(insetBorderRect, borderPaint);
+            canvas.DrawRect(borderRect, borderPaint);
         }
 
         if (!string.IsNullOrEmpty(Text))
         {
-            using var font = new SKFont(SKTypeface.FromFamilyName(FontFamily), TextSize);
+            using var font = new SKFont(GetOrCreateTypeface(), TextSize);
             using var textPaint = new SKPaint { Color = IsEnabled ? TextColor : VS2017Theme.TextDisabled, IsAntialias = true };
 
             var x = Bounds.MidX;
@@ -186,6 +228,12 @@ public class TextButton : UIControlBase
 
             canvas.DrawText(Text, x, y, SKTextAlign.Center, font, textPaint);
         }
+    }
+
+    protected override void OnDispose()
+    {
+        InvalidateTypeface();
+        base.OnDispose();
     }
 
     public TextButton WithWidth(float width) { Width = width; return this; }
@@ -196,18 +244,32 @@ public class TextButton : UIControlBase
     public TextButton WithText(string text) { Text = text; return this; }
     public TextButton WithTextSize(float size) { TextSize = size; return this; }
     public TextButton WithTextColor(SKColor color) { TextColor = color; return this; }
+    public TextButton WithFont(string family, float size = 13f, SKFontStyleWeight weight = SKFontStyleWeight.Normal, SKFontStyleSlant slant = SKFontStyleSlant.Upright)
+    {
+        FontFamily = family;
+        TextSize = size;
+        FontWeight = weight;
+        FontSlant = slant;
+        return this;
+    }
+    public TextButton WithFontWeight(SKFontStyleWeight weight) { FontWeight = weight; return this; }
+    public TextButton WithFontSlant(SKFontStyleSlant slant) { FontSlant = slant; return this; }
+    public TextButton WithBorder(SKColor normalColor, SKColor activeColor, float thickness = 1.0f, BorderDirection direction = BorderDirection.Inside)
+    {
+        NormalBorderColor = normalColor;
+        ActiveBorderColor = activeColor;
+        BorderThickness = thickness;
+        BorderDirection = direction;
+        return this;
+    }
+    public TextButton WithBorderThickness(float thickness) { BorderThickness = thickness; return this; }
+    public TextButton WithBorderDirection(BorderDirection direction) { BorderDirection = direction; return this; }
     public TextButton WithOnClick(Action onClick) { Clicked += onClick; return this; }
     public TextButton WithColors(SKColor normal, SKColor hover, SKColor pressed)
     {
         NormalBackgroundColor = normal;
         HoverBackgroundColor = hover;
         PressedBackgroundColor = pressed;
-        return this;
-    }
-    public TextButton WithBorderColors(SKColor normalBorder, SKColor activeBorder)
-    {
-        NormalBorderColor = normalBorder;
-        ActiveBorderColor = activeBorder;
         return this;
     }
     public TextButton WithBounds(SKRect bounds) { Bounds = bounds; return this; }

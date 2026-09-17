@@ -12,6 +12,12 @@ public class ScrollingFrame : UIControlBase
 
     private SKSize _canvasSize = new(500, 1000);
     private SKPoint _scrollOffset = SKPoint.Empty;
+    private bool _isDraggingVBar;
+    private bool _isDraggingHBar;
+    private SKPoint _dragStartMousePos;
+    private SKPoint _dragStartScrollOffset;
+
+    private bool _isShiftPressed;
 
     public float Width
     {
@@ -93,18 +99,24 @@ public class ScrollingFrame : UIControlBase
         set { if (Math.Abs(field - value) < 0.001f) return; field = value; Invalidate(); }
     } = 12.0f;
 
-    public bool IsThumbHovered
+    public bool IsVThumbHovered
     {
         get;
         private set { if (field == value) return; field = value; Invalidate(); }
     }
 
-    public Frame ContentContainer { get; }
+    public bool IsHThumbHovered
+    {
+        get;
+        private set { if (field == value) return; field = value; Invalidate(); }
+    }
+
+    public NonFocusableFrame ContentContainer { get; }
 
     public ScrollingFrame()
     {
         _isRedirecting = true;
-        ContentContainer = new Frame
+        ContentContainer = new()
         {
             BackgroundColor = SKColors.Transparent,
             BorderThickness = 0,
@@ -143,25 +155,136 @@ public class ScrollingFrame : UIControlBase
 
     public override bool Intersects(SKPoint clientPoint) => Bounds.Contains(clientPoint.X, clientPoint.Y);
 
+    protected override bool OnKey(KeyEventContext keyContext)
+    {
+        _isShiftPressed = keyContext.IsShiftPressed;
+        return true;
+    }
+
+    private SKRect GetVThumbRect()
+    {
+        if (CanvasSize.Height <= Bounds.Height) return SKRect.Empty;
+
+        var hasHBar = CanvasSize.Width > Bounds.Width;
+        var trackHeight = Bounds.Height - (hasHBar ? ScrollBarWidth : 0f);
+
+        var heightRatio = trackHeight / CanvasSize.Height;
+        var thumbHeight = Math.Max(20f, trackHeight * heightRatio);
+        var scrollPercent = ScrollOffset.Y / (CanvasSize.Height - Bounds.Height);
+        var thumbY = Bounds.Top + (scrollPercent * (trackHeight - thumbHeight));
+
+        return SKRect.Create(Bounds.Right - ScrollBarWidth, thumbY, ScrollBarWidth, thumbHeight);
+    }
+
+    private SKRect GetHThumbRect()
+    {
+        if (CanvasSize.Width <= Bounds.Width) return SKRect.Empty;
+
+        var hasVBar = CanvasSize.Height > Bounds.Height;
+        var trackWidth = Bounds.Width - (hasVBar ? ScrollBarWidth : 0f);
+
+        var widthRatio = trackWidth / CanvasSize.Width;
+        var thumbWidth = Math.Max(20f, trackWidth * widthRatio);
+        var scrollPercent = ScrollOffset.X / (CanvasSize.Width - Bounds.Width);
+        var thumbX = Bounds.Left + (scrollPercent * (trackWidth - thumbWidth));
+
+        return SKRect.Create(thumbX, Bounds.Bottom - ScrollBarWidth, thumbWidth, ScrollBarWidth);
+    }
+
     protected override bool OnMouse(MouseEventContext mouseContext)
     {
-        if (CanvasSize.Height > Bounds.Height)
-        {
-            var heightRatio = Bounds.Height / CanvasSize.Height;
-            var thumbHeight = Math.Max(20f, Bounds.Height * heightRatio);
-            var scrollPercent = ScrollOffset.Y / (CanvasSize.Height - Bounds.Height);
-            var thumbY = Bounds.Top + (scrollPercent * (Bounds.Height - thumbHeight));
-            var thumbRect = SKRect.Create(Bounds.Right - ScrollBarWidth, thumbY, ScrollBarWidth, thumbHeight);
+        var vThumbRect = GetVThumbRect();
+        var hThumbRect = GetHThumbRect();
 
-            IsThumbHovered = IsHovered && thumbRect.Contains(mouseContext.ClientPosition);
+        IsVThumbHovered = IsHovered && vThumbRect.Contains(mouseContext.ClientPosition);
+        IsHThumbHovered = IsHovered && hThumbRect.Contains(mouseContext.ClientPosition);
+
+        if (mouseContext.Button == MouseButton.Left && mouseContext.Type == MouseEventType.MouseDown)
+        {
+            if (IsVThumbHovered)
+            {
+                _isDraggingVBar = true;
+                _dragStartMousePos = mouseContext.ClientPosition;
+                _dragStartScrollOffset = ScrollOffset;
+                return true;
+            }
+            if (IsHThumbHovered)
+            {
+                _isDraggingHBar = true;
+                _dragStartMousePos = mouseContext.ClientPosition;
+                _dragStartScrollOffset = ScrollOffset;
+                return true;
+            }
+        }
+
+        if (mouseContext.Button == MouseButton.Left && mouseContext.Type == MouseEventType.MouseUp)
+        {
+            _isDraggingVBar = false;
+            _isDraggingHBar = false;
+        }
+
+        if (mouseContext.Type == MouseEventType.Move)
+        {
+            if (_isDraggingVBar)
+            {
+                var hasHBar = CanvasSize.Width > Bounds.Width;
+                var trackHeight = Bounds.Height - (hasHBar ? ScrollBarWidth : 0f);
+                var thumbHeight = vThumbRect.Height;
+                var availableTrack = trackHeight - thumbHeight;
+
+                if (availableTrack > 0)
+                {
+                    var deltaY = mouseContext.ClientPosition.Y - _dragStartMousePos.Y;
+                    var scrollDelta = deltaY / availableTrack * (CanvasSize.Height - Bounds.Height);
+                    var maxScrollY = Math.Max(0, CanvasSize.Height - Bounds.Height);
+
+                    ScrollOffset = new SKPoint(
+                        ScrollOffset.X,
+                        Math.Clamp(_dragStartScrollOffset.Y + scrollDelta, 0, maxScrollY)
+                    );
+                }
+                return true;
+            }
+
+            if (_isDraggingHBar)
+            {
+                var hasVBar = CanvasSize.Height > Bounds.Height;
+                var trackWidth = Bounds.Width - (hasVBar ? ScrollBarWidth : 0f);
+                var thumbWidth = hThumbRect.Width;
+                var availableTrack = trackWidth - thumbWidth;
+
+                if (availableTrack > 0)
+                {
+                    var deltaX = mouseContext.ClientPosition.X - _dragStartMousePos.X;
+                    var scrollDelta = deltaX / availableTrack * (CanvasSize.Width - Bounds.Width);
+                    var maxScrollX = Math.Max(0, CanvasSize.Width - Bounds.Width);
+
+                    ScrollOffset = new SKPoint(
+                        Math.Clamp(_dragStartScrollOffset.X + scrollDelta, 0, maxScrollX),
+                        ScrollOffset.Y
+                    );
+                }
+                return true;
+            }
         }
 
         if (mouseContext.Type == MouseEventType.Wheel && IsHovered)
         {
-            var newY = ScrollOffset.Y - (mouseContext.WheelDelta * 20f);
-            var maxY = Math.Max(0, CanvasSize.Height - Bounds.Height);
+            var scrollDelta = mouseContext.WheelDelta * 20f;
 
-            ScrollOffset = new SKPoint(ScrollOffset.X, Math.Clamp(newY, 0, maxY));
+            if (_isShiftPressed)
+            {
+                var maxScrollX = Math.Max(0, CanvasSize.Width - Bounds.Width);
+                var newX = Math.Clamp(ScrollOffset.X - scrollDelta, 0, maxScrollX);
+                ScrollOffset = new SKPoint(newX, ScrollOffset.Y);
+            }
+            else
+            {
+                var maxScrollY = Math.Max(0, CanvasSize.Height - Bounds.Height);
+                var newY = Math.Clamp(ScrollOffset.Y - scrollDelta, 0, maxScrollY);
+                ScrollOffset = new SKPoint(ScrollOffset.X, newY);
+            }
+
             return true;
         }
 
@@ -170,18 +293,27 @@ public class ScrollingFrame : UIControlBase
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        if (!IsHovered && IsThumbHovered)
+        if (!IsHovered && !_isDraggingVBar && !_isDraggingHBar)
         {
-            IsThumbHovered = false;
+            IsVThumbHovered = false;
+            IsHThumbHovered = false;
         }
 
         RecalculateCanvasSize();
 
-        ContentContainer.Bounds = SKRect.Create(
-            Bounds.Left - ScrollOffset.X,
-            Bounds.Top - ScrollOffset.Y,
-            CanvasSize.Width,
-            CanvasSize.Height
+        var maxScrollX = Math.Max(0, CanvasSize.Width - Bounds.Width);
+        var maxScrollY = Math.Max(0, CanvasSize.Height - Bounds.Height);
+
+        ScrollOffset = new SKPoint(
+            Math.Clamp(ScrollOffset.X, 0, maxScrollX),
+            Math.Clamp(ScrollOffset.Y, 0, maxScrollY)
+        );
+
+        ContentContainer.Location = new SKPoint(-ScrollOffset.X, -ScrollOffset.Y);
+
+        ContentContainer.Size = new SKSize(
+            CanvasSize.Width + ScrollOffset.X,
+            CanvasSize.Height + ScrollOffset.Y
         );
     }
 
@@ -189,31 +321,64 @@ public class ScrollingFrame : UIControlBase
     {
         if (!IsVisible) return;
 
-        using var bgPaint = new SKPaint { Color = BackgroundColor, Style = SKPaintStyle.Fill, IsAntialias = false };
-        canvas.DrawRect(Bounds, bgPaint);
-
-        if (CanvasSize.Height > Bounds.Height)
+        using (var bgPaint = new SKPaint { Color = BackgroundColor, Style = SKPaintStyle.Fill, IsAntialias = false })
         {
-            var scrollTrackRect = SKRect.Create(Bounds.Right - ScrollBarWidth, Bounds.Top, ScrollBarWidth, Bounds.Height);
+            canvas.DrawRect(Bounds, bgPaint);
+        }
+
+        ContentContainer.Draw(canvas);
+
+        var hasVBar = CanvasSize.Height > Bounds.Height;
+        var hasHBar = CanvasSize.Width > Bounds.Width;
+
+        if (hasVBar)
+        {
+            var trackHeight = Bounds.Height - (hasHBar ? ScrollBarWidth : 0f);
+            var scrollTrackRect = SKRect.Create(Bounds.Right - ScrollBarWidth, Bounds.Top, ScrollBarWidth, trackHeight);
 
             using var trackPaint = new SKPaint { Color = TrackColor, Style = SKPaintStyle.Fill, IsAntialias = false };
             canvas.DrawRect(scrollTrackRect, trackPaint);
 
-            var heightRatio = Bounds.Height / CanvasSize.Height;
-            var thumbHeight = Math.Max(20f, Bounds.Height * heightRatio);
-            var scrollPercent = ScrollOffset.Y / (CanvasSize.Height - Bounds.Height);
-            var thumbY = Bounds.Top + (scrollPercent * (Bounds.Height - thumbHeight));
-
-            var thumbRect = SKRect.Create(Bounds.Right - ScrollBarWidth, thumbY, ScrollBarWidth, thumbHeight);
-
+            var vThumbRect = GetVThumbRect();
             using var thumbPaint = new SKPaint
             {
-                Color = IsThumbHovered ? ThumbHoverColor : ThumbColor,
+                Color = (IsVThumbHovered || _isDraggingVBar) ? ThumbHoverColor : ThumbColor,
                 Style = SKPaintStyle.Fill,
                 IsAntialias = false
             };
-            canvas.DrawRect(thumbRect, thumbPaint);
+            canvas.DrawRect(vThumbRect, thumbPaint);
         }
+
+        if (hasHBar)
+        {
+            var trackWidth = Bounds.Width - (hasVBar ? ScrollBarWidth : 0f);
+            var scrollTrackRect = SKRect.Create(Bounds.Left, Bounds.Bottom - ScrollBarWidth, trackWidth, ScrollBarWidth);
+
+            using var trackPaint = new SKPaint { Color = TrackColor, Style = SKPaintStyle.Fill, IsAntialias = false };
+            canvas.DrawRect(scrollTrackRect, trackPaint);
+
+            var hThumbRect = GetHThumbRect();
+            using var thumbPaint = new SKPaint
+            {
+                Color = (IsHThumbHovered || _isDraggingHBar) ? ThumbHoverColor : ThumbColor,
+                Style = SKPaintStyle.Fill,
+                IsAntialias = false
+            };
+            canvas.DrawRect(hThumbRect, thumbPaint);
+        }
+
+        if (hasVBar && hasHBar)
+        {
+            var cornerRect = SKRect.Create(Bounds.Right - ScrollBarWidth, Bounds.Bottom - ScrollBarWidth, ScrollBarWidth, ScrollBarWidth);
+            using var cornerPaint = new SKPaint { Color = TrackColor, Style = SKPaintStyle.Fill, IsAntialias = false };
+            canvas.DrawRect(cornerRect, cornerPaint);
+        }
+    }
+
+    protected override void OnDispose()
+    {
+        ContentContainer.Dispose();
+        base.OnDispose();
     }
 
     public ScrollingFrame WithWidth(float width) { Width = width; return this; }
