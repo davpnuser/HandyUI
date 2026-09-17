@@ -189,6 +189,18 @@ public abstract class UIControlBase : IUIControl
         }
     } = true;
 
+    public UIControlBase WithLocation(SKPoint location)
+    {
+        Location = location;
+        return this;
+    }
+
+    public UIControlBase WithLocation(float x, float y)
+    {
+        Location = new SKPoint(x, y);
+        return this;
+    }
+
     public event Action<IUIControl>? FocusRequested;
 
     public void RequestFocus()

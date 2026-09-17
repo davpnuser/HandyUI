@@ -3,6 +3,7 @@ using HandyUI.Core.Components;
 using HandyUI.SilkNet.Classes.Extensions;
 using Silk.NET.Windowing;
 using SkiaSharp;
+using System.Diagnostics;
 
 (var window, var renderer) = SilkWindowHelper.CreateWindowAndGetRenderer("Example", new(250, 350));
 
@@ -13,10 +14,13 @@ if (ResourceManager.GetResourceByPath("Resources/HandyUI-Logo.png", out var imag
 }
 logoImage!.SetAsIcon(window);
 
-var button = new TextButton("click me!")
-{
-    Location = new(15, 15)
-};
+var button = new TextButton()
+    .WithText("exit app")
+    .WithOnClick(Debugger.Break)
+    .WithWidth(150)
+    .WithHeight(36)
+    .WithLocation(25, 25);
+
 renderer.AddRootControl(button);
 
 window.Run();

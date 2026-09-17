@@ -1,121 +1,91 @@
 ﻿using HandyUI.Core.Classes.Base;
+using HandyUI.Core.Classes.Themes;
 using SkiaSharp;
 
 namespace HandyUI.Core.Classes.Controls;
 
 public class Frame : UIControlBase
 {
-    private float _height;
-    private float _width;
+    public float Width
+    {
+        get => Bounds.Width;
+        set
+        {
+            if (Math.Abs(Bounds.Width - value) < 0.001f) return;
+            Bounds = SKRect.Create(Location.X, Location.Y, value, Bounds.Height);
+            Invalidate();
+        }
+    }
 
     public float Height
     {
-        get => _height;
+        get => Bounds.Height;
         set
         {
-            if (_height != value)
-            {
-                _height = value;
-                RecalculateBounds();
-                Invalidate();
-            }
+            if (Math.Abs(Bounds.Height - value) < 0.001f) return;
+            Bounds = SKRect.Create(Location.X, Location.Y, Bounds.Width, value);
+            Invalidate();
         }
     }
 
-    public float Width
+    public SKSize Size
     {
-        get => _width;
+        get => new(Bounds.Width, Bounds.Height);
         set
         {
-            if (_width != value)
-            {
-                _width = value;
-                RecalculateBounds();
-                Invalidate();
-            }
+            Bounds = SKRect.Create(Location.X, Location.Y, value.Width, value.Height);
+            Invalidate();
         }
     }
 
-    public float CornerRadius
+    public SKColor BackgroundColor
     {
         get;
-        set
-        {
-            if (field != value)
-            {
-                field = value;
-                Invalidate();
-            }
-        }
-    } = 6f;
-
-    public SKColor NormalColor
-    {
-        get;
-        set
-        {
-            if (field != value)
-            {
-                field = value;
-                Invalidate();
-            }
-        }
-    } = SKColor.Parse("#1E1E2E");
+        set { if (field == value) return; field = value; Invalidate(); }
+    } = VS2017Theme.PanelBackground;
 
     public SKColor BorderColor
     {
         get;
-        set
-        {
-            if (field != value)
-            {
-                field = value;
-                Invalidate();
-            }
-        }
-    } = SKColor.Parse("#CBA6F7");
+        set { if (field == value) return; field = value; Invalidate(); }
+    } = VS2017Theme.ControlBorder;
 
-    private readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
-    private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
-
-    public Frame(float width = 150f, float height = 150f)
+    public float BorderThickness
     {
-        _height = height;
-        _width = width;
-        RecalculateBounds();
-    }
+        get;
+        set { if (Math.Abs(field - value) < 0.001f) return; field = value; Invalidate(); }
+    } = 1.0f;
 
-    private void RecalculateBounds()
-    {
-        Bounds = SKRect.Create(0, 0, _width, _height);
-    }
+    public override bool Intersects(SKPoint clientPoint) => Bounds.Contains(clientPoint.X, clientPoint.Y);
+
+    public override void Update(float deltaTime, SKPoint clientMousePosition) { }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
-        var rect = SKRect.Create(0, 0, _width, _height);
+        if (BackgroundColor.Alpha > 0)
+        {
+            using var bgPaint = new SKPaint { Color = BackgroundColor, Style = SKPaintStyle.Fill, IsAntialias = false };
+            canvas.DrawRect(Bounds, bgPaint);
+        }
 
-        _fillPaint.Color = NormalColor;
-        _borderPaint.Color = BorderColor;
-
-        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _fillPaint);
-        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _borderPaint);
+        if (BorderThickness > 0 && BorderColor.Alpha > 0)
+        {
+            using var borderPaint = new SKPaint { Color = BorderColor, Style = SKPaintStyle.Stroke, StrokeWidth = BorderThickness, IsAntialias = false };
+            canvas.DrawRect(Bounds, borderPaint);
+        }
     }
 
-    public override bool Intersects(SKPoint clientPoint)
-    {
-        return Bounds.Contains(clientPoint);
-    }
-
-    public override void Update(float deltaTime, SKPoint clientMousePosition)
-    {
-    }
-
-    protected override void OnDispose()
-    {
-        _fillPaint.Dispose();
-        _borderPaint.Dispose();
-        base.OnDispose();
-    }
+    public Frame WithWidth(float width) { Width = width; return this; }
+    public Frame WithHeight(float height) { Height = height; return this; }
+    public Frame WithSize(float width, float height) { Size = new SKSize(width, height); return this; }
+    public Frame WithBounds(SKRect bounds) { Bounds = bounds; return this; }
+    public Frame WithLocation(SKPoint location) { Location = location; Bounds = SKRect.Create(location.X, location.Y, Bounds.Width, Bounds.Height); return this; }
+    public Frame WithBackgroundColor(SKColor color) { BackgroundColor = color; return this; }
+    public Frame WithBorderColor(SKColor color) { BorderColor = color; return this; }
+    public Frame WithBorderThickness(float thickness) { BorderThickness = thickness; return this; }
+    public Frame WithParent(UIControlBase? parent) { Parent = parent; return this; }
+    public Frame WithZIndex(int zIndex) { ZIndex = zIndex; return this; }
+    public Frame WithVisible(bool isVisible) { IsVisible = isVisible; return this; }
 }

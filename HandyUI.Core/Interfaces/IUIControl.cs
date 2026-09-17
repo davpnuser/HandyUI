@@ -24,6 +24,9 @@ public interface IUIControl : IDisposable
     bool IsVisible { get; set; }
     bool IsEnabled { get; set; }
 
+    UIControlBase WithLocation(SKPoint location);
+    UIControlBase WithLocation(float x, float y);
+
     event Action<IUIControl>? FocusRequested;
     event Action? Invalidated;
 
