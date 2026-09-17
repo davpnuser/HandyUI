@@ -5,65 +5,119 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class ProgressBar : UIControlBase
 {
+    private float _height = 8f;
+    private float _width = 200f;
     private float _value;
-    private float _minimum;
-    private float _maximum = 100f;
-    private float _animatedValue;
+    private float _minValue;
+    private float _maxValue = 100f;
 
-    public float Minimum
+    public float Height
     {
-        get => _minimum;
-        set
-        {
-            _minimum = value;
-            Value = Math.Clamp(_value, _minimum, _maximum);
-        }
+        get => _height;
+        set { if (_height != value) { _height = value; RecalculateBounds(); Invalidate(); } }
     }
 
-    public float Maximum
+    public float Width
     {
-        get => _maximum;
-        set
-        {
-            _maximum = value;
-            Value = Math.Clamp(_value, _minimum, _maximum);
-        }
+        get => _width;
+        set { if (_width != value) { _width = value; RecalculateBounds(); Invalidate(); } }
     }
 
     public float Value
     {
         get => _value;
-        set => _value = Math.Clamp(value, _minimum, _maximum);
+        set { var clamped = Math.Clamp(value, MinValue, MaxValue); if (_value != clamped) { _value = clamped; Invalidate(); } }
     }
 
-    public float CornerRadius { get; set; } = 6f;
-    public bool ShowPercentage { get; set; } = false;
-
-    public float TextSize
+    public float MinValue
     {
-        get => _font.Size;
-        set => _font.Size = value;
+        get => _minValue;
+        set { if (_minValue != value) { _minValue = value; Value = Math.Clamp(_value, _minValue, _maxValue); Invalidate(); } }
     }
 
-    public SKColor TrackColor { get; set; } = SKColor.Parse("#313244");
-    public SKColor ProgressColor { get; set; } = SKColor.Parse("#CBA6F7");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#45475A");
-    public SKColor TextColorOnTrack { get; set; } = SKColor.Parse("#CDD6F4");
-    public SKColor TextColorOnProgress { get; set; } = SKColor.Parse("#11111B");
+    public float MaxValue
+    {
+        get => _maxValue;
+        set { if (_maxValue != value) { _maxValue = value; Value = Math.Clamp(_value, _minValue, _maxValue); Invalidate(); } }
+    }
+
+    public float CornerRadius
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = 4f;
+
+    public SKColor TrackColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#1E1E2E");
+
+    public SKColor FillColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#CBA6F7");
+
+    public SKColor BorderColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#313244");
+
+    public float BorderWidth
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = 1f;
+
+    private float _animatedProgress;
 
     private readonly SKPaint _trackPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
-    private readonly SKPaint _progressPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
-    private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1f };
-    private readonly SKPaint _textPaint = new() { IsAntialias = true };
-    private readonly SKFont _font = new(SKTypeface.Default, 12f) { Subpixel = true };
+    private readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
+    private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
 
-    public ProgressBar(float width = 200f, float height = 20f, float min = 0f, float max = 100f, float value = 0f)
+    public ProgressBar(float width = 200f, float height = 8f, float minValue = 0f, float maxValue = 100f, float initialValue = 0f)
     {
-        _minimum = min;
-        _maximum = max;
-        _value = Math.Clamp(value, min, max);
-        _animatedValue = _value;
-        Bounds = SKRect.Create(0, 0, width, height);
+        _width = width;
+        _height = height;
+        _minValue = minValue;
+        _maxValue = maxValue;
+        _value = Math.Clamp(initialValue, minValue, maxValue);
+        _animatedProgress = NormalizedValue;
+        RecalculateBounds();
+    }
+
+    private float NormalizedValue => (MaxValue - MinValue) > 0 ? (Value - MinValue) / (MaxValue - MinValue) : 0f;
+
+    private void RecalculateBounds()
+    {
+        Bounds = SKRect.Create(0, 0, _width, _height);
+    }
+
+    public override void Draw(SKCanvas canvas)
+    {
+        if (!IsVisible) return;
+
+        var trackRect = SKRect.Create(0, 0, _width, _height);
+
+        _trackPaint.Color = TrackColor;
+        canvas.DrawRoundRect(trackRect, CornerRadius, CornerRadius, _trackPaint);
+
+        var fillWidth = _width * _animatedProgress;
+        if (fillWidth > 0f)
+        {
+            var fillRect = SKRect.Create(0, 0, fillWidth, _height);
+            _fillPaint.Color = FillColor;
+            canvas.DrawRoundRect(fillRect, CornerRadius, CornerRadius, _fillPaint);
+        }
+
+        if (BorderWidth > 0 && BorderColor.Alpha > 0)
+        {
+            _borderPaint.Color = BorderColor;
+            _borderPaint.StrokeWidth = BorderWidth;
+            canvas.DrawRoundRect(trackRect, CornerRadius, CornerRadius, _borderPaint);
+        }
     }
 
     public override bool Intersects(SKPoint clientPoint)
@@ -73,73 +127,22 @@ public class ProgressBar : UIControlBase
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        _animatedValue += (_value - _animatedValue) * deltaTime * 12f;
-    }
+        var targetProgress = NormalizedValue;
+        var oldProgress = _animatedProgress;
 
-    public override void Draw(SKCanvas canvas)
-    {
-        if (!IsVisible) return;
+        _animatedProgress += (targetProgress - _animatedProgress) * deltaTime * 10f;
 
-        var rect = SKRect.Create(0, 0, Bounds.Width, Bounds.Height);
-
-        _trackPaint.Color = TrackColor;
-        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _trackPaint);
-
-        var normalized = (_maximum > _minimum) ? (_animatedValue - _minimum) / (_maximum - _minimum) : 0f;
-        normalized = Math.Clamp(normalized, 0f, 1f);
-        var fillWidth = Bounds.Width * normalized;
-
-        if (fillWidth > 0f)
+        if (Math.Abs(_animatedProgress - oldProgress) > 0.0001f)
         {
-            var fillRect = SKRect.Create(0, 0, fillWidth, Bounds.Height);
-
-            canvas.Save();
-            canvas.ClipRoundRect(new SKRoundRect(rect, CornerRadius, CornerRadius), SKClipOperation.Intersect, true);
-
-            _progressPaint.Color = ProgressColor;
-            canvas.DrawRect(fillRect, _progressPaint);
-
-            canvas.Restore();
+            Invalidate();
         }
-
-        if (ShowPercentage)
-        {
-            var percentageText = $"{Math.Round(normalized * 100)}%";
-            var metrics = _font.Metrics;
-            var textHeight = metrics.Descent - metrics.Ascent;
-            var textWidth = _font.MeasureText(percentageText);
-
-            var textX = (Bounds.Width - textWidth) / 2f;
-            var textY = ((Bounds.Height + textHeight) / 2f) - metrics.Descent;
-
-            _textPaint.Color = TextColorOnTrack;
-            canvas.DrawText(percentageText, textX, textY, SKTextAlign.Left, _font, _textPaint);
-
-            if (fillWidth > 0f)
-            {
-                canvas.Save();
-
-                var fillClipRect = SKRect.Create(0, 0, fillWidth, Bounds.Height);
-                canvas.ClipRect(fillClipRect, SKClipOperation.Intersect, true);
-
-                _textPaint.Color = TextColorOnProgress;
-                canvas.DrawText(percentageText, textX, textY, SKTextAlign.Left, _font, _textPaint);
-
-                canvas.Restore();
-            }
-        }
-
-        _borderPaint.Color = BorderColor;
-        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _borderPaint);
     }
 
     protected override void OnDispose()
     {
         _trackPaint.Dispose();
-        _progressPaint.Dispose();
+        _fillPaint.Dispose();
         _borderPaint.Dispose();
-        _textPaint.Dispose();
-        _font.Dispose();
         base.OnDispose();
     }
 }

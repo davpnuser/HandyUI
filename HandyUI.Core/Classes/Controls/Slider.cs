@@ -6,35 +6,22 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class Slider : UIControlBase
 {
+    private float _height = 20f;
+    private float _width = 200f;
     private float _value;
-    private float _minimum;
-    private float _maximum = 100f;
-    private bool _isDragging;
+    private float _minValue;
+    private float _maxValue = 100f;
+
+    public float Height
+    {
+        get => _height;
+        set { if (_height != value) { _height = value; RecalculateBounds(); Invalidate(); } }
+    }
 
     public float Width
     {
-        get => Bounds.Width;
-        set => RecalculateBounds(value, Math.Max(ThumbRadius * 2, TrackHeight));
-    }
-
-    public float Minimum
-    {
-        get => _minimum;
-        set
-        {
-            _minimum = value;
-            Value = Math.Clamp(_value, _minimum, _maximum);
-        }
-    }
-
-    public float Maximum
-    {
-        get => _maximum;
-        set
-        {
-            _maximum = value;
-            Value = Math.Clamp(_value, _minimum, _maximum);
-        }
+        get => _width;
+        set { if (_width != value) { _width = value; RecalculateBounds(); Invalidate(); } }
     }
 
     public float Value
@@ -42,45 +29,126 @@ public class Slider : UIControlBase
         get => _value;
         set
         {
-            var clamped = Math.Clamp(value, _minimum, _maximum);
-            if (Math.Abs(_value - clamped) > 0.0001f)
+            var clamped = Math.Clamp(value, MinValue, MaxValue);
+            if (_value != clamped)
             {
                 _value = clamped;
                 OnValueChanged?.Invoke(_value);
+                Invalidate();
             }
         }
     }
 
-    public float TrackHeight { get; set; } = 6f;
-    public float ThumbRadius { get; set; } = 10f;
+    public float MinValue
+    {
+        get => _minValue;
+        set { if (_minValue != value) { _minValue = value; Value = Math.Clamp(_value, _minValue, _maxValue); Invalidate(); } }
+    }
 
-    public SKColor TrackColor { get; set; } = SKColor.Parse("#313244");
-    public SKColor ProgressColor { get; set; } = SKColor.Parse("#CBA6F7");
-    public SKColor ThumbColor { get; set; } = SKColor.Parse("#B4BEFE");
-    public SKColor ThumbHoverColor { get; set; } = SKColor.Parse("#aab5fa");
+    public float MaxValue
+    {
+        get => _maxValue;
+        set { if (_maxValue != value) { _maxValue = value; Value = Math.Clamp(_value, _minValue, _maxValue); Invalidate(); } }
+    }
 
-    //#aab5fa
-    //#89B4FA
+    public float TrackHeight
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = 6f;
+
+    public float ThumbRadius
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = 8f;
+
+    public SKColor TrackColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#1E1E2E");
+
+    public SKColor FillColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#CBA6F7");
+
+    public SKColor ThumbColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#F5E0DC");
+
+    public SKColor BorderColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#313244");
+
+    public float BorderWidth
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = 1f;
 
     public Action<float>? OnValueChanged { get; set; }
 
-    private float _animatedThumbRadius;
-    private readonly SKPaint _trackPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
-    private readonly SKPaint _progressPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
-    private readonly SKPaint _thumbPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
+    private bool _isDragging;
 
-    public Slider(float width = 200f, float min = 0f, float max = 100f, float value = 0f)
+    private readonly SKPaint _trackPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
+    private readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
+    private readonly SKPaint _thumbPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
+    private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
+
+    public Slider(float width = 200f, float height = 20f, float minValue = 0f, float maxValue = 100f, float initialValue = 0f)
     {
-        _minimum = min;
-        _maximum = max;
-        _value = Math.Clamp(value, min, max);
-        RecalculateBounds(width, Math.Max(ThumbRadius * 2, TrackHeight));
-        _animatedThumbRadius = ThumbRadius;
+        _width = width;
+        _height = height;
+        _minValue = minValue;
+        _maxValue = maxValue;
+        _value = Math.Clamp(initialValue, minValue, maxValue);
+        RecalculateBounds();
     }
 
-    private void RecalculateBounds(float width, float height)
+    private float NormalizedValue => (MaxValue - MinValue) > 0 ? (Value - MinValue) / (MaxValue - MinValue) : 0f;
+
+    private void RecalculateBounds()
     {
-        Bounds = SKRect.Create(Bounds.Left, Bounds.Top, Math.Max(0f, width), height);
+        Bounds = SKRect.Create(0, 0, _width, _height);
+    }
+
+    public override void Draw(SKCanvas canvas)
+    {
+        if (!IsVisible) return;
+
+        var trackY = (Bounds.Height - TrackHeight) / 2f;
+        var trackRect = SKRect.Create(ThumbRadius, trackY, _width - (ThumbRadius * 2), TrackHeight);
+
+        _trackPaint.Color = TrackColor;
+        canvas.DrawRoundRect(trackRect, TrackHeight / 2f, TrackHeight / 2f, _trackPaint);
+
+        var fillWidth = trackRect.Width * NormalizedValue;
+        if (fillWidth > 0f)
+        {
+            var fillRect = SKRect.Create(ThumbRadius, trackY, fillWidth, TrackHeight);
+            _fillPaint.Color = FillColor;
+            canvas.DrawRoundRect(fillRect, TrackHeight / 2f, TrackHeight / 2f, _fillPaint);
+        }
+
+        if (BorderWidth > 0 && BorderColor.Alpha > 0)
+        {
+            _borderPaint.Color = BorderColor;
+            _borderPaint.StrokeWidth = BorderWidth;
+            canvas.DrawRoundRect(trackRect, TrackHeight / 2f, TrackHeight / 2f, _borderPaint);
+        }
+
+        var thumbX = trackRect.Left + fillWidth;
+        var thumbY = Bounds.Height / 2f;
+
+        _thumbPaint.Color = ThumbColor;
+        canvas.DrawCircle(thumbX, thumbY, ThumbRadius, _thumbPaint);
     }
 
     public override bool Intersects(SKPoint clientPoint)
@@ -88,69 +156,28 @@ public class Slider : UIControlBase
         return Bounds.Contains(clientPoint);
     }
 
-    public override void Draw(SKCanvas canvas)
-    {
-        if (!IsVisible) return;
-
-        var trackY = Bounds.Height / 2f;
-        var padding = ThumbRadius;
-        var availableWidth = Math.Max(1f, Bounds.Width - (padding * 2f));
-        var normalized = (_maximum > _minimum) ? (_value - _minimum) / (_maximum - _minimum) : 0f;
-        var thumbX = padding + (normalized * availableWidth);
-
-        var trackRect = SKRect.Create(padding, trackY - (TrackHeight / 2f), availableWidth, TrackHeight);
-        _trackPaint.Color = TrackColor;
-        canvas.DrawRoundRect(trackRect, TrackHeight / 2f, TrackHeight / 2f, _trackPaint);
-
-        if (thumbX > padding)
-        {
-            var progressRect = SKRect.Create(padding, trackY - (TrackHeight / 2f), thumbX - padding, TrackHeight);
-            _progressPaint.Color = ProgressColor;
-            canvas.DrawRoundRect(progressRect, TrackHeight / 2f, TrackHeight / 2f, _progressPaint);
-        }
-
-        _thumbPaint.Color = (_isDragging || IsHovered) ? ThumbHoverColor : ThumbColor;
-        canvas.DrawCircle(thumbX, trackY, _animatedThumbRadius, _thumbPaint);
-    }
-
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        var targetRadius = (_isDragging || IsHovered) ? ThumbRadius * 1.25f : ThumbRadius;
-        _animatedThumbRadius += (targetRadius - _animatedThumbRadius) * deltaTime * 15f;
-
         if (_isDragging)
         {
-            UpdateValueFromMouseX(clientMousePosition.X);
+            var trackWidth = _width - (ThumbRadius * 2);
+            var relativeX = Math.Clamp(clientMousePosition.X - ThumbRadius, 0f, trackWidth);
+            var pct = relativeX / trackWidth;
+            Value = MinValue + (pct * (MaxValue - MinValue));
         }
-    }
-
-    private void UpdateValueFromMouseX(float mouseX)
-    {
-        var padding = ThumbRadius;
-        var availableWidth = Math.Max(1f, Bounds.Width - (padding * 2f));
-        var relativeX = mouseX - padding;
-        var normalized = Math.Clamp(relativeX / availableWidth, 0f, 1f);
-        Value = _minimum + (normalized * (_maximum - _minimum));
     }
 
     protected override bool OnMouse(MouseEventContext mouseContext)
     {
-        if (mouseContext.Type == MouseEventType.MouseDown && mouseContext.Button == MouseButton.Left && IsHovered && IsEnabled)
+        if (mouseContext.Type == MouseEventType.MouseDown && IsHovered && IsEnabled)
         {
             _isDragging = true;
-            UpdateValueFromMouseX(mouseContext.ClientPosition.X);
             return true;
         }
 
-        if (mouseContext.Type == MouseEventType.MouseUp && mouseContext.Button == MouseButton.Left)
+        if (mouseContext.Type == MouseEventType.MouseUp)
         {
             _isDragging = false;
-        }
-
-        if (mouseContext.Type == MouseEventType.Move && _isDragging)
-        {
-            UpdateValueFromMouseX(mouseContext.ClientPosition.X);
-            return true;
         }
 
         return base.OnMouse(mouseContext);
@@ -159,8 +186,9 @@ public class Slider : UIControlBase
     protected override void OnDispose()
     {
         _trackPaint.Dispose();
-        _progressPaint.Dispose();
+        _fillPaint.Dispose();
         _thumbPaint.Dispose();
+        _borderPaint.Dispose();
         base.OnDispose();
     }
 }

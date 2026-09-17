@@ -7,33 +7,125 @@ namespace HandyUI.Core.Classes.Controls;
 public class CheckBox : UIControlBase
 {
     private string _text = "CheckBox";
+    private bool _isChecked;
 
     public string Text
     {
         get => _text;
-        set { _text = value; RecalculateBounds(); }
+        set
+        {
+            if (_text != value)
+            {
+                _text = value;
+                RecalculateBounds();
+                Invalidate();
+            }
+        }
     }
 
-    public bool IsChecked { get; set; }
+    public bool IsChecked
+    {
+        get => _isChecked;
+        set
+        {
+            if (_isChecked != value)
+            {
+                _isChecked = value;
+                Invalidate();
+            }
+        }
+    }
 
-    public float BoxSize { get; set { field = value; RecalculateBounds(); } } = 20f;
+    public float BoxSize
+    {
+        get;
+        set
+        {
+            if (field != value)
+            {
+                field = value;
+                RecalculateBounds();
+                Invalidate();
+            }
+        }
+    } = 20f;
 
-    public float Spacing { get; set { field = value; RecalculateBounds(); } } = 8f;
+    public float Spacing
+    {
+        get;
+        set
+        {
+            if (field != value)
+            {
+                field = value;
+                RecalculateBounds();
+                Invalidate();
+            }
+        }
+    } = 8f;
 
-    public float CornerRadius { get; set; } = 4f;
+    public float CornerRadius
+    {
+        get;
+        set
+        {
+            if (field != value)
+            {
+                field = value;
+                Invalidate();
+            }
+        }
+    } = 4f;
 
     public float TextSize
     {
         get => _font.Size;
-        set { _font.Size = value; RecalculateBounds(); }
+        set
+        {
+            if (_font.Size != value)
+            {
+                _font.Size = value;
+                RecalculateBounds();
+                Invalidate();
+            }
+        }
     }
 
-    public SKColor BoxOffColor { get; set; } = SKColor.Parse("#1E1E2E");
-    public SKColor BoxOnColor { get; set; } = SKColor.Parse("#CBA6F7");
-    public SKColor BoxHoverColor { get; set; } = SKColor.Parse("#313244");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#585B70");
-    public SKColor CheckMarkColor { get; set; } = SKColor.Parse("#11111B");
-    public SKColor TextColor { get; set; } = SKColor.Parse("#CDD6F4");
+    public SKColor BoxOffColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#1E1E2E");
+
+    public SKColor BoxOnColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#CBA6F7");
+
+    public SKColor BoxHoverColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#313244");
+
+    public SKColor BorderColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#585B70");
+
+    public SKColor CheckMarkColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#11111B");
+
+    public SKColor TextColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#CDD6F4");
 
     public Action<bool>? OnCheckChanged { get; set; }
 
@@ -49,7 +141,7 @@ public class CheckBox : UIControlBase
     public CheckBox(string text = "CheckBox", bool isChecked = false)
     {
         _text = text;
-        IsChecked = isChecked;
+        _isChecked = isChecked;
         _animProgress = isChecked ? 1f : 0f;
         _animatedBoxColor = isChecked ? BoxOnColor : BoxOffColor;
         RecalculateBounds();
@@ -117,10 +209,18 @@ public class CheckBox : UIControlBase
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
         var targetProgress = IsChecked ? 1f : 0f;
-        _animProgress += (targetProgress - _animProgress) * deltaTime * 14f;
-
         var targetBoxColor = IsChecked ? BoxOnColor : IsHovered ? BoxHoverColor : BoxOffColor;
+
+        var oldProgress = _animProgress;
+        var oldBoxColor = _animatedBoxColor;
+
+        _animProgress += (targetProgress - _animProgress) * deltaTime * 14f;
         _animatedBoxColor = LerpColor(_animatedBoxColor, targetBoxColor, deltaTime * 12f);
+
+        if (Math.Abs(_animProgress - oldProgress) > 0.001f || _animatedBoxColor != oldBoxColor)
+        {
+            Invalidate();
+        }
     }
 
     private static SKColor LerpColor(SKColor from, SKColor to, float progress)

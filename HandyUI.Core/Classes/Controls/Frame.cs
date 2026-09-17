@@ -11,19 +11,69 @@ public class Frame : UIControlBase
     public float Height
     {
         get => _height;
-        set { _height = value; RecalculateBounds(); }
+        set
+        {
+            if (_height != value)
+            {
+                _height = value;
+                RecalculateBounds();
+                Invalidate();
+            }
+        }
     }
 
     public float Width
     {
         get => _width;
-        set { _width = value; RecalculateBounds(); }
+        set
+        {
+            if (_width != value)
+            {
+                _width = value;
+                RecalculateBounds();
+                Invalidate();
+            }
+        }
     }
 
-    public float CornerRadius { get; set; } = 6f;
+    public float CornerRadius
+    {
+        get;
+        set
+        {
+            if (field != value)
+            {
+                field = value;
+                Invalidate();
+            }
+        }
+    } = 6f;
 
-    public SKColor NormalColor { get; set; } = SKColor.Parse("#1E1E2E");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#CBA6F7");
+    public SKColor NormalColor
+    {
+        get;
+        set
+        {
+            if (field != value)
+            {
+                field = value;
+                Invalidate();
+            }
+        }
+    } = SKColor.Parse("#1E1E2E");
+
+    public SKColor BorderColor
+    {
+        get;
+        set
+        {
+            if (field != value)
+            {
+                field = value;
+                Invalidate();
+            }
+        }
+    } = SKColor.Parse("#CBA6F7");
 
     private readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
@@ -60,7 +110,6 @@ public class Frame : UIControlBase
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        ;
     }
 
     protected override void OnDispose()

@@ -25,7 +25,9 @@ public interface IUIControl : IDisposable
     bool IsEnabled { get; set; }
 
     event Action<IUIControl>? FocusRequested;
+    event Action? Invalidated;
 
+    void Invalidate();
     void RequestFocus();
     bool ProcessMouseEvent(MouseEventContext mouseContext);
     bool ProcessKeyEvent(KeyEventContext keyContext);

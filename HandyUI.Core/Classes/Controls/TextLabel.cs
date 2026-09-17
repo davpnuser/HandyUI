@@ -5,65 +5,88 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class TextLabel : UIControlBase
 {
-    private readonly SKPaint _paint = new() { IsAntialias = true };
-    private readonly SKFont _font = new(SKTypeface.Default, 16f) { Subpixel = true };
+    private string _text = "Label";
 
     public string Text
     {
-        get;
-        set
-        {
-            field = value;
-            RecalculateBounds();
-        }
-    } = string.Empty;
-
-    public SKColor TextColor { get; set; } = SKColors.White;
+        get => _text;
+        set { if (_text != value) { _text = value; RecalculateBounds(); Invalidate(); } }
+    }
 
     public float TextSize
     {
-        get;
-        set
-        {
-            field = value;
-            _font.Size = value;
-            RecalculateBounds();
-        }
-    } = 16f;
+        get => _font.Size;
+        set { if (_font.Size != value) { _font.Size = value; RecalculateBounds(); Invalidate(); } }
+    }
 
-    public SKTypeface Typeface
+    public SKColor TextColor
     {
         get;
-        set
-        {
-            field = value;
-            _font.Typeface = value;
-            RecalculateBounds();
-        }
-    } = SKTypeface.Default;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#CDD6F4");
 
-    public TextLabel(string text = "")
+    public SKColor BorderColor
     {
-        Text = text;
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Empty;
+
+    public float BorderWidth
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = 0f;
+
+    public SKTextAlign TextAlign
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKTextAlign.Left;
+
+    private readonly SKPaint _textPaint = new() { IsAntialias = true };
+    private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
+    private readonly SKFont _font = new(SKTypeface.Default, 14f) { Subpixel = true };
+
+    public TextLabel(string text = "Label")
+    {
+        _text = text;
+        RecalculateBounds();
     }
 
     private void RecalculateBounds()
     {
-        var width = _font.MeasureText(Text);
+        var textWidth = string.IsNullOrEmpty(_text) ? 0f : _font.MeasureText(_text);
         var metrics = _font.Metrics;
-        var height = metrics.Descent - metrics.Ascent;
+        var textHeight = metrics.Descent - metrics.Ascent;
 
-        Bounds = SKRect.Create(0, 0, width, height);
+        Bounds = SKRect.Create(0, 0, textWidth, textHeight);
     }
 
     public override void Draw(SKCanvas canvas)
     {
-        if (!IsVisible || string.IsNullOrEmpty(Text)) return;
+        if (!IsVisible) return;
 
-        _paint.Color = TextColor;
+        if (BorderWidth > 0 && BorderColor.Alpha > 0)
+        {
+            _borderPaint.Color = BorderColor;
+            _borderPaint.StrokeWidth = BorderWidth;
+            canvas.DrawRect(Bounds, _borderPaint);
+        }
 
-        var baselineY = -_font.Metrics.Ascent;
-        canvas.DrawText(Text, 0, baselineY, SKTextAlign.Left, _font, _paint);
+        if (string.IsNullOrEmpty(_text)) return;
+
+        _textPaint.Color = TextColor;
+        var metrics = _font.Metrics;
+        var textY = -metrics.Ascent;
+
+        var textX = TextAlign switch
+        {
+            SKTextAlign.Center => Bounds.Width / 2f,
+            SKTextAlign.Right => Bounds.Width,
+            _ => 0f,
+        };
+
+        canvas.DrawText(_text, textX, textY, TextAlign, _font, _textPaint);
     }
 
     public override bool Intersects(SKPoint clientPoint)
@@ -73,12 +96,12 @@ public class TextLabel : UIControlBase
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        ;
     }
 
     protected override void OnDispose()
     {
-        _paint.Dispose();
+        _textPaint.Dispose();
+        _borderPaint.Dispose();
         _font.Dispose();
         base.OnDispose();
     }

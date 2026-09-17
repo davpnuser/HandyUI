@@ -5,122 +5,81 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class ImageLabel : UIControlBase
 {
+    private static readonly SKSamplingOptions SamplingOptions = new(SKCubicResampler.Mitchell);
+
+    private float _height;
+    private float _width;
     private SKImage? _image;
-    private float? _explicitWidth;
-    private float? _explicitHeight;
-    private bool _autoSize = true;
 
-    public SKImage? Image
+    public float Height
     {
-        get => _image;
-        set
-        {
-            _image = value;
-            RecalculateBounds();
-        }
-    }
-
-    public bool AutoSize
-    {
-        get => _autoSize;
-        set
-        {
-            _autoSize = value;
-            RecalculateBounds();
-        }
+        get => _height;
+        set { if (_height != value) { _height = value; RecalculateBounds(); Invalidate(); } }
     }
 
     public float Width
     {
-        get => Bounds.Width;
-        set
-        {
-            _explicitWidth = value;
-            RecalculateBounds();
-        }
+        get => _width;
+        set { if (_width != value) { _width = value; RecalculateBounds(); Invalidate(); } }
     }
 
-    public float Height
+    public SKImage? Image
     {
-        get => Bounds.Height;
-        set
-        {
-            _explicitHeight = value;
-            RecalculateBounds();
-        }
+        get => _image;
+        set { if (_image != value) { _image = value; Invalidate(); } }
     }
 
-    private static readonly SKSamplingOptions HighSampling = new(SKFilterMode.Linear, SKMipmapMode.Linear);
-    private readonly SKPaint _imagePaint = new() { IsAntialias = true };
+    public SKColor BorderColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Empty;
 
-    public ImageLabel(SKImage? image = null, bool autoSize = true)
+    public float BorderWidth
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = 0f;
+
+    public float CornerRadius
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = 0f;
+
+    private readonly SKPaint _imagePaint = new() { IsAntialias = true };
+    private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
+
+    public ImageLabel(SKImage? image = null, float width = 100f, float height = 100f)
     {
         _image = image;
-        _autoSize = autoSize;
-        RecalculateBounds();
-    }
-
-    public void ClearExplicitSize()
-    {
-        _explicitWidth = null;
-        _explicitHeight = null;
+        _width = width;
+        _height = height;
         RecalculateBounds();
     }
 
     private void RecalculateBounds()
     {
-        var targetWidth = 24f;
-        var targetHeight = 24f;
-
-        if (_autoSize)
-        {
-            if (_explicitWidth.HasValue && _explicitHeight.HasValue)
-            {
-                targetWidth = _explicitWidth.Value;
-                targetHeight = _explicitHeight.Value;
-            }
-            else if (_image != null)
-            {
-                targetWidth = _image.Width;
-                targetHeight = _image.Height;
-            }
-        }
-        else
-        {
-            targetWidth = _explicitWidth ?? _image?.Width ?? 24f;
-            targetHeight = _explicitHeight ?? _image?.Height ?? 24f;
-        }
-
-        Bounds = SKRect.Create(0, 0, targetWidth, targetHeight);
+        Bounds = SKRect.Create(0, 0, _width, _height);
     }
 
     public override void Draw(SKCanvas canvas)
     {
-        if (!IsVisible || _image == null) return;
+        if (!IsVisible) return;
 
-        SKRect destRect;
+        var destRect = SKRect.Create(0, 0, _width, _height);
 
-        if (_autoSize && _explicitWidth.HasValue && _explicitHeight.HasValue)
+        if (_image != null)
         {
-            var imgWidth = (float)_image.Width;
-            var imgHeight = (float)_image.Height;
-
-            var scale = Math.Min(Bounds.Width / imgWidth, Bounds.Height / imgHeight);
-
-            var fitWidth = imgWidth * scale;
-            var fitHeight = imgHeight * scale;
-
-            var offsetX = (Bounds.Width - fitWidth) / 2f;
-            var offsetY = (Bounds.Height - fitHeight) / 2f;
-
-            destRect = SKRect.Create(offsetX, offsetY, fitWidth, fitHeight);
-        }
-        else
-        {
-            destRect = SKRect.Create(0, 0, Bounds.Width, Bounds.Height);
+            canvas.DrawImage(_image, destRect, SamplingOptions, _imagePaint);
         }
 
-        canvas.DrawImage(_image, destRect, HighSampling, _imagePaint);
+        if (BorderWidth > 0 && BorderColor.Alpha > 0)
+        {
+            _borderPaint.Color = BorderColor;
+            _borderPaint.StrokeWidth = BorderWidth;
+            canvas.DrawRoundRect(destRect, CornerRadius, CornerRadius, _borderPaint);
+        }
     }
 
     public override bool Intersects(SKPoint clientPoint)
@@ -130,12 +89,12 @@ public class ImageLabel : UIControlBase
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        ;
     }
 
     protected override void OnDispose()
     {
         _imagePaint.Dispose();
+        _borderPaint.Dispose();
         base.OnDispose();
     }
 }

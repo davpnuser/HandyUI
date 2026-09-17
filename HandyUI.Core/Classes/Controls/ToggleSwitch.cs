@@ -6,46 +6,74 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class ToggleSwitch : UIControlBase
 {
-    private float _width;
-    private float _height;
-
-    public float Width
-    {
-        get => _width;
-        set { _width = value; RecalculateBounds(); }
-    }
+    private float _height = 24f;
+    private float _width = 44f;
+    private bool _isOn;
 
     public float Height
     {
         get => _height;
-        set { _height = value; RecalculateBounds(); }
+        set { if (_height != value) { _height = value; RecalculateBounds(); Invalidate(); } }
     }
 
-    public bool IsChecked { get; set; }
-    public float CornerRadius { get; set; } = 13f;
+    public float Width
+    {
+        get => _width;
+        set { if (_width != value) { _width = value; RecalculateBounds(); Invalidate(); } }
+    }
 
-    public SKColor TrackOffColor { get; set; } = SKColor.Parse("#1E1E2E");
-    public SKColor TrackOnColor { get; set; } = SKColor.Parse("#CBA6F7");
-    public SKColor TrackHoverColor { get; set; } = SKColor.Parse("#313244");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#585B70");
-    public SKColor KnobColor { get; set; } = SKColor.Parse("#CDD6F4");
-    public SKColor KnobOnColor { get; set; } = SKColor.Parse("#11111B");
+    public bool IsOn
+    {
+        get => _isOn;
+        set { if (_isOn != value) { _isOn = value; Invalidate(); } }
+    }
+
+    public SKColor OffColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#313244");
+
+    public SKColor OnColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#CBA6F7");
+
+    public SKColor ThumbColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#11111B");
+
+    public SKColor BorderColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#45475A");
+
+    public float BorderWidth
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = 1f;
 
     public Action<bool>? OnToggled { get; set; }
 
     private float _animProgress;
     private SKColor _animatedTrackColor;
-    private readonly SKPaint _trackPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
-    private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
-    private readonly SKPaint _knobPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
 
-    public ToggleSwitch(bool isChecked = false, float width = 50f, float height = 26f)
+    private readonly SKPaint _trackPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
+    private readonly SKPaint _thumbPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
+    private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
+
+    public ToggleSwitch(float width = 44f, float height = 24f, bool isOn = false)
     {
-        IsChecked = isChecked;
         _width = width;
         _height = height;
-        _animProgress = isChecked ? 1f : 0f;
-        _animatedTrackColor = isChecked ? TrackOnColor : TrackOffColor;
+        _isOn = isOn;
+        _animProgress = isOn ? 1f : 0f;
+        _animatedTrackColor = isOn ? OnColor : OffColor;
         RecalculateBounds();
     }
 
@@ -59,23 +87,27 @@ public class ToggleSwitch : UIControlBase
         if (!IsVisible) return;
 
         var rect = SKRect.Create(0, 0, _width, _height);
+        var radius = _height / 2f;
 
         _trackPaint.Color = _animatedTrackColor;
-        _borderPaint.Color = BorderColor;
-        _knobPaint.Color = IsChecked ? KnobOnColor : KnobColor;
+        canvas.DrawRoundRect(rect, radius, radius, _trackPaint);
 
-        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _trackPaint);
-        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _borderPaint);
+        if (BorderWidth > 0 && BorderColor.Alpha > 0)
+        {
+            _borderPaint.Color = BorderColor;
+            _borderPaint.StrokeWidth = BorderWidth;
+            canvas.DrawRoundRect(rect, radius, radius, _borderPaint);
+        }
 
-        var padding = 4f;
-        var knobRadius = (rect.Height - (padding * 2f)) / 2f;
-        var knobY = padding + knobRadius;
+        var padding = 3f;
+        var thumbRadius = radius - padding;
+        var minX = radius;
+        var maxX = _width - radius;
+        var thumbX = minX + ((maxX - minX) * _animProgress);
+        var thumbY = radius;
 
-        var startX = padding + knobRadius;
-        var endX = _width - padding - knobRadius;
-        var knobX = startX + ((endX - startX) * _animProgress);
-
-        canvas.DrawCircle(knobX, knobY, knobRadius, _knobPaint);
+        _thumbPaint.Color = ThumbColor;
+        canvas.DrawCircle(thumbX, thumbY, thumbRadius, _thumbPaint);
     }
 
     public override bool Intersects(SKPoint clientPoint)
@@ -85,11 +117,19 @@ public class ToggleSwitch : UIControlBase
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        var targetProgress = IsChecked ? 1f : 0f;
-        _animProgress += (targetProgress - _animProgress) * deltaTime * 14f;
+        var targetProgress = IsOn ? 1f : 0f;
+        var targetTrackColor = IsOn ? OnColor : OffColor;
 
-        var targetTrack = IsChecked ? TrackOnColor : IsHovered ? TrackHoverColor : TrackOffColor;
-        _animatedTrackColor = LerpColor(_animatedTrackColor, targetTrack, deltaTime * 12f);
+        var oldProgress = _animProgress;
+        var oldColor = _animatedTrackColor;
+
+        _animProgress += (targetProgress - _animProgress) * deltaTime * 14f;
+        _animatedTrackColor = LerpColor(_animatedTrackColor, targetTrackColor, deltaTime * 12f);
+
+        if (Math.Abs(_animProgress - oldProgress) > 0.0001f || _animatedTrackColor != oldColor)
+        {
+            Invalidate();
+        }
     }
 
     private static SKColor LerpColor(SKColor from, SKColor to, float progress)
@@ -106,8 +146,8 @@ public class ToggleSwitch : UIControlBase
     {
         if (mouseContext.Type == MouseEventType.MouseUp && IsHovered && IsEnabled)
         {
-            IsChecked = !IsChecked;
-            OnToggled?.Invoke(IsChecked);
+            IsOn = !IsOn;
+            OnToggled?.Invoke(IsOn);
             return true;
         }
 
@@ -117,8 +157,8 @@ public class ToggleSwitch : UIControlBase
     protected override void OnDispose()
     {
         _trackPaint.Dispose();
+        _thumbPaint.Dispose();
         _borderPaint.Dispose();
-        _knobPaint.Dispose();
         base.OnDispose();
     }
 }

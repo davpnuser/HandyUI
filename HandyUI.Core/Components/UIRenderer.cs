@@ -16,23 +16,31 @@ public class UIRenderer : IDisposable
     private readonly List<IUIControl> _pendingRemove = [];
 
     private readonly Lock _controlsLock = new();
-    private bool _isDirty = true;
+    private bool _isOrderDirty = true;
+
+    private int _framesToRender = 2;
     private bool _isDisposed;
 
     private IUIControl? _pressedControl;
     private IUIControl? _focusedControl;
 
+    public void Invalidate() => _framesToRender = 2;
+
     public void AddRootControl(IUIControl control)
     {
         ArgumentNullException.ThrowIfNull(control);
         lock (_pendingAdd) _pendingAdd.Add(control);
+        Invalidate();
     }
 
     public void RemoveRootControl(IUIControl control)
     {
         ArgumentNullException.ThrowIfNull(control);
         lock (_pendingRemove) _pendingRemove.Add(control);
+        Invalidate();
     }
+
+    private void OnControlInvalidated() => Invalidate();
 
     private void ProcessPendingControls()
     {
@@ -47,18 +55,22 @@ public class UIRenderer : IDisposable
             foreach (var control in toAdd)
             {
                 control.FocusRequested += OnControlFocusRequested;
+                control.Invalidated += OnControlInvalidated;
                 _rootControls.Add(control);
-                _isDirty = true;
+                _isOrderDirty = true;
             }
 
             foreach (var control in toRemove)
             {
                 if (!_rootControls.Remove(control)) continue;
+                control.Invalidated -= OnControlInvalidated;
                 if (_focusedControl == control) _focusedControl = null;
                 if (_pressedControl == control) _pressedControl = null;
                 control.Dispose();
             }
         }
+
+        Invalidate();
     }
 
     public void ProcessMouseEvent(MouseEventContext context)
@@ -66,7 +78,7 @@ public class UIRenderer : IDisposable
         IUIControl[] rootSnapshot;
         lock (_controlsLock)
         {
-            if (_isDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isDirty = false; }
+            if (_isOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isOrderDirty = false; }
             rootSnapshot = [.. _rootControls];
         }
 
@@ -142,7 +154,7 @@ public class UIRenderer : IDisposable
         _focusedControl?.IsFocused = true;
     }
 
-    public void RenderControls(SKCanvas canvas, SKPoint cursorPosition)
+    public bool RenderControls(SKCanvas canvas, SKPoint cursorPosition)
     {
         var currentTime = _stopwatch.Elapsed.TotalSeconds;
         var deltaTime = (float)(currentTime - _lastFrameTime);
@@ -152,11 +164,16 @@ public class UIRenderer : IDisposable
 
         lock (_controlsLock)
         {
-            if (_isDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isDirty = false; }
+            if (_framesToRender <= 0) return false;
+
+            if (_isOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isOrderDirty = false; }
             canvas.Clear(SKColors.White);
 
             foreach (var control in _rootControls)
                 RenderRecursive(canvas, control, cursorPosition, deltaTime);
+
+            _framesToRender--;
+            return true;
         }
     }
 
@@ -239,6 +256,7 @@ public class UIRenderer : IDisposable
             {
                 foreach (var control in _rootControls)
                 {
+                    control.Invalidated -= OnControlInvalidated;
                     DisposeRecursively(control);
                 }
 

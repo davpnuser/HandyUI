@@ -6,116 +6,88 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class ImageButton : UIControlBase
 {
-    private float _width;
-    private float _height;
-    private float? _explicitImageWidth;
-    private float? _explicitImageHeight;
+    private static readonly SKSamplingOptions SamplingOptions = new(SKCubicResampler.Mitchell);
 
-    public float Width
-    {
-        get => _width;
-        set { _width = value; RecalculateBounds(); }
-    }
+    private float _height;
+    private float _width;
+    private SKImage? _image;
 
     public float Height
     {
         get => _height;
-        set { _height = value; RecalculateBounds(); }
+        set { if (_height != value) { _height = value; RecalculateBounds(); Invalidate(); } }
     }
 
-    public bool AutoSizeImage { get; set; } = true;
-
-    public float ImageWidth
+    public float Width
     {
-        get => GetTargetImageSize().Width;
-        set => _explicitImageWidth = value;
+        get => _width;
+        set { if (_width != value) { _width = value; RecalculateBounds(); } }
     }
 
-    public float ImageHeight
+    public SKImage? Image
     {
-        get => GetTargetImageSize().Height;
-        set => _explicitImageHeight = value;
+        get => _image;
+        set { if (_image != value) { _image = value; Invalidate(); } }
     }
 
-    public float ImageSize
+    public SKColor NormalColor
     {
-        get => ImageWidth;
-        set
-        {
-            _explicitImageWidth = value;
-            _explicitImageHeight = value;
-        }
-    }
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#313244");
 
-    public SKImage? Image { get; set; }
-    public string Text { get; set; } = string.Empty;
-    public float CornerRadius { get; set; } = 6f;
-    public float Spacing { get; set; } = 6f;
-
-    public float TextSize
+    public SKColor HoverColor
     {
-        get => _font.Size;
-        set => _font.Size = value;
-    }
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#45475A");
 
-    public SKColor BackgroundColor { get; set; } = SKColor.Parse("#1E1E2E");
-    public SKColor HoverColor { get; set; } = SKColor.Parse("#313244");
-    public SKColor PressedColor { get; set; } = SKColor.Parse("#45475A");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#585B70");
-    public SKColor TextColor { get; set; } = SKColor.Parse("#CDD6F4");
+    public SKColor PressedColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#585B70");
+
+    public SKColor BorderColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#45475A");
+
+    public float BorderWidth
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = 1f;
+
+    public float CornerRadius
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = 6f;
+
+    public float Padding
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = 4f;
 
     public Action? OnClick { get; set; }
 
+    private SKColor _animatedColor;
     private bool _isPressed;
-    private SKColor _animatedFillColor;
-    private static readonly SKSamplingOptions HighSampling = new(SKFilterMode.Linear, SKMipmapMode.Linear);
-    private readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
-    private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
-    private readonly SKPaint _imagePaint = new() { IsAntialias = true };
-    private readonly SKPaint _textPaint = new() { IsAntialias = true };
-    private readonly SKFont _font = new(SKTypeface.Default, 14f) { Subpixel = true };
 
-    public ImageButton(SKImage? image = null, string text = "", float width = 120f, float height = 36f)
+    private readonly SKPaint _backgroundPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
+    private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
+    private readonly SKPaint _imagePaint = new() { IsAntialias = true };
+
+    public ImageButton(SKImage? image = null, float width = 40f, float height = 40f)
     {
-        Image = image;
-        Text = text;
+        _image = image;
         _width = width;
         _height = height;
-        _animatedFillColor = BackgroundColor;
+        _animatedColor = NormalColor;
         RecalculateBounds();
-    }
-
-    public void ClearExplicitImageSize()
-    {
-        _explicitImageWidth = null;
-        _explicitImageHeight = null;
-    }
-
-    private (float Width, float Height) GetTargetImageSize()
-    {
-        var targetWidth = 20f;
-        var targetHeight = 20f;
-
-        if (AutoSizeImage)
-        {
-            if (_explicitImageWidth.HasValue && _explicitImageHeight.HasValue)
-            {
-                targetWidth = _explicitImageWidth.Value;
-                targetHeight = _explicitImageHeight.Value;
-            }
-            else if (Image != null)
-            {
-                targetWidth = Image.Width;
-                targetHeight = Image.Height;
-            }
-        }
-        else
-        {
-            targetWidth = _explicitImageWidth ?? Image?.Width ?? 20f;
-            targetHeight = _explicitImageHeight ?? Image?.Height ?? 20f;
-        }
-
-        return (targetWidth, targetHeight);
     }
 
     private void RecalculateBounds()
@@ -129,56 +101,30 @@ public class ImageButton : UIControlBase
 
         var rect = SKRect.Create(0, 0, _width, _height);
 
-        _fillPaint.Color = _animatedFillColor;
-        _borderPaint.Color = BorderColor;
+        _backgroundPaint.Color = _animatedColor;
+        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _backgroundPaint);
 
-        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _fillPaint);
-        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _borderPaint);
-
-        var textWidth = string.IsNullOrEmpty(Text) ? 0f : _font.MeasureText(Text);
-        var (targetImgWidth, targetImgHeight) = GetTargetImageSize();
-
-        var totalWidth = (Image != null ? targetImgWidth + (textWidth > 0 ? Spacing : 0f) : 0f) + textWidth;
-        var currentX = (rect.Width - totalWidth) / 2f;
-
-        if (Image != null)
+        if (BorderWidth > 0 && BorderColor.Alpha > 0)
         {
-            SKRect destRect;
-            var imageContainerX = currentX;
-            var imageContainerY = (rect.Height - targetImgHeight) / 2f;
+            var halfStroke = BorderWidth / 2f;
+            var strokeRect = rect;
+            strokeRect.Inflate(-halfStroke, -halfStroke);
 
-            if (AutoSizeImage && _explicitImageWidth.HasValue && _explicitImageHeight.HasValue)
-            {
-                var imgWidth = (float)Image.Width;
-                var imgHeight = (float)Image.Height;
-
-                var scale = Math.Min(targetImgWidth / imgWidth, targetImgHeight / imgHeight);
-
-                var fitWidth = imgWidth * scale;
-                var fitHeight = imgHeight * scale;
-
-                var offsetX = imageContainerX + ((targetImgWidth - fitWidth) / 2f);
-                var offsetY = (rect.Height - fitHeight) / 2f;
-
-                destRect = SKRect.Create(offsetX, offsetY, fitWidth, fitHeight);
-            }
-            else
-            {
-                destRect = SKRect.Create(imageContainerX, imageContainerY, targetImgWidth, targetImgHeight);
-            }
-
-            canvas.DrawImage(Image, destRect, HighSampling, _imagePaint);
-            currentX += targetImgWidth + Spacing;
+            _borderPaint.Color = BorderColor;
+            _borderPaint.StrokeWidth = BorderWidth;
+            canvas.DrawRoundRect(strokeRect, Math.Max(0, CornerRadius - halfStroke), Math.Max(0, CornerRadius - halfStroke), _borderPaint);
         }
 
-        if (!string.IsNullOrEmpty(Text))
+        if (_image != null)
         {
-            _textPaint.Color = TextColor;
-            var metrics = _font.Metrics;
-            var textHeight = metrics.Descent - metrics.Ascent;
-            var textY = ((rect.Height + textHeight) / 2f) - metrics.Descent;
+            var destRect = SKRect.Create(
+                Padding,
+                Padding,
+                Math.Max(0, _width - (Padding * 2)),
+                Math.Max(0, _height - (Padding * 2))
+            );
 
-            canvas.DrawText(Text, currentX, textY, SKTextAlign.Left, _font, _textPaint);
+            canvas.DrawImage(_image, destRect, SamplingOptions, _imagePaint);
         }
     }
 
@@ -189,8 +135,15 @@ public class ImageButton : UIControlBase
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        var targetColor = _isPressed ? PressedColor : IsHovered ? HoverColor : BackgroundColor;
-        _animatedFillColor = LerpColor(_animatedFillColor, targetColor, deltaTime * 12f);
+        var targetColor = _isPressed ? PressedColor : IsHovered ? HoverColor : NormalColor;
+        var oldColor = _animatedColor;
+
+        _animatedColor = LerpColor(_animatedColor, targetColor, deltaTime * 12f);
+
+        if (_animatedColor != oldColor)
+        {
+            Invalidate();
+        }
     }
 
     private static SKColor LerpColor(SKColor from, SKColor to, float progress)
@@ -205,22 +158,21 @@ public class ImageButton : UIControlBase
 
     protected override bool OnMouse(MouseEventContext mouseContext)
     {
-        if (!IsEnabled) return base.OnMouse(mouseContext);
-
-        if (mouseContext.Type == MouseEventType.MouseDown && IsHovered)
+        if (mouseContext.Type == MouseEventType.MouseDown && IsHovered && IsEnabled)
         {
             _isPressed = true;
+            Invalidate();
             return true;
         }
 
         if (mouseContext.Type == MouseEventType.MouseUp)
         {
-            if (_isPressed && IsHovered)
+            if (_isPressed && IsHovered && IsEnabled)
             {
                 OnClick?.Invoke();
             }
             _isPressed = false;
-            return true;
+            Invalidate();
         }
 
         return base.OnMouse(mouseContext);
@@ -228,11 +180,9 @@ public class ImageButton : UIControlBase
 
     protected override void OnDispose()
     {
-        _fillPaint.Dispose();
+        _backgroundPaint.Dispose();
         _borderPaint.Dispose();
         _imagePaint.Dispose();
-        _textPaint.Dispose();
-        _font.Dispose();
         base.OnDispose();
     }
 }

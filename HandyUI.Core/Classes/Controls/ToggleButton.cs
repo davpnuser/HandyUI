@@ -6,83 +6,126 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class ToggleButton : UIControlBase
 {
-    private float _width;
-    private float _height;
+    private string _text = "Toggle";
+    private bool _isToggled;
 
-    public float Width
+    public string Text
     {
-        get => _width;
-        set { _width = value; RecalculateBounds(); }
+        get => _text;
+        set { if (_text != value) { _text = value; RecalculateBounds(); Invalidate(); } }
     }
 
-    public float Height
+    public bool IsToggled
     {
-        get => _height;
-        set { _height = value; RecalculateBounds(); }
+        get => _isToggled;
+        set { if (_isToggled != value) { _isToggled = value; Invalidate(); } }
     }
-
-    public string Text { get; set; } = "Toggle";
-    public bool IsChecked { get; set; }
-    public float CornerRadius { get; set; } = 6f;
 
     public float TextSize
     {
         get => _font.Size;
-        set => _font.Size = value;
+        set { if (_font.Size != value) { _font.Size = value; Invalidate(); } }
     }
 
-    public SKColor OffColor { get; set; } = SKColor.Parse("#1E1E2E");
-    public SKColor OnColor { get; set; } = SKColor.Parse("#CBA6F7");
-    public SKColor HoverColor { get; set; } = SKColor.Parse("#313244");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#585B70");
-    public SKColor TextOffColor { get; set; } = SKColor.Parse("#CDD6F4");
-    public SKColor TextOnColor { get; set; } = SKColor.Parse("#11111B");
+    public SKColor OffColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#313244");
 
-    public Action<bool>? OnToggled { get; set; }
+    public SKColor OnColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#CBA6F7");
 
-    private SKColor _animatedFillColor;
-    private readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
-    private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
+    public SKColor HoverColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#45475A");
+
+    public SKColor TextColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#CDD6F4");
+
+    public SKColor BorderColor
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = SKColor.Parse("#45475A");
+
+    public float BorderWidth
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = 1f;
+
+    public float CornerRadius
+    {
+        get;
+        set { if (field != value) { field = value; Invalidate(); } }
+    } = 6f;
+
+    public float PaddingX
+    {
+        get;
+        set { if (field != value) { field = value; RecalculateBounds(); Invalidate(); } }
+    } = 16f;
+
+    public float PaddingY
+    {
+        get;
+        set { if (field != value) { field = value; RecalculateBounds(); Invalidate(); } }
+    } = 8f;
+
+    public Action<bool>? OnToggleChanged { get; set; }
+
+    private SKColor _animatedColor;
+
+    private readonly SKPaint _backgroundPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
+    private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
     private readonly SKPaint _textPaint = new() { IsAntialias = true };
     private readonly SKFont _font = new(SKTypeface.Default, 14f) { Subpixel = true };
 
-    public ToggleButton(string text = "Toggle", bool isChecked = false, float width = 120f, float height = 36f)
+    public ToggleButton(string text = "Toggle", bool isToggled = false)
     {
-        Text = text;
-        IsChecked = isChecked;
-        _width = width;
-        _height = height;
-        _animatedFillColor = isChecked ? OnColor : OffColor;
+        _text = text;
+        _isToggled = isToggled;
+        _animatedColor = isToggled ? OnColor : OffColor;
         RecalculateBounds();
     }
 
     private void RecalculateBounds()
     {
-        Bounds = SKRect.Create(0, 0, _width, _height);
+        var textWidth = _font.MeasureText(_text);
+        var metrics = _font.Metrics;
+        var textHeight = metrics.Descent - metrics.Ascent;
+
+        Bounds = SKRect.Create(0, 0, textWidth + (PaddingX * 2), textHeight + (PaddingY * 2));
     }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
-        var rect = SKRect.Create(0, 0, _width, _height);
+        _backgroundPaint.Color = _animatedColor;
+        canvas.DrawRoundRect(Bounds, CornerRadius, CornerRadius, _backgroundPaint);
 
-        _fillPaint.Color = _animatedFillColor;
-        _borderPaint.Color = BorderColor;
+        if (BorderWidth > 0 && BorderColor.Alpha > 0)
+        {
+            _borderPaint.Color = BorderColor;
+            _borderPaint.StrokeWidth = BorderWidth;
+            canvas.DrawRoundRect(Bounds, CornerRadius, CornerRadius, _borderPaint);
+        }
 
-        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _fillPaint);
-        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _borderPaint);
-
-        _textPaint.Color = IsChecked ? TextOnColor : TextOffColor;
-
-        var textWidth = _font.MeasureText(Text);
+        _textPaint.Color = TextColor;
         var metrics = _font.Metrics;
-        var textHeight = metrics.Descent - metrics.Ascent;
+        var textY = (Bounds.Height / 2f) - ((metrics.Ascent + metrics.Descent) / 2f);
 
-        var textX = (rect.Width - textWidth) / 2f;
-        var textY = ((rect.Height + textHeight) / 2f) - metrics.Descent;
-
-        canvas.DrawText(Text, textX, textY, SKTextAlign.Left, _font, _textPaint);
+        canvas.DrawText(_text, Bounds.Width / 2f, textY, SKTextAlign.Center, _font, _textPaint);
     }
 
     public override bool Intersects(SKPoint clientPoint)
@@ -92,8 +135,15 @@ public class ToggleButton : UIControlBase
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        var targetColor = IsChecked ? OnColor : IsHovered ? HoverColor : OffColor;
-        _animatedFillColor = LerpColor(_animatedFillColor, targetColor, deltaTime * 12f);
+        var targetColor = IsToggled ? OnColor : IsHovered ? HoverColor : OffColor;
+        var oldColor = _animatedColor;
+
+        _animatedColor = LerpColor(_animatedColor, targetColor, deltaTime * 12f);
+
+        if (_animatedColor != oldColor)
+        {
+            Invalidate();
+        }
     }
 
     private static SKColor LerpColor(SKColor from, SKColor to, float progress)
@@ -110,8 +160,8 @@ public class ToggleButton : UIControlBase
     {
         if (mouseContext.Type == MouseEventType.MouseUp && IsHovered && IsEnabled)
         {
-            IsChecked = !IsChecked;
-            OnToggled?.Invoke(IsChecked);
+            IsToggled = !IsToggled;
+            OnToggleChanged?.Invoke(IsToggled);
             return true;
         }
 
@@ -120,7 +170,7 @@ public class ToggleButton : UIControlBase
 
     protected override void OnDispose()
     {
-        _fillPaint.Dispose();
+        _backgroundPaint.Dispose();
         _borderPaint.Dispose();
         _textPaint.Dispose();
         _font.Dispose();
