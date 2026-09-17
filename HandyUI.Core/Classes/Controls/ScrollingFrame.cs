@@ -46,6 +46,7 @@ public class ScrollingFrame : UIControlBase
         get => new(Bounds.Width, Bounds.Height);
         set
         {
+            if (Math.Abs(Bounds.Width - value.Width) < 0.001f && Math.Abs(Bounds.Height - value.Height) < 0.001f) return;
             Bounds = SKRect.Create(Location.X, Location.Y, value.Width, value.Height);
             Invalidate();
         }
@@ -60,13 +61,23 @@ public class ScrollingFrame : UIControlBase
     public SKSize CanvasSize
     {
         get => _canvasSize;
-        set { if (_canvasSize == value) return; _canvasSize = value; Invalidate(); }
+        set
+        {
+            if (Math.Abs(_canvasSize.Width - value.Width) < 0.001f && Math.Abs(_canvasSize.Height - value.Height) < 0.001f) return;
+            _canvasSize = value;
+            Invalidate();
+        }
     }
 
     public SKPoint ScrollOffset
     {
         get => _scrollOffset;
-        set { if (_scrollOffset == value) return; _scrollOffset = value; Invalidate(); }
+        set
+        {
+            if (Math.Abs(_scrollOffset.X - value.X) < 0.001f && Math.Abs(_scrollOffset.Y - value.Y) < 0.001f) return;
+            _scrollOffset = value;
+            Invalidate();
+        }
     }
 
     public SKColor BackgroundColor

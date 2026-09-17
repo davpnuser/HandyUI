@@ -34,6 +34,7 @@ public class Frame : UIControlBase
         get => new(Bounds.Width, Bounds.Height);
         set
         {
+            if (Math.Abs(Bounds.Width - value.Width) < 0.001f && Math.Abs(Bounds.Height - value.Height) < 0.001f) return;
             Bounds = SKRect.Create(Location.X, Location.Y, value.Width, value.Height);
             Invalidate();
         }

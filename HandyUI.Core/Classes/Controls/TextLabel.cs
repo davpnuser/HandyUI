@@ -8,7 +8,6 @@ namespace HandyUI.Core.Classes.Controls;
 public class TextLabel : UIControlBase
 {
     private SKPoint _padding = new(8f, 4f);
-
     private SKTypeface? _cachedTypeface;
 
     public float Width
@@ -38,6 +37,7 @@ public class TextLabel : UIControlBase
         get => new(Bounds.Width, Bounds.Height);
         set
         {
+            if (Math.Abs(Bounds.Width - value.Width) < 0.001f && Math.Abs(Bounds.Height - value.Height) < 0.001f) return;
             Bounds = SKRect.Create(Location.X, Location.Y, value.Width, value.Height);
             Invalidate();
         }
@@ -46,19 +46,34 @@ public class TextLabel : UIControlBase
     public bool AutoSize
     {
         get;
-        set { if (field == value) return; field = value; RecalculateBounds(); }
+        set
+        {
+            if (field == value) return;
+            field = value;
+            RecalculateBounds();
+        }
     } = false;
 
     public SKPoint Padding
     {
         get => _padding;
-        set { if (_padding == value) return; _padding = value; RecalculateBounds(); }
+        set
+        {
+            if (Math.Abs(_padding.X - value.X) < 0.001f && Math.Abs(_padding.Y - value.Y) < 0.001f) return;
+            _padding = value;
+            RecalculateBounds();
+        }
     }
 
     public string Text
     {
         get;
-        set { if (field == value) return; field = value; RecalculateBounds(); Invalidate(); }
+        set
+        {
+            if (field == value) return;
+            field = value;
+            if (!RecalculateBounds()) Invalidate();
+        }
     } = string.Empty;
 
     public SKColor TextColor
@@ -70,31 +85,60 @@ public class TextLabel : UIControlBase
     public float TextSize
     {
         get;
-        set { if (Math.Abs(field - value) < 0.001f) return; field = value; RecalculateBounds(); Invalidate(); }
+        set
+        {
+            if (Math.Abs(field - value) < 0.001f) return;
+            field = value;
+            if (!RecalculateBounds()) Invalidate();
+        }
     } = 13.0f;
 
     public string FontFamily
     {
         get;
-        set { if (field == value) return; field = value; InvalidateTypeface(); RecalculateBounds(); Invalidate(); }
+        set
+        {
+            if (field == value) return;
+            field = value;
+            InvalidateTypeface();
+            if (!RecalculateBounds()) Invalidate();
+        }
     } = "Segoe UI";
 
     public SKFontStyleWeight FontWeight
     {
         get;
-        set { if (field == value) return; field = value; InvalidateTypeface(); RecalculateBounds(); Invalidate(); }
+        set
+        {
+            if (field == value) return;
+            field = value;
+            InvalidateTypeface();
+            if (!RecalculateBounds()) Invalidate();
+        }
     } = SKFontStyleWeight.Normal;
 
     public SKFontStyleWidth FontWidth
     {
         get;
-        set { if (field == value) return; field = value; InvalidateTypeface(); RecalculateBounds(); Invalidate(); }
+        set
+        {
+            if (field == value) return;
+            field = value;
+            InvalidateTypeface();
+            if (!RecalculateBounds()) Invalidate();
+        }
     } = SKFontStyleWidth.Normal;
 
     public SKFontStyleSlant FontSlant
     {
         get;
-        set { if (field == value) return; field = value; InvalidateTypeface(); RecalculateBounds(); Invalidate(); }
+        set
+        {
+            if (field == value) return;
+            field = value;
+            InvalidateTypeface();
+            if (!RecalculateBounds()) Invalidate();
+        }
     } = SKFontStyleSlant.Upright;
 
     public SKTextAlign Alignment
@@ -135,15 +179,22 @@ public class TextLabel : UIControlBase
         _cachedTypeface = null;
     }
 
-    public void RecalculateBounds()
+    public bool RecalculateBounds()
     {
-        if (!AutoSize || string.IsNullOrEmpty(Text)) return;
+        if (!AutoSize || string.IsNullOrEmpty(Text)) return false;
 
         using var font = new SKFont(GetOrCreateTypeface(), TextSize);
         font.MeasureText(Text, out var textBounds);
 
-        Width = textBounds.Width + (Padding.X * 2f);
-        Height = font.Metrics.CapHeight + (Padding.Y * 2f);
+        var targetWidth = textBounds.Width + (Padding.X * 2f);
+        var targetHeight = font.Metrics.CapHeight + (Padding.Y * 2f);
+
+        if (Math.Abs(Width - targetWidth) < 0.001f && Math.Abs(Height - targetHeight) < 0.001f)
+            return false;
+
+        Width = targetWidth;
+        Height = targetHeight;
+        return true;
     }
 
     public override bool Intersects(SKPoint clientPoint) => Bounds.Contains(clientPoint.X, clientPoint.Y);
