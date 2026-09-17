@@ -6,169 +6,81 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class TextBox : UIControlBase
 {
-    private float _height = 36f;
+    private string _text = string.Empty;
+    private string _placeholderText = "Type here...";
+    private int _caretIndex;
+    private float _blinkTimer;
+    private bool _showCaret = true;
     private float _width = 200f;
-    private string _placeholder = "Type here...";
-
-    public float Height
-    {
-        get => _height;
-        set { if (_height != value) { _height = value; RecalculateBounds(); Invalidate(); } }
-    }
+    private float _height = 36f;
 
     public float Width
     {
         get => _width;
-        set { if (_width != value) { _width = value; RecalculateBounds(); Invalidate(); } }
+        set { _width = value; RecalculateBounds(); }
+    }
+
+    public float Height
+    {
+        get => _height;
+        set { _height = value; RecalculateBounds(); }
     }
 
     public string Text
     {
-        get;
+        get => _text;
         set
         {
-            if (field != value)
-            {
-                field = value;
-                _cursorPosition = Math.Clamp(_cursorPosition, 0, field.Length);
-                OnTextChanged?.Invoke(field);
-                Invalidate();
-            }
+            _text = value ?? string.Empty;
+            _caretIndex = Math.Clamp(_caretIndex, 0, _text.Length);
+            OnTextChanged?.Invoke(_text);
         }
-    } = string.Empty;
-
-    public string Placeholder
-    {
-        get => _placeholder;
-        set { if (_placeholder != value) { _placeholder = value; Invalidate(); } }
     }
+
+    public string PlaceholderText
+    {
+        get => _placeholderText;
+        set => _placeholderText = value ?? string.Empty;
+    }
+
+    public float CornerRadius { get; set; } = 6f;
+    public float PaddingX { get; set; } = 10f;
 
     public float TextSize
     {
         get => _font.Size;
-        set { if (_font.Size != value) { _font.Size = value; Invalidate(); } }
+        set => _font.Size = value;
     }
 
-    public float CornerRadius
-    {
-        get;
-        set { if (field != value) { field = value; Invalidate(); } }
-    } = 6f;
-
-    public float BorderWidth
-    {
-        get;
-        set { if (field != value) { field = value; Invalidate(); } }
-    } = 1.5f;
-
-    public SKColor BackgroundColor
-    {
-        get;
-        set { if (field != value) { field = value; Invalidate(); } }
-    } = SKColor.Parse("#1E1E2E");
-
-    public SKColor BorderColor
-    {
-        get;
-        set { if (field != value) { field = value; Invalidate(); } }
-    } = SKColor.Parse("#313244");
-
-    public SKColor FocusedBorderColor
-    {
-        get;
-        set { if (field != value) { field = value; Invalidate(); } }
-    } = SKColor.Parse("#CBA6F7");
-
-    public SKColor TextColor
-    {
-        get;
-        set { if (field != value) { field = value; Invalidate(); } }
-    } = SKColor.Parse("#CDD6F4");
-
-    public SKColor PlaceholderColor
-    {
-        get;
-        set { if (field != value) { field = value; Invalidate(); } }
-    } = SKColor.Parse("#6C7086");
-
-    public SKColor CursorColor
-    {
-        get;
-        set { if (field != value) { field = value; Invalidate(); } }
-    } = SKColor.Parse("#F5E0DC");
+    public SKColor BackgroundColor { get; set; } = SKColor.Parse("#1E1E2E");
+    public SKColor BorderColor { get; set; } = SKColor.Parse("#45475A");
+    public SKColor FocusBorderColor { get; set; } = SKColor.Parse("#CBA6F7");
+    public SKColor TextColor { get; set; } = SKColor.Parse("#CDD6F4");
+    public SKColor PlaceholderColor { get; set; } = SKColor.Parse("#6C7086");
+    public SKColor CaretColor { get; set; } = SKColor.Parse("#CBA6F7");
 
     public Action<string>? OnTextChanged { get; set; }
-
-    private bool _isFocused;
-    private int _cursorPosition;
-    private float _cursorBlinkTimer;
-    private bool _cursorVisible = true;
+    public Action<string>? OnSubmit { get; set; }
 
     private readonly SKPaint _bgPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
-    private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
+    private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
     private readonly SKPaint _textPaint = new() { IsAntialias = true };
-    private readonly SKPaint _cursorPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 2f };
-    private readonly SKFont _font = new(SKTypeface.Default, 14f) { Subpixel = true };
+    private readonly SKPaint _caretPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
+    private readonly SKFont _font = new(SKTypeface.Default, 13f) { Subpixel = true };
 
-    public TextBox(float width = 200f, float height = 36f, string placeholder = "Type here...")
+    public TextBox(float width = 200f, float height = 36f, string text = "", string placeholder = "Type here...")
     {
+        _text = text ?? string.Empty;
+        _placeholderText = placeholder ?? string.Empty;
+        _caretIndex = _text.Length;
         _width = width;
         _height = height;
-        _placeholder = placeholder;
         RecalculateBounds();
     }
 
     private void RecalculateBounds()
     {
         Bounds = SKRect.Create(0, 0, _width, _height);
-    }
-
-    public override void Draw(SKCanvas canvas)
-    {
-        if (!IsVisible) return;
-
-        var rect = SKRect.Create(0, 0, _width, _height);
-
-        _bgPaint.Color = BackgroundColor;
-        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _bgPaint);
-
-        if (BorderWidth > 0)
-        {
-            var halfStroke = BorderWidth / 2f;
-            var strokeRect = rect;
-            strokeRect.Inflate(-halfStroke, -halfStroke);
-
-            _borderPaint.Color = _isFocused ? FocusedBorderColor : BorderColor;
-            _borderPaint.StrokeWidth = BorderWidth;
-            canvas.DrawRoundRect(strokeRect, Math.Max(0, CornerRadius - halfStroke), Math.Max(0, CornerRadius - halfStroke), _borderPaint);
-        }
-
-        var metrics = _font.Metrics;
-        var textHeight = metrics.Descent - metrics.Ascent;
-        var paddingX = 10f;
-        var textY = ((_height + textHeight) / 2f) - metrics.Descent;
-
-        if (string.IsNullOrEmpty(Text))
-        {
-            _textPaint.Color = PlaceholderColor;
-            canvas.DrawText(Placeholder, paddingX, textY, SKTextAlign.Left, _font, _textPaint);
-        }
-        else
-        {
-            _textPaint.Color = TextColor;
-            canvas.DrawText(Text, paddingX, textY, SKTextAlign.Left, _font, _textPaint);
-        }
-
-        if (_isFocused && _cursorVisible)
-        {
-            var textBeforeCursor = Text[..Math.Min(_cursorPosition, Text.Length)];
-            var cursorX = paddingX + _font.MeasureText(textBeforeCursor);
-            var cursorY1 = (_height - textHeight) / 2f;
-            var cursorY2 = cursorY1 + textHeight;
-
-            _cursorPaint.Color = CursorColor;
-            canvas.DrawLine(cursorX, cursorY1, cursorX, cursorY2, _cursorPaint);
-        }
     }
 
     public override bool Intersects(SKPoint clientPoint)
@@ -178,79 +90,189 @@ public class TextBox : UIControlBase
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        if (_isFocused)
+        if (IsFocused)
         {
-            _cursorBlinkTimer += deltaTime;
-            if (_cursorBlinkTimer >= 0.53f)
+            _blinkTimer += deltaTime;
+            if (_blinkTimer >= 0.5f)
             {
-                _cursorBlinkTimer = 0f;
-                _cursorVisible = !_cursorVisible;
-                Invalidate();
+                _showCaret = !_showCaret;
+                _blinkTimer = 0f;
             }
         }
+        else
+        {
+            _showCaret = false;
+            _blinkTimer = 0f;
+        }
+    }
+
+    public override void Draw(SKCanvas canvas)
+    {
+        if (!IsVisible) return;
+
+        var rect = SKRect.Create(0, 0, Bounds.Width, Bounds.Height);
+
+        _bgPaint.Color = BackgroundColor;
+        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _bgPaint);
+
+        _borderPaint.Color = IsFocused ? FocusBorderColor : BorderColor;
+        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _borderPaint);
+
+        var contentRect = SKRect.Create(PaddingX, 0, Math.Max(1f, Bounds.Width - (PaddingX * 2f)), Bounds.Height);
+        canvas.Save();
+        canvas.ClipRect(contentRect, SKClipOperation.Intersect, true);
+
+        var metrics = _font.Metrics;
+        var textHeight = metrics.Descent - metrics.Ascent;
+        var textY = ((Bounds.Height + textHeight) / 2f) - metrics.Descent;
+
+        if (!string.IsNullOrEmpty(_text))
+        {
+            _textPaint.Color = TextColor;
+            canvas.DrawText(_text, PaddingX, textY, SKTextAlign.Left, _font, _textPaint);
+        }
+        else if (!string.IsNullOrEmpty(_placeholderText) && !IsFocused)
+        {
+            _textPaint.Color = PlaceholderColor;
+            canvas.DrawText(_placeholderText, PaddingX, textY, SKTextAlign.Left, _font, _textPaint);
+        }
+
+        if (IsFocused && _showCaret)
+        {
+            var safeCaret = Math.Clamp(_caretIndex, 0, _text.Length);
+            var textUpToCaret = _text[..safeCaret];
+            var caretX = PaddingX + _font.MeasureText(textUpToCaret);
+            var topY = (Bounds.Height - textHeight) / 2f;
+            var bottomY = topY + textHeight;
+
+            _caretPaint.Color = CaretColor;
+            canvas.DrawLine(caretX, topY, caretX, bottomY, _caretPaint);
+        }
+
+        canvas.Restore();
     }
 
     protected override bool OnMouse(MouseEventContext mouseContext)
     {
-        if (mouseContext.Type == MouseEventType.MouseDown)
+        if (mouseContext.Type == MouseEventType.MouseDown && mouseContext.Button == MouseButton.Left)
         {
-            var wasFocused = _isFocused;
-            _isFocused = IsHovered && IsEnabled;
-            if (_isFocused != wasFocused)
+            if (IsHovered && IsEnabled)
             {
-                _cursorVisible = true;
-                _cursorBlinkTimer = 0f;
-                Invalidate();
+                IsFocused = true;
+                ResetCaretBlink();
+
+                var relativeClickX = mouseContext.ClientPosition.X - PaddingX;
+                _caretIndex = GetCaretIndexFromX(relativeClickX);
+                return true;
             }
-            return _isFocused;
+            else
+            {
+                IsFocused = false;
+            }
         }
 
         return base.OnMouse(mouseContext);
     }
 
-    public bool OnTextInput(string text)
+    protected override bool OnKey(KeyEventContext keyContext)
     {
-        if (!_isFocused || !IsEnabled) return false;
+        if (!IsFocused || !IsEnabled) return base.OnKey(keyContext);
 
-        Text = Text.Insert(_cursorPosition, text);
-        _cursorPosition += text.Length;
-        _cursorVisible = true;
-        _cursorBlinkTimer = 0f;
-        return true;
+        if (keyContext.Type == KeyEventType.CharInput)
+        {
+            var ch = keyContext.Character;
+            if (!char.IsControl(ch) && ch != '\0')
+            {
+                var safeCaret = Math.Clamp(_caretIndex, 0, _text.Length);
+                _text = _text.Insert(safeCaret, ch.ToString());
+                _caretIndex = safeCaret + 1;
+                OnTextChanged?.Invoke(_text);
+                ResetCaretBlink();
+                return true;
+            }
+        }
+        else if (keyContext.Type == KeyEventType.KeyDown)
+        {
+            switch (keyContext.KeyCode)
+            {
+                case 8:
+                    if (_caretIndex > 0 && _text.Length > 0)
+                    {
+                        var safeCaret = Math.Clamp(_caretIndex, 1, _text.Length);
+                        _text = _text.Remove(safeCaret - 1, 1);
+                        _caretIndex = safeCaret - 1;
+                        OnTextChanged?.Invoke(_text);
+                        ResetCaretBlink();
+                    }
+                    return true;
+
+                case 46:
+                    if (_caretIndex < _text.Length && _text.Length > 0)
+                    {
+                        var safeCaret = Math.Clamp(_caretIndex, 0, _text.Length - 1);
+                        _text = _text.Remove(safeCaret, 1);
+                        _caretIndex = safeCaret;
+                        OnTextChanged?.Invoke(_text);
+                        ResetCaretBlink();
+                    }
+                    return true;
+
+                case 37:
+                    _caretIndex = Math.Max(0, _caretIndex - 1);
+                    ResetCaretBlink();
+                    return true;
+
+                case 39:
+                    _caretIndex = Math.Min(_text.Length, _caretIndex + 1);
+                    ResetCaretBlink();
+                    return true;
+
+                case 36:
+                    _caretIndex = 0;
+                    ResetCaretBlink();
+                    return true;
+
+                case 35:
+                    _caretIndex = _text.Length;
+                    ResetCaretBlink();
+                    return true;
+
+                case 13:
+                    OnSubmit?.Invoke(_text);
+                    return true;
+            }
+        }
+
+        return base.OnKey(keyContext);
     }
 
-    public bool OnKeyDown(int key)
+    private int GetCaretIndexFromX(float relativeX)
     {
-        if (!_isFocused || !IsEnabled) return false;
+        if (relativeX <= 0f || string.IsNullOrEmpty(_text)) return 0;
 
-        if (key == 8 && _cursorPosition > 0) // Backspace
+        var bestDistance = float.MaxValue;
+        var bestIndex = 0;
+
+        for (var i = 0; i <= _text.Length; i++)
         {
-            Text = Text.Remove(_cursorPosition - 1, 1);
-            _cursorPosition--;
-            _cursorVisible = true;
-            _cursorBlinkTimer = 0f;
-            return true;
+            var sub = _text[..i];
+            var width = _font.MeasureText(sub);
+            var dist = Math.Abs(width - relativeX);
+
+            if (dist < bestDistance)
+            {
+                bestDistance = dist;
+                bestIndex = i;
+            }
         }
 
-        if (key == 37 && _cursorPosition > 0) // Left Arrow
-        {
-            _cursorPosition--;
-            _cursorVisible = true;
-            _cursorBlinkTimer = 0f;
-            Invalidate();
-            return true;
-        }
+        return bestIndex;
+    }
 
-        if (key == 39 && _cursorPosition < Text.Length) // Right Arrow
-        {
-            _cursorPosition++;
-            _cursorVisible = true;
-            _cursorBlinkTimer = 0f;
-            Invalidate();
-            return true;
-        }
-
-        return false;
+    private void ResetCaretBlink()
+    {
+        _showCaret = true;
+        _blinkTimer = 0f;
     }
 
     protected override void OnDispose()
@@ -258,7 +280,7 @@ public class TextBox : UIControlBase
         _bgPaint.Dispose();
         _borderPaint.Dispose();
         _textPaint.Dispose();
-        _cursorPaint.Dispose();
+        _caretPaint.Dispose();
         _font.Dispose();
         base.OnDispose();
     }
