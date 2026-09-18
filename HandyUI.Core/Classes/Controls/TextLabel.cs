@@ -171,9 +171,21 @@ public class TextLabel : UIControlBase
         set { if (field == value) return; field = value; Invalidate(); }
     } = BorderDirection.Inside;
 
-    private SKTypeface GetOrCreateTypeface() => _cachedTypeface ??= SKTypeface.FromFamilyName(FontFamily, FontWeight, FontWidth, FontSlant);
+    public SKTypeface? CustomTypeface
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            if (!RecalculateBounds()) Invalidate();
+        }
+    }
 
-    private void InvalidateTypeface()
+    private SKTypeface GetOrCreateTypeface()
+        => CustomTypeface ?? (_cachedTypeface ??= SKTypeface.FromFamilyName(FontFamily, FontWeight, FontWidth, FontSlant));
+
+    protected virtual void InvalidateTypeface()
     {
         _cachedTypeface?.Dispose();
         _cachedTypeface = null;
@@ -270,6 +282,11 @@ public class TextLabel : UIControlBase
         TextSize = size;
         FontWeight = weight;
         FontSlant = slant;
+        return this;
+    }
+    public TextLabel WithTypeface(SKTypeface typeface)
+    {
+        CustomTypeface = typeface;
         return this;
     }
     public TextLabel WithFontWeight(SKFontStyleWeight weight) { FontWeight = weight; return this; }
