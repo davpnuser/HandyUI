@@ -13,19 +13,17 @@ using HandyUI.SilkNet.Classes.Extensions;
 using Silk.NET.Windowing;
 using SkiaSharp;
 
-(var window, var renderer) = SilkWindowHelper.CreateWindowAndGetRenderer("Example", new(250, 350));
+(var window, var renderer) = SilkWindowHelper.CreateWindowAndGetRenderer("Example", new(500, 500), WindowBorder.Fixed);
 
-SKImage? logoImage = null;
 if (ResourceManager.GetResourceByPath("Resources/HandyUI-Logo.png", out var imageStream))
-{
-    logoImage = SKImage.FromEncodedData(imageStream!);
-}
-logoImage!.SetAsIcon(window);
+    SKImage.FromEncodedData(imageStream!).SetAsIcon(window);
 
-var button = new TextButton("click me!")
-{
-    Location = new(15, 15)
-};
+var button = new TextButton()
+    .WithText("Click me!")
+    .WithWidth(100)
+    .WithHeight(36)
+    .WithLocation(15, 15);
+
 renderer.AddRootControl(button);
 
 window.Run();
