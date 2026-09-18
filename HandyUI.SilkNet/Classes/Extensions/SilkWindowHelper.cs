@@ -31,10 +31,10 @@ public static class SilkWindowHelper
         return window;
     }
 
-    public static (IWindow window, UIRenderer rendere) CreateWindowAndGetRenderer(string title, SKSize windowSize, WindowBorder windowBorder = WindowBorder.Resizable, bool vsync = true)
+    public static (IWindow window, UIRenderer rendere) CreateWindowAndGetRenderer(string title, SKSize windowSize, WindowBorder windowBorder = WindowBorder.Resizable, bool vsync = true, bool useDirtyRendering = true)
     {
         var window = CreateWindow(title, windowSize, windowBorder, vsync);
-        var renderer = SilkRendererHelper.Attach(window);
+        var renderer = SilkRendererHelper.Attach(window, useDirtyRendering);
 
         return (window, renderer);
     }

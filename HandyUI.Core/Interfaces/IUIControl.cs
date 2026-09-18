@@ -24,8 +24,13 @@ public interface IUIControl : IDisposable
     bool IsVisible { get; set; }
     bool IsEnabled { get; set; }
 
-    event Action<IUIControl>? FocusRequested;
+    UIControlBase WithLocation(SKPoint location);
+    UIControlBase WithLocation(float x, float y);
 
+    event Action<IUIControl>? FocusRequested;
+    event Action? Invalidated;
+
+    void Invalidate();
     void RequestFocus();
     bool ProcessMouseEvent(MouseEventContext mouseContext);
     bool ProcessKeyEvent(KeyEventContext keyContext);

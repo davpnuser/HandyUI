@@ -11,6 +11,14 @@ public abstract class UIControlBase : IUIControl
     private readonly List<IUIControl> _children = [];
     private bool _childrenDirty = false;
 
+    public event Action? Invalidated;
+
+    public void Invalidate()
+    {
+        Invalidated?.Invoke();
+        Parent?.Invalidate();
+    }
+
     public IReadOnlyList<IUIControl> Children => _children.AsReadOnly();
 
     public UIControlBase? Parent
@@ -31,6 +39,8 @@ public abstract class UIControlBase : IUIControl
             {
                 newBase.AddChildInternal(this);
             }
+
+            Invalidate();
         }
     }
 
@@ -41,6 +51,7 @@ public abstract class UIControlBase : IUIControl
             _children.Add(child);
             _childrenDirty = true;
             OnChildAdded(child);
+            Invalidate();
         }
     }
 
@@ -50,12 +61,14 @@ public abstract class UIControlBase : IUIControl
         {
             _childrenDirty = true;
             OnChildRemoved(child);
+            Invalidate();
         }
     }
 
     public void InvalidateChildrenOrder()
     {
         _childrenDirty = true;
+        Invalidate();
     }
 
     internal void EnsureChildrenSorted()
@@ -70,9 +83,39 @@ public abstract class UIControlBase : IUIControl
     protected virtual void OnChildAdded(IUIControl control) { }
     protected virtual void OnChildRemoved(IUIControl control) { }
 
-    public SKPoint Location { get; set; } = SKPoint.Empty;
-    public SKRect Bounds { get; set; }
-    public int ZIndex { get; set; }
+    public SKPoint Location
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            Invalidate();
+        }
+    } = SKPoint.Empty;
+
+    public SKRect Bounds
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            Invalidate();
+        }
+    }
+
+    public int ZIndex
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            Invalidate();
+        }
+    }
+
     public bool InheritedPositioningEnabled { get; set; } = true;
     public bool ScissoringEnabled { get; set; } = true;
 
@@ -83,23 +126,86 @@ public abstract class UIControlBase : IUIControl
         get;
         set
         {
-            field = Math.Clamp(value, 0f, 1f);
+            var clamped = Math.Clamp(value, 0f, 1f);
+            if (Math.Abs(field - clamped) < 0.0001f) return;
+            field = clamped;
             AlphaPaint.Color = SKColors.White.WithAlpha((byte)(255 * field));
+            Invalidate();
         }
     } = 1.0f;
 
-    public bool IsHovered { get; private set; }
-    public bool IsMouseDown { get; private set; }
-    public bool IsFocused { get; set; }
-    public bool IsVisible { get; set; } = true;
-    public bool IsEnabled { get; set; } = true;
+    public bool IsHovered
+    {
+        get;
+        private set
+        {
+            if (field == value) return;
+            field = value;
+            Invalidate();
+        }
+    }
+
+    public bool IsMouseDown
+    {
+        get;
+        private set
+        {
+            if (field == value) return;
+            field = value;
+            Invalidate();
+        }
+    }
+
+    public bool IsFocused
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            Invalidate();
+        }
+    }
+
+    public bool IsVisible
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            Invalidate();
+        }
+    } = true;
+
+    public bool IsEnabled
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            Invalidate();
+        }
+    } = true;
+
+    public UIControlBase WithLocation(SKPoint location)
+    {
+        Location = location;
+        return this;
+    }
+
+    public UIControlBase WithLocation(float x, float y)
+    {
+        Location = new SKPoint(x, y);
+        return this;
+    }
 
     public event Action<IUIControl>? FocusRequested;
 
     public void RequestFocus()
     {
         if (!IsEnabled || !IsVisible) return;
-
         FocusRequested?.Invoke(this);
     }
 

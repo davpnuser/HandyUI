@@ -1,125 +1,328 @@
 ﻿using HandyUI.Core.Classes.Base;
+using HandyUI.Core.Classes.Enums;
 using HandyUI.Core.Classes.Records;
+using HandyUI.Core.Classes.Themes;
 using SkiaSharp;
 
 namespace HandyUI.Core.Classes.Controls;
 
 public class TextButton : UIControlBase
 {
-    private float _width;
-    private float _height;
+    private SKPoint _padding = new(12f, 6f);
+    private SKTypeface? _cachedTypeface;
 
     public float Width
     {
-        get => _width;
-        set { _width = value; RecalculateBounds(); }
+        get => Bounds.Width;
+        set
+        {
+            if (Math.Abs(Bounds.Width - value) < 0.001f) return;
+            Bounds = SKRect.Create(Location.X, Location.Y, value, Bounds.Height);
+            Invalidate();
+        }
     }
 
     public float Height
     {
-        get => _height;
-        set { _height = value; RecalculateBounds(); }
+        get => Bounds.Height;
+        set
+        {
+            if (Math.Abs(Bounds.Height - value) < 0.001f) return;
+            Bounds = SKRect.Create(Location.X, Location.Y, Bounds.Width, value);
+            Invalidate();
+        }
     }
 
-    public string Text { get; set; } = "Button";
-    public float CornerRadius { get; set; } = 6f;
+    public SKSize Size
+    {
+        get => new(Bounds.Width, Bounds.Height);
+        set
+        {
+            if (Math.Abs(Bounds.Width - value.Width) < 0.001f && Math.Abs(Bounds.Height - value.Height) < 0.001f) return;
+            Bounds = SKRect.Create(Location.X, Location.Y, value.Width, value.Height);
+            Invalidate();
+        }
+    }
+
+    public bool AutoSize
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            RecalculateBounds();
+        }
+    } = false;
+
+    public SKPoint Padding
+    {
+        get => _padding;
+        set
+        {
+            if (Math.Abs(_padding.X - value.X) < 0.001f && Math.Abs(_padding.Y - value.Y) < 0.001f) return;
+            _padding = value;
+            RecalculateBounds();
+        }
+    }
+
+    public string Text
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            if (!RecalculateBounds()) Invalidate();
+        }
+    } = "Button";
+
+    public SKColor TextColor
+    {
+        get;
+        set { if (field == value) return; field = value; Invalidate(); }
+    } = VS2017Theme.TextPrimary;
 
     public float TextSize
     {
-        get => _font.Size;
-        set => _font.Size = value;
-    }
+        get;
+        set
+        {
+            if (Math.Abs(field - value) < 0.001f) return;
+            field = value;
+            if (!RecalculateBounds()) Invalidate();
+        }
+    } = 13.0f;
 
-    public SKColor NormalColor { get; set; } = SKColor.Parse("#1E1E2E");
-    public SKColor HoverColor { get; set; } = SKColor.Parse("#313244");
-    public SKColor PressedColor { get; set; } = SKColor.Parse("#585B70");
-    public SKColor BorderColor { get; set; } = SKColor.Parse("#CBA6F7");
-    public SKColor TextColor { get; set; } = SKColor.Parse("#CDD6F4");
-
-    public Action? OnClick { get; set; }
-
-    private SKColor _animatedColor;
-    private readonly SKPaint _fillPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
-    private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
-    private readonly SKPaint _textPaint = new() { IsAntialias = true };
-    private readonly SKFont _font = new(SKTypeface.Default, 14f) { Subpixel = true };
-
-    public TextButton(string text = "Button", float width = 120f, float height = 36f)
+    public string FontFamily
     {
-        Text = text;
-        _width = width;
-        _height = height;
-        _animatedColor = NormalColor;
-        RecalculateBounds();
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            InvalidateTypeface();
+            if (!RecalculateBounds()) Invalidate();
+        }
+    } = "Segoe UI";
+
+    public SKFontStyleWeight FontWeight
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            InvalidateTypeface();
+            if (!RecalculateBounds()) Invalidate();
+        }
+    } = SKFontStyleWeight.Normal;
+
+    public SKFontStyleWidth FontWidth
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            InvalidateTypeface();
+            if (!RecalculateBounds()) Invalidate();
+        }
+    } = SKFontStyleWidth.Normal;
+
+    public SKFontStyleSlant FontSlant
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            InvalidateTypeface();
+            if (!RecalculateBounds()) Invalidate();
+        }
+    } = SKFontStyleSlant.Upright;
+
+    public SKColor NormalBackgroundColor
+    {
+        get;
+        set { if (field == value) return; field = value; Invalidate(); }
+    } = VS2017Theme.ButtonNormal;
+
+    public SKColor HoverBackgroundColor
+    {
+        get;
+        set { if (field == value) return; field = value; Invalidate(); }
+    } = VS2017Theme.ButtonHover;
+
+    public SKColor PressedBackgroundColor
+    {
+        get;
+        set { if (field == value) return; field = value; Invalidate(); }
+    } = VS2017Theme.ButtonPressed;
+
+    public SKColor NormalBorderColor
+    {
+        get;
+        set { if (field == value) return; field = value; Invalidate(); }
+    } = VS2017Theme.ControlBorder;
+
+    public SKColor ActiveBorderColor
+    {
+        get;
+        set { if (field == value) return; field = value; Invalidate(); }
+    } = VS2017Theme.ButtonHover;
+
+    public float BorderThickness
+    {
+        get;
+        set { if (Math.Abs(field - value) < 0.001f) return; field = value; Invalidate(); }
+    } = 1.0f;
+
+    public BorderDirection BorderDirection
+    {
+        get;
+        set { if (field == value) return; field = value; Invalidate(); }
+    } = BorderDirection.Inside;
+
+    public event Action? Clicked;
+
+    private SKTypeface GetOrCreateTypeface() => _cachedTypeface ??= SKTypeface.FromFamilyName(FontFamily, FontWeight, FontWidth, FontSlant);
+
+    private void InvalidateTypeface()
+    {
+        _cachedTypeface?.Dispose();
+        _cachedTypeface = null;
     }
 
-    private void RecalculateBounds()
+    public bool RecalculateBounds()
     {
-        Bounds = SKRect.Create(0, 0, _width, _height);
+        if (!AutoSize || string.IsNullOrEmpty(Text)) return false;
+
+        using var font = new SKFont(GetOrCreateTypeface(), TextSize);
+        font.MeasureText(Text, out var textBounds);
+
+        var targetWidth = textBounds.Width + (Padding.X * 2f);
+        var targetHeight = font.Metrics.CapHeight + (Padding.Y * 2f);
+
+        if (Math.Abs(Width - targetWidth) < 0.001f && Math.Abs(Height - targetHeight) < 0.001f)
+            return false;
+
+        Width = targetWidth;
+        Height = targetHeight;
+        return true;
     }
+
+    public override bool Intersects(SKPoint clientPoint) => Bounds.Contains(clientPoint.X, clientPoint.Y);
+
+    protected override bool OnMouse(MouseEventContext mouseContext)
+    {
+        if (mouseContext.Type == MouseEventType.MouseUp && IsHovered)
+        {
+            Clicked?.Invoke();
+            return true;
+        }
+        return false;
+    }
+
+    public override void Update(float deltaTime, SKPoint clientMousePosition) { }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
-        var rect = SKRect.Create(0, 0, _width, _height);
+        var currentBg = NormalBackgroundColor;
+        var currentBorder = NormalBorderColor;
 
-        _fillPaint.Color = _animatedColor;
-        _borderPaint.Color = BorderColor;
-
-        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _fillPaint);
-        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _borderPaint);
-
-        _textPaint.Color = TextColor;
-
-        var textWidth = _font.MeasureText(Text);
-        var metrics = _font.Metrics;
-        var textHeight = metrics.Descent - metrics.Ascent;
-
-        var textX = (rect.Width - textWidth) / 2f;
-        var textY = ((rect.Height + textHeight) / 2f) - metrics.Descent;
-
-        canvas.DrawText(Text, textX, textY, SKTextAlign.Left, _font, _textPaint);
-    }
-
-    public override bool Intersects(SKPoint clientPoint)
-    {
-        return Bounds.Contains(clientPoint);
-    }
-
-    public override void Update(float deltaTime, SKPoint clientMousePosition)
-    {
-        var targetColor = IsMouseDown && IsHovered ? PressedColor : IsHovered ? HoverColor : NormalColor;
-        _animatedColor = LerpColor(_animatedColor, targetColor, deltaTime * 12f);
-    }
-
-    private static SKColor LerpColor(SKColor from, SKColor to, float progress)
-    {
-        progress = Math.Clamp(progress, 0f, 1f);
-        var r = (byte)(from.Red + ((to.Red - from.Red) * progress));
-        var g = (byte)(from.Green + ((to.Green - from.Green) * progress));
-        var b = (byte)(from.Blue + ((to.Blue - from.Blue) * progress));
-        var a = (byte)(from.Alpha + ((to.Alpha - from.Alpha) * progress));
-        return new SKColor(r, g, b, a);
-    }
-
-    protected override bool OnMouse(MouseEventContext mouseContext)
-    {
-        if (mouseContext.Type == MouseEventType.MouseUp && IsHovered && IsEnabled)
+        if (IsMouseDown && IsHovered)
         {
-            OnClick?.Invoke();
-            return true;
+            currentBg = PressedBackgroundColor;
+            currentBorder = ActiveBorderColor;
+        }
+        else if (IsHovered)
+        {
+            currentBg = HoverBackgroundColor;
+            currentBorder = ActiveBorderColor;
         }
 
-        return base.OnMouse(mouseContext);
+        using var bgPaint = new SKPaint { Color = currentBg, Style = SKPaintStyle.Fill, IsAntialias = false };
+        canvas.DrawRect(Bounds, bgPaint);
+
+        if (BorderThickness > 0)
+        {
+            using var borderPaint = new SKPaint { Color = currentBorder, Style = SKPaintStyle.Stroke, StrokeWidth = BorderThickness, IsAntialias = false };
+
+            var borderRect = BorderDirection switch
+            {
+                BorderDirection.Inside => SKRect.Create(
+                    Bounds.Left + (BorderThickness / 2f),
+                    Bounds.Top + (BorderThickness / 2f),
+                    Bounds.Width - BorderThickness,
+                    Bounds.Height - BorderThickness),
+                BorderDirection.Outside => SKRect.Create(
+                    Bounds.Left - (BorderThickness / 2f),
+                    Bounds.Top - (BorderThickness / 2f),
+                    Bounds.Width + BorderThickness,
+                    Bounds.Height + BorderThickness),
+                _ => Bounds
+            };
+
+            canvas.DrawRect(borderRect, borderPaint);
+        }
+
+        if (!string.IsNullOrEmpty(Text))
+        {
+            using var font = new SKFont(GetOrCreateTypeface(), TextSize);
+            using var textPaint = new SKPaint { Color = IsEnabled ? TextColor : VS2017Theme.TextDisabled, IsAntialias = true };
+
+            var x = Bounds.MidX;
+            var y = Bounds.MidY + (font.Metrics.CapHeight / 2f);
+
+            canvas.DrawText(Text, x, y, SKTextAlign.Center, font, textPaint);
+        }
     }
 
     protected override void OnDispose()
     {
-        _fillPaint.Dispose();
-        _borderPaint.Dispose();
-        _textPaint.Dispose();
-        _font.Dispose();
+        InvalidateTypeface();
         base.OnDispose();
     }
+
+    public TextButton WithWidth(float width) { Width = width; return this; }
+    public TextButton WithHeight(float height) { Height = height; return this; }
+    public TextButton WithSize(float width, float height) { Size = new SKSize(width, height); return this; }
+    public TextButton WithAutoSize(bool autoSize) { AutoSize = autoSize; return this; }
+    public TextButton WithPadding(float x, float y) { Padding = new SKPoint(x, y); return this; }
+    public TextButton WithText(string text) { Text = text; return this; }
+    public TextButton WithTextSize(float size) { TextSize = size; return this; }
+    public TextButton WithTextColor(SKColor color) { TextColor = color; return this; }
+    public TextButton WithFont(string family, float size = 13f, SKFontStyleWeight weight = SKFontStyleWeight.Normal, SKFontStyleSlant slant = SKFontStyleSlant.Upright)
+    {
+        FontFamily = family;
+        TextSize = size;
+        FontWeight = weight;
+        FontSlant = slant;
+        return this;
+    }
+    public TextButton WithFontWeight(SKFontStyleWeight weight) { FontWeight = weight; return this; }
+    public TextButton WithFontSlant(SKFontStyleSlant slant) { FontSlant = slant; return this; }
+    public TextButton WithBorder(SKColor normalColor, SKColor activeColor, float thickness = 1.0f, BorderDirection direction = BorderDirection.Inside)
+    {
+        NormalBorderColor = normalColor;
+        ActiveBorderColor = activeColor;
+        BorderThickness = thickness;
+        BorderDirection = direction;
+        return this;
+    }
+    public TextButton WithBorderThickness(float thickness) { BorderThickness = thickness; return this; }
+    public TextButton WithBorderDirection(BorderDirection direction) { BorderDirection = direction; return this; }
+    public TextButton WithOnClick(Action onClick) { Clicked += onClick; return this; }
+    public TextButton WithColors(SKColor normal, SKColor hover, SKColor pressed)
+    {
+        NormalBackgroundColor = normal;
+        HoverBackgroundColor = hover;
+        PressedBackgroundColor = pressed;
+        return this;
+    }
+    public TextButton WithBounds(SKRect bounds) { Bounds = bounds; return this; }
+    public TextButton WithParent(UIControlBase? parent) { Parent = parent; return this; }
 }

@@ -9,11 +9,11 @@ namespace HandyUI.SilkNet.Classes.Helper;
 
 public static class SilkRendererHelper
 {
-    public static UIRenderer Attach(IWindow window)
+    public static UIRenderer Attach(IWindow window, bool useDirtyRendering = true)
     {
         ArgumentNullException.ThrowIfNull(window);
 
-        var renderer = new UIRenderer();
+        var renderer = new UIRenderer(useDirtyRendering);
         var currentMousePos = new SKPoint(-1, -1);
 
         GL? gl = null;
@@ -41,6 +41,8 @@ public static class SilkRendererHelper
 
             backendRenderTarget = new GRBackendRenderTarget(width, height, sampleCount, stencilBits, fbInfo);
             skSurface = SKSurface.Create(grContext, backendRenderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
+
+            renderer.Invalidate();
         }
 
         window.Load += () =>
@@ -169,10 +171,11 @@ public static class SilkRendererHelper
         {
             if (skSurface?.Canvas == null) return;
 
-            skSurface.Canvas.Clear(SKColors.Transparent);
-            renderer.RenderControls(skSurface.Canvas, currentMousePos);
-            skSurface.Canvas.Flush();
-            grContext?.Flush();
+            if (renderer.RenderControls(skSurface.Canvas, currentMousePos))
+            {
+                skSurface.Canvas.Flush();
+                grContext?.Flush();
+            }
         };
 
         window.Closing += () =>
@@ -192,18 +195,18 @@ public static class SilkRendererHelper
     {
         return key switch
         {
-            Key.Tab => 9,          // VK_TAB
-            Key.Enter => 13,       // VK_RETURN
-            Key.Backspace => 8,    // VK_BACK
-            Key.Escape => 27,      // VK_ESCAPE
-            Key.Delete => 46,      // VK_DELETE
-            Key.Space => 32,       // VK_SPACE
-            Key.Left => 37,        // VK_LEFT
-            Key.Up => 38,          // VK_UP
-            Key.Right => 39,       // VK_RIGHT
-            Key.Down => 40,        // VK_DOWN
-            Key.Home => 36,        // VK_HOME
-            Key.End => 35,         // VK_END
+            Key.Tab => 9,
+            Key.Enter => 13,
+            Key.Backspace => 8,
+            Key.Escape => 27,
+            Key.Delete => 46,
+            Key.Space => 32,
+            Key.Left => 37,
+            Key.Up => 38,
+            Key.Right => 39,
+            Key.Down => 40,
+            Key.Home => 36,
+            Key.End => 35,
             _ => (int)key
         };
     }

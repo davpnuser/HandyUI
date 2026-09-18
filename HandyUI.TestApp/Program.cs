@@ -1,22 +1,48 @@
 ﻿using HandyUI.Core.Classes.Controls;
+using HandyUI.Core.Classes.Themes;
 using HandyUI.Core.Components;
 using HandyUI.SilkNet.Classes.Extensions;
 using Silk.NET.Windowing;
 using SkiaSharp;
 
-(var window, var renderer) = SilkWindowHelper.CreateWindowAndGetRenderer("Example", new(250, 350));
+(var window, var renderer) = SilkWindowHelper.CreateWindowAndGetRenderer("Example", new(500, 500), WindowBorder.Fixed, useDirtyRendering: false);
 
-SKImage? logoImage = null;
 if (ResourceManager.GetResourceByPath("Resources/HandyUI-Logo.png", out var imageStream))
-{
-    logoImage = SKImage.FromEncodedData(imageStream!);
-}
-logoImage!.SetAsIcon(window);
+    SKImage.FromEncodedData(imageStream!).SetAsIcon(window);
 
-var button = new TextButton("click me!")
+var scroll = new ScrollingFrame()
+    .WithAutoCanvasSize(true)
+    .WithWidth(500)
+    .WithHeight(500);
+
+renderer.AddRootControl(scroll);
+
+for (var i = 0; i < 15; i++)
 {
-    Location = new(15, 15)
+    var button = new TextButton()
+        .WithParent(scroll)
+        .WithText("exit app")
+        .WithBorder(VS2017Theme.ButtonPressed, VS2017Theme.ButtonHover, 2)
+        .WithTextSize(16)
+        .WithWidth(150)
+        .WithHeight(36)
+        .WithLocation(25 + (40 * i), 40 * i);
+}
+
+var x = new TextButton()
+        .WithParent(scroll)
+        .WithOnClick(() => Environment.Exit(0))
+        .WithText("exit app fr")
+        .WithBorder(VS2017Theme.ButtonPressed, VS2017Theme.ButtonHover, 2)
+        .WithTextSize(16)
+        .WithWidth(150)
+        .WithHeight(36)
+        .WithLocation(625, 40 * 15);
+
+var control = new TestControl()
+{
+    ZIndex = 2
 };
-renderer.AddRootControl(button);
+renderer.AddRootControl(control);
 
 window.Run();
