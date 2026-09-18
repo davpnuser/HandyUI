@@ -94,6 +94,17 @@ public class TextButton : UIControlBase
         }
     } = 13.0f;
 
+    public SKTypeface? Typeface
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            if (!RecalculateBounds()) Invalidate();
+        }
+    }
+
     public string FontFamily
     {
         get;
@@ -186,6 +197,8 @@ public class TextButton : UIControlBase
 
     public event Action? Clicked;
 
+    private SKTypeface GetEffectiveTypeface() => Typeface ?? GetOrCreateTypeface();
+
     private SKTypeface GetOrCreateTypeface() => _cachedTypeface ??= SKTypeface.FromFamilyName(FontFamily, FontWeight, FontWidth, FontSlant);
 
     private void InvalidateTypeface()
@@ -198,7 +211,7 @@ public class TextButton : UIControlBase
     {
         if (!AutoSize || string.IsNullOrEmpty(Text)) return false;
 
-        using var font = new SKFont(GetOrCreateTypeface(), TextSize);
+        using var font = new SKFont(GetEffectiveTypeface(), TextSize);
         font.MeasureText(Text, out var textBounds);
 
         var targetWidth = textBounds.Width + (Padding.X * 2f);
@@ -271,7 +284,7 @@ public class TextButton : UIControlBase
 
         if (!string.IsNullOrEmpty(Text))
         {
-            using var font = new SKFont(GetOrCreateTypeface(), TextSize);
+            using var font = new SKFont(GetEffectiveTypeface(), TextSize);
             using var textPaint = new SKPaint { Color = IsEnabled ? TextColor : VS2017Theme.TextDisabled, IsAntialias = true };
 
             var x = Bounds.MidX;
@@ -295,6 +308,7 @@ public class TextButton : UIControlBase
     public TextButton WithText(string text) { Text = text; return this; }
     public TextButton WithTextSize(float size) { TextSize = size; return this; }
     public TextButton WithTextColor(SKColor color) { TextColor = color; return this; }
+    public TextButton WithTypeface(SKTypeface? typeface) { Typeface = typeface; return this; }
     public TextButton WithFont(string family, float size = 13f, SKFontStyleWeight weight = SKFontStyleWeight.Normal, SKFontStyleSlant slant = SKFontStyleSlant.Upright)
     {
         FontFamily = family;
