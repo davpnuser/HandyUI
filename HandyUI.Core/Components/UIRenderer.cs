@@ -21,8 +21,17 @@ public class UIRenderer : IDisposable
     private int _framesToRender = 2;
     private bool _isDisposed;
 
+    // --> ADDED: Store the setting
+    private readonly bool _useDirtyRendering;
+
     private IUIControl? _pressedControl;
     private IUIControl? _focusedControl;
+
+    // --> ADDED: Constructor to accept the toggle
+    public UIRenderer(bool useDirtyRendering = true)
+    {
+        _useDirtyRendering = useDirtyRendering;
+    }
 
     public void Invalidate() => _framesToRender = 2;
 
@@ -164,7 +173,8 @@ public class UIRenderer : IDisposable
 
         lock (_controlsLock)
         {
-            if (_framesToRender <= 0) return false;
+            // --> ADDED: Check the toggle before dropping the frame
+            if (_useDirtyRendering && _framesToRender <= 0) return false;
 
             if (_isOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isOrderDirty = false; }
             canvas.Clear(SKColors.White);
@@ -172,7 +182,9 @@ public class UIRenderer : IDisposable
             foreach (var control in _rootControls)
                 RenderRecursive(canvas, control, cursorPosition, deltaTime);
 
-            _framesToRender--;
+            // --> ADDED: Only decrement if dirty rendering is enabled
+            if (_useDirtyRendering) _framesToRender--;
+
             return true;
         }
     }

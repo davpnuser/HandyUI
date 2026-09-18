@@ -9,11 +9,11 @@ namespace HandyUI.SilkNet.Classes.Helper;
 
 public static class SilkRendererHelper
 {
-    public static UIRenderer Attach(IWindow window)
+    public static UIRenderer Attach(IWindow window, bool useDirtyRendering = true)
     {
         ArgumentNullException.ThrowIfNull(window);
 
-        var renderer = new UIRenderer();
+        var renderer = new UIRenderer(useDirtyRendering);
         var currentMousePos = new SKPoint(-1, -1);
 
         GL? gl = null;
