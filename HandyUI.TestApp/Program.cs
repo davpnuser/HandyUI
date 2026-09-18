@@ -5,7 +5,7 @@ using HandyUI.SilkNet.Classes.Extensions;
 using Silk.NET.Windowing;
 using SkiaSharp;
 
-(var window, var renderer) = SilkWindowHelper.CreateWindowAndGetRenderer("Example", new(500, 500), WindowBorder.Fixed);
+(var window, var renderer) = SilkWindowHelper.CreateWindowAndGetRenderer("Example", new(500, 500), WindowBorder.Fixed, useDirtyRendering: false);
 
 if (ResourceManager.GetResourceByPath("Resources/HandyUI-Logo.png", out var imageStream))
     SKImage.FromEncodedData(imageStream!).SetAsIcon(window);
@@ -38,5 +38,11 @@ var x = new TextButton()
         .WithWidth(150)
         .WithHeight(36)
         .WithLocation(625, 40 * 15);
+
+var control = new TestControl()
+{
+    ZIndex = 2
+};
+renderer.AddRootControl(control);
 
 window.Run();
