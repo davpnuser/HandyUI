@@ -10,6 +10,57 @@ public class TextButton : UIControlBase
 {
     private SKPoint _padding = new(12f, 6f);
     private SKTypeface? _cachedTypeface;
+    private bool _colorsInitialized;
+
+    private bool _customNormalBgSet;
+    private bool _customHoverBgSet;
+    private bool _customPressedBgSet;
+    private bool _customNormalBorderSet;
+    private bool _customActiveBorderSet;
+    private bool _customTextSet;
+
+    private readonly SKPaint _bgPaint = new() { Style = SKPaintStyle.Fill, IsAntialias = false };
+    private readonly SKPaint _borderPaint = new() { Style = SKPaintStyle.Stroke, StrokeWidth = 1.0f, IsAntialias = false };
+    private readonly SKPaint _textPaint = new() { IsAntialias = true };
+
+    public TextButton()
+    {
+        UpdateBrushes();
+    }
+
+    public new bool IsEnabled
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = true;
+
+    public ThemeRecord Theme
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+            if (!_customNormalBgSet) NormalBackgroundColor = value.BackgroundColor;
+            if (!_customHoverBgSet) HoverBackgroundColor = value.SemiActiveColor;
+            if (!_customPressedBgSet) PressedBackgroundColor = value.ActiveColor;
+            if (!_customNormalBorderSet) NormalBorderColor = value.BorderColor;
+            if (!_customActiveBorderSet) ActiveBorderColor = value.ActiveColor;
+            if (!_customTextSet) TextColor = value.TextColor;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme();
 
     public float Width
     {
@@ -80,8 +131,15 @@ public class TextButton : UIControlBase
     public SKColor TextColor
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
-    } = VS2017Theme.TextPrimary;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            _customTextSet = true;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme().TextColor;
 
     public float TextSize
     {
@@ -156,43 +214,89 @@ public class TextButton : UIControlBase
     public SKColor NormalBackgroundColor
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
-    } = VS2017Theme.ButtonNormal;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            _customNormalBgSet = true;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme().BackgroundColor;
 
     public SKColor HoverBackgroundColor
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
-    } = VS2017Theme.ButtonHover;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            _customHoverBgSet = true;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme().SemiActiveColor;
 
     public SKColor PressedBackgroundColor
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
-    } = VS2017Theme.ButtonPressed;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            _customPressedBgSet = true;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme().ActiveColor;
 
     public SKColor NormalBorderColor
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
-    } = VS2017Theme.ControlBorder;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            _customNormalBorderSet = true;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme().BorderColor;
 
     public SKColor ActiveBorderColor
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
-    } = VS2017Theme.ButtonHover;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            _customActiveBorderSet = true;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme().ActiveColor;
 
     public float BorderThickness
     {
         get;
-        set { if (Math.Abs(field - value) < 0.001f) return; field = value; Invalidate(); }
+        set
+        {
+            if (Math.Abs(field - value) < 0.001f) return;
+            field = value;
+            UpdateBrushes();
+            Invalidate();
+        }
     } = 1.0f;
 
     public BorderDirection BorderDirection
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
+        set
+        {
+            if (field == value) return;
+            field = value;
+            Invalidate();
+        }
     } = BorderDirection.Inside;
 
     public event Action? Clicked;
@@ -205,6 +309,39 @@ public class TextButton : UIControlBase
     {
         _cachedTypeface?.Dispose();
         _cachedTypeface = null;
+    }
+
+    private void UpdateBrushes()
+    {
+        _colorsInitialized = true;
+
+        if (!IsEnabled)
+        {
+            _bgPaint.Color = Theme.DarkerBackgroundColor;
+            _borderPaint.Color = Theme.DisabledColor;
+            _textPaint.Color = Theme.DisabledTextColor;
+        }
+        else
+        {
+            if (IsMouseDown && IsHovered)
+            {
+                _bgPaint.Color = PressedBackgroundColor;
+                _borderPaint.Color = ActiveBorderColor;
+            }
+            else if (IsHovered)
+            {
+                _bgPaint.Color = HoverBackgroundColor;
+                _borderPaint.Color = ActiveBorderColor;
+            }
+            else
+            {
+                _bgPaint.Color = NormalBackgroundColor;
+                _borderPaint.Color = NormalBorderColor;
+            }
+
+            _borderPaint.StrokeWidth = BorderThickness;
+            _textPaint.Color = TextColor;
+        }
     }
 
     public bool RecalculateBounds()
@@ -229,7 +366,7 @@ public class TextButton : UIControlBase
 
     protected override bool OnMouse(MouseEventContext mouseContext)
     {
-        if (mouseContext.Type == MouseEventType.MouseUp && IsHovered)
+        if (mouseContext.Type == MouseEventType.MouseUp && IsHovered && IsEnabled)
         {
             Clicked?.Invoke();
             return true;
@@ -237,33 +374,22 @@ public class TextButton : UIControlBase
         return false;
     }
 
-    public override void Update(float deltaTime, SKPoint clientMousePosition) { }
+    public override void Update(float deltaTime, SKPoint clientMousePosition)
+    {
+        if (!_colorsInitialized)
+            UpdateBrushes();
+    }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
-        var currentBg = NormalBackgroundColor;
-        var currentBorder = NormalBorderColor;
+        UpdateBrushes();
 
-        if (IsMouseDown && IsHovered)
-        {
-            currentBg = PressedBackgroundColor;
-            currentBorder = ActiveBorderColor;
-        }
-        else if (IsHovered)
-        {
-            currentBg = HoverBackgroundColor;
-            currentBorder = ActiveBorderColor;
-        }
-
-        using var bgPaint = new SKPaint { Color = currentBg, Style = SKPaintStyle.Fill, IsAntialias = false };
-        canvas.DrawRect(Bounds, bgPaint);
+        canvas.DrawRect(Bounds, _bgPaint);
 
         if (BorderThickness > 0)
         {
-            using var borderPaint = new SKPaint { Color = currentBorder, Style = SKPaintStyle.Stroke, StrokeWidth = BorderThickness, IsAntialias = false };
-
             var borderRect = BorderDirection switch
             {
                 BorderDirection.Inside => SKRect.Create(
@@ -279,27 +405,31 @@ public class TextButton : UIControlBase
                 _ => Bounds
             };
 
-            canvas.DrawRect(borderRect, borderPaint);
+            canvas.DrawRect(borderRect, _borderPaint);
         }
 
         if (!string.IsNullOrEmpty(Text))
         {
             using var font = new SKFont(GetEffectiveTypeface(), TextSize);
-            using var textPaint = new SKPaint { Color = IsEnabled ? TextColor : VS2017Theme.TextDisabled, IsAntialias = true };
 
             var x = Bounds.MidX;
             var y = Bounds.MidY + (font.Metrics.CapHeight / 2f);
 
-            canvas.DrawText(Text, x, y, SKTextAlign.Center, font, textPaint);
+            canvas.DrawText(Text, x, y, SKTextAlign.Center, font, _textPaint);
         }
     }
 
     protected override void OnDispose()
     {
         InvalidateTypeface();
+        _bgPaint.Dispose();
+        _borderPaint.Dispose();
+        _textPaint.Dispose();
         base.OnDispose();
     }
 
+    public TextButton WithIsEnabled(bool isEnabled) { IsEnabled = isEnabled; return this; }
+    public TextButton WithTheme(ThemeRecord theme) { Theme = theme; return this; }
     public TextButton WithWidth(float width) { Width = width; return this; }
     public TextButton WithHeight(float height) { Height = height; return this; }
     public TextButton WithSize(float width, float height) { Size = new SKSize(width, height); return this; }
