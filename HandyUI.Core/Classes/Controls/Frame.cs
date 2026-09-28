@@ -1,5 +1,6 @@
 ﻿using HandyUI.Core.Classes.Base;
 using HandyUI.Core.Classes.Enums;
+using HandyUI.Core.Classes.Records;
 using HandyUI.Core.Classes.Themes;
 using SkiaSharp;
 
@@ -7,6 +8,48 @@ namespace HandyUI.Core.Classes.Controls;
 
 public class Frame : UIControlBase
 {
+    private bool _customBackgroundColorSet;
+    private bool _customBorderColorSet;
+    private bool _colorsInitialized;
+
+    private readonly SKPaint _backgroundPaint = new() { Style = SKPaintStyle.Fill, IsAntialias = false };
+    private readonly SKPaint _borderPaint = new() { Style = SKPaintStyle.Stroke, IsAntialias = false };
+
+    public Frame()
+    {
+        UpdateBrushes();
+    }
+
+    public new bool IsEnabled
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = true;
+
+    public ThemeRecord Theme
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+            if (!_customBackgroundColorSet) BackgroundColor = value.BackgroundColor;
+            if (!_customBorderColorSet) BorderColor = value.BorderColor;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme();
+
     public float Width
     {
         get => Bounds.Width;
@@ -43,45 +86,92 @@ public class Frame : UIControlBase
     public SKColor BackgroundColor
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
-    } = VS2017Theme.PanelBackground;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            _customBackgroundColorSet = true;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme().BackgroundColor;
 
     public SKColor BorderColor
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
-    } = VS2017Theme.ControlBorder;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            _customBorderColorSet = true;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme().BorderColor;
 
     public float BorderThickness
     {
         get;
-        set { if (Math.Abs(field - value) < 0.001f) return; field = value; Invalidate(); }
+        set
+        {
+            if (Math.Abs(field - value) < 0.001f) return;
+            field = value;
+            UpdateBrushes();
+            Invalidate();
+        }
     } = 1.0f;
 
     public BorderDirection BorderDirection
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
+        set
+        {
+            if (field == value) return;
+            field = value;
+            Invalidate();
+        }
     } = BorderDirection.Inside;
 
-    public override bool Intersects(SKPoint clientPoint) => Bounds.Contains(clientPoint.X, clientPoint.Y);
+    private void UpdateBrushes()
+    {
+        _colorsInitialized = true;
 
-    public override void Update(float deltaTime, SKPoint clientMousePosition) { }
+        if (IsEnabled)
+        {
+            _backgroundPaint.Color = BackgroundColor;
+            _borderPaint.Color = BorderColor;
+            _borderPaint.StrokeWidth = BorderThickness;
+        }
+        else
+        {
+            _backgroundPaint.Color = Theme.DarkerBackgroundColor;
+            _borderPaint.Color = Theme.DisabledColor;
+            _borderPaint.StrokeWidth = BorderThickness;
+        }
+    }
+
+    public override bool Intersects(SKPoint clientPoint)
+    {
+        return Bounds.Contains(clientPoint.X, clientPoint.Y);
+    }
+
+    public override void Update(float deltaTime, SKPoint clientMousePosition)
+    {
+        if (!_colorsInitialized)
+            UpdateBrushes();
+    }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
-        if (BackgroundColor.Alpha > 0)
+        if (_backgroundPaint.Color.Alpha > 0)
         {
-            using var bgPaint = new SKPaint { Color = BackgroundColor, Style = SKPaintStyle.Fill, IsAntialias = false };
-            canvas.DrawRect(Bounds, bgPaint);
+            canvas.DrawRect(Bounds, _backgroundPaint);
         }
 
-        if (BorderThickness > 0 && BorderColor.Alpha > 0)
+        if (BorderThickness > 0 && _borderPaint.Color.Alpha > 0)
         {
-            using var borderPaint = new SKPaint { Color = BorderColor, Style = SKPaintStyle.Stroke, StrokeWidth = BorderThickness, IsAntialias = false };
-
             var borderRect = BorderDirection switch
             {
                 BorderDirection.Inside => SKRect.Create(
@@ -97,15 +187,19 @@ public class Frame : UIControlBase
                 _ => Bounds
             };
 
-            canvas.DrawRect(borderRect, borderPaint);
+            canvas.DrawRect(borderRect, _borderPaint);
         }
     }
 
     protected override void OnDispose()
     {
+        _backgroundPaint.Dispose();
+        _borderPaint.Dispose();
         base.OnDispose();
     }
 
+    public Frame WithIsEnabled(bool isEnabled) { IsEnabled = isEnabled; return this; }
+    public Frame WithTheme(ThemeRecord theme) { Theme = theme; return this; }
     public Frame WithWidth(float width) { Width = width; return this; }
     public Frame WithHeight(float height) { Height = height; return this; }
     public Frame WithSize(float width, float height) { Size = new SKSize(width, height); return this; }

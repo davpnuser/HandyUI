@@ -1,5 +1,6 @@
 ﻿using HandyUI.Core.Classes.Base;
 using HandyUI.Core.Classes.Records;
+using HandyUI.Core.Classes.Themes;
 using SkiaSharp;
 
 namespace HandyUI.Core.Classes.Controls;
@@ -10,6 +11,63 @@ public class TextBox : UIControlBase
     private int _caretIndex;
     private float _blinkTimer;
     private bool _showCaret = true;
+    private bool _colorsInitialized;
+
+    private bool _customBgSet;
+    private bool _customBorderSet;
+    private bool _customFocusBorderSet;
+    private bool _customTextSet;
+    private bool _customPlaceholderSet;
+    private bool _customCaretSet;
+
+    private readonly SKPaint _bgPaint = new() { Style = SKPaintStyle.Fill, IsAntialias = true };
+    private readonly SKPaint _borderPaint = new() { Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f, IsAntialias = true };
+    private readonly SKPaint _textPaint = new() { IsAntialias = true };
+    private readonly SKPaint _placeholderPaint = new() { IsAntialias = true };
+    private readonly SKPaint _caretPaint = new() { Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f, IsAntialias = true };
+
+    public TextBox(float width = 200f, float height = 36f, string text = "", string placeholder = "Type here...")
+    {
+        Text = text;
+        PlaceholderText = placeholder;
+        _caretIndex = Text.Length;
+        Bounds = SKRect.Create(0, 0, width, height);
+        UpdateBrushes();
+    }
+
+    public new bool IsEnabled
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = true;
+
+    public ThemeRecord Theme
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+            if (!_customBgSet) BackgroundColor = value.BackgroundColor;
+            if (!_customBorderSet) BorderColor = value.BorderColor;
+            if (!_customFocusBorderSet) FocusBorderColor = value.ActiveColor;
+            if (!_customTextSet) TextColor = value.TextColor;
+            if (!_customPlaceholderSet) PlaceholderColor = value.DisabledTextColor;
+            if (!_customCaretSet) CaretColor = value.ActiveColor;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme();
 
     public float Width
     {
@@ -133,52 +191,86 @@ public class TextBox : UIControlBase
     public SKColor BackgroundColor
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
-    } = SKColor.Parse("#1E1E2E");
+        set
+        {
+            if (field == value) return;
+            field = value;
+            _customBgSet = true;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme().BackgroundColor;
 
     public SKColor BorderColor
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
-    } = SKColor.Parse("#45475A");
+        set
+        {
+            if (field == value) return;
+            field = value;
+            _customBorderSet = true;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme().BorderColor;
 
     public SKColor FocusBorderColor
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
-    } = SKColor.Parse("#CBA6F7");
+        set
+        {
+            if (field == value) return;
+            field = value;
+            _customFocusBorderSet = true;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme().ActiveColor;
 
     public SKColor TextColor
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
-    } = SKColor.Parse("#CDD6F4");
+        set
+        {
+            if (field == value) return;
+            field = value;
+            _customTextSet = true;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme().TextColor;
 
     public SKColor PlaceholderColor
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
-    } = SKColor.Parse("#6C7086");
+        set
+        {
+            if (field == value) return;
+            field = value;
+            _customPlaceholderSet = true;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme().DisabledTextColor;
 
     public SKColor CaretColor
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
-    } = SKColor.Parse("#CBA6F7");
+        set
+        {
+            if (field == value) return;
+            field = value;
+            _customCaretSet = true;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme().ActiveColor;
 
     public Action<string>? OnTextChanged { get; set; }
     public Action<string>? OnSubmit { get; set; }
 
     public event Action<string>? TextChanged;
     public event Action<string>? Submitted;
-
-    public TextBox(float width = 200f, float height = 36f, string text = "", string placeholder = "Type here...")
-    {
-        Text = text;
-        PlaceholderText = placeholder;
-        _caretIndex = Text.Length;
-        Bounds = SKRect.Create(0, 0, width, height);
-    }
 
     private SKTypeface GetOrCreateTypeface() => _cachedTypeface ??= SKTypeface.FromFamilyName(FontFamily, FontWeight, FontWidth, FontSlant);
 
@@ -188,10 +280,35 @@ public class TextBox : UIControlBase
         _cachedTypeface = null;
     }
 
+    private void UpdateBrushes()
+    {
+        _colorsInitialized = true;
+
+        if (IsEnabled)
+        {
+            _bgPaint.Color = BackgroundColor;
+            _borderPaint.Color = IsFocused ? FocusBorderColor : BorderColor;
+            _textPaint.Color = TextColor;
+            _placeholderPaint.Color = PlaceholderColor;
+            _caretPaint.Color = CaretColor;
+        }
+        else
+        {
+            _bgPaint.Color = Theme.DarkerBackgroundColor;
+            _borderPaint.Color = Theme.DisabledColor;
+            _textPaint.Color = Theme.DisabledTextColor;
+            _placeholderPaint.Color = Theme.DisabledTextColor;
+            _caretPaint.Color = SKColors.Transparent;
+        }
+    }
+
     public override bool Intersects(SKPoint clientPoint) => Bounds.Contains(clientPoint.X, clientPoint.Y);
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
+        if (!_colorsInitialized)
+            UpdateBrushes();
+
         if (IsFocused)
         {
             _blinkTimer += deltaTime;
@@ -214,19 +331,12 @@ public class TextBox : UIControlBase
     {
         if (!IsVisible) return;
 
+        UpdateBrushes();
+
         var localRect = SKRect.Create(Bounds.Left, Bounds.Top, Bounds.Width, Bounds.Height);
 
-        using var bgPaint = new SKPaint { Color = BackgroundColor, Style = SKPaintStyle.Fill, IsAntialias = true };
-        canvas.DrawRoundRect(localRect, CornerRadius, CornerRadius, bgPaint);
-
-        using var borderPaint = new SKPaint
-        {
-            Color = IsFocused ? FocusBorderColor : BorderColor,
-            Style = SKPaintStyle.Stroke,
-            StrokeWidth = 1.5f,
-            IsAntialias = true
-        };
-        canvas.DrawRoundRect(localRect, CornerRadius, CornerRadius, borderPaint);
+        canvas.DrawRoundRect(localRect, CornerRadius, CornerRadius, _bgPaint);
+        canvas.DrawRoundRect(localRect, CornerRadius, CornerRadius, _borderPaint);
 
         var contentRect = SKRect.Create(Bounds.Left + PaddingX, Bounds.Top, Math.Max(1f, Bounds.Width - (PaddingX * 2f)), Bounds.Height);
         canvas.Save();
@@ -239,16 +349,14 @@ public class TextBox : UIControlBase
 
         if (!string.IsNullOrEmpty(Text))
         {
-            using var textPaint = new SKPaint { Color = TextColor, IsAntialias = true };
-            canvas.DrawText(Text, Bounds.Left + PaddingX, textY, SKTextAlign.Left, font, textPaint);
+            canvas.DrawText(Text, Bounds.Left + PaddingX, textY, SKTextAlign.Left, font, _textPaint);
         }
         else if (!string.IsNullOrEmpty(PlaceholderText) && !IsFocused)
         {
-            using var placeholderPaint = new SKPaint { Color = PlaceholderColor, IsAntialias = true };
-            canvas.DrawText(PlaceholderText, Bounds.Left + PaddingX, textY, SKTextAlign.Left, font, placeholderPaint);
+            canvas.DrawText(PlaceholderText, Bounds.Left + PaddingX, textY, SKTextAlign.Left, font, _placeholderPaint);
         }
 
-        if (IsFocused && _showCaret)
+        if (IsFocused && _showCaret && IsEnabled)
         {
             var safeCaret = Math.Clamp(_caretIndex, 0, Text.Length);
             var textUpToCaret = Text[..safeCaret];
@@ -256,8 +364,7 @@ public class TextBox : UIControlBase
             var topY = Bounds.Top + ((Bounds.Height - textHeight) / 2f);
             var bottomY = topY + textHeight;
 
-            using var caretPaint = new SKPaint { Color = CaretColor, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f, IsAntialias = true };
-            canvas.DrawLine(caretX, topY, caretX, bottomY, caretPaint);
+            canvas.DrawLine(caretX, topY, caretX, bottomY, _caretPaint);
         }
 
         canvas.Restore();
@@ -272,6 +379,7 @@ public class TextBox : UIControlBase
                 if (!IsFocused)
                 {
                     IsFocused = true;
+                    UpdateBrushes();
                     Invalidate();
                 }
                 ResetCaretBlink();
@@ -289,6 +397,7 @@ public class TextBox : UIControlBase
             if (IsFocused)
             {
                 IsFocused = false;
+                UpdateBrushes();
                 Invalidate();
             }
         }
@@ -412,9 +521,16 @@ public class TextBox : UIControlBase
     protected override void OnDispose()
     {
         InvalidateTypeface();
+        _bgPaint.Dispose();
+        _borderPaint.Dispose();
+        _textPaint.Dispose();
+        _placeholderPaint.Dispose();
+        _caretPaint.Dispose();
         base.OnDispose();
     }
 
+    public TextBox WithIsEnabled(bool isEnabled) { IsEnabled = isEnabled; return this; }
+    public TextBox WithTheme(ThemeRecord theme) { Theme = theme; return this; }
     public TextBox WithWidth(float width) { Width = width; return this; }
     public TextBox WithHeight(float height) { Height = height; return this; }
     public TextBox WithSize(float width, float height) { Size = new SKSize(width, height); return this; }

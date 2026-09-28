@@ -1,4 +1,5 @@
 ﻿using HandyUI.Core.Classes.Base;
+using HandyUI.Core.Classes.Records;
 using HandyUI.Core.Classes.Themes;
 using SkiaSharp;
 
@@ -7,6 +8,46 @@ namespace HandyUI.Core.Classes.Controls;
 public class TextLabel : UIControlBase
 {
     private SKTypeface? _cachedTypeface;
+    private bool _colorsInitialized;
+    private bool _customTextColorSet;
+
+    private readonly SKPaint _textPaint = new() { IsAntialias = true };
+
+    public TextLabel(string text = "")
+    {
+        Text = text;
+        RecalculateBounds();
+        UpdateBrushes();
+    }
+
+    public new bool IsEnabled
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = true;
+
+    public ThemeRecord Theme
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+            if (!_customTextColorSet) TextColor = value.TextColor;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme();
 
     public float Width
     {
@@ -55,8 +96,15 @@ public class TextLabel : UIControlBase
     public SKColor TextColor
     {
         get;
-        set { if (field == value) return; field = value; Invalidate(); }
-    } = VS2017Theme.TextPrimary;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            _customTextColorSet = true;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme().TextColor;
 
     public float TextSize
     {
@@ -128,12 +176,6 @@ public class TextLabel : UIControlBase
         }
     } = SKFontStyleSlant.Upright;
 
-    public TextLabel(string text = "")
-    {
-        Text = text;
-        RecalculateBounds();
-    }
-
     private SKTypeface GetEffectiveTypeface() => Typeface ?? GetOrCreateTypeface();
 
     private SKTypeface GetOrCreateTypeface() => _cachedTypeface ??= SKTypeface.FromFamilyName(FontFamily, FontWeight, FontWidth, FontSlant);
@@ -142,6 +184,12 @@ public class TextLabel : UIControlBase
     {
         _cachedTypeface?.Dispose();
         _cachedTypeface = null;
+    }
+
+    private void UpdateBrushes()
+    {
+        _colorsInitialized = true;
+        _textPaint.Color = IsEnabled ? TextColor : Theme.DisabledTextColor;
     }
 
     public bool RecalculateBounds()
@@ -162,25 +210,30 @@ public class TextLabel : UIControlBase
 
     public override bool Intersects(SKPoint clientPoint) => Bounds.Contains(clientPoint.X, clientPoint.Y);
 
-    public override void Update(float deltaTime, SKPoint clientMousePosition) { }
+    public override void Update(float deltaTime, SKPoint clientMousePosition)
+    {
+        if (!_colorsInitialized)
+            UpdateBrushes();
+    }
 
     public override void Draw(SKCanvas canvas)
     {
         if (!IsVisible || string.IsNullOrEmpty(Text)) return;
 
         using var font = new SKFont(GetEffectiveTypeface(), TextSize) { Subpixel = true };
-        using var paint = new SKPaint { Color = IsEnabled ? TextColor : VS2017Theme.TextDisabled, IsAntialias = true };
-
         var baselineY = Bounds.Top - font.Metrics.Ascent;
-        canvas.DrawText(Text, Bounds.Left, baselineY, SKTextAlign.Left, font, paint);
+        canvas.DrawText(Text, Bounds.Left, baselineY, SKTextAlign.Left, font, _textPaint);
     }
 
     protected override void OnDispose()
     {
         InvalidateTypeface();
+        _textPaint.Dispose();
         base.OnDispose();
     }
 
+    public TextLabel WithIsEnabled(bool isEnabled) { IsEnabled = isEnabled; return this; }
+    public TextLabel WithTheme(ThemeRecord theme) { Theme = theme; return this; }
     public TextLabel WithWidth(float width) { Width = width; return this; }
     public TextLabel WithHeight(float height) { Height = height; return this; }
     public TextLabel WithSize(float width, float height) { Size = new SKSize(width, height); return this; }
