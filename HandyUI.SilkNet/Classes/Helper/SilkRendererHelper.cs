@@ -26,6 +26,8 @@ public static class SilkRendererHelper
         {
             if (gl == null || grContext == null) return;
 
+            window.GLContext?.MakeCurrent();
+
             skSurface?.Dispose();
             backendRenderTarget?.Dispose();
 
@@ -47,8 +49,13 @@ public static class SilkRendererHelper
 
         window.Load += () =>
         {
+            window.GLContext?.MakeCurrent();
+
             gl = GL.GetApi(window);
-            var skiaGlInterface = GRGlInterface.Create();
+
+            var skiaGlInterface = GRGlInterface.Create(proc =>
+                window.GLContext!.TryGetProcAddress(proc, out var addr) ? addr : IntPtr.Zero);
+
             grContext = GRContext.CreateGl(skiaGlInterface);
 
             inputContext = window.CreateInput();
@@ -163,6 +170,7 @@ public static class SilkRendererHelper
         window.Resize += (size) =>
         {
             if (gl == null) return;
+            window.GLContext?.MakeCurrent();
             gl.Viewport(0, 0, (uint)size.X, (uint)size.Y);
             CreateRenderTarget(size.X, size.Y);
         };
@@ -170,6 +178,8 @@ public static class SilkRendererHelper
         window.Render += (delta) =>
         {
             if (skSurface?.Canvas == null) return;
+
+            window.GLContext?.MakeCurrent();
 
             if (renderer.RenderControls(skSurface.Canvas, currentMousePos))
             {
@@ -180,6 +190,7 @@ public static class SilkRendererHelper
 
         window.Closing += () =>
         {
+            window.GLContext?.MakeCurrent();
             skSurface?.Dispose();
             backendRenderTarget?.Dispose();
             grContext?.Dispose();
