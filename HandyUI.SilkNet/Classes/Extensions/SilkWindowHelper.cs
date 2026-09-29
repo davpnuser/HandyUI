@@ -78,7 +78,6 @@ public static class SilkWindowHelper
             options.Title = title;
             options.WindowBorder = windowBorder;
 
-            // Enable event-driven rendering to prevent GLFW from busy-spinning the CPU thread
             if (useDirtyRendering)
             {
                 options.IsEventDriven = true;

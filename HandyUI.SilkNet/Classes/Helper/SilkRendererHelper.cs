@@ -23,7 +23,6 @@ public static class SilkRendererHelper
         SKSurface? offscreenSurface = null;
         IInputContext? inputContext = null;
 
-        // Tracks dirty state across 2 frames to keep OpenGL front & back buffers in sync
         var dirtyFramesRemaining = 2;
 
         void InvalidateFrames()
@@ -50,12 +49,11 @@ public static class SilkRendererHelper
 
             var maxSamples = grContext.GetMaxSurfaceSampleCount(SKColorType.Rgba8888);
             var sampleCount = Math.Min(samples, maxSamples);
-            var fbInfo = new GRGlFramebufferInfo((uint)framebuffer, 0x8058); // GL_RGBA8
+            var fbInfo = new GRGlFramebufferInfo((uint)framebuffer, 0x8058);
 
             backendRenderTarget = new GRBackendRenderTarget(pixelWidth, pixelHeight, sampleCount, stencilBits, fbInfo);
             skSurface = SKSurface.Create(grContext, backendRenderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
 
-            // Offscreen surface cache for dirty rendering
             var imageInfo = new SKImageInfo(pixelWidth, pixelHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
             offscreenSurface = SKSurface.Create(grContext, false, imageInfo);
 
@@ -186,7 +184,6 @@ public static class SilkRendererHelper
                 };
             }
 
-            // Use FramebufferSize for true pixel dimensions
             CreateRenderTarget(window.FramebufferSize.X, window.FramebufferSize.Y);
         };
 
@@ -218,7 +215,6 @@ public static class SilkRendererHelper
                 }
             }
 
-            // Always present cached offscreen buffer to active GL framebuffer to prevent buffer-swap flickering
             skSurface.Canvas.Clear(SKColors.Transparent);
             using (var snapshot = offscreenSurface.Snapshot())
             {
