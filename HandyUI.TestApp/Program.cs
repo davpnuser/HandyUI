@@ -1,6 +1,8 @@
 ﻿using HandyUI.Core.Classes.Controls;
+using HandyUI.Core.Components;
 using HandyUI.SilkNet.Classes.Extensions;
 using Silk.NET.Windowing;
+using SkiaSharp;
 
 var thread1 = new Thread(() =>
 {
@@ -31,7 +33,14 @@ var thread2 = new Thread(() =>
 
     var bcount = 0;
 
-    var b = new TextButton();
+    var image = ResourceManager.GetResourceByPath("Resources/HandyUI-Logo.png", out var stream);
+    var imageDecoded = SKImage.FromEncodedData(stream);
+
+    var b = new ImageButton(imageDecoded)
+    {
+        Size = new SKSize(200, 200)
+    };
+
     b
     .WithOnClick(() =>
     {
@@ -40,7 +49,6 @@ var thread2 = new Thread(() =>
             b.IsEnabled = false;
         }
     })
-    .WithSize(200, 36)
     .WithLocation(15, 55);
 
     renderer.AddRootControl(b);
