@@ -20,14 +20,25 @@ public static class SilkRendererHelper
         GRContext? grContext = null;
         GRBackendRenderTarget? backendRenderTarget = null;
         SKSurface? skSurface = null;
+        SKSurface? offscreenSurface = null;
         IInputContext? inputContext = null;
 
-        void CreateRenderTarget(int width, int height)
+        // Tracks dirty state across 2 frames to keep OpenGL front & back buffers in sync
+        var dirtyFramesRemaining = 2;
+
+        void InvalidateFrames()
         {
-            if (gl == null || grContext == null) return;
+            dirtyFramesRemaining = 2;
+            renderer.Invalidate();
+        }
+
+        void CreateRenderTarget(int pixelWidth, int pixelHeight)
+        {
+            if (gl == null || grContext == null || pixelWidth <= 0 || pixelHeight <= 0) return;
 
             window.GLContext?.MakeCurrent();
 
+            offscreenSurface?.Dispose();
             skSurface?.Dispose();
             backendRenderTarget?.Dispose();
 
@@ -39,12 +50,16 @@ public static class SilkRendererHelper
 
             var maxSamples = grContext.GetMaxSurfaceSampleCount(SKColorType.Rgba8888);
             var sampleCount = Math.Min(samples, maxSamples);
-            var fbInfo = new GRGlFramebufferInfo((uint)framebuffer, 0x8058);
+            var fbInfo = new GRGlFramebufferInfo((uint)framebuffer, 0x8058); // GL_RGBA8
 
-            backendRenderTarget = new GRBackendRenderTarget(width, height, sampleCount, stencilBits, fbInfo);
+            backendRenderTarget = new GRBackendRenderTarget(pixelWidth, pixelHeight, sampleCount, stencilBits, fbInfo);
             skSurface = SKSurface.Create(grContext, backendRenderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
 
-            renderer.Invalidate();
+            // Offscreen surface cache for dirty rendering
+            var imageInfo = new SKImageInfo(pixelWidth, pixelHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
+            offscreenSurface = SKSurface.Create(grContext, false, imageInfo);
+
+            InvalidateFrames();
         }
 
         window.Load += () =>
@@ -69,6 +84,7 @@ public static class SilkRendererHelper
                         ClientPosition: currentMousePos,
                         Type: MouseEventType.Move
                     ));
+                    InvalidateFrames();
                 };
 
                 mouse.MouseDown += (m, button) =>
@@ -78,6 +94,7 @@ public static class SilkRendererHelper
                         Type: MouseEventType.MouseDown,
                         Button: MapButton(button)
                     ));
+                    InvalidateFrames();
                 };
 
                 mouse.MouseUp += (m, button) =>
@@ -87,6 +104,7 @@ public static class SilkRendererHelper
                         Type: MouseEventType.MouseUp,
                         Button: MapButton(button)
                     ));
+                    InvalidateFrames();
                 };
 
                 mouse.Scroll += (m, scroll) =>
@@ -97,6 +115,7 @@ public static class SilkRendererHelper
                         Button: HandyUI.Core.Classes.Records.MouseButton.Middle,
                         WheelDelta: (int)(scroll.Y * 120)
                     ));
+                    InvalidateFrames();
                 };
             }
 
@@ -137,6 +156,7 @@ public static class SilkRendererHelper
                             IsAltPressed: isAlt
                         ));
                     }
+                    InvalidateFrames();
                 };
 
                 keyboard.KeyUp += (k, key, keyCode) =>
@@ -149,6 +169,7 @@ public static class SilkRendererHelper
                         IsShiftPressed: k.IsKeyPressed(Key.ShiftLeft) || k.IsKeyPressed(Key.ShiftRight),
                         IsAltPressed: k.IsKeyPressed(Key.AltLeft) || k.IsKeyPressed(Key.AltRight)
                     ));
+                    InvalidateFrames();
                 };
 
                 keyboard.KeyChar += (k, character) =>
@@ -161,13 +182,15 @@ public static class SilkRendererHelper
                         IsShiftPressed: false,
                         IsAltPressed: false
                     ));
+                    InvalidateFrames();
                 };
             }
 
-            CreateRenderTarget(window.Size.X, window.Size.Y);
+            // Use FramebufferSize for true pixel dimensions
+            CreateRenderTarget(window.FramebufferSize.X, window.FramebufferSize.Y);
         };
 
-        window.Resize += (size) =>
+        window.FramebufferResize += (size) =>
         {
             if (gl == null) return;
             window.GLContext?.MakeCurrent();
@@ -177,20 +200,39 @@ public static class SilkRendererHelper
 
         window.Render += (delta) =>
         {
-            if (skSurface?.Canvas == null) return;
+            if (skSurface?.Canvas == null || offscreenSurface?.Canvas == null) return;
 
             window.GLContext?.MakeCurrent();
 
-            if (renderer.RenderControls(skSurface.Canvas, currentMousePos))
+            var mustRenderUI = !useDirtyRendering || dirtyFramesRemaining > 0;
+
+            if (mustRenderUI)
             {
-                skSurface.Canvas.Flush();
-                grContext?.Flush();
+                offscreenSurface.Canvas.Clear(SKColors.Transparent);
+                renderer.RenderControls(offscreenSurface.Canvas, currentMousePos);
+                offscreenSurface.Canvas.Flush();
+
+                if (dirtyFramesRemaining > 0)
+                {
+                    dirtyFramesRemaining--;
+                }
             }
+
+            // Always present cached offscreen buffer to active GL framebuffer to prevent buffer-swap flickering
+            skSurface.Canvas.Clear(SKColors.Transparent);
+            using (var snapshot = offscreenSurface.Snapshot())
+            {
+                skSurface.Canvas.DrawImage(snapshot, 0, 0, SKSamplingOptions.Default);
+            }
+
+            skSurface.Canvas.Flush();
+            grContext?.Flush();
         };
 
         window.Closing += () =>
         {
             window.GLContext?.MakeCurrent();
+            offscreenSurface?.Dispose();
             skSurface?.Dispose();
             backendRenderTarget?.Dispose();
             grContext?.Dispose();

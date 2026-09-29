@@ -50,7 +50,6 @@ public static class SilkWindowHelper
             }
 
             var window = Window.Create(options);
-
             window.Initialize();
 
             return window;
@@ -78,6 +77,12 @@ public static class SilkWindowHelper
             options.Size = new Vector2D<int>((int)windowSize.Width, (int)windowSize.Height);
             options.Title = title;
             options.WindowBorder = windowBorder;
+
+            // Enable event-driven rendering to prevent GLFW from busy-spinning the CPU thread
+            if (useDirtyRendering)
+            {
+                options.IsEventDriven = true;
+            }
 
             if (sharedContext != null)
             {
