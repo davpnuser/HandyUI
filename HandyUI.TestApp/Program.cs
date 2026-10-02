@@ -2,23 +2,13 @@
 using HandyUI.TestApp;
 using Silk.NET.Windowing;
 
-SilkWindowHelper.InitializeMultiWindowSupport();
+(var window, var renderer) = SilkWindowHelper.CreateWindowAndGetRenderer($"Example 1", new(250, 150), WindowBorder.Fixed, useDirtyRendering: true);
 
-var windowAmount = 3;
-
-for (var i = 0; i < windowAmount; i++)
+var ft = new FpsLabelControl()
 {
-    new Thread(() =>
-    {
-        (var window, var renderer) = SilkWindowHelper.CreateWindowAndGetRenderer($"Example {i}", new(250, 150), WindowBorder.Fixed, useDirtyRendering: false);
+    Location = new(15, 15)
+};
 
-        var ft = new FpsLabelControl()
-        {
-            Location = new(15, 15)
-        };
+renderer.AddRootControl(ft);
 
-        renderer.AddRootControl(ft);
-    }).Start();
-}
-
-SilkWindowHelper.RunApplicationLoop();
+window.Run();

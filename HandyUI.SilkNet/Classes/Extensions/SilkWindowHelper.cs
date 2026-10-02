@@ -8,10 +8,33 @@ using SkiaSharp;
 
 namespace HandyUI.SilkNet.Classes.Extensions;
 
+//[SupportedOSPlatform("windows")]
 public static class SilkWindowHelper
 {
     private static readonly Lock GlfwCreationLock = new();
     private static bool _isGlfwInitialized;
+
+    private static void EnsureWindowsPlatform()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            throw new PlatformNotSupportedException("The HandyUI adapter for Silk.NET is currently not available on your platform. You can go to the HandyUI repository to help contribute in a fix.");
+        }
+    }
+
+    private static void EnsureGlfwInitialized()
+    {
+        if (_isGlfwInitialized) return;
+
+        lock (GlfwCreationLock)
+        {
+            if (!_isGlfwInitialized)
+            {
+                Window.PrioritizeGlfw();
+                _isGlfwInitialized = true;
+            }
+        }
+    }
 
     public static IWindow CreateWindow(
         string title,
@@ -21,39 +44,27 @@ public static class SilkWindowHelper
         IGLContext? sharedContext = null,
         bool autoInitGlfw = true)
     {
-        lock (GlfwCreationLock)
+        EnsureWindowsPlatform();
+
+        if (autoInitGlfw)
         {
-            if (autoInitGlfw && !_isGlfwInitialized)
-            {
-                Window.PrioritizeGlfw();
-                _isGlfwInitialized = true;
-            }
-
-            var options = WindowOptions.Default;
-            options.Size = new Vector2D<int>((int)windowSize.Width, (int)windowSize.Height);
-            options.Title = title;
-            options.WindowBorder = windowBorder;
-
-            if (sharedContext != null)
-            {
-                options.SharedContext = sharedContext;
-            }
-
-            if (vsync)
-            {
-                options.VSync = true;
-                options.FramesPerSecond = 0;
-            }
-            else
-            {
-                options.VSync = false;
-            }
-
-            var window = Window.Create(options);
-            window.Initialize();
-
-            return window;
+            EnsureGlfwInitialized();
         }
+
+        var options = WindowOptions.Default with
+        {
+            Size = new Vector2D<int>((int)windowSize.Width, (int)windowSize.Height),
+            Title = title,
+            WindowBorder = windowBorder,
+            VSync = vsync,
+            FramesPerSecond = vsync ? 0 : WindowOptions.Default.FramesPerSecond,
+            SharedContext = sharedContext
+        };
+
+        var window = Window.Create(options);
+        window.Initialize();
+
+        return window;
     }
 
     public static (IWindow window, UIRenderer renderer) CreateWindowAndGetRenderer(
@@ -65,53 +76,42 @@ public static class SilkWindowHelper
         IGLContext? sharedContext = null,
         bool autoInitGlfw = true)
     {
-        lock (GlfwCreationLock)
+        EnsureWindowsPlatform();
+
+        if (autoInitGlfw)
         {
-            if (autoInitGlfw && !_isGlfwInitialized)
-            {
-                Window.PrioritizeGlfw();
-                _isGlfwInitialized = true;
-            }
-
-            var options = WindowOptions.Default;
-            options.Size = new Vector2D<int>((int)windowSize.Width, (int)windowSize.Height);
-            options.Title = title;
-            options.WindowBorder = windowBorder;
-
-            if (useDirtyRendering)
-            {
-                options.IsEventDriven = true;
-            }
-
-            if (sharedContext != null)
-            {
-                options.SharedContext = sharedContext;
-            }
-
-            if (vsync)
-            {
-                options.VSync = true;
-                options.FramesPerSecond = 0;
-            }
-            else
-            {
-                options.VSync = false;
-            }
-
-            var window = Window.Create(options);
-
-            var renderer = SilkRendererHelper.Attach(window, useDirtyRendering);
-
-            window.Initialize();
-
-            return (window, renderer);
+            EnsureGlfwInitialized();
         }
+
+        var options = WindowOptions.Default with
+        {
+            Size = new Vector2D<int>((int)windowSize.Width, (int)windowSize.Height),
+            Title = title,
+            WindowBorder = windowBorder,
+            IsEventDriven = useDirtyRendering,
+            VSync = vsync,
+            FramesPerSecond = vsync ? 0 : WindowOptions.Default.FramesPerSecond,
+            SharedContext = sharedContext
+        };
+
+        var window = Window.Create(options);
+        var renderer = SilkRendererHelper.Attach(window, useDirtyRendering);
+
+        window.Initialize();
+
+        return (window, renderer);
     }
 
     public static void SetAsIcon(this SKImage skImage, IWindow window)
     {
+        EnsureWindowsPlatform();
+        ArgumentNullException.ThrowIfNull(skImage);
+        ArgumentNullException.ThrowIfNull(window);
+
         if (!window.IsInitialized)
+        {
             window.Initialize();
+        }
 
         using var bmp = SKBitmap.FromImage(skImage);
         using var rgba = new SKBitmap(new SKImageInfo(bmp.Width, bmp.Height, SKColorType.Rgba8888));
