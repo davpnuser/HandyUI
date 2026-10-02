@@ -6,8 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UseWindowsForms>False</UseWindowsForms>
-	<NoWarn>$(NoWarn);NU1701</NoWarn>
-	<AssemblyVersion>1.0.356.26272</AssemblyVersion>
+	<NoWarn>SYSLIB1054</NoWarn>
+	<AssemblyVersion>1.0.413.26274</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,7 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SkiaSharp.Views.WindowsForms" Version="4.152.0" />
+    <PackageReference Include="SkiaSharp" Version="4.153.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.153.1" />
   </ItemGroup>
 
   <ItemGroup>

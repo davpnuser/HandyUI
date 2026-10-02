@@ -8,6 +8,8 @@ namespace HandyUI.Core.Components;
 
 public class UIRenderer : IDisposable
 {
+    public SKColor BackgroundColor { get; set; } = new SKColor(255, 255, 255);
+
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
     private double _lastFrameTime;
 
@@ -21,19 +23,20 @@ public class UIRenderer : IDisposable
     private int _framesToRender = 2;
     private bool _isDisposed;
 
-    // --> ADDED: Store the setting
     private readonly bool _useDirtyRendering;
 
     private IUIControl? _pressedControl;
     private IUIControl? _focusedControl;
 
-    // --> ADDED: Constructor to accept the toggle
     public UIRenderer(bool useDirtyRendering = true)
     {
         _useDirtyRendering = useDirtyRendering;
     }
 
-    public void Invalidate() => _framesToRender = 2;
+    public void Invalidate()
+    {
+        _framesToRender = 2;
+    }
 
     public void AddRootControl(IUIControl control)
     {
@@ -49,7 +52,10 @@ public class UIRenderer : IDisposable
         Invalidate();
     }
 
-    private void OnControlInvalidated() => Invalidate();
+    private void OnControlInvalidated()
+    {
+        Invalidate();
+    }
 
     private void ProcessPendingControls()
     {
@@ -150,10 +156,15 @@ public class UIRenderer : IDisposable
             DispatchMouseEventRecursive(child, context, clipForSubtree);
     }
 
-    public bool ProcessKeyEvent(KeyEventContext context) =>
-        _focusedControl?.IsVisible == true && _focusedControl.IsEnabled && _focusedControl.ProcessKeyEvent(context);
+    public bool ProcessKeyEvent(KeyEventContext context)
+    {
+        return _focusedControl?.IsVisible == true && _focusedControl.IsEnabled && _focusedControl.ProcessKeyEvent(context);
+    }
 
-    private void OnControlFocusRequested(IUIControl control) => SetFocus(control);
+    private void OnControlFocusRequested(IUIControl control)
+    {
+        SetFocus(control);
+    }
 
     private void SetFocus(IUIControl? target)
     {

@@ -1,63 +1,24 @@
-﻿using HandyUI.Core.Classes.Controls;
-using HandyUI.Core.Components;
-using HandyUI.SilkNet.Classes.Extensions;
+﻿using HandyUI.SilkNet.Classes.Extensions;
+using HandyUI.TestApp;
 using Silk.NET.Windowing;
-using SkiaSharp;
 
-var thread1 = new Thread(() =>
+SilkWindowHelper.InitializeMultiWindowSupport();
+
+var windowAmount = 3;
+
+for (var i = 0; i < windowAmount; i++)
 {
-    (var window, var renderer) = SilkWindowHelper.CreateWindowAndGetRenderer("Example 1", new(500, 500), WindowBorder.Fixed);
-
-    var tbcount = 0;
-
-    var tb = new TextBox();
-    tb
-    .WithOnSubmit(text =>
+    new Thread(() =>
     {
-        if (tbcount++ == 3)
+        (var window, var renderer) = SilkWindowHelper.CreateWindowAndGetRenderer($"Example {i}", new(250, 150), WindowBorder.Fixed, useDirtyRendering: false);
+
+        var ft = new FpsLabelControl()
         {
-            tb.IsEnabled = false;
-        }
-    })
-    .WithSize(200, 36)
-    .WithLocation(15, 95);
+            Location = new(15, 15)
+        };
 
-    renderer.AddRootControl(tb);
+        renderer.AddRootControl(ft);
+    }).Start();
+}
 
-    window.Run();
-});
-
-var thread2 = new Thread(() =>
-{
-    (var window, var renderer) = SilkWindowHelper.CreateWindowAndGetRenderer("Example 2", new(250, 250), WindowBorder.Fixed);
-
-    var bcount = 0;
-
-    var image = ResourceManager.GetResourceByPath("Resources/HandyUI-Logo.png", out var stream);
-    var imageDecoded = SKImage.FromEncodedData(stream);
-
-    var b = new ImageButton(imageDecoded)
-    {
-        Size = new SKSize(200, 200)
-    };
-
-    b
-    .WithOnClick(() =>
-    {
-        if (bcount++ == 3)
-        {
-            b.IsEnabled = false;
-        }
-    })
-    .WithLocation(15, 55);
-
-    renderer.AddRootControl(b);
-
-    window.Run();
-});
-
-thread1.Start();
-thread2.Start();
-
-thread1.Join();
-thread2.Join();
+SilkWindowHelper.RunApplicationLoop();
