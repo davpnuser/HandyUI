@@ -1,15 +1,14 @@
 ﻿using HandyUI.Core.Classes.Base;
 using HandyUI.Core.Classes.Records;
+using HandyUI.Core.Classes.Themes;
 using HandyUI.Core.Interfaces;
 using SkiaSharp;
 using System.Diagnostics;
 
 namespace HandyUI.Core.Components;
 
-public class UIRenderer : IDisposable
+public class UIRenderer(bool useDirtyRendering = true) : IDisposable
 {
-    public SKColor BackgroundColor { get; set; } = new SKColor(255, 255, 255);
-
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
     private double _lastFrameTime;
 
@@ -23,15 +22,12 @@ public class UIRenderer : IDisposable
     private int _framesToRender = 2;
     private bool _isDisposed;
 
-    private readonly bool _useDirtyRendering;
+    private readonly bool _useDirtyRendering = useDirtyRendering;
 
     private IUIControl? _pressedControl;
     private IUIControl? _focusedControl;
 
-    public UIRenderer(bool useDirtyRendering = true)
-    {
-        _useDirtyRendering = useDirtyRendering;
-    }
+    public SKColor BackgroundColor { get; set; } = DefaultTheme.GetTheme().DarkerBackgroundColor;
 
     public void Invalidate()
     {
@@ -184,16 +180,14 @@ public class UIRenderer : IDisposable
 
         lock (_controlsLock)
         {
-            // --> ADDED: Check the toggle before dropping the frame
             if (_useDirtyRendering && _framesToRender <= 0) return false;
 
             if (_isOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isOrderDirty = false; }
-            canvas.Clear(SKColors.White);
+            canvas.Clear(BackgroundColor);
 
             foreach (var control in _rootControls)
                 RenderRecursive(canvas, control, cursorPosition, deltaTime);
 
-            // --> ADDED: Only decrement if dirty rendering is enabled
             if (_useDirtyRendering) _framesToRender--;
 
             return true;

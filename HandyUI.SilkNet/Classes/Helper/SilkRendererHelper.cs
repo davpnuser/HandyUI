@@ -1,5 +1,6 @@
 ﻿using HandyUI.Core.Classes.Records;
 using HandyUI.Core.Components;
+using HandyUI.SilkNet.Components;
 using Silk.NET.Input;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
@@ -11,7 +12,7 @@ namespace HandyUI.SilkNet.Classes.Helper;
 //[SupportedOSPlatform("windows")]
 public static class SilkRendererHelper
 {
-    public static UIRenderer Attach(IWindow window, bool useDirtyRendering = true)
+    public static UIRenderer Attach(HandyWindow window, bool useDirtyRendering = true)
     {
         if (!OperatingSystem.IsWindows())
         {
@@ -20,17 +21,17 @@ public static class SilkRendererHelper
 
         ArgumentNullException.ThrowIfNull(window);
 
-        var adapter = new SilkWindowRendererAdapter(window, useDirtyRendering);
+        var adapter = new SilkWindowRendererAdapter(window.InternalWindow!, useDirtyRendering);
         return adapter.InitializeAndGetRenderer();
     }
 }
 
 //[SupportedOSPlatform("windows")]
-internal sealed class SilkWindowRendererAdapter : IDisposable
+internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRendering) : IDisposable
 {
-    private readonly IWindow _window;
-    private readonly bool _useDirtyRendering;
-    private readonly UIRenderer _renderer;
+    private readonly IWindow _window = window;
+    private readonly bool _useDirtyRendering = useDirtyRendering;
+    private readonly UIRenderer _renderer = new(useDirtyRendering);
 
     private SKPoint _currentMousePos = new(-1, -1);
     private int _dirtyFramesRemaining = 2;
@@ -43,19 +44,17 @@ internal sealed class SilkWindowRendererAdapter : IDisposable
     private SKSurface? _offscreenSurface;
     private IInputContext? _inputContext;
 
-    public SilkWindowRendererAdapter(IWindow window, bool useDirtyRendering)
-    {
-        _window = window;
-        _useDirtyRendering = useDirtyRendering;
-        _renderer = new UIRenderer(useDirtyRendering);
-    }
-
     public UIRenderer InitializeAndGetRenderer()
     {
         _window.Load += OnWindowLoad;
         _window.FramebufferResize += OnFramebufferResize;
         _window.Render += OnRender;
         _window.Closing += OnWindowClosing;
+
+        if (_window.IsInitialized)
+        {
+            OnWindowLoad();
+        }
 
         return _renderer;
     }
