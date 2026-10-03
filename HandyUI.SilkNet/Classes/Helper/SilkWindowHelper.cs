@@ -17,12 +17,12 @@ public static class SilkWindowHelper
         SKSize? maximumWindowSize = null,
         WindowBorder windowBorder = WindowBorder.Resizable,
 
-        // More complex/advanced stuff
         bool vsync = true,
         bool topMost = false,
         bool useDirtyRendering = true,
+        bool invalidateOnMove = true,
 
-        // Really niche stuff
+        // Advanced config
         int framesPerSecond = 60,
         bool autoInitWindow = false,
         IGLContext? sharedContext = null,
@@ -43,7 +43,7 @@ public static class SilkWindowHelper
             SharedContext = sharedContext,
         };
 
-        var window = new HandyWindow(options, minimumWindowSize, maximumWindowSize, autoInitWindow, autoInitGlfw);
+        var window = new HandyWindow(options, minimumWindowSize, maximumWindowSize, invalidateOnMove, autoInitWindow, autoInitGlfw);
         var renderer = SilkRendererHelper.Attach(window, useDirtyRendering);
 
         return (window, renderer);

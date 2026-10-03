@@ -1,34 +1,23 @@
-﻿using HandyUI.Core.Classes.Controls;
-using HandyUI.Core.Components;
-using HandyUI.SilkNet.Classes.Helper;
+﻿using HandyUI.SilkNet.Classes.Helper;
+using HandyUI.TestApp;
 using SkiaSharp;
 
-var windowSize2 = new SKSize(760, 760);
-(var window2, var renderer2) = SilkWindowHelper.CreateWindowAndGetRenderer("HandyUI Example App 2", windowSize2, windowSize2);
+var (a, rendererA) = SilkWindowHelper.CreateWindowAndGetRenderer("Window A", new SKSize(800, 600));
+var (b, rendererB) = SilkWindowHelper.CreateWindowAndGetRenderer("Window B", new SKSize(640, 480), invalidateOnMove: true);
 
-var windowSize = new SKSize(500, 500);
-(var window, var renderer) = SilkWindowHelper.CreateWindowAndGetRenderer("HandyUI Example App 1", windowSize, windowSize, useDirtyRendering: false);
+rendererA.BackgroundColor = SKColors.White;
+rendererB.BackgroundColor = SKColors.White;
 
-window.Parent = window2;
+b.Parent = a;
 
-if (ResourceManager.GetResourceByPath("Resources/HandyUI-Logo.png", out var imageStream))
-    window.SetIcon(SKImage.FromEncodedData(imageStream!));
-
-var textLabel = new TextLabel()
-    .WithText("Hello, World!")
-    .WithTextSize(24)
+var fps1 = new FpsLabelControl()
     .WithLocation(15, 15);
 
-renderer2.AddRootControl(textLabel);
+rendererA.AddRootControl(fps1);
 
-var textButton = new TextButton()
-    .WithText("Hello World")
-    .WithWidth(100)
-    .WithHeight(36)
-    .WithOnClick(() => { window.IsMovable = !window.IsMovable; window.IsResizable = !window.IsResizable; })
-    .WithLocation(15, 50);
+var fps2 = new FpsLabelControl()
+    .WithLocation(15, 15);
 
-renderer2.AddRootControl(textButton);
+rendererB.AddRootControl(fps2);
 
-_ = window.RunAsync();
-window2.Run();
+await Task.WhenAll(a.RunAsync(), b.RunAsync());
