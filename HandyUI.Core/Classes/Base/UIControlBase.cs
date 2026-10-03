@@ -201,6 +201,18 @@ public abstract class UIControlBase : IUIControl
         return this;
     }
 
+    public UIControlBase WithBounds(SKRect bounds)
+    {
+        Bounds = bounds;
+        return this;
+    }
+
+    public UIControlBase WithBounds(float x, float y, float w, float h)
+    {
+        Bounds = new SKRect(x, y, w, h);
+        return this;
+    }
+
     public event Action<IUIControl>? FocusRequested;
 
     public void RequestFocus()
@@ -233,8 +245,15 @@ public abstract class UIControlBase : IUIControl
         return IsVisible && IsEnabled && IsFocused && OnKey(keyContext);
     }
 
-    protected virtual bool OnMouse(MouseEventContext mouseContext) => false;
-    protected virtual bool OnKey(KeyEventContext keyContext) => false;
+    protected virtual bool OnMouse(MouseEventContext mouseContext)
+    {
+        return false;
+    }
+
+    protected virtual bool OnKey(KeyEventContext keyContext)
+    {
+        return false;
+    }
 
     public abstract bool Intersects(SKPoint clientPoint);
     public abstract void Update(float deltaTime, SKPoint clientMousePosition);
@@ -246,7 +265,7 @@ public abstract class UIControlBase : IUIControl
         GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    protected void Dispose(bool disposing)
     {
         if (_isDisposed) return;
 

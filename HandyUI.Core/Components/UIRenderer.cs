@@ -1,6 +1,5 @@
 ﻿using HandyUI.Core.Classes.Base;
 using HandyUI.Core.Classes.Records;
-using HandyUI.Core.Classes.Themes;
 using HandyUI.Core.Interfaces;
 using SkiaSharp;
 using System.Diagnostics;
@@ -27,7 +26,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
     private IUIControl? _pressedControl;
     private IUIControl? _focusedControl;
 
-    public SKColor BackgroundColor { get; set; } = DefaultTheme.GetTheme().DarkerBackgroundColor;
+    public SKColor BackgroundColor { get; set; } = SKColors.White;
 
     public void Invalidate()
     {
