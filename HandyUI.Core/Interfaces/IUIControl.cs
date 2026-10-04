@@ -7,6 +7,8 @@ namespace HandyUI.Core.Interfaces;
 
 public interface IUIControl : IDisposable
 {
+    #region Properties
+
     IReadOnlyList<IUIControl> Children { get; }
     UIControlBase? Parent { get; set; }
 
@@ -25,21 +27,39 @@ public interface IUIControl : IDisposable
     bool IsVisible { get; set; }
     bool IsEnabled { get; set; }
 
+    #endregion
+
+    #region Events
+
     event Action<IUIControl>? FocusRequested;
     event Action? Invalidated;
+
+    #endregion
+
+    #region Event Methods
 
     void Invalidate();
     void RequestFocus();
     bool ProcessMouseEvent(MouseEventContext mouseContext);
     bool ProcessKeyEvent(KeyEventContext keyContext);
 
+    #endregion
+
+    #region Abstract/Virtual Methods
+
     bool Intersects(SKPoint clientPoint);
     void Update(float deltaTime, SKPoint clientMousePosition);
     void Draw(SKCanvas canvas);
+
+    #endregion
+
+    #region Fluent APIs
 
     UIControlBase WithLocation(SKPoint location);
     UIControlBase WithLocation(float x, float y);
     UIControlBase WithBounds(SKRect bounds);
     UIControlBase WithBounds(float x, float y, float w, float h);
     UIControlBase WithAddToRenderer(UIRenderer renderer);
+
+    #endregion
 }

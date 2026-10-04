@@ -9,6 +9,14 @@ namespace HandyUI.Core.Components;
 
 public class UIRenderer(bool useDirtyRendering = true) : IDisposable
 {
+    #region Properties
+
+    public SKColor BackgroundColor { get; set; } = DefaultTheme.GetTheme().DarkerBackgroundColor;
+
+    #endregion
+
+    #region Internal Fields
+
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
     private double _lastFrameTime;
 
@@ -27,7 +35,9 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
     private IUIControl? _pressedControl;
     private IUIControl? _focusedControl;
 
-    public SKColor BackgroundColor { get; set; } = DefaultTheme.GetTheme().DarkerBackgroundColor;
+    #endregion
+
+    #region Methods
 
     public void Invalidate()
     {
@@ -47,6 +57,78 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         lock (_pendingRemove) _pendingRemove.Add(control);
         Invalidate();
     }
+
+    #endregion
+
+    #region Event Handling Methods
+
+    public void ProcessMouseEvent(MouseEventContext context)
+    {
+        IUIControl[] rootSnapshot;
+        lock (_controlsLock)
+        {
+            if (_isOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isOrderDirty = false; }
+            rootSnapshot = [.. _rootControls];
+        }
+
+        IUIControl? hitControl = null;
+        for (var i = rootSnapshot.Length - 1; i >= 0; i--)
+        {
+            hitControl = HitTestRecursive(rootSnapshot[i], context.ClientPosition);
+            if (hitControl != null) break;
+        }
+
+        if (context.Type == MouseEventType.MouseDown)
+        {
+            _pressedControl = hitControl;
+            SetFocus(hitControl);
+        }
+
+        foreach (var root in rootSnapshot) DispatchMouseEventRecursive(root, context);
+
+        if (context.Type == MouseEventType.MouseUp)
+        {
+            if (_pressedControl != null && _pressedControl == hitControl)
+            {
+                var localPos = GetLocalMousePosition(_pressedControl, context.ClientPosition);
+                _pressedControl.ProcessMouseEvent(context with { Type = MouseEventType.Click, ClientPosition = localPos });
+            }
+            _pressedControl = null;
+        }
+    }
+
+    public bool ProcessKeyEvent(KeyEventContext context)
+    {
+        return _focusedControl?.IsVisible == true && _focusedControl.IsEnabled && _focusedControl.ProcessKeyEvent(context);
+    }
+
+    public bool RenderControls(SKCanvas canvas, SKPoint cursorPosition)
+    {
+        var currentTime = _stopwatch.Elapsed.TotalSeconds;
+        var deltaTime = (float)(currentTime - _lastFrameTime);
+        _lastFrameTime = currentTime;
+
+        ProcessPendingControls();
+
+        lock (_controlsLock)
+        {
+            if (_useDirtyRendering && _framesToRender <= 0) return false;
+
+            if (_isOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isOrderDirty = false; }
+            canvas.Clear(BackgroundColor);
+
+            foreach (var control in _rootControls)
+                RenderRecursive(canvas, control, cursorPosition, deltaTime);
+
+            if (_useDirtyRendering) _framesToRender--;
+
+            return true;
+        }
+    }
+
+    #endregion
+
+    #region Internal Functions
 
     private void OnControlInvalidated()
     {
@@ -84,41 +166,6 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         Invalidate();
     }
 
-    public void ProcessMouseEvent(MouseEventContext context)
-    {
-        IUIControl[] rootSnapshot;
-        lock (_controlsLock)
-        {
-            if (_isOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isOrderDirty = false; }
-            rootSnapshot = [.. _rootControls];
-        }
-
-        IUIControl? hitControl = null;
-        for (var i = rootSnapshot.Length - 1; i >= 0; i--)
-        {
-            hitControl = HitTestRecursive(rootSnapshot[i], context.ClientPosition);
-            if (hitControl != null) break;
-        }
-
-        if (context.Type == MouseEventType.MouseDown)
-        {
-            _pressedControl = hitControl;
-            SetFocus(hitControl);
-        }
-
-        foreach (var root in rootSnapshot) DispatchMouseEventRecursive(root, context);
-
-        if (context.Type == MouseEventType.MouseUp)
-        {
-            if (_pressedControl != null && _pressedControl == hitControl)
-            {
-                var localPos = GetLocalMousePosition(_pressedControl, context.ClientPosition);
-                _pressedControl.ProcessMouseEvent(context with { Type = MouseEventType.Click, ClientPosition = localPos });
-            }
-            _pressedControl = null;
-        }
-    }
-
     private static IUIControl? HitTestRecursive(IUIControl control, SKPoint cursorPosition, bool isMouseClipped = false)
     {
         if (!control.IsVisible || !control.IsEnabled) return null;
@@ -152,11 +199,6 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
             DispatchMouseEventRecursive(child, context, clipForSubtree);
     }
 
-    public bool ProcessKeyEvent(KeyEventContext context)
-    {
-        return _focusedControl?.IsVisible == true && _focusedControl.IsEnabled && _focusedControl.ProcessKeyEvent(context);
-    }
-
     private void OnControlFocusRequested(IUIControl control)
     {
         SetFocus(control);
@@ -168,30 +210,6 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         _focusedControl?.IsFocused = false;
         _focusedControl = target;
         _focusedControl?.IsFocused = true;
-    }
-
-    public bool RenderControls(SKCanvas canvas, SKPoint cursorPosition)
-    {
-        var currentTime = _stopwatch.Elapsed.TotalSeconds;
-        var deltaTime = (float)(currentTime - _lastFrameTime);
-        _lastFrameTime = currentTime;
-
-        ProcessPendingControls();
-
-        lock (_controlsLock)
-        {
-            if (_useDirtyRendering && _framesToRender <= 0) return false;
-
-            if (_isOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isOrderDirty = false; }
-            canvas.Clear(BackgroundColor);
-
-            foreach (var control in _rootControls)
-                RenderRecursive(canvas, control, cursorPosition, deltaTime);
-
-            if (_useDirtyRendering) _framesToRender--;
-
-            return true;
-        }
     }
 
     private void RenderRecursive(SKCanvas canvas, IUIControl control, SKPoint cursorPosition, float deltaTime, bool isMouseClipped = false)
@@ -247,6 +265,10 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         return new SKPoint(x, y);
     }
 
+    #endregion
+
+    #region Disposal
+
     public void Dispose()
     {
         Dispose(true);
@@ -287,4 +309,6 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
 
         _isDisposed = true;
     }
+
+    #endregion
 }

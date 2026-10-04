@@ -8,7 +8,7 @@ public static class DefaultTheme
     public static ThemeRecord GetTheme()
     {
         return new ThemeRecord(
-            //SKColor.Parse("#2563EB"), // Primary 
+            //SKColor.Parse("#2563EB"), // Primary ==> These colors are in Dark Theme.
             //SKColor.Parse("#60A5FA"), // Secondary
             //SKColor.Parse("#1E293B"), // Disabled
             //SKColor.Parse("#F8FAFC"), // Text

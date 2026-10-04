@@ -8,6 +8,8 @@ using System.Numerics;
 
 internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRendering) : IDisposable
 {
+    #region Internal Fields
+
     private readonly IWindow _window = window;
     private readonly UIRenderer _renderer = new(useDirtyRendering);
 
@@ -28,6 +30,10 @@ internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRen
     internal bool UseDirtyRendering { get; } = useDirtyRendering;
     internal bool IsInvalidated => _dirtyFramesRemaining > 0;
 
+    #endregion
+
+    #region Methods
+
     public UIRenderer InitializeAndGetRenderer()
     {
         _window.Load += OnWindowLoad;
@@ -38,6 +44,12 @@ internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRen
 
         return _renderer;
     }
+
+    #endregion
+
+    #region Internal Functions
+
+    #region Rendering/Context Functions
 
     internal void RenderFrame()
     {
@@ -56,6 +68,76 @@ internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRen
         _dirtyFramesRemaining = 2;
         _renderer.Invalidate();
     }
+
+    private void OnFramebufferResize(Silk.NET.Maths.Vector2D<int> size)
+    {
+        if (_gl == null) return;
+
+        MakeContextCurrent();
+        _gl.Viewport(0, 0, (uint)size.X, (uint)size.Y);
+        CreateRenderTarget(size.X, size.Y);
+    }
+
+    private void CreateRenderTarget(int pixelWidth, int pixelHeight)
+    {
+        if (_gl == null || _grContext == null || pixelWidth <= 0 || pixelHeight <= 0) return;
+
+        MakeContextCurrent();
+
+        _offscreenSurface?.Dispose();
+        _skSurface?.Dispose();
+        _backendRenderTarget?.Dispose();
+
+        _gl.GetInteger((GetPName)0x8CA6, out var framebuffer);
+        _gl.GetInteger((GetPName)0x0D57, out var stencilBits);
+        _gl.GetInteger((GetPName)0x80A9, out var samples);
+
+        if (stencilBits == 0) stencilBits = 8;
+
+        var maxSamples = _grContext.GetMaxSurfaceSampleCount(SKColorType.Rgba8888);
+        var sampleCount = Math.Min(samples, maxSamples);
+        var fbInfo = new GRGlFramebufferInfo((uint)framebuffer, 0x8058);
+
+        _backendRenderTarget = new GRBackendRenderTarget(pixelWidth, pixelHeight, sampleCount, stencilBits, fbInfo);
+        _skSurface = SKSurface.Create(_grContext, _backendRenderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
+
+        var imageInfo = new SKImageInfo(pixelWidth, pixelHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
+        _offscreenSurface = SKSurface.Create(_grContext, false, imageInfo);
+
+        Invalidate();
+    }
+
+    private void OnRender(double delta)
+    {
+        if (_skSurface?.Canvas == null || _offscreenSurface?.Canvas == null) return;
+
+        MakeContextCurrent();
+
+        var mustRenderUI = !UseDirtyRendering || _dirtyFramesRemaining > 0;
+
+        if (mustRenderUI)
+        {
+            _offscreenSurface.Canvas.Clear(SKColors.Transparent);
+            _renderer.RenderControls(_offscreenSurface.Canvas, _currentMousePos);
+            _offscreenSurface.Canvas.Flush();
+
+            if (_dirtyFramesRemaining > 0)
+                _dirtyFramesRemaining--;
+        }
+
+        _skSurface.Canvas.Clear(SKColors.Transparent);
+        using (var snapshot = _offscreenSurface.Snapshot())
+        {
+            _skSurface.Canvas.DrawImage(snapshot, 0, 0, SKSamplingOptions.Default);
+        }
+
+        _skSurface.Canvas.Flush();
+        _grContext?.Flush();
+    }
+
+    #endregion
+
+    #region Windowing Functions
 
     private void OnWindowLoad()
     {
@@ -227,92 +309,11 @@ internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRen
         Invalidate();
     }
 
-    private void CreateRenderTarget(int pixelWidth, int pixelHeight)
-    {
-        if (_gl == null || _grContext == null || pixelWidth <= 0 || pixelHeight <= 0) return;
+    #endregion
 
-        MakeContextCurrent();
+    #endregion
 
-        _offscreenSurface?.Dispose();
-        _skSurface?.Dispose();
-        _backendRenderTarget?.Dispose();
-
-        _gl.GetInteger((GetPName)0x8CA6, out var framebuffer);
-        _gl.GetInteger((GetPName)0x0D57, out var stencilBits);
-        _gl.GetInteger((GetPName)0x80A9, out var samples);
-
-        if (stencilBits == 0) stencilBits = 8;
-
-        var maxSamples = _grContext.GetMaxSurfaceSampleCount(SKColorType.Rgba8888);
-        var sampleCount = Math.Min(samples, maxSamples);
-        var fbInfo = new GRGlFramebufferInfo((uint)framebuffer, 0x8058);
-
-        _backendRenderTarget = new GRBackendRenderTarget(pixelWidth, pixelHeight, sampleCount, stencilBits, fbInfo);
-        _skSurface = SKSurface.Create(_grContext, _backendRenderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
-
-        var imageInfo = new SKImageInfo(pixelWidth, pixelHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
-        _offscreenSurface = SKSurface.Create(_grContext, false, imageInfo);
-
-        Invalidate();
-    }
-
-    private void OnFramebufferResize(Silk.NET.Maths.Vector2D<int> size)
-    {
-        if (_gl == null) return;
-
-        MakeContextCurrent();
-        _gl.Viewport(0, 0, (uint)size.X, (uint)size.Y);
-        CreateRenderTarget(size.X, size.Y);
-    }
-
-    private void OnRender(double delta)
-    {
-        if (_skSurface?.Canvas == null || _offscreenSurface?.Canvas == null) return;
-
-        MakeContextCurrent();
-
-        var mustRenderUI = !UseDirtyRendering || _dirtyFramesRemaining > 0;
-
-        if (mustRenderUI)
-        {
-            _offscreenSurface.Canvas.Clear(SKColors.Transparent);
-            _renderer.RenderControls(_offscreenSurface.Canvas, _currentMousePos);
-            _offscreenSurface.Canvas.Flush();
-
-            if (_dirtyFramesRemaining > 0)
-                _dirtyFramesRemaining--;
-        }
-
-        _skSurface.Canvas.Clear(SKColors.Transparent);
-        using (var snapshot = _offscreenSurface.Snapshot())
-        {
-            _skSurface.Canvas.DrawImage(snapshot, 0, 0, SKSamplingOptions.Default);
-        }
-
-        _skSurface.Canvas.Flush();
-        _grContext?.Flush();
-    }
-
-    public void Dispose()
-    {
-        if (_isDisposed) return;
-        _isDisposed = true;
-
-        _window.Load -= OnWindowLoad;
-        _window.FramebufferResize -= OnFramebufferResize;
-
-        UnbindInputEvents();
-
-        MakeContextCurrent();
-
-        _offscreenSurface?.Dispose();
-        _skSurface?.Dispose();
-        _backendRenderTarget?.Dispose();
-        _grContext?.Dispose();
-        _renderer.Dispose();
-        _inputContext?.Dispose();
-        _gl?.Dispose();
-    }
+    #region Key Mapping
 
     private static int MapKey(Key key)
     {
@@ -344,4 +345,31 @@ internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRen
             _ => HandyUI.Core.Classes.Records.MouseButton.None
         };
     }
+
+    #endregion
+
+    #region Disposal
+
+    public void Dispose()
+    {
+        if (_isDisposed) return;
+        _isDisposed = true;
+
+        _window.Load -= OnWindowLoad;
+        _window.FramebufferResize -= OnFramebufferResize;
+
+        UnbindInputEvents();
+
+        MakeContextCurrent();
+
+        _offscreenSurface?.Dispose();
+        _skSurface?.Dispose();
+        _backendRenderTarget?.Dispose();
+        _grContext?.Dispose();
+        _renderer.Dispose();
+        _inputContext?.Dispose();
+        _gl?.Dispose();
+    }
+
+    #endregion
 }

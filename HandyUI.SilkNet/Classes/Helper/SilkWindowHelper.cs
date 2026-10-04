@@ -10,7 +10,6 @@ namespace HandyUI.SilkNet.Classes.Helper;
 public static class SilkWindowHelper
 {
     public static (HandyWindow window, UIRenderer renderer) CreateWindowAndGetRenderer(
-        // Basic properties
         string title,
         SKSize windowSize,
         SKSize? minimumWindowSize = null,
@@ -25,7 +24,6 @@ public static class SilkWindowHelper
         HandyWindow? modalParentWindow = null,
         HandyWindow? parentWindow = null,
 
-        // Advanced config
         int framesPerSecond = 60,
         bool autoInitWindow = false,
         IGLContext? sharedContext = null,

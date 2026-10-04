@@ -7,12 +7,7 @@ namespace HandyUI.Core.Classes.Base;
 
 public abstract class UIControlBase : IUIControl
 {
-    private bool _isDisposed;
-
-    private readonly List<IUIControl> _children = [];
-    private bool _childrenDirty = false;
-
-    public event Action? Invalidated;
+    #region Properties
 
     public void Invalidate()
     {
@@ -44,45 +39,6 @@ public abstract class UIControlBase : IUIControl
             Invalidate();
         }
     }
-
-    internal void AddChildInternal(IUIControl child)
-    {
-        if (!_children.Contains(child))
-        {
-            _children.Add(child);
-            _childrenDirty = true;
-            OnChildAdded(child);
-            Invalidate();
-        }
-    }
-
-    internal void RemoveChildInternal(IUIControl child)
-    {
-        if (_children.Remove(child))
-        {
-            _childrenDirty = true;
-            OnChildRemoved(child);
-            Invalidate();
-        }
-    }
-
-    public void InvalidateChildrenOrder()
-    {
-        _childrenDirty = true;
-        Invalidate();
-    }
-
-    internal void EnsureChildrenSorted()
-    {
-        if (_childrenDirty)
-        {
-            _children.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
-            _childrenDirty = false;
-        }
-    }
-
-    protected virtual void OnChildAdded(IUIControl control) { }
-    protected virtual void OnChildRemoved(IUIControl control) { }
 
     public SKPoint Location
     {
@@ -190,7 +146,68 @@ public abstract class UIControlBase : IUIControl
         }
     } = true;
 
+    #region Events
+
+    public event Action? Invalidated;
     public event Action<IUIControl>? FocusRequested;
+
+    #endregion
+
+    #endregion
+
+    #region Internal Fields
+
+    private bool _isDisposed;
+
+    private readonly List<IUIControl> _children = [];
+    private bool _childrenDirty = false;
+
+    #endregion
+
+    #region Internal Functions
+
+    internal void AddChildInternal(IUIControl child)
+    {
+        if (!_children.Contains(child))
+        {
+            _children.Add(child);
+            _childrenDirty = true;
+            OnChildAdded(child);
+            Invalidate();
+        }
+    }
+
+    internal void RemoveChildInternal(IUIControl child)
+    {
+        if (_children.Remove(child))
+        {
+            _childrenDirty = true;
+            OnChildRemoved(child);
+            Invalidate();
+        }
+    }
+
+    public void InvalidateChildrenOrder()
+    {
+        _childrenDirty = true;
+        Invalidate();
+    }
+
+    internal void EnsureChildrenSorted()
+    {
+        if (_childrenDirty)
+        {
+            _children.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
+            _childrenDirty = false;
+        }
+    }
+
+    protected virtual void OnChildAdded(IUIControl control) { }
+    protected virtual void OnChildRemoved(IUIControl control) { }
+
+    #endregion
+
+    #region Event Methods
 
     public void RequestFocus()
     {
@@ -222,6 +239,10 @@ public abstract class UIControlBase : IUIControl
         return IsVisible && IsEnabled && IsFocused && OnKey(keyContext);
     }
 
+    #endregion
+
+    #region Abstract/Virtual Methods
+
     protected virtual bool OnMouse(MouseEventContext mouseContext)
     {
         return false;
@@ -235,6 +256,10 @@ public abstract class UIControlBase : IUIControl
     public abstract bool Intersects(SKPoint clientPoint);
     public abstract void Update(float deltaTime, SKPoint clientMousePosition);
     public abstract void Draw(SKCanvas canvas);
+
+    #endregion
+
+    #region Fluent APIs
 
     public UIControlBase WithLocation(SKPoint location)
     {
@@ -266,6 +291,10 @@ public abstract class UIControlBase : IUIControl
         return this;
     }
 
+    #endregion
+
+    #region Disposal
+
     public void Dispose()
     {
         Dispose(true);
@@ -285,4 +314,6 @@ public abstract class UIControlBase : IUIControl
     }
 
     protected virtual void OnDispose() { }
+
+    #endregion
 }

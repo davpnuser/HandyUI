@@ -5,7 +5,8 @@ namespace HandyUI.SilkNet.Classes.Extensions;
 
 public static class VectorExtensions
 {
-    // SKPoint
+    #region SKPoint Extensions
+
     public static Vector2D<int> ToVector2D(this SKPoint? point)
     {
         return point is not null ? new Vector2D<int>((int)point.Value.X, (int)point.Value.Y) : new Vector2D<int>(0, 0);
@@ -21,7 +22,10 @@ public static class VectorExtensions
         return new SKPoint(vector.X, vector.Y);
     }
 
-    // SKSize
+    #endregion
+
+    #region SKSize Extensions
+
     public static Vector2D<int> ToVector2D(this SKSize? size)
     {
         return size is not null ? new Vector2D<int>((int)size.Value.Width, (int)size.Value.Height) : new Vector2D<int>(0, 0);
@@ -36,4 +40,6 @@ public static class VectorExtensions
     {
         return new SKSize(vector.X, vector.Y);
     }
+
+    #endregion
 }
