@@ -61,7 +61,6 @@ public class HandyWindow : IDisposable
 
     public bool UseDirtyRendering { get; set; } = true;
 
-    private SKSize? _previousSize;
     public SKSize? Size
     {
         get => InternalWindow is not null ? new SKSize(InternalWindow.Size.X, InternalWindow.Size.Y) : null;
@@ -70,7 +69,6 @@ public class HandyWindow : IDisposable
             if (InternalWindow is not null && value is not null)
             {
                 InternalWindow.Size = new Vector2D<int>((int)value.Value.Width, (int)value.Value.Height);
-                _previousSize = value;
             }
         }
     }
@@ -128,8 +126,6 @@ public class HandyWindow : IDisposable
         set
         {
             field = value;
-            if (!field && Size.HasValue)
-                _previousSize = Size.Value;
             InternalWindow?.WindowBorder = field ? Border : WindowBorder.Fixed;
         }
     }
@@ -144,20 +140,86 @@ public class HandyWindow : IDisposable
         get;
         set
         {
-            if (IsDisposed)
-                return;
+            if (IsDisposed) return;
+
+            if (value is not null && value == ModalParent)
+                throw new InvalidOperationException("A window cannot have the same window as both its Parent and its ModalParent.");
 
             field?._children.Remove(this);
-
             field = value;
-
             value?._children.Add(this);
-
             _parentNeedsApply = true;
         }
     }
 
-    public bool InvalidateOnMove { get; set; } = false;
+    public HandyWindow? ModalParent
+    {
+        get;
+        set
+        {
+            if (IsDisposed) return;
+            if (field == value) return;
+
+            if (value is not null && value == Parent)
+                throw new InvalidOperationException("A window cannot have the same window as both its Parent and its ModalParent.");
+
+            if (field is not null && field._modalChild == this)
+            {
+                field._modalChild = null;
+                field.ApplyModalState();
+            }
+
+            field = value;
+
+            if (value is not null)
+            {
+                if (value._modalChild is not null && value._modalChild != this)
+                    throw new InvalidOperationException("The specified window already has a modal child window.");
+
+                value._modalChild = this;
+                value.ApplyModalState();
+            }
+        }
+    }
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool EnableWindow(nint hWnd, bool bEnable);
+
+    public HandyWindow? ModalChild => _modalChild;
+
+    private void ApplyModalState()
+    {
+        if (IsDisposed) return;
+
+        if (!_isInitialized || InternalWindow?.Native?.Win32?.Hwnd is not nint hwnd || hwnd == nint.Zero)
+        {
+            _modalStateNeedsApply = true;
+            return;
+        }
+
+        void apply()
+        {
+            if (InternalWindow?.Native?.Win32?.Hwnd is nint h && h != nint.Zero)
+            {
+                try { EnableWindow(h, _modalChild is null); }
+                catch { /* do not crash */ }
+            }
+        }
+
+        if (IsOnPumpThread)
+        {
+            apply();
+        }
+        else if (!_closeRequested)
+        {
+            try { Invoke(apply); }
+            catch { /* do not crash */ }
+        }
+
+        _modalStateNeedsApply = false;
+    }
+
+    public bool InvalidateParentOnMove { get; set; } = true;
 
     #endregion
 
@@ -172,6 +234,10 @@ public class HandyWindow : IDisposable
     #endregion
 
     #region Internal Fields
+
+    private volatile HandyWindow? _modalChild;
+
+    internal bool IsOnPumpThread => Thread.CurrentThread == _pumpThread;
 
     private static readonly Lock WindowCreationLock = new();
 
@@ -188,12 +254,15 @@ public class HandyWindow : IDisposable
     private volatile bool _closeRequested;
     private volatile bool _isInitialized;
     private volatile bool _parentNeedsApply;
+    private volatile bool _modalStateNeedsApply;
     private volatile bool _closingHandled;
     private volatile bool _invalidateRequested;
     private readonly bool _autoInit;
 
     private double _lastFrameTime;
+    private int _moveTick = 0;
     private bool _moveInProgress;
+    private int _resizeTick = 0;
     private bool _resizeInProgress;
 
     #endregion
@@ -204,14 +273,16 @@ public class HandyWindow : IDisposable
         WindowOptions windowOptions,
         SKSize? minSize = null,
         SKSize? maxSize = null,
-        bool invalidateOnMove = false,
+        bool useDirtyRendering = true,
+        bool invalidateParentOnMove = true,
         bool autoInitWindow = true,
         bool autoInitGlfw = true)
     {
         IsMovable = true;
         IsResizable = true;
+        UseDirtyRendering = useDirtyRendering;
         _autoInit = autoInitWindow;
-        InvalidateOnMove = invalidateOnMove;
+        InvalidateParentOnMove = invalidateParentOnMove;
 
         _pumpThread = new Thread(() => PumpLoop(windowOptions, minSize, maxSize, autoInitGlfw))
         {
@@ -254,6 +325,11 @@ public class HandyWindow : IDisposable
             window.IsVisible = false;
             _closeRequested = true;
 
+            if (ModalParent is not null)
+                ModalParent = null;
+
+            _modalChild?.InternalWindow?.Close();
+
             Parent = null;
 
             foreach (var child in _children.ToArray())
@@ -271,24 +347,34 @@ public class HandyWindow : IDisposable
 
         window.Move += newPos =>
         {
-            if (InvalidateOnMove)
-            {
-                Parent?.Invalidate();
-                //Invalidate(); // Disabled due to windows not being able to render while being held.
-            }
+            if (InvalidateParentOnMove)
+                InvalidateParent();
 
             if (_moveInProgress)
                 return;
 
             _moveInProgress = true;
 
-            if (!IsMovable && _previousPosition is not null)
-                window.Position = _previousPosition.ToVector2D();
+            try
+            {
+                if (!IsMovable && _previousPosition is not null)
+                    window.Position = _previousPosition.ToVector2D();
 
+                else
+                    OnMove?.Invoke(newPos.ToSKPoint());
+            }
+            catch { _moveInProgress = false; /* do not crash */ }
+            finally { _moveInProgress = false; }
+
+            if (_moveTick++ == 4)
+            {
+                _moveTick = 0;
+                RenderNow();
+            }
             else
-                OnMove?.Invoke(newPos.ToSKPoint());
-
-            _moveInProgress = false;
+            {
+                Invalidate();
+            }
         };
 
         #endregion
@@ -297,14 +383,27 @@ public class HandyWindow : IDisposable
 
         window.Resize += newSize =>
         {
+            if (InvalidateParentOnMove)
+                InvalidateParent();
+
             if (_resizeInProgress)
                 return;
 
             _resizeInProgress = true;
 
-            OnResize?.Invoke(newSize.ToSKSize());
+            try { OnResize?.Invoke(newSize.ToSKSize()); }
+            catch { _resizeInProgress = false; /* do not crash */ }
+            finally { _resizeInProgress = false; }
 
-            _resizeInProgress = false;
+            if (_resizeTick++ == 4)
+            {
+                _resizeTick = 0;
+                RenderNow();
+            }
+            else
+            {
+                Invalidate();
+            }
         };
 
         #endregion
@@ -312,7 +411,17 @@ public class HandyWindow : IDisposable
         #region Other Handlers
 
         window.StateChanged += s => OnStateChanged?.Invoke(s);
-        window.FocusChanged += f => OnFocusChanged?.Invoke(f);
+
+        window.FocusChanged += f =>
+        {
+            if (f && _modalChild is not null)
+            {
+                try { _modalChild.Invoke(() => _modalChild.InternalWindow?.Focus()); }
+                catch { /* do not crash */ }
+            }
+
+            OnFocusChanged?.Invoke(f);
+        };
 
         #endregion
 
@@ -384,6 +493,11 @@ public class HandyWindow : IDisposable
                     }
                 }
 
+                if (IsInitialized && _modalStateNeedsApply)
+                {
+                    ApplyModalState();
+                }
+
                 if (_invalidateRequested)
                 {
                     _invalidateRequested = false;
@@ -423,7 +537,11 @@ public class HandyWindow : IDisposable
                 {
                     if (!invalidated && !hadWork)
                     {
-                        try { glfw.WaitEventsTimeout(IdleRefreshSeconds); }
+                        try
+                        {
+                            if (_invalidateRequested) { glfw.PollEvents(); }
+                            else { glfw.WaitEventsTimeout(IdleRefreshSeconds); }
+                        }
                         catch { /* do not crash */ }
                     }
                 }
@@ -450,13 +568,27 @@ public class HandyWindow : IDisposable
 
     #region Internal Functions
 
+    [DllImport("user32.dll")]
+    private static extern bool InvalidateRect(nint hWnd, nint lpRect, bool bErase);
+
+    private void InvalidateParent()
+    {
+        if (InvalidateParentOnMove && Parent?.InternalWindow?.Native?.Win32?.Hwnd is nint parentHwnd && parentHwnd != nint.Zero)
+        {
+            InvalidateRect(parentHwnd, nint.Zero, false);
+        }
+
+        Parent?.Invalidate();
+    }
+
     private void ApplyParentToWindow(HandyWindow? value)
     {
-        if (OperatingSystem.IsWindows()
-            && InternalWindow?.Native?.Win32?.Hwnd is nint childHwnd && childHwnd != nint.Zero)
+        if (OperatingSystem.IsWindows() && InternalWindow?.Native?.Win32?.Hwnd is nint childHwnd && childHwnd != nint.Zero)
         {
             var parentHwnd = value?.InternalWindow?.Native?.Win32?.Hwnd ?? nint.Zero;
             SetParent(childHwnd, parentHwnd);
+
+            HandyWindowHelper.ApplyClipChildren(value);
         }
     }
 
@@ -474,11 +606,50 @@ public class HandyWindow : IDisposable
         }
     }
 
+    private void RenderNow()
+    {
+        if (IsDisposed || !_isInitialized)
+            return;
+
+        if (InternalWindow is null || RendererAdapter is null)
+            return;
+
+        if (!IsOnPumpThread)
+            return;
+
+        try
+        {
+            RendererAdapter.Invalidate();
+            RendererAdapter.RenderFrame();
+            InternalWindow.GLContext?.SwapBuffers();
+        }
+        catch { /* do not crash */ }
+    }
+
+    private void ApplySizeLimitsInternal()
+    {
+        Initialize();
+
+        if (InternalWindow?.Native?.Glfw is not nint rawHandle || rawHandle == nint.Zero)
+            return;
+
+        var glfw = Silk.NET.GLFW.Glfw.GetApi();
+
+        unsafe
+        {
+            var windowPtr = (Silk.NET.GLFW.WindowHandle*)rawHandle;
+            var minW = MinSize.HasValue ? (int)MinSize.Value.Width : Silk.NET.GLFW.Glfw.DontCare;
+            var minH = MinSize.HasValue ? (int)MinSize.Value.Height : Silk.NET.GLFW.Glfw.DontCare;
+            var maxW = MaxSize.HasValue ? (int)MaxSize.Value.Width : Silk.NET.GLFW.Glfw.DontCare;
+            var maxH = MaxSize.HasValue ? (int)MaxSize.Value.Height : Silk.NET.GLFW.Glfw.DontCare;
+
+            glfw.SetWindowSizeLimits(windowPtr, minW, minH, maxW, maxH);
+        }
+    }
+
     #endregion
 
     #region Marshalling
-
-    internal bool IsOnPumpThread => Thread.CurrentThread == _pumpThread;
 
     internal void Invoke(Action action)
     {
@@ -615,33 +786,10 @@ public class HandyWindow : IDisposable
         });
     }
 
-    #endregion
-
-    #region Size Limit Functions
-
     public void SetSizeLimits(SKSize? minSize, SKSize? maxSize)
     {
         MinSize = minSize;
         MaxSize = maxSize;
-    }
-
-    private void ApplySizeLimitsInternal()
-    {
-        if (InternalWindow?.Native?.Glfw is not nint rawHandle || rawHandle == nint.Zero)
-            return;
-
-        var glfw = Silk.NET.GLFW.Glfw.GetApi();
-
-        unsafe
-        {
-            var windowPtr = (Silk.NET.GLFW.WindowHandle*)rawHandle;
-            var minW = MinSize.HasValue ? (int)MinSize.Value.Width : Silk.NET.GLFW.Glfw.DontCare;
-            var minH = MinSize.HasValue ? (int)MinSize.Value.Height : Silk.NET.GLFW.Glfw.DontCare;
-            var maxW = MaxSize.HasValue ? (int)MaxSize.Value.Width : Silk.NET.GLFW.Glfw.DontCare;
-            var maxH = MaxSize.HasValue ? (int)MaxSize.Value.Height : Silk.NET.GLFW.Glfw.DontCare;
-
-            glfw.SetWindowSizeLimits(windowPtr, minW, minH, maxW, maxH);
-        }
     }
 
     #endregion

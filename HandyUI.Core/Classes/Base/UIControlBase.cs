@@ -1,4 +1,5 @@
 ﻿using HandyUI.Core.Classes.Records;
+using HandyUI.Core.Components;
 using HandyUI.Core.Interfaces;
 using SkiaSharp;
 
@@ -189,30 +190,6 @@ public abstract class UIControlBase : IUIControl
         }
     } = true;
 
-    public UIControlBase WithLocation(SKPoint location)
-    {
-        Location = location;
-        return this;
-    }
-
-    public UIControlBase WithLocation(float x, float y)
-    {
-        Location = new SKPoint(x, y);
-        return this;
-    }
-
-    public UIControlBase WithBounds(SKRect bounds)
-    {
-        Bounds = bounds;
-        return this;
-    }
-
-    public UIControlBase WithBounds(float x, float y, float w, float h)
-    {
-        Bounds = new SKRect(x, y, w, h);
-        return this;
-    }
-
     public event Action<IUIControl>? FocusRequested;
 
     public void RequestFocus()
@@ -258,6 +235,36 @@ public abstract class UIControlBase : IUIControl
     public abstract bool Intersects(SKPoint clientPoint);
     public abstract void Update(float deltaTime, SKPoint clientMousePosition);
     public abstract void Draw(SKCanvas canvas);
+
+    public UIControlBase WithLocation(SKPoint location)
+    {
+        Location = location;
+        return this;
+    }
+
+    public UIControlBase WithLocation(float x, float y)
+    {
+        Location = new SKPoint(x, y);
+        return this;
+    }
+
+    public UIControlBase WithBounds(SKRect bounds)
+    {
+        Bounds = bounds;
+        return this;
+    }
+
+    public UIControlBase WithBounds(float x, float y, float w, float h)
+    {
+        Bounds = new SKRect(x, y, w, h);
+        return this;
+    }
+
+    public UIControlBase WithAddToRenderer(UIRenderer renderer)
+    {
+        renderer.AddRootControl(this);
+        return this;
+    }
 
     public void Dispose()
     {

@@ -22,6 +22,9 @@ internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRen
     private SKSurface? _offscreenSurface;
     private IInputContext? _inputContext;
 
+    private long _lastMouseMoveInvalidateTick = 0;
+    private const long targetMouseTicksPerInvalidate = 60;
+
     internal bool UseDirtyRendering { get; } = useDirtyRendering;
     internal bool IsInvalidated => _dirtyFramesRemaining > 0;
 
@@ -117,7 +120,20 @@ internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRen
         _renderer.ProcessMouseEvent(new MouseEventContext(
             ClientPosition: _currentMousePos,
             Type: MouseEventType.Move));
-        Invalidate();
+
+        if (UseDirtyRendering)
+        {
+            var currentTick = Environment.TickCount64;
+            if (currentTick - _lastMouseMoveInvalidateTick >= targetMouseTicksPerInvalidate)
+            {
+                _lastMouseMoveInvalidateTick = currentTick;
+                Invalidate();
+            }
+        }
+        else
+        {
+            Invalidate();
+        }
     }
 
     private void OnMouseDown(IMouse mouse, Silk.NET.Input.MouseButton button)

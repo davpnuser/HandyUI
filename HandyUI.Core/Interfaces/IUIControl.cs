@@ -1,5 +1,6 @@
 ﻿using HandyUI.Core.Classes.Base;
 using HandyUI.Core.Classes.Records;
+using HandyUI.Core.Components;
 using SkiaSharp;
 
 namespace HandyUI.Core.Interfaces;
@@ -24,9 +25,6 @@ public interface IUIControl : IDisposable
     bool IsVisible { get; set; }
     bool IsEnabled { get; set; }
 
-    UIControlBase WithLocation(SKPoint location);
-    UIControlBase WithLocation(float x, float y);
-
     event Action<IUIControl>? FocusRequested;
     event Action? Invalidated;
 
@@ -38,4 +36,10 @@ public interface IUIControl : IDisposable
     bool Intersects(SKPoint clientPoint);
     void Update(float deltaTime, SKPoint clientMousePosition);
     void Draw(SKCanvas canvas);
+
+    UIControlBase WithLocation(SKPoint location);
+    UIControlBase WithLocation(float x, float y);
+    UIControlBase WithBounds(SKRect bounds);
+    UIControlBase WithBounds(float x, float y, float w, float h);
+    UIControlBase WithAddToRenderer(UIRenderer renderer);
 }

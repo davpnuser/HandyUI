@@ -20,7 +20,10 @@ public static class SilkWindowHelper
         bool vsync = true,
         bool topMost = false,
         bool useDirtyRendering = true,
-        bool invalidateOnMove = true,
+        bool invalidateParentOnMove = true,
+
+        HandyWindow? modalParentWindow = null,
+        HandyWindow? parentWindow = null,
 
         // Advanced config
         int framesPerSecond = 60,
@@ -43,8 +46,17 @@ public static class SilkWindowHelper
             SharedContext = sharedContext,
         };
 
-        var window = new HandyWindow(options, minimumWindowSize, maximumWindowSize, invalidateOnMove, autoInitWindow, autoInitGlfw);
+        var window = new HandyWindow(options, minimumWindowSize, maximumWindowSize, useDirtyRendering, invalidateParentOnMove, autoInitWindow, autoInitGlfw);
         var renderer = SilkRendererHelper.Attach(window, useDirtyRendering);
+
+        if (modalParentWindow is not null)
+        {
+            window.ModalParent = modalParentWindow;
+        }
+        else if (parentWindow is not null)
+        {
+            window.Parent = parentWindow;
+        }
 
         return (window, renderer);
     }

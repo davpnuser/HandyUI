@@ -6,6 +6,7 @@ namespace HandyUI.TestApp;
 
 public class HueShiftingControl : UIControlBase
 {
+    public float HueDelta = 36;
     private float _hue = 0f;
     private readonly SKPaint _paint = new() { Color = SKColors.Red, Style = SKPaintStyle.Fill };
 
@@ -21,9 +22,15 @@ public class HueShiftingControl : UIControlBase
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
-        _hue += deltaTime * 36;
+        _hue += deltaTime * HueDelta;
         _hue %= 360;
         _paint.Color = SKColorHelper.FromHue(_hue);
+    }
+
+    public HueShiftingControl WithHuePerSecond(float hueDelta)
+    {
+        HueDelta = hueDelta;
+        return this;
     }
 
     protected override void OnDispose()

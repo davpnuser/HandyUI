@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>False</UseWindowsForms>
 	<NoWarn>SYSLIB1054</NoWarn>
-	<AssemblyVersion>1.0.567.26276</AssemblyVersion>
+	<AssemblyVersion>1.0.671.26277</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
