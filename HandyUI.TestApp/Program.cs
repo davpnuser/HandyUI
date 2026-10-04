@@ -1,13 +1,18 @@
-﻿using HandyUI.Core.Classes.Controls;
-using HandyUI.SilkNet.Classes.Helper;
-using SkiaSharp;
+﻿using SkiaSharp;
 
-var (window, renderer) = SilkWindowHelper.CreateWindowAndGetRenderer("Example Window", new SKSize(800, 600));
+var (window1, renderer1) = SilkWindowHelper.CreateWindowAndGetRenderer("Example Window 1", new SKSize(800, 600));
+var (window2, renderer2) = SilkWindowHelper.CreateWindowAndGetRenderer("Example Window 2", new SKSize(800, 600));
 
 new TextLabel()
     .WithText("Hello, World!")
     .WithTextSize(24)
     .WithLocation(15, 15)
-    .WithAddToRenderer(renderer);
+    .WithAddToRenderer(renderer1);
 
-await window.RunAsync();
+new TextLabel()
+    .WithText("Hello World, Once Again!")
+    .WithTextSize(24)
+    .WithLocation(15, 15)
+    .WithAddToRenderer(renderer2);
+
+await Task.WhenAll(window1.RunAsync(), window2.RunAsync());

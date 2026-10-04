@@ -1,5 +1,5 @@
 ﻿# HandyUI
 
-HandyUI is a Platform-agnostic Code-Only C# UI framework powered by SkiaSharp.
+HandyUI is a platform-agnostic-at-its-core code-only C# UI framework powered by SkiaSharp.
 
-To test this UI framework for yourself, You can check out the "TestApp" project in the HandyUI github repository.
+To test this UI framework for yourself, You can check out the HandyUI GitHub repository and quickly copy over the code of a example application to your project!
