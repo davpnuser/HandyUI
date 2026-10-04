@@ -33,12 +33,14 @@ static void GetWindowGoing(HandyWindow window, UIRenderer renderer)
 }
 
 var (window1, renderer1) = SilkWindowHelper.CreateWindowAndGetRenderer("Window 1", new(800, 600), new(0, 100), useDirtyRendering: false);
-var (window2, renderer2) = SilkWindowHelper.CreateWindowAndGetRenderer("Window 2", new(600, 480), useDirtyRendering: false, modalParentWindow: window1);
+//var (window2, renderer2) = SilkWindowHelper.CreateWindowAndGetRenderer("Window 2", new(600, 480), useDirtyRendering: false, modalParentWindow: window1);
 
 GetWindowGoing(window1, renderer1);
-GetWindowGoing(window2, renderer2);
+//GetWindowGoing(window2, renderer2);
 
 //_ = window2.RunAsync();
 //window1.Run();
 
-await Task.WhenAll(window1.RunAsync(), window2.RunAsync());
+//await Task.WhenAll(window1.RunAsync(), window2.RunAsync());
+await window1.RunAsync();
+//window1.Run();
