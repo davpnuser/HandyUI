@@ -18,6 +18,7 @@ public class TextButton : UIControlBase
     private bool _customNormalBorderSet;
     private bool _customActiveBorderSet;
     private bool _customTextSet;
+    private bool _customLightTextSet;
 
     private readonly SKPaint _bgPaint = new() { Style = SKPaintStyle.Fill, IsAntialias = false };
     private readonly SKPaint _borderPaint = new() { Style = SKPaintStyle.Stroke, StrokeWidth = 1.0f, IsAntialias = false };
@@ -57,6 +58,7 @@ public class TextButton : UIControlBase
             if (!_customNormalBorderSet) NormalBorderColor = value.BorderColor;
             if (!_customActiveBorderSet) ActiveBorderColor = value.ActiveColor;
             if (!_customTextSet) TextColor = value.TextColor;
+            if (!_customLightTextSet) LightTextColor = value.LightTextColor;
             UpdateBrushes();
             Invalidate();
         }
@@ -140,6 +142,19 @@ public class TextButton : UIControlBase
             Invalidate();
         }
     } = DefaultTheme.GetTheme().TextColor;
+
+    public SKColor LightTextColor
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            _customLightTextSet = true;
+            UpdateBrushes();
+            Invalidate();
+        }
+    } = DefaultTheme.GetTheme().LightTextColor;
 
     public float TextSize
     {
@@ -301,9 +316,15 @@ public class TextButton : UIControlBase
 
     public event Action? Clicked;
 
-    private SKTypeface GetEffectiveTypeface() => Typeface ?? GetOrCreateTypeface();
+    private SKTypeface GetEffectiveTypeface()
+    {
+        return Typeface ?? GetOrCreateTypeface();
+    }
 
-    private SKTypeface GetOrCreateTypeface() => _cachedTypeface ??= SKTypeface.FromFamilyName(FontFamily, FontWeight, FontWidth, FontSlant);
+    private SKTypeface GetOrCreateTypeface()
+    {
+        return _cachedTypeface ??= SKTypeface.FromFamilyName(FontFamily, FontWeight, FontWidth, FontSlant);
+    }
 
     private void InvalidateTypeface()
     {
@@ -327,20 +348,22 @@ public class TextButton : UIControlBase
             {
                 _bgPaint.Color = PressedBackgroundColor;
                 _borderPaint.Color = ActiveBorderColor;
+                _textPaint.Color = LightTextColor;
             }
             else if (IsHovered)
             {
                 _bgPaint.Color = HoverBackgroundColor;
                 _borderPaint.Color = ActiveBorderColor;
+                _textPaint.Color = TextColor;
             }
             else
             {
                 _bgPaint.Color = NormalBackgroundColor;
                 _borderPaint.Color = NormalBorderColor;
+                _textPaint.Color = TextColor;
             }
 
             _borderPaint.StrokeWidth = BorderThickness;
-            _textPaint.Color = TextColor;
         }
     }
 
@@ -362,7 +385,10 @@ public class TextButton : UIControlBase
         return true;
     }
 
-    public override bool Intersects(SKPoint clientPoint) => Bounds.Contains(clientPoint.X, clientPoint.Y);
+    public override bool Intersects(SKPoint clientPoint)
+    {
+        return Bounds.Contains(clientPoint.X, clientPoint.Y);
+    }
 
     protected override bool OnMouse(MouseEventContext mouseContext)
     {
@@ -438,6 +464,7 @@ public class TextButton : UIControlBase
     public TextButton WithText(string text) { Text = text; return this; }
     public TextButton WithTextSize(float size) { TextSize = size; return this; }
     public TextButton WithTextColor(SKColor color) { TextColor = color; return this; }
+    public TextButton WithLightTextColor(SKColor color) { LightTextColor = color; return this; }
     public TextButton WithTypeface(SKTypeface? typeface) { Typeface = typeface; return this; }
     public TextButton WithFont(string family, float size = 13f, SKFontStyleWeight weight = SKFontStyleWeight.Normal, SKFontStyleSlant slant = SKFontStyleSlant.Upright)
     {
@@ -467,6 +494,5 @@ public class TextButton : UIControlBase
         PressedBackgroundColor = pressed;
         return this;
     }
-    public TextButton WithBounds(SKRect bounds) { Bounds = bounds; return this; }
     public TextButton WithParent(UIControlBase? parent) { Parent = parent; return this; }
 }

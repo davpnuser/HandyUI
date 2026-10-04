@@ -2,7 +2,7 @@
 
 namespace HandyUI.Core.Classes.Records;
 
-// :: MOUSE
+#region Mouse Context Enums
 
 public enum MouseButton
 {
@@ -28,7 +28,9 @@ public record MouseEventContext(
     int WheelDelta = 0
 );
 
-// :: KEYBOARD
+#endregion
+
+#region Keyboard Context Enums
 
 public enum KeyEventType
 {
@@ -45,3 +47,5 @@ public record KeyEventContext(
     bool IsShiftPressed = false,
     bool IsAltPressed = false
 );
+
+#endregion

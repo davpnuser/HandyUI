@@ -10,7 +10,7 @@ public class FpsLabelControl : UIControlBase
 
     private int _frameCount;
     private float _elapsedTime;
-    private string _fpsText = "no data";
+    private string _fpsText = "fps: 0";
 
     public SKColor Color
     {
@@ -21,13 +21,18 @@ public class FpsLabelControl : UIControlBase
     public float TextSize
     {
         get => _font.Size;
-        set => _font.Size = value;
+        set
+        {
+            if (_font.Size != value)
+            {
+                _font.Size = value;
+                UpdateBounds();
+            }
+        }
     }
 
     public FpsLabelControl()
     {
-        Bounds = new SKRect(0, 0, 500, 500);
-
         _paint = new SKPaint
         {
             Color = SKColors.LimeGreen,
@@ -35,6 +40,8 @@ public class FpsLabelControl : UIControlBase
         };
 
         _font = new SKFont(SKTypeface.Default, 20);
+
+        UpdateBounds();
     }
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
@@ -49,18 +56,27 @@ public class FpsLabelControl : UIControlBase
 
             _frameCount = 0;
             _elapsedTime = 0f;
+
+            UpdateBounds();
         }
     }
 
     public override void Draw(SKCanvas canvas)
     {
-        var textY = Location.Y + _font.Size;
-        canvas.DrawText(_fpsText, Location.X, textY, SKTextAlign.Left, _font, _paint);
+        canvas.DrawText(_fpsText, 0, -_font.Metrics.Ascent, SKTextAlign.Left, _font, _paint);
     }
 
     public override bool Intersects(SKPoint clientPoint)
     {
         return Bounds.Contains(clientPoint);
+    }
+
+    private void UpdateBounds()
+    {
+        var width = _font.MeasureText(_fpsText);
+        var height = _font.Metrics.Descent - _font.Metrics.Ascent;
+
+        Bounds = SKRect.Create(0, 0, width, height);
     }
 
     protected override void OnDispose()

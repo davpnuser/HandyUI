@@ -1,24 +1,13 @@
-﻿using HandyUI.SilkNet.Classes.Extensions;
-using HandyUI.TestApp;
-using Silk.NET.Windowing;
+﻿using HandyUI.Core.Classes.Controls;
+using HandyUI.SilkNet.Classes.Helper;
+using SkiaSharp;
 
-SilkWindowHelper.InitializeMultiWindowSupport();
+var (window, renderer) = SilkWindowHelper.CreateWindowAndGetRenderer("Example Window", new SKSize(800, 600));
 
-var windowAmount = 3;
+new TextLabel()
+    .WithText("Hello, World!")
+    .WithTextSize(24)
+    .WithLocation(15, 15)
+    .WithAddToRenderer(renderer);
 
-for (var i = 0; i < windowAmount; i++)
-{
-    new Thread(() =>
-    {
-        (var window, var renderer) = SilkWindowHelper.CreateWindowAndGetRenderer($"Example {i}", new(250, 150), WindowBorder.Fixed, useDirtyRendering: false);
-
-        var ft = new FpsLabelControl()
-        {
-            Location = new(15, 15)
-        };
-
-        renderer.AddRootControl(ft);
-    }).Start();
-}
-
-SilkWindowHelper.RunApplicationLoop();
+await window.RunAsync();

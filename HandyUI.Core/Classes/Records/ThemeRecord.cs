@@ -7,6 +7,7 @@ public record ThemeRecord
     SKColor SecondaryColor,
     SKColor DisabledColor,
     SKColor TextColor,
+    SKColor LightTextColor,
     SKColor DisabledTextColor,
     SKColor BackgroundColor,
     SKColor DarkerBackgroundColor,
