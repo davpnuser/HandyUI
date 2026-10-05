@@ -1,4 +1,4 @@
-![Animated Header](https://github.com/davpnuser/HandyUI/raw/refs/heads/master/AnimationHeader.svg)
+![Animated Header](https://readme-svg-wave-divider-generator.vercel.app/wave?type=smooth&width=854&height=70&amplitude=30&frequency=0&layers=3&color_top=f4e9d3&color_bottom=b5ac9a&opacity=1&flip=true&gradient=true&mirror=true&animate=true&speed=12)
 
 # HandyUI
 
