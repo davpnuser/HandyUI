@@ -26,7 +26,7 @@ To test this UI framework for yourself, You can check out the "TestApp" project 
 [![HandyUI.SilkNet Downloads](https://img.shields.io/nuget/dt/HandyUI.SilkNet?style=flat-square&color=F4E9D3&label=HandyUI.SilkNet%20Downloads)](https://www.nuget.org/packages/HandyUI.SilkNet)
 
 <!--- Badges for HandyUI.WinForms --->
-***HandyUI.WinForms***
+***Badges for HandyUI.WinForms***
 
 [![HandyUI.WinForms Version](https://img.shields.io/nuget/v/HandyUI.WinForms?style=flat-square&color=F4E9D3&label=HandyUI.WinForms%20Version)](https://www.nuget.org/packages/HandyUI.WinForms)
 [![HandyUI.WinForms Downloads](https://img.shields.io/nuget/dt/HandyUI.WinForms?style=flat-square&color=F4E9D3&label=HandyUI.WinForms%20Downloads)](https://www.nuget.org/packages/HandyUI.WinForms)
