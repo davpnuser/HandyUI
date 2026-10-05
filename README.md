@@ -1,5 +1,11 @@
 # HandyUI
 
+![Last Commit](https://img.shields.io/github/last-commit/davpnuser/HandyUI?style=flat-square&color=F4E9D3&label=last%20commit&cacheSeconds=1800)
+![License](https://img.shields.io/github/license/davpnuser/HandyUI?style=flat-square&color=F4E9D3&label=license&cacheSeconds=3600)
+![Repository Size](https://img.shields.io/github/repo-size/davpnuser/HandyUI?style=flat-square&color=F4E9D3&label=repository%20size&cacheSeconds=3600)
+[![NuGet Version](https://img.shields.io/nuget/v/HandyUI.Core?style=flat-square&color=F4E9D3&label=nuget%20version)](https://www.nuget.org/packages/HandyUI.Core)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/HandyUI.Core?style=flat-square&color=F4E9D3&label=nuget%20downloads)](https://www.nuget.org/packages/HandyUI.Core)
+
 HandyUI is a platform-agnostic at its core code-only C# UI framework powered by SkiaSharp.
 To test this UI framework for yourself, You can check out the "TestApp" project in the HandyUI solution.
 
