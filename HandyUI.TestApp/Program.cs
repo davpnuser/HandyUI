@@ -1,5 +1,6 @@
 ﻿using HandyUI.Core.Classes.Controls;
 using HandyUI.SilkNet.Classes.Helper;
+using Silk.NET.Windowing;
 using SkiaSharp;
 
 (var window1, var renderer1) = SilkWindowHelper.CreateWindowAndGetRenderer("Example Window 1", new SKSize(800, 600));
@@ -16,5 +17,10 @@ new TextLabel()
     .WithTextSize(24)
     .WithLocation(15, 15)
     .WithAddToRenderer(renderer2);
+
+window2.OnLoad += () =>
+{
+    window2.State = WindowState.Maximized;
+};
 
 await Task.WhenAll(window1.RunAsync(), window2.RunAsync());

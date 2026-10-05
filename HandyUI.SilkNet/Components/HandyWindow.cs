@@ -47,6 +47,18 @@ public class HandyWindow : IDisposable
         }
     }
 
+    public WindowState State
+    {
+        get => InternalWindow is null ? WindowState.Normal : InternalWindow.WindowState;
+        set
+        {
+            if (InternalWindow is null)
+                return;
+
+            InternalWindow.WindowState = value;
+        }
+    }
+
     public bool VSync
     {
         get => InternalWindow is not null && InternalWindow.VSync;
@@ -225,6 +237,7 @@ public class HandyWindow : IDisposable
 
     #region Events
 
+    public event Action? OnLoad;
     public event Action? OnClosing;
     public event Action<SKPoint>? OnMove;
     public event Action<SKSize>? OnResize;
@@ -314,6 +327,23 @@ public class HandyWindow : IDisposable
         }
 
         InternalWindow = window;
+
+        #region Load Handler
+
+        window.Load += () =>
+        {
+            Size = new SKSize(windowOptions.Size.X, windowOptions.Size.Y);
+            SetSizeLimits(minSize, maxSize);
+
+            _isInitialized = true;
+            _initSignal.Set();
+
+            OnLoad?.Invoke();
+        };
+
+        _windowCreated.Set();
+
+        #endregion
 
         #region Close Handler
 
@@ -422,21 +452,6 @@ public class HandyWindow : IDisposable
 
             OnFocusChanged?.Invoke(f);
         };
-
-        #endregion
-
-        #region Load Handler
-
-        window.Load += () =>
-        {
-            Size = new SKSize(windowOptions.Size.X, windowOptions.Size.Y);
-            SetSizeLimits(minSize, maxSize);
-
-            _isInitialized = true;
-            _initSignal.Set();
-        };
-
-        _windowCreated.Set();
 
         #endregion
 
