@@ -1,14 +1,35 @@
 # HandyUI
 
-![Last Commit](https://img.shields.io/github/last-commit/davpnuser/HandyUI?style=flat-square&color=F4E9D3&label=last%20commit&cacheSeconds=1800)
-![License](https://img.shields.io/github/license/davpnuser/HandyUI?style=flat-square&color=F4E9D3&label=license&cacheSeconds=3600)
-![Repository Size](https://img.shields.io/github/repo-size/davpnuser/HandyUI?style=flat-square&color=F4E9D3&label=repository%20size&cacheSeconds=3600)
-[![NuGet Version](https://img.shields.io/nuget/v/HandyUI.Core?style=flat-square&color=F4E9D3&label=nuget%20version)](https://www.nuget.org/packages/HandyUI.Core)
-[![NuGet Downloads](https://img.shields.io/nuget/dt/HandyUI.Core?style=flat-square&color=F4E9D3&label=nuget%20downloads)](https://www.nuget.org/packages/HandyUI.Core)
-
+## About HandyUI
 HandyUI is a platform-agnostic at its core code-only C# UI framework powered by SkiaSharp.
 To test this UI framework for yourself, You can check out the "TestApp" project in the HandyUI solution.
 
+<!--- Repository badges --->
+***Repository badges***
+
+![Last Commit](https://img.shields.io/github/last-commit/davpnuser/HandyUI?style=flat-square&color=F4E9D3&label=Last%20Commit&cacheSeconds=1800)
+![License](https://img.shields.io/github/license/davpnuser/HandyUI?style=flat-square&color=F4E9D3&label=License&cacheSeconds=3600)
+![Repository Size](https://img.shields.io/github/repo-size/davpnuser/HandyUI?style=flat-square&color=F4E9D3&label=Repository%20Size&cacheSeconds=3600)
+
+<!--- Badges for HandyUI.Core --->
+***Badges for HandyUI.Core***
+
+[![HandyUI.Core Version](https://img.shields.io/nuget/v/HandyUI.Core?style=flat-square&color=F4E9D3&label=HandyUI.Core%20Version)](https://www.nuget.org/packages/HandyUI.Core)
+[![HandyUI.Core Downloads](https://img.shields.io/nuget/dt/HandyUI.Core?style=flat-square&color=F4E9D3&label=HandyUI.Core%20Downloads)](https://www.nuget.org/packages/HandyUI.Core)
+
+<!--- Badges for HandyUI.SilkNet --->
+***Badges for HandyUI.SilkNet***
+
+[![HandyUI.SilkNet Version](https://img.shields.io/nuget/v/HandyUI.SilkNet?style=flat-square&color=F4E9D3&label=HandyUI.SilkNet%20Version)](https://www.nuget.org/packages/HandyUI.SilkNet)
+[![HandyUI.SilkNet Downloads](https://img.shields.io/nuget/dt/HandyUI.SilkNet?style=flat-square&color=F4E9D3&label=HandyUI.SilkNet%20Downloads)](https://www.nuget.org/packages/HandyUI.SilkNet)
+
+<!--- Badges for HandyUI.WinForms --->
+***HandyUI.WinForms***
+
+[![HandyUI.WinForms Version](https://img.shields.io/nuget/v/HandyUI.WinForms?style=flat-square&color=F4E9D3&label=HandyUI.WinForms%20Version)](https://www.nuget.org/packages/HandyUI.WinForms)
+[![HandyUI.WinForms Downloads](https://img.shields.io/nuget/dt/HandyUI.WinForms?style=flat-square&color=F4E9D3&label=HandyUI.WinForms%20Downloads)](https://www.nuget.org/packages/HandyUI.WinForms)
+
+<!--- Compatibility Table --->
 ## HandyUI Compatibility
 
 | OS | Support state for HandyUI.Core | Support state for HandyUI.SilkNet | Support state for HandyUI.WinForms (deprecated) |
@@ -63,7 +84,7 @@ await Task.WhenAll(window1.RunAsync(), window2.RunAsync());
 
 #### Example app only spawning a single window: _(uses HandyUI.WinForms)_
 
-```csaharp
+```csharp
 using HandyUI.Core.Classes.Controls;
 using HandyUI.WinForms.Classes.Helper;
 using HandyUI.WinForms.Components;
