@@ -38,7 +38,7 @@ To test this UI framework for yourself, You can check out the "TestApp" project 
 | Linux | ✔ Secondary target / Fully works.  | ⚠ Secondary Target / Needs adapter fixes.  | ❌ Incompatible. |
 | Other(s) | ℹ️ Third target / Not tested. | ❌ Third target / Not implemented at all. | ❌ Incompatible. |
 
-## Examples using the HandyUI adapter for Silk.NET library.
+## C# Code examples using the HandyUI library.
 
 #### Example app only spawning a single window: _(uses HandyUI.SilkNet)_
 
