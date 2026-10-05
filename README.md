@@ -1,3 +1,5 @@
+![Animated Header](https://github.com/davpnuser/HandyUI/raw/refs/heads/master/AnimationHeader.svg)
+
 # HandyUI
 
 ## About HandyUI
