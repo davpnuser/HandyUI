@@ -5,7 +5,7 @@ using SkiaSharp;
 
 namespace HandyUI.Core.Classes.Controls;
 
-public class TextBox : UIControlBase
+public class TextBox : UIControlBase<TextBox>
 {
     private SKTypeface? _cachedTypeface;
     private int _caretIndex;
@@ -272,7 +272,10 @@ public class TextBox : UIControlBase
     public event Action<string>? TextChanged;
     public event Action<string>? Submitted;
 
-    private SKTypeface GetOrCreateTypeface() => _cachedTypeface ??= SKTypeface.FromFamilyName(FontFamily, FontWeight, FontWidth, FontSlant);
+    private SKTypeface GetOrCreateTypeface()
+    {
+        return _cachedTypeface ??= SKTypeface.FromFamilyName(FontFamily, FontWeight, FontWidth, FontSlant);
+    }
 
     private void InvalidateTypeface()
     {
@@ -302,7 +305,10 @@ public class TextBox : UIControlBase
         }
     }
 
-    public override bool Intersects(SKPoint clientPoint) => Bounds.Contains(clientPoint.X, clientPoint.Y);
+    public override bool Intersects(SKPoint clientPoint)
+    {
+        return Bounds.Contains(clientPoint.X, clientPoint.Y);
+    }
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
@@ -425,7 +431,7 @@ public class TextBox : UIControlBase
         {
             switch (keyContext.KeyCode)
             {
-                case 8: // Backspace
+                case 8:
                     if (_caretIndex > 0 && Text.Length > 0)
                     {
                         var safeCaret = Math.Clamp(_caretIndex, 1, Text.Length);
@@ -435,7 +441,7 @@ public class TextBox : UIControlBase
                     }
                     return true;
 
-                case 46: // Delete
+                case 46:
                     if (_caretIndex < Text.Length && Text.Length > 0)
                     {
                         var safeCaret = Math.Clamp(_caretIndex, 0, Text.Length - 1);
@@ -445,7 +451,7 @@ public class TextBox : UIControlBase
                     }
                     return true;
 
-                case 37: // Left
+                case 37:
                     if (_caretIndex > 0)
                     {
                         _caretIndex--;
@@ -453,7 +459,7 @@ public class TextBox : UIControlBase
                     }
                     return true;
 
-                case 39: // Right
+                case 39:
                     if (_caretIndex < Text.Length)
                     {
                         _caretIndex++;
@@ -461,7 +467,7 @@ public class TextBox : UIControlBase
                     }
                     return true;
 
-                case 36: // Home
+                case 36:
                     if (_caretIndex != 0)
                     {
                         _caretIndex = 0;
@@ -469,7 +475,7 @@ public class TextBox : UIControlBase
                     }
                     return true;
 
-                case 35: // End
+                case 35:
                     if (_caretIndex != Text.Length)
                     {
                         _caretIndex = Text.Length;
@@ -477,7 +483,7 @@ public class TextBox : UIControlBase
                     }
                     return true;
 
-                case 13: // Enter
+                case 13:
                     Submitted?.Invoke(Text);
                     OnSubmit?.Invoke(Text);
                     return true;
@@ -559,6 +565,5 @@ public class TextBox : UIControlBase
     }
     public TextBox WithOnTextChanged(Action<string> onTextChanged) { TextChanged += onTextChanged; OnTextChanged = onTextChanged; return this; }
     public TextBox WithOnSubmit(Action<string> onSubmit) { Submitted += onSubmit; OnSubmit = onSubmit; return this; }
-    public TextBox WithBounds(SKRect bounds) { Bounds = bounds; return this; }
     public TextBox WithParent(UIControlBase? parent) { Parent = parent; return this; }
 }

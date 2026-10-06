@@ -121,6 +121,8 @@ internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRen
             _renderer.RenderControls(_offscreenSurface.Canvas, _currentMousePos);
             _offscreenSurface.Canvas.Flush();
 
+            _renderer.UpdateModules();
+
             if (_dirtyFramesRemaining > 0)
                 _dirtyFramesRemaining--;
         }

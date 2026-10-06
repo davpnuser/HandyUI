@@ -5,7 +5,7 @@ using SkiaSharp;
 
 namespace HandyUI.Core.Classes.Controls;
 
-public class ImageLabel : UIControlBase
+public class ImageLabel : UIControlBase<ImageLabel>
 {
     private float? _explicitWidth;
     private float? _explicitHeight;
@@ -150,7 +150,10 @@ public class ImageLabel : UIControlBase
         return true;
     }
 
-    public override bool Intersects(SKPoint clientPoint) => Bounds.Contains(clientPoint.X, clientPoint.Y);
+    public override bool Intersects(SKPoint clientPoint)
+    {
+        return Bounds.Contains(clientPoint.X, clientPoint.Y);
+    }
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
@@ -200,6 +203,5 @@ public class ImageLabel : UIControlBase
     public ImageLabel WithWidth(float width) { Width = width; return this; }
     public ImageLabel WithHeight(float height) { Height = height; return this; }
     public ImageLabel WithSize(float width, float height) { Size = new SKSize(width, height); return this; }
-    public ImageLabel WithBounds(SKRect bounds) { Bounds = bounds; return this; }
     public ImageLabel WithParent(UIControlBase? parent) { Parent = parent; return this; }
 }

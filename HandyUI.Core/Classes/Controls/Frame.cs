@@ -6,7 +6,7 @@ using SkiaSharp;
 
 namespace HandyUI.Core.Classes.Controls;
 
-public class Frame : UIControlBase
+public class Frame : UIControlBase<Frame>
 {
     private bool _customBackgroundColorSet;
     private bool _customBorderColorSet;
@@ -203,7 +203,6 @@ public class Frame : UIControlBase
     public Frame WithWidth(float width) { Width = width; return this; }
     public Frame WithHeight(float height) { Height = height; return this; }
     public Frame WithSize(float width, float height) { Size = new SKSize(width, height); return this; }
-    public Frame WithBounds(SKRect bounds) { Bounds = bounds; return this; }
     public Frame WithBackgroundColor(SKColor color) { BackgroundColor = color; return this; }
     public Frame WithBorder(SKColor color, float thickness = 1.0f, BorderDirection direction = BorderDirection.Inside)
     {

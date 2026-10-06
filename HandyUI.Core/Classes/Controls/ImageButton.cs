@@ -6,7 +6,7 @@ using SkiaSharp;
 
 namespace HandyUI.Core.Classes.Controls;
 
-public class ImageButton : UIControlBase
+public class ImageButton : UIControlBase<ImageButton>
 {
     private SKTypeface? _cachedTypeface;
     private float? _explicitImageWidth;
@@ -291,7 +291,6 @@ public class ImageButton : UIControlBase
         }
     } = DefaultTheme.GetTheme().TextColor;
 
-    // Legacy property aliases
     public SKColor BackgroundColor { get => NormalBackgroundColor; set => NormalBackgroundColor = value; }
     public SKColor HoverColor { get => HoverBackgroundColor; set => HoverBackgroundColor = value; }
     public SKColor PressedColor { get => PressedBackgroundColor; set => PressedBackgroundColor = value; }
@@ -560,6 +559,5 @@ public class ImageButton : UIControlBase
     public ImageButton WithBorderThickness(float thickness) { BorderThickness = thickness; return this; }
     public ImageButton WithBorderDirection(BorderDirection direction) { BorderDirection = direction; return this; }
     public ImageButton WithOnClick(Action onClick) { Clicked += onClick; OnClick += onClick; return this; }
-    public ImageButton WithBounds(SKRect bounds) { Bounds = bounds; return this; }
     public ImageButton WithParent(UIControlBase? parent) { Parent = parent; return this; }
 }

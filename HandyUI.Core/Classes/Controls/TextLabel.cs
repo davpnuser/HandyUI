@@ -5,7 +5,7 @@ using SkiaSharp;
 
 namespace HandyUI.Core.Classes.Controls;
 
-public class TextLabel : UIControlBase
+public class TextLabel : UIControlBase<TextLabel>
 {
     private SKTypeface? _cachedTypeface;
     private bool _colorsInitialized;
@@ -176,9 +176,15 @@ public class TextLabel : UIControlBase
         }
     } = SKFontStyleSlant.Upright;
 
-    private SKTypeface GetEffectiveTypeface() => Typeface ?? GetOrCreateTypeface();
+    private SKTypeface GetEffectiveTypeface()
+    {
+        return Typeface ?? GetOrCreateTypeface();
+    }
 
-    private SKTypeface GetOrCreateTypeface() => _cachedTypeface ??= SKTypeface.FromFamilyName(FontFamily, FontWeight, FontWidth, FontSlant);
+    private SKTypeface GetOrCreateTypeface()
+    {
+        return _cachedTypeface ??= SKTypeface.FromFamilyName(FontFamily, FontWeight, FontWidth, FontSlant);
+    }
 
     private void InvalidateTypeface()
     {
@@ -208,7 +214,10 @@ public class TextLabel : UIControlBase
         return true;
     }
 
-    public override bool Intersects(SKPoint clientPoint) => Bounds.Contains(clientPoint.X, clientPoint.Y);
+    public override bool Intersects(SKPoint clientPoint)
+    {
+        return Bounds.Contains(clientPoint.X, clientPoint.Y);
+    }
 
     public override void Update(float deltaTime, SKPoint clientMousePosition)
     {
@@ -249,6 +258,5 @@ public class TextLabel : UIControlBase
         FontSlant = slant;
         return this;
     }
-    public TextLabel WithBounds(SKRect bounds) { Bounds = bounds; return this; }
     public TextLabel WithParent(UIControlBase? parent) { Parent = parent; return this; }
 }
