@@ -5,6 +5,8 @@ using SkiaSharp;
 
 namespace HandyUI.Core.Interfaces;
 
+#region Core Interface
+
 public interface IUIControl : IDisposable
 {
     #region Properties
@@ -52,14 +54,19 @@ public interface IUIControl : IDisposable
     void Draw(SKCanvas canvas);
 
     #endregion
-
-    #region Fluent APIs
-
-    UIControlBase WithLocation(SKPoint location);
-    UIControlBase WithLocation(float x, float y);
-    UIControlBase WithBounds(SKRect bounds);
-    UIControlBase WithBounds(float x, float y, float w, float h);
-    UIControlBase WithAddToRenderer(UIRenderer renderer);
-
-    #endregion
 }
+
+#endregion
+
+#region Fluent APIs
+
+public interface IUIControl<TSelf> : IUIControl where TSelf : IUIControl<TSelf>
+{
+    TSelf WithLocation(SKPoint location);
+    TSelf WithLocation(float x, float y);
+    TSelf WithBounds(SKRect bounds);
+    TSelf WithBounds(float x, float y, float w, float h);
+    TSelf WithAddToRenderer(UIRenderer renderer);
+}
+
+#endregion

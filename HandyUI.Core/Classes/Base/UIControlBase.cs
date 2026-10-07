@@ -259,40 +259,6 @@ public abstract class UIControlBase : IUIControl
 
     #endregion
 
-    #region Fluent APIs
-
-    public UIControlBase WithLocation(SKPoint location)
-    {
-        Location = location;
-        return this;
-    }
-
-    public UIControlBase WithLocation(float x, float y)
-    {
-        Location = new SKPoint(x, y);
-        return this;
-    }
-
-    public UIControlBase WithBounds(SKRect bounds)
-    {
-        Bounds = bounds;
-        return this;
-    }
-
-    public UIControlBase WithBounds(float x, float y, float w, float h)
-    {
-        Bounds = new SKRect(x, y, w, h);
-        return this;
-    }
-
-    public UIControlBase WithAddToRenderer(UIRenderer renderer)
-    {
-        renderer.AddRootControl(this);
-        return this;
-    }
-
-    #endregion
-
     #region Disposal
 
     public void Dispose()
@@ -317,3 +283,42 @@ public abstract class UIControlBase : IUIControl
 
     #endregion
 }
+
+#region Fluent APIs
+
+public abstract class UIControlBase<TSelf> : UIControlBase where TSelf : UIControlBase<TSelf>
+{
+    protected TSelf Self => (TSelf)this;
+
+    public TSelf WithLocation(SKPoint location)
+    {
+        Location = location;
+        return Self;
+    }
+
+    public TSelf WithLocation(float x, float y)
+    {
+        Location = new SKPoint(x, y);
+        return Self;
+    }
+
+    public TSelf WithBounds(SKRect bounds)
+    {
+        Bounds = bounds;
+        return Self;
+    }
+
+    public TSelf WithBounds(float x, float y, float w, float h)
+    {
+        Bounds = new SKRect(x, y, w, h);
+        return Self;
+    }
+
+    public TSelf WithAddToRenderer(UIRenderer renderer)
+    {
+        renderer.AddRootControl(this);
+        return Self;
+    }
+}
+
+#endregion

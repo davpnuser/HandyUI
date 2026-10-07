@@ -5,7 +5,7 @@ using SkiaSharp;
 
 namespace HandyUI.Core.Classes.Controls;
 
-public class CheckBox : UIControlBase
+public class CheckBox : UIControlBase<CheckBox>
 {
     public CheckBox()
     {
@@ -135,18 +135,15 @@ public class CheckBox : UIControlBase
 
     public override void Draw(SKCanvas canvas)
     {
-        // Background
         if (IsHovered)
             canvas.DrawRect(Bounds, _darkerBackgroundPaint);
         else
             canvas.DrawRect(Bounds, _backgroundPaint);
 
-        // Border
         var x = BorderWidth / 2;
         var w = Bounds.Width - BorderWidth;
         canvas.DrawRect(x, x, w, w, _borderPaint);
 
-        // Fill
         if (IsChecked)
         {
             w = Bounds.Width - (Spacing * 2);
