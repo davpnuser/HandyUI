@@ -117,7 +117,7 @@ internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRen
 
         if (mustRenderUI)
         {
-            _offscreenSurface.Canvas.Clear(SKColors.Transparent);
+            _offscreenSurface.Canvas.Clear(_renderer.BackgroundColor);
             _renderer.RenderControls(_offscreenSurface.Canvas, _currentMousePos);
             _offscreenSurface.Canvas.Flush();
 
@@ -127,7 +127,7 @@ internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRen
                 _dirtyFramesRemaining--;
         }
 
-        _skSurface.Canvas.Clear(SKColors.Transparent);
+        _skSurface.Canvas.Clear(_renderer.BackgroundColor);
         using (var snapshot = _offscreenSurface.Snapshot())
         {
             _skSurface.Canvas.DrawImage(snapshot, 0, 0, SKSamplingOptions.Default);

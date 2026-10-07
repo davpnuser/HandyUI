@@ -26,6 +26,7 @@ public static class SilkWindowHelper
         HandyWindow? modalParentWindow = null,
         HandyWindow? parentWindow = null,
 
+        bool transparentFrameBuffer = false,
         int framesPerSecond = 60,
         bool autoInitWindow = false,
         IGLContext? sharedContext = null,
@@ -44,6 +45,7 @@ public static class SilkWindowHelper
             TopMost = topMost,
             FramesPerSecond = vsync ? 0 : framesPerSecond,
             SharedContext = sharedContext,
+            TransparentFramebuffer = transparentFrameBuffer
         };
 
         var window = new HandyWindow(options, minimumWindowSize, maximumWindowSize, useDirtyRendering, invalidateParentOnMove, autoInitWindow, autoInitGlfw);
@@ -80,6 +82,7 @@ public static class SilkWindowHelper
         HandyWindow? modalParentWindow = null,
         HandyWindow? parentWindow = null,
 
+        bool transparentFrameBuffer = false,
         int framesPerSecond = 60,
         bool autoInitWindow = false,
         IGLContext? sharedContext = null,
@@ -101,6 +104,7 @@ public static class SilkWindowHelper
             invalidateParentOnMove,
             modalParentWindow,
             parentWindow,
+            transparentFrameBuffer,
             framesPerSecond,
             autoInitWindow,
             sharedContext,
