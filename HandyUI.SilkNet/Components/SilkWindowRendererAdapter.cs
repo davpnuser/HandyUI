@@ -54,7 +54,7 @@ internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRen
     internal void RenderFrame()
     {
         if (_isDisposed) return;
-        OnRender(0d);
+        OnRender();
     }
 
     private void MakeContextCurrent()
@@ -107,11 +107,13 @@ internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRen
         Invalidate();
     }
 
-    private void OnRender(double delta)
+    private void OnRender()
     {
         if (_skSurface?.Canvas == null || _offscreenSurface?.Canvas == null) return;
 
         MakeContextCurrent();
+
+        _renderer.UpdateModules();
 
         var mustRenderUI = !UseDirtyRendering || _dirtyFramesRemaining > 0;
 
@@ -120,8 +122,6 @@ internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRen
             _offscreenSurface.Canvas.Clear(_renderer.BackgroundColor);
             _renderer.RenderControls(_offscreenSurface.Canvas, _currentMousePos);
             _offscreenSurface.Canvas.Flush();
-
-            _renderer.UpdateModules();
 
             if (_dirtyFramesRemaining > 0)
                 _dirtyFramesRemaining--;
