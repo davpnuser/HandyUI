@@ -4,6 +4,7 @@ using Silk.NET.Input;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using SkiaSharp;
+using System.Diagnostics;
 using System.Numerics;
 
 internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRendering) : IDisposable
@@ -12,6 +13,9 @@ internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRen
 
     private readonly IWindow _window = window;
     private readonly UIRenderer _renderer = new(useDirtyRendering);
+
+    private readonly Stopwatch _frameStopwatch = Stopwatch.StartNew();
+    private double _lastFrameTime;
 
     private SKPoint _currentMousePos = new(-1, -1);
     private int _dirtyFramesRemaining = 2;
@@ -113,14 +117,19 @@ internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRen
 
         MakeContextCurrent();
 
-        _renderer.UpdateModules();
+        var currentTime = _frameStopwatch.Elapsed.TotalSeconds;
+        var deltaTime = (float)(currentTime - _lastFrameTime);
+        deltaTime = Math.Min(deltaTime, 0.25f);
+        _lastFrameTime = currentTime;
+
+        _renderer.UpdateModules(deltaTime);
 
         var mustRenderUI = !UseDirtyRendering || _dirtyFramesRemaining > 0;
 
         if (mustRenderUI)
         {
             _offscreenSurface.Canvas.Clear(_renderer.BackgroundColor);
-            _renderer.RenderControls(_offscreenSurface.Canvas, _currentMousePos);
+            _renderer.RenderControls(_offscreenSurface.Canvas, _currentMousePos, deltaTime);
             _offscreenSurface.Canvas.Flush();
 
             if (_dirtyFramesRemaining > 0)

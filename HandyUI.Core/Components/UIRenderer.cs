@@ -3,7 +3,6 @@ using HandyUI.Core.Classes.Records;
 using HandyUI.Core.Classes.Themes;
 using HandyUI.Core.Interfaces;
 using SkiaSharp;
-using System.Diagnostics;
 
 namespace HandyUI.Core.Components;
 
@@ -16,9 +15,6 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
     #endregion
 
     #region Internal Fields
-
-    private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
-    private double _lastFrameTime;
 
     private readonly List<IUIControl> _rootControls = [];
     private readonly List<IUIControl> _pendingRootControlsAdd = [];
@@ -122,12 +118,8 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         return _focusedControl?.IsVisible == true && _focusedControl.IsEnabled && _focusedControl.ProcessKeyEvent(context);
     }
 
-    public bool RenderControls(SKCanvas canvas, SKPoint cursorPosition)
+    public bool RenderControls(SKCanvas canvas, SKPoint cursorPosition, float deltaTime)
     {
-        var currentTime = _stopwatch.Elapsed.TotalSeconds;
-        var deltaTime = (float)(currentTime - _lastFrameTime);
-        _lastFrameTime = currentTime;
-
         ProcessPendingControls();
 
         lock (_rootControlsLock)
@@ -146,12 +138,8 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         }
     }
 
-    public bool UpdateModules()
+    public bool UpdateModules(float deltaTime)
     {
-        var currentTime = _stopwatch.Elapsed.TotalSeconds;
-        var deltaTime = (float)(currentTime - _lastFrameTime);
-        _lastFrameTime = currentTime;
-
         ProcessPendingModules();
 
         lock (_modulesLock)

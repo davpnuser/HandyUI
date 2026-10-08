@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>1.5.1</AssemblyVersion>
+    <AssemblyVersion>1.5.2</AssemblyVersion>
 	<NoWarn>SYSLIB1054</NoWarn>
 
 	<Title>HandyUI.Silk.NET</Title>
