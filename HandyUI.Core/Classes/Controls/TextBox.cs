@@ -535,7 +535,6 @@ public class TextBox : UIControlBase<TextBox>
         base.OnDispose();
     }
 
-    public TextBox WithIsEnabled(bool isEnabled) { IsEnabled = isEnabled; return this; }
     public TextBox WithTheme(ThemeRecord theme) { Theme = theme; return this; }
     public TextBox WithWidth(float width) { Width = width; return this; }
     public TextBox WithHeight(float height) { Height = height; return this; }
@@ -565,5 +564,4 @@ public class TextBox : UIControlBase<TextBox>
     }
     public TextBox WithOnTextChanged(Action<string> onTextChanged) { TextChanged += onTextChanged; OnTextChanged = onTextChanged; return this; }
     public TextBox WithOnSubmit(Action<string> onSubmit) { Submitted += onSubmit; OnSubmit = onSubmit; return this; }
-    public TextBox WithParent(UIControlBase? parent) { Parent = parent; return this; }
 }

@@ -1,4 +1,5 @@
-﻿using HandyUI.Core.Classes.Records;
+﻿using HandyUI.Core.Classes.Helper;
+using HandyUI.Core.Classes.Records;
 using HandyUI.Core.Components;
 using HandyUI.Core.Interfaces;
 using SkiaSharp;
@@ -73,7 +74,7 @@ public abstract class UIControlBase : IUIControl
         }
     }
 
-    public bool InheritedPositioningEnabled { get; set; } = true;
+    public bool ParentChildPositioningEnabled { get; set; } = true;
     public bool ScissoringEnabled { get; set; } = true;
 
     public SKPaint AlphaPaint { get; } = new();
@@ -308,9 +309,51 @@ public abstract class UIControlBase<TSelf> : UIControlBase where TSelf : UIContr
         return Self;
     }
 
+    public TSelf WithBounds(SKSize boundsSize)
+    {
+        Bounds = boundsSize.ToSKRect();
+        return Self;
+    }
+
     public TSelf WithBounds(float x, float y, float w, float h)
     {
         Bounds = new SKRect(x, y, w, h);
+        return Self;
+    }
+
+    public TSelf WithParent(UIControlBase parentControl)
+    {
+        Self.Parent = parentControl;
+        return Self;
+    }
+
+    public TSelf WithOpacity(float opacity)
+    {
+        Self.Opacity = opacity;
+        return Self;
+    }
+
+    public TSelf WithIsVisible(bool visibility)
+    {
+        Self.IsVisible = visibility;
+        return Self;
+    }
+
+    public TSelf WithIsEnabled(bool enabled)
+    {
+        Self.IsEnabled = enabled;
+        return Self;
+    }
+
+    public TSelf WithParentChildPositioningEnabled(bool parentChildPositioningEnabled)
+    {
+        Self.ParentChildPositioningEnabled = parentChildPositioningEnabled;
+        return Self;
+    }
+
+    public TSelf WithZIndex(int zIndex)
+    {
+        Self.ZIndex = zIndex;
         return Self;
     }
 

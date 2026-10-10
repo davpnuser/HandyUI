@@ -198,7 +198,6 @@ public class Frame : UIControlBase<Frame>
         base.OnDispose();
     }
 
-    public Frame WithIsEnabled(bool isEnabled) { IsEnabled = isEnabled; return this; }
     public Frame WithTheme(ThemeRecord theme) { Theme = theme; return this; }
     public Frame WithWidth(float width) { Width = width; return this; }
     public Frame WithHeight(float height) { Height = height; return this; }
@@ -214,5 +213,4 @@ public class Frame : UIControlBase<Frame>
     public Frame WithBorderColor(SKColor color) { BorderColor = color; return this; }
     public Frame WithBorderThickness(float thickness) { BorderThickness = thickness; return this; }
     public Frame WithBorderDirection(BorderDirection direction) { BorderDirection = direction; return this; }
-    public Frame WithParent(UIControlBase? parent) { Parent = parent; return this; }
 }

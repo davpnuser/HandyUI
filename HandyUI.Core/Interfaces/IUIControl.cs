@@ -17,7 +17,7 @@ public interface IUIControl : IDisposable
     SKPoint Location { get; set; }
     SKRect Bounds { get; set; }
     int ZIndex { get; set; }
-    bool InheritedPositioningEnabled { get; set; }
+    bool ParentChildPositioningEnabled { get; set; }
     bool ScissoringEnabled { get; set; }
 
     SKPaint AlphaPaint { get; }

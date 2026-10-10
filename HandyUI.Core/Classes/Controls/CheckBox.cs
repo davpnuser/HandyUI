@@ -171,10 +171,8 @@ public class CheckBox : UIControlBase<CheckBox>
         _borderPaint.Dispose();
     }
 
-    public CheckBox WithIsEnabled(bool isEnabled) { IsEnabled = isEnabled; return this; }
     public CheckBox WithIsChecked(bool isChecked) { IsChecked = isChecked; return this; }
     public CheckBox WithBoxSize(float size) { BoxSize = size; return this; }
     public CheckBox WithTheme(ThemeRecord theme) { Theme = theme; return this; }
     public CheckBox WithOnCheckChanged(Action<bool> onCheckChanged) { OnCheckChanged = onCheckChanged; return this; }
-    public CheckBox WithParent(UIControlBase? parent) { Parent = parent; return this; }
 }

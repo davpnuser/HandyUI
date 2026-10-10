@@ -454,7 +454,6 @@ public class TextButton : UIControlBase<TextButton>
         base.OnDispose();
     }
 
-    public TextButton WithIsEnabled(bool isEnabled) { IsEnabled = isEnabled; return this; }
     public TextButton WithTheme(ThemeRecord theme) { Theme = theme; return this; }
     public TextButton WithWidth(float width) { Width = width; return this; }
     public TextButton WithHeight(float height) { Height = height; return this; }
@@ -494,5 +493,4 @@ public class TextButton : UIControlBase<TextButton>
         PressedBackgroundColor = pressed;
         return this;
     }
-    public TextButton WithParent(UIControlBase? parent) { Parent = parent; return this; }
 }

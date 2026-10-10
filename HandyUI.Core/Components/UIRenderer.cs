@@ -285,7 +285,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         }
 
         canvas.Save();
-        if (control.InheritedPositioningEnabled) canvas.Translate(control.Location.X, control.Location.Y);
+        if (control.ParentChildPositioningEnabled) canvas.Translate(control.Location.X, control.Location.Y);
 
         control.Update(deltaTime, effectiveCursor);
         control.Draw(canvas);
@@ -306,7 +306,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
 
     private static SKPoint GetLocalMousePosition(IUIControl control, SKPoint globalPoint)
     {
-        if (!control.InheritedPositioningEnabled) return globalPoint;
+        if (!control.ParentChildPositioningEnabled) return globalPoint;
         var absolutePos = GetAbsoluteLocation(control);
         return new SKPoint(globalPoint.X - absolutePos.X, globalPoint.Y - absolutePos.Y);
     }
@@ -316,7 +316,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         float x = 0, y = 0;
         for (var current = control; current != null; current = current.Parent)
         {
-            if (current.InheritedPositioningEnabled) { x += current.Location.X; y += current.Location.Y; }
+            if (current.ParentChildPositioningEnabled) { x += current.Location.X; y += current.Location.Y; }
         }
         return new SKPoint(x, y);
     }

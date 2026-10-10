@@ -241,7 +241,6 @@ public class TextLabel : UIControlBase<TextLabel>
         base.OnDispose();
     }
 
-    public TextLabel WithIsEnabled(bool isEnabled) { IsEnabled = isEnabled; return this; }
     public TextLabel WithTheme(ThemeRecord theme) { Theme = theme; return this; }
     public TextLabel WithWidth(float width) { Width = width; return this; }
     public TextLabel WithHeight(float height) { Height = height; return this; }
@@ -258,5 +257,4 @@ public class TextLabel : UIControlBase<TextLabel>
         FontSlant = slant;
         return this;
     }
-    public TextLabel WithParent(UIControlBase? parent) { Parent = parent; return this; }
 }

@@ -196,12 +196,10 @@ public class ImageLabel : UIControlBase<ImageLabel>
         base.OnDispose();
     }
 
-    public ImageLabel WithIsEnabled(bool isEnabled) { IsEnabled = isEnabled; return this; }
     public ImageLabel WithTheme(ThemeRecord theme) { Theme = theme; return this; }
     public ImageLabel WithImage(SKImage? image) { Image = image; return this; }
     public ImageLabel WithAutoSize(bool autoSize) { AutoSize = autoSize; return this; }
     public ImageLabel WithWidth(float width) { Width = width; return this; }
     public ImageLabel WithHeight(float height) { Height = height; return this; }
     public ImageLabel WithSize(float width, float height) { Size = new SKSize(width, height); return this; }
-    public ImageLabel WithParent(UIControlBase? parent) { Parent = parent; return this; }
 }

@@ -47,9 +47,9 @@ To test this UI framework for yourself, You can check out the "TestApp" project 
 ```csharp
 using HandyUI.Core.Classes.Controls;
 using HandyUI.SilkNet.Classes.Helper;
-using SkiaSharp;
+using HandyUI.SilkNet.Classes.Structs;
 
-var (window, renderer) = SilkWindowHelper.CreateWindowAndGetRenderer("Example Window", new SKSize(800, 600));
+var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default);
 
 new TextLabel()
     .WithText("Hello, World!")
@@ -64,10 +64,10 @@ await window.RunAsync();
 ```csharp
 using HandyUI.Core.Classes.Controls;
 using HandyUI.SilkNet.Classes.Helper;
-using SkiaSharp;
+using HandyUI.SilkNet.Classes.Structs;
 
-var (window1, renderer1) = SilkWindowHelper.CreateWindowAndGetRenderer("Example Window 1", new SKSize(800, 600));
-var (window2, renderer2) = SilkWindowHelper.CreateWindowAndGetRenderer("Example Window 2", new SKSize(800, 600));
+var (window1, renderer1) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default with { Title = "Window 1" });
+var (window2, renderer2) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default with { Title = "Window 2" });
 
 new TextLabel()
     .WithText("Hello, World!")

@@ -506,7 +506,6 @@ public class ImageButton : UIControlBase<ImageButton>
         base.OnDispose();
     }
 
-    public ImageButton WithIsEnabled(bool isEnabled) { IsEnabled = isEnabled; return this; }
     public ImageButton WithTheme(ThemeRecord theme) { Theme = theme; return this; }
     public ImageButton WithWidth(float width) { Width = width; return this; }
     public ImageButton WithHeight(float height) { Height = height; return this; }
@@ -559,5 +558,4 @@ public class ImageButton : UIControlBase<ImageButton>
     public ImageButton WithBorderThickness(float thickness) { BorderThickness = thickness; return this; }
     public ImageButton WithBorderDirection(BorderDirection direction) { BorderDirection = direction; return this; }
     public ImageButton WithOnClick(Action onClick) { Clicked += onClick; OnClick += onClick; return this; }
-    public ImageButton WithParent(UIControlBase? parent) { Parent = parent; return this; }
 }
