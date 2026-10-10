@@ -1,5 +1,6 @@
 ﻿using HandyUI.SilkNet.Classes.Extensions;
 using HandyUI.SilkNet.Classes.Helper;
+using HandyUI.SilkNet.Classes.Structs;
 using Silk.NET.Core;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
@@ -153,6 +154,8 @@ public class HandyWindow : IDisposable
         }
     } = true;
 
+    public bool AllowClose { get; set; } = true;
+
     [DllImport("user32.dll", SetLastError = true)]
     private static extern nint SetParent(nint hWndChild, nint hWndNewParent);
 
@@ -275,6 +278,7 @@ public class HandyWindow : IDisposable
     private TaskCompletionSource? _closedTcs;
 
     private volatile bool _initRequested;
+    private volatile bool _programmaticClose;
     private volatile bool _closeRequested;
     private volatile bool _isInitialized;
     private volatile bool _parentNeedsApply;
@@ -296,27 +300,45 @@ public class HandyWindow : IDisposable
 
     #region Constructor
 
-    public HandyWindow(
-        WindowOptions windowOptions,
-        SKSize? minSize = null,
-        SKSize? maxSize = null,
-        bool useDirtyRendering = true,
-        bool invalidateParentOnMove = true,
-        bool windowCentered = false,
-        bool autoInitWindow = true,
-        bool autoInitGlfw = true)
+    public HandyWindow(WindowConfiguration windowConfiguration)
     {
         IsMovable = true;
         IsResizable = true;
-        UseDirtyRendering = useDirtyRendering;
-        _autoInit = autoInitWindow;
-        InvalidateParentOnMove = invalidateParentOnMove;
-        _centerOnStartup = windowCentered;
+        UseDirtyRendering = windowConfiguration.UseDirtyRendering;
+        _autoInit = windowConfiguration.AutoInitWindow;
+        InvalidateParentOnMove = windowConfiguration.InvalidateParentOnMove;
+        _centerOnStartup = windowConfiguration.WindowCentered;
 
-        _pumpThread = new Thread(() => PumpLoop(windowOptions, minSize, maxSize, autoInitGlfw))
+        VisibleInTaskbar = windowConfiguration.VisibleInTaskbar;
+        AllowClose = windowConfiguration.AllowClose;
+
+        if (windowConfiguration.ModalParent is not null)
+        {
+            ModalParent = windowConfiguration.ModalParent;
+        }
+        else if (windowConfiguration.SubwindowParent is not null)
+        {
+            Parent = windowConfiguration.SubwindowParent;
+        }
+
+        var windowOptions = windowConfiguration.CustomWindowOptions ?? WindowOptions.Default with
+        {
+            Size = new Vector2D<int>((int)windowConfiguration.Size.Width, (int)windowConfiguration.Size.Height),
+            Title = windowConfiguration.Title,
+            WindowBorder = windowConfiguration.WindowBorder,
+            WindowState = windowConfiguration.WindowState,
+            IsEventDriven = windowConfiguration.UseDirtyRendering,
+            VSync = windowConfiguration.VSync,
+            TopMost = windowConfiguration.TopMost,
+            FramesPerSecond = windowConfiguration.VSync ? 0 : windowConfiguration.FramesPerSecond,
+            SharedContext = windowConfiguration.SharedContext,
+            TransparentFramebuffer = windowConfiguration.TransparentFrameBuffer,
+        };
+
+        _pumpThread = new Thread(() => PumpLoop(windowConfiguration, windowOptions))
         {
             IsBackground = true,
-            Name = $"HandyWindow-{windowOptions.Title}"
+            Name = windowConfiguration.CustomPumpThreadName ?? $"HandyWindow-{windowConfiguration.Title}"
         };
 
         if (OperatingSystem.IsWindows())
@@ -331,9 +353,9 @@ public class HandyWindow : IDisposable
 
     #region Loop Pumping Function
 
-    private void PumpLoop(WindowOptions windowOptions, SKSize? minSize, SKSize? maxSize, bool autoInitGlfw)
+    private void PumpLoop(WindowConfiguration windowConfiguration, WindowOptions windowOptions)
     {
-        if (autoInitGlfw)
+        if (windowConfiguration.AutoInitGlfw)
             GlfwTool.EnsureGlfwInitialized();
 
         IWindow window;
@@ -349,7 +371,7 @@ public class HandyWindow : IDisposable
         window.Load += () =>
         {
             Size = new SKSize(windowOptions.Size.X, windowOptions.Size.Y);
-            SetSizeLimits(minSize, maxSize);
+            SetSizeLimits(windowConfiguration.MinSize, windowConfiguration.MaxSize);
 
             _isInitialized = true;
             _initSignal.Set();
@@ -369,6 +391,13 @@ public class HandyWindow : IDisposable
         window.Closing += () =>
         {
             if (_closingHandled) return;
+
+            if (!AllowClose && !_programmaticClose)
+            {
+                SilkWindowHelper.TryCancelClose(window);
+                return;
+            }
+
             _closingHandled = true;
 
             window.IsVisible = false;
@@ -588,6 +617,8 @@ public class HandyWindow : IDisposable
         }
         finally
         {
+            _programmaticClose = true;
+
             try { window.Close(); }
             catch { /* do not crash */ }
 
@@ -869,7 +900,11 @@ public class HandyWindow : IDisposable
 
     public void Close()
     {
+        _programmaticClose = true;
         _closeRequested = true;
+
+        try { Silk.NET.GLFW.Glfw.GetApi().PostEmptyEvent(); }
+        catch { /* do not crash */ }
     }
 
     #endregion

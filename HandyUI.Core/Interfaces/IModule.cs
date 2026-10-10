@@ -12,7 +12,6 @@ public interface IModule : IDisposable
 
     #region Events
 
-    event Action<float>? OnUpdate;
     event Action<bool>? OnStateChanged;
 
     #endregion

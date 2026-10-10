@@ -24,7 +24,6 @@ public abstract class BaseModule : IModule
 
     #region Events
 
-    public event Action<float>? OnUpdate;
     public event Action<bool>? OnStateChanged;
 
     #endregion
@@ -89,12 +88,6 @@ public abstract class BaseModule<TSelf> : BaseModule where TSelf : BaseModule<TS
     public TSelf WithIsEnabled(bool enabled)
     {
         IsEnabled = enabled;
-        return Self;
-    }
-
-    public TSelf WithOnUpdate(Action<float>? action)
-    {
-        OnUpdate += action;
         return Self;
     }
 
