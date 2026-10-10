@@ -27,7 +27,7 @@ To install HandyUI, you must pick whether you want the core renderer, the Silk\.
     ### Developer Command Prompt
 
     ```batch
-    dotnet add package HandyUI.Silknet
+    dotnet add package HandyUI.SilkNet
     ```
 
     ### NuGet Package Manager in VS
