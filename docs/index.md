@@ -13,7 +13,7 @@ You will get introduced to HandyUI and the reason to it's existence here.
 
 Basically, I *(davpnuser)* was trying to make a modern, hardware-accelerated GUI app in C# and modern .NET. I tried using WinForms, Uses GDI+. What about WPF? Uses XAML. Well, what about Avalonia? Nope, it has a lot of boilerplate. WinUI Markup? Sucks.
 
-So, i was basically trying to find a option that didnt exist so at one point i got tired and started using SkiaSharp with WinForms. *(yes, i know, i was using the exact framework i didnt use at first.)* And it was going good until... I realized that WinForms is NOT cross-platform. So, i decided to try using alternatives suck as OpenTK's C# library and Silk.NET and etc.
+So, i was basically trying to find a option that didnt exist so at one point i got tired and started using SkiaSharp with WinForms. *(yes, i know, i was using the exact framework i didnt use at first.)* And it was going good until... I realized that WinForms is NOT cross-platform. So, i decided to try using alternatives such as OpenTK's C# library and Silk.NET and etc.
 
 But, ultimately, i found that Silk.NET works best. So, i was then using pure Silk.NET and SkiaSharp for a while until i realized once again, that, **there was a lot of boilerplate.** So, i began work on **HandyUI.** At first, it was really incapable. Really. Incapable. Then, over time, it started getting better with more and more updates.
 
