@@ -3,7 +3,7 @@ using HandyUI.SilkNet.Components;
 
 namespace HandyUI.SilkNet.Classes.Helper;
 
-public static class SilkRendererHelper
+public static class RendererHelper
 {
     public static UIRenderer Attach(HandyWindow window, bool useDirtyRendering = true)
     {
@@ -14,7 +14,7 @@ public static class SilkRendererHelper
 
         return window.Invoke(() =>
         {
-            var adapter = new SilkWindowRendererAdapter(window.InternalWindow!, useDirtyRendering);
+            var adapter = new RendererAdapter(window.InternalWindow!, useDirtyRendering);
             window.RendererAdapter = adapter;
             return adapter.InitializeAndGetRenderer();
         });

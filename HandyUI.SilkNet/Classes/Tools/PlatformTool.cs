@@ -1,6 +1,6 @@
-﻿namespace HandyUI.SilkNet.Classes.Helper;
+﻿namespace HandyUI.SilkNet.Classes.Tools;
 
-internal static class PlatformTools
+internal static class PlatformTool
 {
     // Currently only supports Windows.
     // -> Help us improve the cross-platform support of HandyUI as a community.

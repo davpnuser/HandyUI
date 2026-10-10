@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace HandyUI.SilkNet.Classes.Helper;
 
-public static class HandyWindowHelper
+public static class Win32Helper
 {
     private const int GWL_STYLE = -16;
     private const uint WS_CLIPCHILDREN = 0x02000000;

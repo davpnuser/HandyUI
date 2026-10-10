@@ -1,6 +1,6 @@
 ﻿using Silk.NET.Windowing;
 
-namespace HandyUI.SilkNet.Classes.Helper;
+namespace HandyUI.SilkNet.Classes.Tools;
 
 internal static class GlfwTool
 {

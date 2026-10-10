@@ -1,6 +1,7 @@
 ﻿using HandyUI.SilkNet.Classes.Extensions;
 using HandyUI.SilkNet.Classes.Helper;
 using HandyUI.SilkNet.Classes.Structs;
+using HandyUI.SilkNet.Classes.Tools;
 using Silk.NET.Core;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
@@ -19,7 +20,7 @@ public class HandyWindow : IDisposable
     public bool IsInitialized => _isInitialized;
 
     public IWindow? InternalWindow { get; private set; }
-    internal SilkWindowRendererAdapter? RendererAdapter { get; set; }
+    internal RendererAdapter? RendererAdapter { get; set; }
 
     #endregion
 
@@ -394,7 +395,7 @@ public class HandyWindow : IDisposable
 
             if (!AllowClose && !_programmaticClose)
             {
-                SilkWindowHelper.TryCancelClose(window);
+                WindowHelper.TryCancelClose(window);
                 return;
             }
 
@@ -658,7 +659,7 @@ public class HandyWindow : IDisposable
             var parentHwnd = value?.InternalWindow?.Native?.Win32?.Hwnd ?? nint.Zero;
             SetParent(childHwnd, parentHwnd);
 
-            HandyWindowHelper.ApplyClipChildren(value);
+            Win32Helper.ApplyClipChildren(value);
         }
     }
 
@@ -869,7 +870,7 @@ public class HandyWindow : IDisposable
 
     public void Initialize()
     {
-        PlatformTools.EnsureSupportedPlatform();
+        PlatformTool.EnsureSupportedPlatform();
         GlfwTool.EnsureGlfwInitialized();
         _initRequested = true;
         WaitForInitialization();

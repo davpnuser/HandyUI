@@ -7,7 +7,7 @@ using SkiaSharp;
 using System.Diagnostics;
 using System.Numerics;
 
-internal sealed class SilkWindowRendererAdapter(IWindow window, bool useDirtyRendering) : IDisposable
+internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : IDisposable
 {
     #region Internal Fields
 
