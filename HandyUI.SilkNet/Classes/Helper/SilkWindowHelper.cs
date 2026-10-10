@@ -11,25 +11,34 @@ public static class SilkWindowHelper
 {
     #region Window Creation
 
-    public static HandyWindow CreateWindow(string title,
+    public static HandyWindow CreateWindow(
+        // Core Window Properties
+        string title,
         SKSize windowSize,
+
+        // Launch State
         SKSize? minimumWindowSize = null,
         SKSize? maximumWindowSize = null,
         WindowState windowState = WindowState.Normal,
         WindowBorder windowBorder = WindowBorder.Resizable,
+        bool windowCentered = false,
+        bool visibleInTaskbar = true,
 
-        bool vsync = true,
+        // Parent-Child Relationships
+        HandyWindow? parentWindow = null,
+        HandyWindow? modalParentWindow = null,
+
+        // Rendering
         bool topMost = false,
+        bool vsync = true,
+        int framesPerSecond = 60,
         bool useDirtyRendering = true,
         bool invalidateParentOnMove = true,
-
-        HandyWindow? modalParentWindow = null,
-        HandyWindow? parentWindow = null,
-
         bool transparentFrameBuffer = false,
-        int framesPerSecond = 60,
-        bool autoInitWindow = false,
+
+        // OpenGL
         IGLContext? sharedContext = null,
+        bool autoInitWindow = false,
         bool autoInitGlfw = true)
     {
         PlatformTools.EnsureSupportedPlatform();
@@ -45,10 +54,13 @@ public static class SilkWindowHelper
             TopMost = topMost,
             FramesPerSecond = vsync ? 0 : framesPerSecond,
             SharedContext = sharedContext,
-            TransparentFramebuffer = transparentFrameBuffer
+            TransparentFramebuffer = transparentFrameBuffer,
         };
 
-        var window = new HandyWindow(options, minimumWindowSize, maximumWindowSize, useDirtyRendering, invalidateParentOnMove, autoInitWindow, autoInitGlfw);
+        var window = new HandyWindow(options, minimumWindowSize, maximumWindowSize, useDirtyRendering, invalidateParentOnMove, windowCentered, autoInitWindow, autoInitGlfw)
+        {
+            VisibleInTaskbar = visibleInTaskbar
+        };
 
         if (modalParentWindow is not null)
         {
@@ -67,25 +79,33 @@ public static class SilkWindowHelper
     #region Renderer Creation
 
     public static (HandyWindow window, UIRenderer renderer) CreateWindowAndGetRenderer(
+        // Core Window Properties
         string title,
         SKSize windowSize,
+
+        // Launch State
         SKSize? minimumWindowSize = null,
         SKSize? maximumWindowSize = null,
         WindowState windowState = WindowState.Normal,
         WindowBorder windowBorder = WindowBorder.Resizable,
+        bool windowCentered = false,
+        bool visibleInTaskbar = true,
 
-        bool vsync = true,
+        // Parent-Child Relationships
+        HandyWindow? parentWindow = null,
+        HandyWindow? modalParentWindow = null,
+
+        // Rendering
         bool topMost = false,
+        bool vsync = true,
+        int framesPerSecond = 60,
         bool useDirtyRendering = true,
         bool invalidateParentOnMove = true,
-
-        HandyWindow? modalParentWindow = null,
-        HandyWindow? parentWindow = null,
-
         bool transparentFrameBuffer = false,
-        int framesPerSecond = 60,
-        bool autoInitWindow = false,
+
+        // OpenGL
         IGLContext? sharedContext = null,
+        bool autoInitWindow = false,
         bool autoInitGlfw = true)
     {
 
@@ -98,16 +118,18 @@ public static class SilkWindowHelper
             maximumWindowSize,
             windowState,
             windowBorder,
-            vsync,
+            windowCentered,
+            visibleInTaskbar,
+            parentWindow,
+            modalParentWindow,
             topMost,
+            vsync,
+            framesPerSecond,
             useDirtyRendering,
             invalidateParentOnMove,
-            modalParentWindow,
-            parentWindow,
             transparentFrameBuffer,
-            framesPerSecond,
-            autoInitWindow,
             sharedContext,
+            autoInitWindow,
             autoInitGlfw);
 
         var renderer = SilkRendererHelper.Attach(window, useDirtyRendering);

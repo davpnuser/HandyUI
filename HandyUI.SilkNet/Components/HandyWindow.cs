@@ -142,6 +142,17 @@ public class HandyWindow : IDisposable
         }
     }
 
+    public bool VisibleInTaskbar
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            ApplyVisibleInTaskbar();
+        }
+    } = true;
+
     [DllImport("user32.dll", SetLastError = true)]
     private static extern nint SetParent(nint hWndChild, nint hWndNewParent);
 
@@ -268,6 +279,7 @@ public class HandyWindow : IDisposable
     private volatile bool _isInitialized;
     private volatile bool _parentNeedsApply;
     private volatile bool _modalStateNeedsApply;
+    private volatile bool _visibleInTaskbarNeedsApply;
     private volatile bool _closingHandled;
     private volatile bool _invalidateRequested;
     private readonly bool _autoInit;
@@ -277,6 +289,8 @@ public class HandyWindow : IDisposable
     private bool _moveInProgress;
     private int _resizeTick = 0;
     private bool _resizeInProgress;
+
+    private readonly bool _centerOnStartup = false;
 
     #endregion
 
@@ -288,6 +302,7 @@ public class HandyWindow : IDisposable
         SKSize? maxSize = null,
         bool useDirtyRendering = true,
         bool invalidateParentOnMove = true,
+        bool windowCentered = false,
         bool autoInitWindow = true,
         bool autoInitGlfw = true)
     {
@@ -296,6 +311,7 @@ public class HandyWindow : IDisposable
         UseDirtyRendering = useDirtyRendering;
         _autoInit = autoInitWindow;
         InvalidateParentOnMove = invalidateParentOnMove;
+        _centerOnStartup = windowCentered;
 
         _pumpThread = new Thread(() => PumpLoop(windowOptions, minSize, maxSize, autoInitGlfw))
         {
@@ -337,6 +353,9 @@ public class HandyWindow : IDisposable
 
             _isInitialized = true;
             _initSignal.Set();
+
+            if (_centerOnStartup)
+                window.Center();
 
             OnLoad?.Invoke();
         };
@@ -513,6 +532,11 @@ public class HandyWindow : IDisposable
                     ApplyModalState();
                 }
 
+                if (IsInitialized && _visibleInTaskbarNeedsApply)
+                {
+                    ApplyVisibleInTaskbar();
+                }
+
                 if (_invalidateRequested)
                 {
                     _invalidateRequested = false;
@@ -660,6 +684,84 @@ public class HandyWindow : IDisposable
 
             glfw.SetWindowSizeLimits(windowPtr, minW, minH, maxW, maxH);
         }
+    }
+
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongW", SetLastError = true)]
+    private static extern int GetWindowLong32(nint hWnd, int nIndex);
+
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW", SetLastError = true)]
+    private static extern nint GetWindowLongPtr64(nint hWnd, int nIndex);
+
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongW", SetLastError = true)]
+    private static extern int SetWindowLong32(nint hWnd, int nIndex, int dwNewLong);
+
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW", SetLastError = true)]
+    private static extern nint SetWindowLongPtr64(nint hWnd, int nIndex, nint dwNewLong);
+
+    private static nint GetWindowLongPtr(nint hWnd, int nIndex)
+    {
+        return IntPtr.Size == 8 ? GetWindowLongPtr64(hWnd, nIndex) : GetWindowLong32(hWnd, nIndex);
+    }
+
+    private static nint SetWindowLongPtr(nint hWnd, int nIndex, nint dwNewLong)
+    {
+        return IntPtr.Size == 8
+                ? SetWindowLongPtr64(hWnd, nIndex, dwNewLong)
+                : SetWindowLong32(hWnd, nIndex, (int)dwNewLong);
+    }
+
+    private const int GWL_EXSTYLE = -20;
+    private const nint WS_EX_TOOLWINDOW = 0x00000080;
+    private const nint WS_EX_APPWINDOW = 0x00040000;
+
+    private void ApplyVisibleInTaskbar()
+    {
+        if (IsDisposed) return;
+
+        if (!OperatingSystem.IsWindows()) return;
+
+        if (!_isInitialized || InternalWindow?.Native?.Win32?.Hwnd is not nint hwnd || hwnd == nint.Zero)
+        {
+            _visibleInTaskbarNeedsApply = true;
+            return;
+        }
+
+        void apply()
+        {
+            if (InternalWindow?.Native?.Win32?.Hwnd is nint h && h != nint.Zero)
+            {
+                try
+                {
+                    var exStyle = GetWindowLongPtr(h, GWL_EXSTYLE);
+
+                    if (VisibleInTaskbar)
+                    {
+                        exStyle &= ~WS_EX_TOOLWINDOW;
+                        exStyle |= WS_EX_APPWINDOW;
+                    }
+                    else
+                    {
+                        exStyle |= WS_EX_TOOLWINDOW;
+                        exStyle &= ~WS_EX_APPWINDOW;
+                    }
+
+                    SetWindowLongPtr(h, GWL_EXSTYLE, exStyle);
+                }
+                catch { /* do not crash */ }
+            }
+        }
+
+        if (IsOnPumpThread)
+        {
+            apply();
+        }
+        else if (!_closeRequested)
+        {
+            try { Invoke(apply); }
+            catch { /* do not crash */ }
+        }
+
+        _visibleInTaskbarNeedsApply = false;
     }
 
     #endregion

@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>1.5.2</AssemblyVersion>
+    <AssemblyVersion>1.5.3</AssemblyVersion>
 	<NoWarn>SYSLIB1054</NoWarn>
 
 	<Title>HandyUI.Silk.NET</Title>
@@ -20,7 +20,7 @@
 	<PackageReadmeFile>NuGet-README.md</PackageReadmeFile>
 	<RepositoryUrl>https://github.com/davpnuser/HandyUI/</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
-	<PackageProjectUrl>https://github.com/davpnuser/HandyUI/</PackageProjectUrl>
+	<PackageProjectUrl>https://davpnuser.github.io/HandyUI/</PackageProjectUrl>
 	<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 

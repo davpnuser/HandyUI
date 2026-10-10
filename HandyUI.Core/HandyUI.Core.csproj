@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>1.5.2</AssemblyVersion>
+    <AssemblyVersion>1.5.3</AssemblyVersion>
 	  
     <Title>HandyUI</Title>
 	<Description>Platform-agnostic-at-its-core code-only C# UI framework powered by SkiaSharp.</Description>
@@ -19,7 +19,7 @@
 	<PackageReadmeFile>NuGet-README.md</PackageReadmeFile>
 	<RepositoryUrl>https://github.com/davpnuser/HandyUI/</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
-	<PackageProjectUrl>https://github.com/davpnuser/HandyUI/</PackageProjectUrl>
+	<PackageProjectUrl>https://davpnuser.github.io/HandyUI/</PackageProjectUrl>
   </PropertyGroup>
 
 	<ItemGroup>
