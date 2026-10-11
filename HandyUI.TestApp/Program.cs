@@ -3,9 +3,7 @@ using HandyUI.SilkNet.Classes.Helper;
 using HandyUI.SilkNet.Classes.Structs;
 
 var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default);
-window.IsMovable = false;
-window.IsResizable = false;
-window.IsCloseable = false;
+window.IsMinimizable = false;
 
 new TextLabel()
     .WithText("Hello, World!")

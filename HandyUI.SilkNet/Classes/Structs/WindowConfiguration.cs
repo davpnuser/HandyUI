@@ -18,7 +18,11 @@ public record WindowConfiguration
     public WindowBorder WindowBorder { get; init; } = WindowBorder.Resizable;
     public bool StartCentered { get; init; } = false;
     public bool VisibleInTaskbar { get; init; } = true;
+    public bool IsResizable { get; init; } = true;
+    public bool IsMovable { get; init; } = true;
     public bool IsCloseable { get; init; } = true;
+    public bool IsMaximizable { get; init; } = true;
+    public bool IsMinimizable { get; init; } = true;
 
     // Parent-Child Relationships
     public HandyWindow? SubwindowParent { get; init; } = null;
