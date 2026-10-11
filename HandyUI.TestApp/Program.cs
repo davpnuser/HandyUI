@@ -1,14 +1,34 @@
 ﻿using HandyUI.Core.Classes.Controls;
 using HandyUI.SilkNet.Classes.Helper;
 using HandyUI.SilkNet.Classes.Structs;
+using HandyUI.TestApp;
+using SkiaSharp;
 
-var configuration = WindowConfiguration.Default with { Title = "Lorem ipsum dolor sit amet " };
-var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(configuration);
+var config = WindowConfiguration.Default with
+{
+    Title = "idek why it is getting flagged atp",
+    TransparentFrameBuffer = true,
+};
+
+var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(config);
+
+renderer.BackgroundColor = SKColors.Transparent;
 
 new TextLabel()
     .WithText("Hello, World!")
     .WithTextSize(24)
     .WithLocation(15, 15)
+    .WithAddToRenderer(renderer);
+
+new TextLabel()
+    .WithText("Hello, World!")
+    .WithTextSize(26)
+    .WithTextColor(SKColors.White)
+    .WithLocation(13, 13)
+    .WithZIndex(1)
+    .WithAddToRenderer(renderer);
+
+new RegressionTestingControl()
     .WithAddToRenderer(renderer);
 
 await window.RunAsync();
