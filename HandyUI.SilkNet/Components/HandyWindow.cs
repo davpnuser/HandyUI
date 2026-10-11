@@ -149,13 +149,21 @@ public class HandyWindow : IDisposable
         get;
         set
         {
-            if (field == value) return;
+            if (field == value)
+                return;
+
             field = value;
             ApplyVisibleInTaskbar();
         }
     } = true;
 
-    public bool AllowClose { get; set; } = true;
+    public bool TopMost
+    {
+        get => InternalWindow?.TopMost ?? false;
+        set => InternalWindow?.TopMost = value;
+    }
+
+    public bool IsCloseable { get; set; } = true;
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern nint SetParent(nint hWndChild, nint hWndNewParent);
@@ -308,10 +316,10 @@ public class HandyWindow : IDisposable
         UseDirtyRendering = windowConfiguration.UseDirtyRendering;
         _autoInit = windowConfiguration.AutoInitWindow;
         InvalidateParentOnMove = windowConfiguration.InvalidateParentOnMove;
-        _centerOnStartup = windowConfiguration.WindowCentered;
+        _centerOnStartup = windowConfiguration.StartCentered;
 
         VisibleInTaskbar = windowConfiguration.VisibleInTaskbar;
-        AllowClose = windowConfiguration.AllowClose;
+        IsCloseable = windowConfiguration.IsCloseable;
 
         if (windowConfiguration.ModalParent is not null)
         {
@@ -393,7 +401,7 @@ public class HandyWindow : IDisposable
         {
             if (_closingHandled) return;
 
-            if (!AllowClose && !_programmaticClose)
+            if (!IsCloseable && !_programmaticClose)
             {
                 WindowHelper.TryCancelClose(window);
                 return;

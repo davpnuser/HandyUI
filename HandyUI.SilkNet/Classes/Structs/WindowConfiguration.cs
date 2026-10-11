@@ -16,9 +16,9 @@ public record WindowConfiguration
     public SKSize? MaxSize { get; init; } = null;
     public WindowState WindowState { get; init; } = WindowState.Normal;
     public WindowBorder WindowBorder { get; init; } = WindowBorder.Resizable;
-    public bool WindowCentered { get; init; } = false;
+    public bool StartCentered { get; init; } = false;
     public bool VisibleInTaskbar { get; init; } = true;
-    public bool AllowClose { get; init; } = true;
+    public bool IsCloseable { get; init; } = true;
 
     // Parent-Child Relationships
     public HandyWindow? SubwindowParent { get; init; } = null;
