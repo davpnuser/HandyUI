@@ -8,7 +8,6 @@ using Silk.NET.Windowing;
 using SkiaSharp;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace HandyUI.SilkNet.Components;
 
@@ -81,9 +80,20 @@ public class HandyWindow : IDisposable
         set
         {
             if (InternalWindow is not null && value is not null)
-            {
                 InternalWindow.Size = new Vector2D<int>((int)value.Value.Width, (int)value.Value.Height);
-            }
+        }
+    }
+
+    public float Opacity
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+            _opacityNeedsApply = true;
         }
     }
 
@@ -92,7 +102,9 @@ public class HandyWindow : IDisposable
         get;
         set
         {
-            if (value == field) return;
+            if (field == value)
+                return;
+
             field = value;
             ApplySizeLimitsInternal();
         }
@@ -103,7 +115,9 @@ public class HandyWindow : IDisposable
         get;
         set
         {
-            if (value == field) return;
+            if (field == value)
+                return;
+
             field = value;
             ApplySizeLimitsInternal();
         }
@@ -157,6 +171,32 @@ public class HandyWindow : IDisposable
         }
     } = true;
 
+    public bool IsMinimizable
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+            ApplyWindowButtons();
+        }
+    } = true;
+
+    public bool IsMaximizable
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+            ApplyWindowButtons();
+        }
+    } = true;
+
     public bool TopMost
     {
         get => InternalWindow?.TopMost ?? false;
@@ -165,12 +205,9 @@ public class HandyWindow : IDisposable
 
     public bool IsCloseable { get; set; } = true;
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern nint SetParent(nint hWndChild, nint hWndNewParent);
-
     private readonly List<HandyWindow> _children = [];
 
-    public HandyWindow? Parent
+    public HandyWindow? SubwindowParent
     {
         get;
         set
@@ -195,7 +232,7 @@ public class HandyWindow : IDisposable
             if (IsDisposed) return;
             if (field == value) return;
 
-            if (value is not null && value == Parent)
+            if (value is not null && value == SubwindowParent)
                 throw new InvalidOperationException("A window cannot have the same window as both its Parent and its ModalParent.");
 
             if (field is not null && field._modalChild == this)
@@ -217,9 +254,6 @@ public class HandyWindow : IDisposable
         }
     }
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool EnableWindow(nint hWnd, bool bEnable);
-
     public HandyWindow? ModalChild => _modalChild;
 
     private void ApplyModalState()
@@ -236,7 +270,7 @@ public class HandyWindow : IDisposable
         {
             if (InternalWindow?.Native?.Win32?.Hwnd is nint h && h != nint.Zero)
             {
-                try { EnableWindow(h, _modalChild is null); }
+                try { Win32Helper.SetEnabled(h, _modalChild is null); }
                 catch { /* do not crash */ }
             }
         }
@@ -290,9 +324,11 @@ public class HandyWindow : IDisposable
     private volatile bool _programmaticClose;
     private volatile bool _closeRequested;
     private volatile bool _isInitialized;
+    private volatile bool _opacityNeedsApply;
     private volatile bool _parentNeedsApply;
     private volatile bool _modalStateNeedsApply;
     private volatile bool _visibleInTaskbarNeedsApply;
+    private volatile bool _windowButtonsNeedApply;
     private volatile bool _closingHandled;
     private volatile bool _invalidateRequested;
     private readonly bool _autoInit;
@@ -311,24 +347,28 @@ public class HandyWindow : IDisposable
 
     public HandyWindow(WindowConfiguration windowConfiguration)
     {
+        PlatformTool.EnsureSupportedPlatform();
+
         IsMovable = true;
         IsResizable = true;
         UseDirtyRendering = windowConfiguration.UseDirtyRendering;
         _autoInit = windowConfiguration.AutoInitWindow;
         InvalidateParentOnMove = windowConfiguration.InvalidateParentOnMove;
-        _centerOnStartup = windowConfiguration.StartCentered;
+        Opacity = windowConfiguration.Opacity;
+        _centerOnStartup = windowConfiguration.IsCenteredOnStartup;
 
-        VisibleInTaskbar = windowConfiguration.VisibleInTaskbar;
+        IsMovable = windowConfiguration.IsMovable;
+        IsResizable = windowConfiguration.IsResizable;
+        VisibleInTaskbar = windowConfiguration.IsVisibleInTaskbar;
+        IsMinimizable = windowConfiguration.IsMinimizable;
+        IsMaximizable = windowConfiguration.IsMaximizable;
         IsCloseable = windowConfiguration.IsCloseable;
 
         if (windowConfiguration.ModalParent is not null)
-        {
             ModalParent = windowConfiguration.ModalParent;
-        }
+
         else if (windowConfiguration.SubwindowParent is not null)
-        {
-            Parent = windowConfiguration.SubwindowParent;
-        }
+            SubwindowParent = windowConfiguration.SubwindowParent;
 
         var windowOptions = windowConfiguration.CustomWindowOptions ?? WindowOptions.Default with
         {
@@ -347,7 +387,7 @@ public class HandyWindow : IDisposable
         _pumpThread = new Thread(() => PumpLoop(windowConfiguration, windowOptions))
         {
             IsBackground = true,
-            Name = windowConfiguration.CustomPumpThreadName ?? $"HandyWindow-{windowConfiguration.Title}"
+            Name = windowConfiguration.PumpThreadName
         };
 
         if (OperatingSystem.IsWindows())
@@ -417,7 +457,7 @@ public class HandyWindow : IDisposable
 
             _modalChild?.InternalWindow?.Close();
 
-            Parent = null;
+            SubwindowParent = null;
 
             foreach (var child in _children.ToArray())
                 child.InternalWindow?.Close();
@@ -556,13 +596,18 @@ public class HandyWindow : IDisposable
 
                 if (IsInitialized && _parentNeedsApply)
                 {
-                    var desired = Parent;
+                    var desired = SubwindowParent;
 
                     if (desired is null || desired.IsInitialized)
                     {
                         ApplyParentToWindow(desired);
                         _parentNeedsApply = false;
                     }
+                }
+
+                if (IsInitialized && _opacityNeedsApply)
+                {
+                    WindowHelper.TrySetOpacity(InternalWindow!, Opacity);
                 }
 
                 if (IsInitialized && _modalStateNeedsApply)
@@ -573,6 +618,11 @@ public class HandyWindow : IDisposable
                 if (IsInitialized && _visibleInTaskbarNeedsApply)
                 {
                     ApplyVisibleInTaskbar();
+                }
+
+                if (IsInitialized && _windowButtonsNeedApply)
+                {
+                    ApplyWindowButtons();
                 }
 
                 if (_invalidateRequested)
@@ -647,40 +697,35 @@ public class HandyWindow : IDisposable
 
     #region Internal Functions
 
-    [DllImport("user32.dll")]
-    private static extern bool InvalidateRect(nint hWnd, nint lpRect, bool bErase);
-
     private void InvalidateParent()
     {
-        if (InvalidateParentOnMove && Parent?.InternalWindow?.Native?.Win32?.Hwnd is nint parentHwnd && parentHwnd != nint.Zero)
+        if (OperatingSystem.IsWindows() && InvalidateParentOnMove && SubwindowParent?.InternalWindow?.Native?.Win32?.Hwnd is nint parentHwnd && parentHwnd != nint.Zero)
         {
-            InvalidateRect(parentHwnd, nint.Zero, false);
+            Win32Helper.InvalidateWindow(parentHwnd, false);
         }
 
-        Parent?.Invalidate();
+        SubwindowParent?.Invalidate();
     }
 
     private void ApplyParentToWindow(HandyWindow? value)
     {
-        if (OperatingSystem.IsWindows() && InternalWindow?.Native?.Win32?.Hwnd is nint childHwnd && childHwnd != nint.Zero)
+        if (!OperatingSystem.IsWindows()) return;
+
+        if (InternalWindow?.Native?.Win32?.Hwnd is nint childHwnd && childHwnd != nint.Zero)
         {
             var parentHwnd = value?.InternalWindow?.Native?.Win32?.Hwnd ?? nint.Zero;
-            SetParent(childHwnd, parentHwnd);
-
+            Win32Helper.ApplyParent(childHwnd, parentHwnd);
             Win32Helper.ApplyClipChildren(value);
         }
     }
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool PostMessage(nint hWnd, uint Msg, nint wParam, nint lParam);
-
-    private const uint WM_NULL = 0x0000;
-
     private void WakePumpThread()
     {
+        if (!OperatingSystem.IsWindows()) return;
+
         if (InternalWindow?.Native?.Win32?.Hwnd is nint hwnd && hwnd != nint.Zero)
         {
-            try { PostMessage(hwnd, WM_NULL, 0, 0); }
+            try { Win32Helper.WakeWindow(hwnd); }
             catch { /* do not crash */ }
         }
     }
@@ -726,34 +771,6 @@ public class HandyWindow : IDisposable
         }
     }
 
-    [DllImport("user32.dll", EntryPoint = "GetWindowLongW", SetLastError = true)]
-    private static extern int GetWindowLong32(nint hWnd, int nIndex);
-
-    [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW", SetLastError = true)]
-    private static extern nint GetWindowLongPtr64(nint hWnd, int nIndex);
-
-    [DllImport("user32.dll", EntryPoint = "SetWindowLongW", SetLastError = true)]
-    private static extern int SetWindowLong32(nint hWnd, int nIndex, int dwNewLong);
-
-    [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW", SetLastError = true)]
-    private static extern nint SetWindowLongPtr64(nint hWnd, int nIndex, nint dwNewLong);
-
-    private static nint GetWindowLongPtr(nint hWnd, int nIndex)
-    {
-        return IntPtr.Size == 8 ? GetWindowLongPtr64(hWnd, nIndex) : GetWindowLong32(hWnd, nIndex);
-    }
-
-    private static nint SetWindowLongPtr(nint hWnd, int nIndex, nint dwNewLong)
-    {
-        return IntPtr.Size == 8
-                ? SetWindowLongPtr64(hWnd, nIndex, dwNewLong)
-                : SetWindowLong32(hWnd, nIndex, (int)dwNewLong);
-    }
-
-    private const int GWL_EXSTYLE = -20;
-    private const nint WS_EX_TOOLWINDOW = 0x00000080;
-    private const nint WS_EX_APPWINDOW = 0x00040000;
-
     private void ApplyVisibleInTaskbar()
     {
         if (IsDisposed) return;
@@ -770,23 +787,7 @@ public class HandyWindow : IDisposable
         {
             if (InternalWindow?.Native?.Win32?.Hwnd is nint h && h != nint.Zero)
             {
-                try
-                {
-                    var exStyle = GetWindowLongPtr(h, GWL_EXSTYLE);
-
-                    if (VisibleInTaskbar)
-                    {
-                        exStyle &= ~WS_EX_TOOLWINDOW;
-                        exStyle |= WS_EX_APPWINDOW;
-                    }
-                    else
-                    {
-                        exStyle |= WS_EX_TOOLWINDOW;
-                        exStyle &= ~WS_EX_APPWINDOW;
-                    }
-
-                    SetWindowLongPtr(h, GWL_EXSTYLE, exStyle);
-                }
+                try { Win32Helper.ApplyVisibleInTaskbar(h, VisibleInTaskbar); }
                 catch { /* do not crash */ }
             }
         }
@@ -802,6 +803,44 @@ public class HandyWindow : IDisposable
         }
 
         _visibleInTaskbarNeedsApply = false;
+    }
+
+    private void ApplyWindowButtons()
+    {
+        if (IsDisposed) return;
+
+        if (!OperatingSystem.IsWindows()) return;
+
+        if (!_isInitialized || InternalWindow?.Native?.Win32?.Hwnd is not nint hwnd || hwnd == nint.Zero)
+        {
+            _windowButtonsNeedApply = true;
+            return;
+        }
+
+        void apply()
+        {
+            if (InternalWindow?.Native?.Win32?.Hwnd is nint h && h != nint.Zero)
+            {
+                try
+                {
+                    Win32Helper.ApplyMinimizeBox(h, IsMinimizable);
+                    Win32Helper.ApplyMaximizeBox(h, IsMaximizable);
+                }
+                catch { /* do not crash */ }
+            }
+        }
+
+        if (IsOnPumpThread)
+        {
+            apply();
+        }
+        else if (!_closeRequested)
+        {
+            try { Invoke(apply); }
+            catch { /* do not crash */ }
+        }
+
+        _windowButtonsNeedApply = false;
     }
 
     #endregion
@@ -872,7 +911,9 @@ public class HandyWindow : IDisposable
     {
         if (InternalWindow is null)
             throw new InvalidOperationException("InternalWindow has not been created.");
+
         if (InternalWindow.IsInitialized) return;
+
         _initSignal.Wait(timeoutMilliseconds);
     }
 
@@ -880,7 +921,9 @@ public class HandyWindow : IDisposable
     {
         PlatformTool.EnsureSupportedPlatform();
         GlfwTool.EnsureGlfwInitialized();
+
         _initRequested = true;
+
         WaitForInitialization();
     }
 

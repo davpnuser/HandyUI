@@ -1,16 +1,10 @@
-﻿using HandyUI.Core.Classes.Controls;
-using HandyUI.SilkNet.Classes.Helper;
+﻿using HandyUI.SilkNet.Classes.Helper;
 using HandyUI.SilkNet.Classes.Structs;
+using HandyUI.TestApp;
 
 var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default);
-window.IsMovable = false;
-window.IsResizable = false;
-window.IsCloseable = false;
 
-new TextLabel()
-    .WithText("Hello, World!")
-    .WithTextSize(24)
-    .WithLocation(15, 15)
+new RegressionTestingControl()
     .WithAddToRenderer(renderer);
 
 await window.RunAsync();
