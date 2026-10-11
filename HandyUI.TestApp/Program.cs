@@ -1,10 +1,14 @@
-﻿using HandyUI.SilkNet.Classes.Helper;
+﻿using HandyUI.Core.Classes.Controls;
+using HandyUI.SilkNet.Classes.Helper;
 using HandyUI.SilkNet.Classes.Structs;
-using HandyUI.TestApp;
 
-var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default);
+var configuration = WindowConfiguration.Default with { Title = "Lorem ipsum dolor sit amet " };
+var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(configuration);
 
-new RegressionTestingControl()
+new TextLabel()
+    .WithText("Hello, World!")
+    .WithTextSize(24)
+    .WithLocation(15, 15)
     .WithAddToRenderer(renderer);
 
 await window.RunAsync();
