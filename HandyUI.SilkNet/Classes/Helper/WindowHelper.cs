@@ -2,6 +2,7 @@
 using HandyUI.SilkNet.Classes.Structs;
 using HandyUI.SilkNet.Classes.Tools;
 using HandyUI.SilkNet.Components;
+using Silk.NET.GLFW;
 using Silk.NET.Windowing;
 
 namespace HandyUI.SilkNet.Classes.Helper;
@@ -44,12 +45,49 @@ public static class WindowHelper
             {
                 unsafe
                 {
-                    var windowPtr = (Silk.NET.GLFW.WindowHandle*)rawHandle;
-                    Silk.NET.GLFW.Glfw.GetApi().SetWindowShouldClose(windowPtr, false);
+                    var windowPtr = (WindowHandle*)rawHandle;
+                    var glfw = Glfw.GetApi();
+                    glfw.SetWindowShouldClose(windowPtr, false);
                 }
             }
             catch { /* do not crash */ }
         }
+    }
+
+    public static void TrySetOpacity(IWindow window, float opacity)
+    {
+        if (window.Native?.Glfw is nint rawHandle && rawHandle != nint.Zero)
+        {
+            try
+            {
+                unsafe
+                {
+                    var windowPtr = (WindowHandle*)rawHandle;
+                    var glfw = Glfw.GetApi();
+                    glfw.SetWindowOpacity(windowPtr, opacity);
+                }
+            }
+            catch { /* do not crash */ }
+        }
+    }
+
+    public static float? TryGetOpacity(IWindow window)
+    {
+        if (window.Native?.Glfw is nint rawHandle && rawHandle != nint.Zero)
+        {
+            try
+            {
+                unsafe
+                {
+                    var windowPtr = (WindowHandle*)rawHandle;
+                    var glfw = Glfw.GetApi();
+                    return glfw.GetWindowOpacity(windowPtr);
+                }
+            }
+            catch { /* do not crash */ }
+        }
+
+        return null;
     }
 
     #endregion

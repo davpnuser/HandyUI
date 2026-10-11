@@ -24,10 +24,21 @@
 	<PackageProjectUrl>https://github.com/davpnuser/HandyUI/</PackageProjectUrl>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Classes\Helper\RendererHelper.cs" />
+    <Compile Remove="Classes\Helper\ResourceManagerHelper.cs" />
+    <Compile Remove="Components\HandyForm.cs" />
+    <Compile Remove="Components\HandyUIGLControl.cs" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<None Include="..\THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="\" />
 		<None Include="..\HandyUI-Logo.png" Pack="true" PackagePath="" Link="HandyUI-Logo.png" />
 		<None Include="..\NuGet-README.md" Pack="true" PackagePath="" Link="NuGet-README.md" />
+		<None Include="Classes\Helper\RendererHelper.cs" />
+		<None Include="Classes\Helper\ResourceManagerHelper.cs" />
+		<None Include="Components\HandyForm.cs" />
+		<None Include="Components\HandyUIGLControl.cs" />
 	</ItemGroup>
 
   <ItemGroup>

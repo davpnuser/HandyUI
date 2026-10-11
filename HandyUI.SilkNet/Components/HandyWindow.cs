@@ -80,9 +80,20 @@ public class HandyWindow : IDisposable
         set
         {
             if (InternalWindow is not null && value is not null)
-            {
                 InternalWindow.Size = new Vector2D<int>((int)value.Value.Width, (int)value.Value.Height);
-            }
+        }
+    }
+
+    public float Opacity
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+            _opacityNeedsApply = true;
         }
     }
 
@@ -91,7 +102,9 @@ public class HandyWindow : IDisposable
         get;
         set
         {
-            if (value == field) return;
+            if (field == value)
+                return;
+
             field = value;
             ApplySizeLimitsInternal();
         }
@@ -102,7 +115,9 @@ public class HandyWindow : IDisposable
         get;
         set
         {
-            if (value == field) return;
+            if (field == value)
+                return;
+
             field = value;
             ApplySizeLimitsInternal();
         }
@@ -309,6 +324,7 @@ public class HandyWindow : IDisposable
     private volatile bool _programmaticClose;
     private volatile bool _closeRequested;
     private volatile bool _isInitialized;
+    private volatile bool _opacityNeedsApply;
     private volatile bool _parentNeedsApply;
     private volatile bool _modalStateNeedsApply;
     private volatile bool _visibleInTaskbarNeedsApply;
@@ -338,11 +354,12 @@ public class HandyWindow : IDisposable
         UseDirtyRendering = windowConfiguration.UseDirtyRendering;
         _autoInit = windowConfiguration.AutoInitWindow;
         InvalidateParentOnMove = windowConfiguration.InvalidateParentOnMove;
-        _centerOnStartup = windowConfiguration.StartCentered;
+        Opacity = windowConfiguration.Opacity;
+        _centerOnStartup = windowConfiguration.IsCenteredOnStartup;
 
         IsMovable = windowConfiguration.IsMovable;
         IsResizable = windowConfiguration.IsResizable;
-        VisibleInTaskbar = windowConfiguration.VisibleInTaskbar;
+        VisibleInTaskbar = windowConfiguration.IsVisibleInTaskbar;
         IsMinimizable = windowConfiguration.IsMinimizable;
         IsMaximizable = windowConfiguration.IsMaximizable;
         IsCloseable = windowConfiguration.IsCloseable;
@@ -586,6 +603,11 @@ public class HandyWindow : IDisposable
                         ApplyParentToWindow(desired);
                         _parentNeedsApply = false;
                     }
+                }
+
+                if (IsInitialized && _opacityNeedsApply)
+                {
+                    WindowHelper.TrySetOpacity(InternalWindow!, Opacity);
                 }
 
                 if (IsInitialized && _modalStateNeedsApply)

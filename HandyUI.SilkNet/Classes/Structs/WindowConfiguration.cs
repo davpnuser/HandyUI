@@ -16,8 +16,9 @@ public record WindowConfiguration
     public SKSize? MaxSize { get; init; } = null;
     public WindowState WindowState { get; init; } = WindowState.Normal;
     public WindowBorder WindowBorder { get; init; } = WindowBorder.Resizable;
-    public bool StartCentered { get; init; } = false;
-    public bool VisibleInTaskbar { get; init; } = true;
+    public float Opacity { get; init; } = 1f;
+    public bool IsCenteredOnStartup { get; init; } = false;
+    public bool IsVisibleInTaskbar { get; init; } = true;
     public bool IsResizable { get; init; } = true;
     public bool IsMovable { get; init; } = true;
     public bool IsCloseable { get; init; } = true;
@@ -42,14 +43,12 @@ public record WindowConfiguration
     public bool AutoInitGlfw { get; init; } = true;
 
     // Advanced Configuration
-    public string? CustomPumpThreadName { get; init; } = null;
-    public WindowOptions? CustomWindowOptions { get; init; } = null;
-
     public string PumpThreadName
     {
         get => field ?? $"HandyWindow-{Title}";
         init;
     }
+    public WindowOptions? CustomWindowOptions { get; init; } = null;
 
     public static WindowConfiguration Default => new();
 };
