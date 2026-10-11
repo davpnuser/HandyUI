@@ -85,4 +85,28 @@ nav:
   - Getting Started:
     - Installation: getting-started/installation.md
     - Quickstart: getting-started/quickstart.md
+  - API Reference:
+    - Index: api/index.md
+    - Core:
+      - UIRenderer: api/ui-renderer.md
+      - ResourceManager: api/resource-manager.md
+      - UIControlBase: api/ui-control-base.md
+      - BaseModule: api/base-module.md
+    - Interfaces:
+      - IUIControl: api/iui-control.md
+      - IModule: api/imodule.md
+    - Records & Contexts:
+      - Input Contexts: api/contexts.md
+      - ThemeRecord: api/theme-record.md
+    - Helpers:
+      - SKColorHelper: api/sk-color-helper.md
+      - SKRectHelper: api/sk-rect-helper.md
+    - Themes & Enums:
+      - DefaultTheme: api/default-theme.md
+      - BorderDirection: api/border-direction.md
+    - Silk.NET Adapter:
+      - HandyWindow: api/handy-window.md
+      - WindowConfiguration: api/window-configuration.md
+      - Silk.NET Helpers: api/silknet-helpers.md
+      - VectorExtensions: api/vector-extensions.md
 copyright: ©2026 davpnuser
