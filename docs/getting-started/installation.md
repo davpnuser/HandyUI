@@ -9,6 +9,8 @@
 
 To install HandyUI, you must pick whether you want the core renderer, the Silk\.NET adapter for HandyUI, or the WinForms adapter for HandyUI *(deprecated)*
 
+For the prebuilt HandyUI controls, you will also have to install the **HandyUI.Controls** package.
+
 === "HandyUI.SilkNet"
 
     ## Installing the HandyUI adapter for Silk\.NET
@@ -100,3 +102,31 @@ To install HandyUI, you must pick whether you want the core renderer, the Silk\.
     4. Go to the **"Browse"** tab and search for **"HandyUI.WinForms"**.
     5. Next, select the version you want *(if you don't want a specific version, ignore this step)*
     6. Click **"Install"**.
+
+## Installing prebuilt controls
+
+!!! tip "Important Tip"
+    You will most likely want to download this package as... you do not want to manually create a ton of controls.
+
+<!-- This is **not recommended** for making apps with HandyUI as the HandyUI adapter for WinForms is **deprecated** and is **not being updated**. -->
+
+### NuGet PMC
+
+```NuGet
+NuGet\Install-Package HandyUI.Controls
+```
+
+### Developer Command Prompt
+
+```batch
+dotnet add package HandyUI.Controls
+```
+
+### NuGet Package Manager in VS
+
+1. Go to your solution explorer.
+2. Right click your current project/solution.
+3. Click **"Manage NuGet packages..."**.
+4. Go to the **"Browse"** tab and search for **"HandyUI.Controls"**.
+5. Next, select the version you want *(if you don't want a specific version, ignore this step)*
+6. Click **"Install"**.

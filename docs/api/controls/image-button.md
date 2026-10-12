@@ -1,6 +1,6 @@
 # `ImageButton`
 
-`HandyUI.Core.Classes.Controls.ImageButton`
+`HandyUI.Controls.ImageButton`
 
 A clickable button that renders an optional image followed by an optional
 text label. Supports hover and pressed visual states, custom fonts, and
@@ -69,8 +69,8 @@ public float TextSize { get; set; }   // default: 13f
 ### Font properties
 
 ```csharp
-public SKTypeface?      Typeface   { get; set; }
-public string           FontFamily { get; set; }   // "Segoe UI"
+public SKTypeface?       Typeface   { get; set; }
+public string            FontFamily { get; set; }   // "Segoe UI"
 public SKFontStyleWeight FontWeight { get; set; }   // Normal
 public SKFontStyleWidth  FontWidth  { get; set; }   // Normal
 public SKFontStyleSlant  FontSlant  { get; set; }   // Upright
@@ -101,6 +101,12 @@ public SKColor BackgroundColor { get; set; }   // → NormalBackgroundColor
 public SKColor HoverColor      { get; set; }   // → HoverBackgroundColor
 public SKColor PressedColor    { get; set; }   // → PressedBackgroundColor
 public SKColor BorderColor     { get; set; }   // → NormalBorderColor
+```
+
+### `Theme`
+
+```csharp
+public Theme Theme { get; set; }
 ```
 
 ### `BorderThickness` / `BorderDirection`
@@ -138,7 +144,7 @@ Clears any explicit width/height so the image falls back to auto sizing.
 ## Fluent API
 
 ```csharp
-public ImageButton WithTheme(ThemeRecord theme);
+public ImageButton WithTheme(Theme theme);
 public ImageButton WithWidth(float width);
 public ImageButton WithHeight(float height);
 public ImageButton WithSize(float width, float height);
@@ -166,7 +172,7 @@ public ImageButton WithOnClick(Action onClick);
 ## Example
 
 ```csharp
-using var icon = SKImage.FromEncodedData(
+var icon = SKImage.FromEncodedData(
     ResourceManager.GetResourceByPath("Assets/save.png", out var s) ? s! : Stream.Null);
 
 var save = new ImageButton(icon, "Save", 120, 36)

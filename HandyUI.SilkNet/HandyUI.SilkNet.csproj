@@ -4,10 +4,10 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>2.0.1</AssemblyVersion>
-	<NoWarn>SYSLIB1054</NoWarn>
+    <AssemblyVersion>2.1.0</AssemblyVersion>
+    <NoWarn>SYSLIB1054</NoWarn>
 
-	<Title>HandyUI.Silk.NET</Title>
+    <Title>HandyUI.Silk.NET</Title>
 	<Description>Platform-agnostic-at-its-core code-only C# UI framework powered by SkiaSharp.</Description>
 	<PackageReleaseNotes>To see the release changelog, view the CHANGELOG.md file in the HandyUI GitHub repository root.</PackageReleaseNotes>
 	<PackageTags>ui;framework;skiasharp;code-only;gui;rendering</PackageTags>
@@ -30,11 +30,11 @@
     <None Remove="Classes\Enums\**" />
   </ItemGroup>
 
-	<ItemGroup>
+  <ItemGroup>
 		<None Include="..\THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="\" />
 		<None Include="..\HandyUI-Logo.png" Pack="true" PackagePath="" Link="HandyUI-Logo.png" />
 		<None Include="..\NuGet-README.md" Pack="true" PackagePath="" Link="NuGet-README.md" />
-	</ItemGroup>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Silk.NET.Input" Version="2.23.0" />

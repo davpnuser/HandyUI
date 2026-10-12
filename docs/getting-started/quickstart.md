@@ -20,7 +20,7 @@ You have two options:
     ### You can create a window just like this:
 
     ```csharp linenums="1"
-    using HandyUI.Core.Classes.Controls;
+    using HandyUI.Controls;
     using HandyUI.SilkNet.Classes.Helper;
     using HandyUI.SilkNet.Classes.Structs;
 
@@ -44,7 +44,7 @@ You have two options:
     ### You can also create multiple windows at the same time.
 
     ```csharp linenums="1"
-    using HandyUI.Core.Classes.Controls;
+    using HandyUI.Controls;
     using HandyUI.SilkNet.Classes.Helper;
     using HandyUI.SilkNet.Classes.Structs;
 
@@ -79,7 +79,7 @@ You have two options:
 === "On Creation"
 
     ```csharp linenums="1"
-    using HandyUI.Core.Classes.Controls;
+    using HandyUI.Controls;
     using HandyUI.SilkNet.Classes.Helper;
     using HandyUI.SilkNet.Classes.Structs;
 

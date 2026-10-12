@@ -1,4 +1,4 @@
-﻿using HandyUI.Core.Classes.Controls;
+﻿using HandyUI.Controls;
 using HandyUI.SilkNet.Classes.Helper;
 using HandyUI.SilkNet.Classes.Structs;
 using HandyUI.TestApp;

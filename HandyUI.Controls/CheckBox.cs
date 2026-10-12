@@ -1,9 +1,8 @@
 ﻿using HandyUI.Core.Classes.Base;
 using HandyUI.Core.Classes.Records;
-using HandyUI.Core.Classes.Themes;
 using SkiaSharp;
 
-namespace HandyUI.Core.Classes.Controls;
+namespace HandyUI.Controls;
 
 public class CheckBox : UIControlBase<CheckBox>
 {
@@ -75,7 +74,7 @@ public class CheckBox : UIControlBase<CheckBox>
         }
     } = 2f;
 
-    public ThemeRecord Theme
+    public Theme Theme
     {
         get;
         set
@@ -87,7 +86,7 @@ public class CheckBox : UIControlBase<CheckBox>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme();
+    } = Theme.Default;
 
     private bool _colorsInitialized = false;
     private readonly SKPaint _primaryPaint = new() { Style = SKPaintStyle.Fill };
@@ -173,6 +172,6 @@ public class CheckBox : UIControlBase<CheckBox>
 
     public CheckBox WithIsChecked(bool isChecked) { IsChecked = isChecked; return this; }
     public CheckBox WithBoxSize(float size) { BoxSize = size; return this; }
-    public CheckBox WithTheme(ThemeRecord theme) { Theme = theme; return this; }
+    public CheckBox WithTheme(Theme theme) { Theme = theme; return this; }
     public CheckBox WithOnCheckChanged(Action<bool> onCheckChanged) { OnCheckChanged = onCheckChanged; return this; }
 }

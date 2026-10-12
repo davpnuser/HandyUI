@@ -1,6 +1,6 @@
 # `CheckBox`
 
-`HandyUI.Core.Classes.Controls.CheckBox`
+`HandyUI.Controls.CheckBox`
 
 A two-state toggle rendered as a square box. Optionally displays a primary
 color fill when checked. Clicking the box toggles `IsChecked` and raises
@@ -49,11 +49,11 @@ Stroke width of the box border.
 ### `Theme`
 
 ```csharp
-public ThemeRecord Theme { get; set; }
+public Theme Theme { get; set; }
 ```
 
 Palette used for the primary fill, background, and border colors. Defaults
-to `DefaultTheme.GetTheme()`.
+to `Theme.Default`.
 
 ### `IsEnabled` (shadowed)
 
@@ -118,14 +118,14 @@ when it handled the event.
 ```csharp
 public CheckBox WithIsChecked(bool isChecked);
 public CheckBox WithBoxSize(float size);
-public CheckBox WithTheme(ThemeRecord theme);
+public CheckBox WithTheme(Theme theme);
 public CheckBox WithOnCheckChanged(Action<bool> onCheckChanged);
 ```
 
 ## Example
 
 ```csharp
-var dark = DefaultTheme.GetTheme() with { PrimaryColor = SKColors.Orange };
+var dark = Theme.Default with { PrimaryColor = SKColors.Orange };
 
 var agree = new CheckBox()
     .WithIsChecked(true)

@@ -1,6 +1,6 @@
 # `Frame`
 
-`HandyUI.Core.Classes.Controls.Frame`
+`HandyUI.Controls.Frame`
 
 A rectangle with a solid background fill and an optional border. Useful as
 a panel, card, or container for other controls.
@@ -9,12 +9,19 @@ a panel, card, or container for other controls.
 public class Frame : UIControlBase<Frame>
 ```
 
+!!! warning "Namespace mismatch in the current source"
+    `Frame.cs` currently declares `namespace HandyUI.Controls.Controls;` -
+    every other control in the same package uses `HandyUI.Controls`. This is
+    almost certainly a typo. Until it's fixed, you'll have to reference it as
+    `HandyUI.Controls.Controls.Frame`. The rest of this page assumes the
+    intended namespace.
+
 ## Properties
 
 ### `Theme`
 
 ```csharp
-public ThemeRecord Theme { get; set; }
+public Theme Theme { get; set; }
 ```
 
 Palette used when the frame is disabled (and to seed the default background
@@ -91,7 +98,7 @@ thickness and alpha are both > 0). Border geometry is adjusted according to
 ## Fluent API
 
 ```csharp
-public Frame WithTheme(ThemeRecord theme);
+public Frame WithTheme(Theme theme);
 public Frame WithWidth(float width);
 public Frame WithHeight(float height);
 public Frame WithSize(float width, float height);

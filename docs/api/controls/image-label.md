@@ -1,6 +1,6 @@
 # `ImageLabel`
 
-`HandyUI.Core.Classes.Controls.ImageLabel`
+`HandyUI.Controls.ImageLabel`
 
 A non-interactive image. By default it auto-sizes its `Bounds` to the
 image's natural size; you can override that with explicit width/height or
@@ -52,7 +52,7 @@ image's natural size until `ClearExplicitSize()` is called.
 ### `Theme`
 
 ```csharp
-public ThemeRecord Theme { get; set; }
+public Theme Theme { get; set; }
 ```
 
 Used to tint the image when the control is disabled.
@@ -88,7 +88,7 @@ Otherwise the image is drawn stretched to fill `Bounds`.
 ## Fluent API
 
 ```csharp
-public ImageLabel WithTheme(ThemeRecord theme);
+public ImageLabel WithTheme(Theme theme);
 public ImageLabel WithImage(SKImage? image);
 public ImageLabel WithAutoSize(bool autoSize);
 public ImageLabel WithWidth(float width);

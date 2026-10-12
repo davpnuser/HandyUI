@@ -1,9 +1,8 @@
 ﻿using HandyUI.Core.Classes.Base;
 using HandyUI.Core.Classes.Records;
-using HandyUI.Core.Classes.Themes;
 using SkiaSharp;
 
-namespace HandyUI.Core.Classes.Controls;
+namespace HandyUI.Controls;
 
 public class TextLabel : UIControlBase<TextLabel>
 {
@@ -34,7 +33,7 @@ public class TextLabel : UIControlBase<TextLabel>
         }
     } = true;
 
-    public ThemeRecord Theme
+    public Theme Theme
     {
         get;
         set
@@ -47,7 +46,7 @@ public class TextLabel : UIControlBase<TextLabel>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme();
+    } = Theme.Default;
 
     public float Width
     {
@@ -104,7 +103,7 @@ public class TextLabel : UIControlBase<TextLabel>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme().TextColor;
+    } = Theme.Default.TextColor;
 
     public float TextSize
     {
@@ -241,7 +240,7 @@ public class TextLabel : UIControlBase<TextLabel>
         base.OnDispose();
     }
 
-    public TextLabel WithTheme(ThemeRecord theme) { Theme = theme; return this; }
+    public TextLabel WithTheme(Theme theme) { Theme = theme; return this; }
     public TextLabel WithWidth(float width) { Width = width; return this; }
     public TextLabel WithHeight(float height) { Height = height; return this; }
     public TextLabel WithSize(float width, float height) { Size = new SKSize(width, height); return this; }

@@ -1,6 +1,8 @@
 # API Reference
 
-This section documents the public API surface of HandyUI.
+This section documents the public API surface of HandyUI. Core primitives
+live in `HandyUI.Core`; built-in controls ship in a separate
+`HandyUI.Controls` package.
 
 ## Core
 
@@ -24,7 +26,7 @@ This section documents the public API surface of HandyUI.
 | --- | --- |
 | [`MouseEventContext`](contexts.md#mouseeventcontext) | Describes a mouse input event. |
 | [`KeyEventContext`](contexts.md#keyeventcontext) | Describes a keyboard input event. |
-| [`ThemeRecord`](theme-record.md) | Immutable color palette. |
+| [`Theme`](theme.md) | Palette of colors used by every control. |
 
 ## Helpers
 
@@ -33,14 +35,15 @@ This section documents the public API surface of HandyUI.
 | [`SKColorHelper`](sk-color-helper.md) | Hue/brightness/transparency helpers for `SKColor`. |
 | [`SKRectHelper`](sk-rect-helper.md) | Conversions between `SKPoint`, `SKSize`, and `SKRect`. |
 
-## Themes & Enums
+## Enums
 
 | Type | Summary |
 | --- | --- |
-| [`DefaultTheme`](default-theme.md) | The built-in light theme. |
 | [`BorderDirection`](border-direction.md) | Where a stroke is drawn relative to its shape. |
 
 ## Controls
+
+`HandyUI.Controls` - built-in controls that ship on top of `HandyUI.Core`.
 
 | Type | Summary |
 | --- | --- |

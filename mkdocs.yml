@@ -97,18 +97,12 @@ nav:
       - IModule: api/imodule.md
     - Records & Contexts:
       - Input Contexts: api/contexts.md
-      - ThemeRecord: api/theme-record.md
+      - Theme: api/theme.md
     - Helpers:
       - SKColorHelper: api/sk-color-helper.md
       - SKRectHelper: api/sk-rect-helper.md
-    - Themes & Enums:
-      - DefaultTheme: api/default-theme.md
+    - Enums:
       - BorderDirection: api/border-direction.md
-    - Silk.NET Adapter:
-      - HandyWindow: api/handy-window.md
-      - WindowConfiguration: api/window-configuration.md
-      - Silk.NET Helpers: api/silknet-helpers.md
-      - VectorExtensions: api/vector-extensions.md
     - Controls:
       - Overview: api/controls/index.md
       - CheckBox: api/controls/check-box.md
@@ -118,4 +112,9 @@ nav:
       - TextBox: api/controls/text-box.md
       - TextButton: api/controls/text-button.md
       - TextLabel: api/controls/text-label.md
+    - Silk.NET Adapter:
+      - HandyWindow: api/handy-window.md
+      - WindowConfiguration: api/window-configuration.md
+      - Silk.NET Helpers: api/silknet-helpers.md
+      - VectorExtensions: api/vector-extensions.md
 copyright: ©2026 davpnuser

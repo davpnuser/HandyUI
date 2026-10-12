@@ -1,6 +1,6 @@
 # `TextBox`
 
-`HandyUI.Core.Classes.Controls.TextBox`
+`HandyUI.Controls.TextBox`
 
 A single-line editable text field with a blinking caret, placeholder text,
 and keyboard navigation. Handles character input, backspace, delete, arrow
@@ -84,7 +84,7 @@ Each color is seeded from `Theme` but can be overridden individually.
 ### `Theme`
 
 ```csharp
-public ThemeRecord Theme { get; set; }
+public Theme Theme { get; set; }
 ```
 
 ## Events
@@ -152,7 +152,7 @@ placeholder, and the caret when focused and blinking on.
 ## Fluent API
 
 ```csharp
-public TextBox WithTheme(ThemeRecord theme);
+public TextBox WithTheme(Theme theme);
 public TextBox WithWidth(float width);
 public TextBox WithHeight(float height);
 public TextBox WithSize(float width, float height);

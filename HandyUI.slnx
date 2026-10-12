@@ -4,6 +4,7 @@
     <File Path="NuGet-README.md" />
     <File Path="THIRD-PARTY-NOTICES.txt" />
   </Folder>
+  <Project Path="HandyUI.Controls/HandyUI.Controls.csproj" Id="533bdf51-f277-4b02-9d6d-df42d97cd5a6" />
   <Project Path="HandyUI.Core/HandyUI.Core.csproj" />
   <Project Path="HandyUI.SilkNet/HandyUI.SilkNet.csproj" Id="26fe0261-0cb9-4f94-ade8-cce4f0bdd934" />
   <Project Path="HandyUI.TestApp/HandyUI.TestApp.csproj" />

@@ -1,10 +1,9 @@
 ﻿using HandyUI.Core.Classes.Base;
 using HandyUI.Core.Classes.Enums;
 using HandyUI.Core.Classes.Records;
-using HandyUI.Core.Classes.Themes;
 using SkiaSharp;
 
-namespace HandyUI.Core.Classes.Controls;
+namespace HandyUI.Controls;
 
 public class TextButton : UIControlBase<TextButton>
 {
@@ -43,7 +42,7 @@ public class TextButton : UIControlBase<TextButton>
         }
     } = true;
 
-    public ThemeRecord Theme
+    public Theme Theme
     {
         get;
         set
@@ -62,7 +61,7 @@ public class TextButton : UIControlBase<TextButton>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme();
+    } = Theme.Default;
 
     public float Width
     {
@@ -141,7 +140,7 @@ public class TextButton : UIControlBase<TextButton>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme().TextColor;
+    } = Theme.Default.TextColor;
 
     public SKColor LightTextColor
     {
@@ -154,7 +153,7 @@ public class TextButton : UIControlBase<TextButton>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme().LightTextColor;
+    } = Theme.Default.LightTextColor;
 
     public float TextSize
     {
@@ -237,7 +236,7 @@ public class TextButton : UIControlBase<TextButton>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme().BackgroundColor;
+    } = Theme.Default.BackgroundColor;
 
     public SKColor HoverBackgroundColor
     {
@@ -250,7 +249,7 @@ public class TextButton : UIControlBase<TextButton>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme().SemiActiveColor;
+    } = Theme.Default.SemiActiveColor;
 
     public SKColor PressedBackgroundColor
     {
@@ -263,7 +262,7 @@ public class TextButton : UIControlBase<TextButton>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme().ActiveColor;
+    } = Theme.Default.ActiveColor;
 
     public SKColor NormalBorderColor
     {
@@ -276,7 +275,7 @@ public class TextButton : UIControlBase<TextButton>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme().BorderColor;
+    } = Theme.Default.BorderColor;
 
     public SKColor ActiveBorderColor
     {
@@ -289,7 +288,7 @@ public class TextButton : UIControlBase<TextButton>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme().ActiveColor;
+    } = Theme.Default.ActiveColor;
 
     public float BorderThickness
     {
@@ -454,7 +453,7 @@ public class TextButton : UIControlBase<TextButton>
         base.OnDispose();
     }
 
-    public TextButton WithTheme(ThemeRecord theme) { Theme = theme; return this; }
+    public TextButton WithTheme(Theme theme) { Theme = theme; return this; }
     public TextButton WithWidth(float width) { Width = width; return this; }
     public TextButton WithHeight(float height) { Height = height; return this; }
     public TextButton WithSize(float width, float height) { Size = new SKSize(width, height); return this; }

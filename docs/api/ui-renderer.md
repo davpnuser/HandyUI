@@ -37,7 +37,7 @@ public SKColor BackgroundColor { get; set; }
 ```
 
 The canvas clear color for each render pass. Defaults to
-`DefaultTheme.GetTheme().DarkerBackgroundColor`.
+`Theme.Default.DarkerBackgroundColor`.
 
 ```csharp
 renderer.BackgroundColor = SKColors.Black;

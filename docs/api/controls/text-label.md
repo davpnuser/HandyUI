@@ -1,6 +1,6 @@
 # `TextLabel`
 
-`HandyUI.Core.Classes.Controls.TextLabel`
+`HandyUI.Controls.TextLabel`
 
 A non-interactive, single-line text label. `Bounds` is recalculated to fit
 the text whenever the font or content changes.
@@ -56,7 +56,7 @@ Any of these being changed invalidates the cached typeface and re-runs
 ### `Theme`
 
 ```csharp
-public ThemeRecord Theme { get; set; }
+public Theme Theme { get; set; }
 ```
 
 ### `Width` / `Height` / `Size`
@@ -93,7 +93,7 @@ Draws the text left-aligned at `Bounds.Left`, vertically centered in
 ## Fluent API
 
 ```csharp
-public TextLabel WithTheme(ThemeRecord theme);
+public TextLabel WithTheme(Theme theme);
 public TextLabel WithWidth(float width);
 public TextLabel WithHeight(float height);
 public TextLabel WithSize(float width, float height);

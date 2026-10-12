@@ -1,9 +1,8 @@
 ﻿using HandyUI.Core.Classes.Base;
 using HandyUI.Core.Classes.Records;
-using HandyUI.Core.Classes.Themes;
 using SkiaSharp;
 
-namespace HandyUI.Core.Classes.Controls;
+namespace HandyUI.Controls;
 
 public class ImageLabel : UIControlBase<ImageLabel>
 {
@@ -36,7 +35,7 @@ public class ImageLabel : UIControlBase<ImageLabel>
         }
     } = true;
 
-    public ThemeRecord Theme
+    public Theme Theme
     {
         get;
         set
@@ -48,7 +47,7 @@ public class ImageLabel : UIControlBase<ImageLabel>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme();
+    } = Theme.Default;
 
     public SKImage? Image
     {
@@ -196,7 +195,7 @@ public class ImageLabel : UIControlBase<ImageLabel>
         base.OnDispose();
     }
 
-    public ImageLabel WithTheme(ThemeRecord theme) { Theme = theme; return this; }
+    public ImageLabel WithTheme(Theme theme) { Theme = theme; return this; }
     public ImageLabel WithImage(SKImage? image) { Image = image; return this; }
     public ImageLabel WithAutoSize(bool autoSize) { AutoSize = autoSize; return this; }
     public ImageLabel WithWidth(float width) { Width = width; return this; }

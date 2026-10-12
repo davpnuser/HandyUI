@@ -1,9 +1,8 @@
 ﻿using HandyUI.Core.Classes.Base;
 using HandyUI.Core.Classes.Records;
-using HandyUI.Core.Classes.Themes;
 using SkiaSharp;
 
-namespace HandyUI.Core.Classes.Controls;
+namespace HandyUI.Controls;
 
 public class TextBox : UIControlBase<TextBox>
 {
@@ -49,7 +48,7 @@ public class TextBox : UIControlBase<TextBox>
         }
     } = true;
 
-    public ThemeRecord Theme
+    public Theme Theme
     {
         get;
         set
@@ -67,7 +66,7 @@ public class TextBox : UIControlBase<TextBox>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme();
+    } = Theme.Default;
 
     public float Width
     {
@@ -199,7 +198,7 @@ public class TextBox : UIControlBase<TextBox>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme().BackgroundColor;
+    } = Theme.Default.BackgroundColor;
 
     public SKColor BorderColor
     {
@@ -212,7 +211,7 @@ public class TextBox : UIControlBase<TextBox>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme().BorderColor;
+    } = Theme.Default.BorderColor;
 
     public SKColor FocusBorderColor
     {
@@ -225,7 +224,7 @@ public class TextBox : UIControlBase<TextBox>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme().ActiveColor;
+    } = Theme.Default.ActiveColor;
 
     public SKColor TextColor
     {
@@ -238,7 +237,7 @@ public class TextBox : UIControlBase<TextBox>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme().TextColor;
+    } = Theme.Default.TextColor;
 
     public SKColor PlaceholderColor
     {
@@ -251,7 +250,7 @@ public class TextBox : UIControlBase<TextBox>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme().DisabledTextColor;
+    } = Theme.Default.DisabledTextColor;
 
     public SKColor CaretColor
     {
@@ -264,7 +263,7 @@ public class TextBox : UIControlBase<TextBox>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme().ActiveColor;
+    } = Theme.Default.ActiveColor;
 
     public Action<string>? OnTextChanged { get; set; }
     public Action<string>? OnSubmit { get; set; }
@@ -535,7 +534,7 @@ public class TextBox : UIControlBase<TextBox>
         base.OnDispose();
     }
 
-    public TextBox WithTheme(ThemeRecord theme) { Theme = theme; return this; }
+    public TextBox WithTheme(Theme theme) { Theme = theme; return this; }
     public TextBox WithWidth(float width) { Width = width; return this; }
     public TextBox WithHeight(float height) { Height = height; return this; }
     public TextBox WithSize(float width, float height) { Size = new SKSize(width, height); return this; }

@@ -1,10 +1,9 @@
 ﻿using HandyUI.Core.Classes.Base;
 using HandyUI.Core.Classes.Enums;
 using HandyUI.Core.Classes.Records;
-using HandyUI.Core.Classes.Themes;
 using SkiaSharp;
 
-namespace HandyUI.Core.Classes.Controls;
+namespace HandyUI.Controls;
 
 public class Frame : UIControlBase<Frame>
 {
@@ -34,7 +33,7 @@ public class Frame : UIControlBase<Frame>
         }
     } = true;
 
-    public ThemeRecord Theme
+    public Theme Theme
     {
         get;
         set
@@ -48,7 +47,7 @@ public class Frame : UIControlBase<Frame>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme();
+    } = Theme.Default;
 
     public float Width
     {
@@ -94,7 +93,7 @@ public class Frame : UIControlBase<Frame>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme().BackgroundColor;
+    } = Theme.Default.BackgroundColor;
 
     public SKColor BorderColor
     {
@@ -107,7 +106,7 @@ public class Frame : UIControlBase<Frame>
             UpdateBrushes();
             Invalidate();
         }
-    } = DefaultTheme.GetTheme().BorderColor;
+    } = Theme.Default.BorderColor;
 
     public float BorderThickness
     {
@@ -198,7 +197,7 @@ public class Frame : UIControlBase<Frame>
         base.OnDispose();
     }
 
-    public Frame WithTheme(ThemeRecord theme) { Theme = theme; return this; }
+    public Frame WithTheme(Theme theme) { Theme = theme; return this; }
     public Frame WithWidth(float width) { Width = width; return this; }
     public Frame WithHeight(float height) { Height = height; return this; }
     public Frame WithSize(float width, float height) { Size = new SKSize(width, height); return this; }

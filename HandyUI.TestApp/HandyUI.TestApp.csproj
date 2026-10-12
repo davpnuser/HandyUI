@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HandyUI.Controls\HandyUI.Controls.csproj" />
     <ProjectReference Include="..\HandyUI.SilkNet\HandyUI.SilkNet.csproj" />
   </ItemGroup>
 

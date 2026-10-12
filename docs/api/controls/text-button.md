@@ -1,6 +1,6 @@
 # `TextButton`
 
-`HandyUI.Core.Classes.Controls.TextButton`
+`HandyUI.Controls.TextButton`
 
 A clickable button that renders a text label. Supports hover and pressed
 states, auto-sizing, custom fonts, and configurable borders.
@@ -82,7 +82,7 @@ public BorderDirection BorderDirection { get; set; }   // default: Inside
 ### `Theme`
 
 ```csharp
-public ThemeRecord Theme { get; set; }
+public Theme Theme { get; set; }
 ```
 
 ## Events
@@ -116,7 +116,7 @@ Draws the background, then the border, then the centered text.
 ## Fluent API
 
 ```csharp
-public TextButton WithTheme(ThemeRecord theme);
+public TextButton WithTheme(Theme theme);
 public TextButton WithWidth(float width);
 public TextButton WithHeight(float height);
 public TextButton WithSize(float width, float height);
