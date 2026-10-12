@@ -40,7 +40,9 @@ To test this UI framework for yourself, You can check out the "TestApp" project 
 | Linux | ✔ Secondary target / Fully works.  | ⚠ Secondary Target / Needs adapter fixes.  | ❌ Incompatible. |
 | Other(s) | ℹ️ Third target / Not tested. | ❌ Third target / Not implemented at all. | ❌ Incompatible. |
 
-## C# Code examples using the HandyUI library.
+### Please go to the **[HandyUI Documentation/API Reference](https://davpnuser.github.io/HandyUI)** to see code examples. 
+
+<!-- ## C# Code examples using the HandyUI library.
 
 #### Example app only spawning a single window: _(uses HandyUI.SilkNet)_
 
@@ -116,3 +118,4 @@ renderer.AddRootControl(label);
 MainForm.Controls.Add(skiaPanel);
 Application.Run(MainForm);
 ```
+-->
