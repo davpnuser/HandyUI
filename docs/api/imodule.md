@@ -2,7 +2,7 @@
 
 `HandyUI.Core.Interfaces.IModule`
 
-The contract for logic‑only components ticked by the `UIRenderer`.
+The contract for logic-only components ticked by the `UIRenderer`.
 
 ```csharp
 public interface IModule : IDisposable

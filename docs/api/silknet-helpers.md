@@ -12,7 +12,7 @@ Creates a `RendererAdapter`, stores it on the window, and returns the
 underlying `UIRenderer`.
 
 !!! warning "Windows only"
-    Throws `PlatformNotSupportedException` on non‑Windows platforms.
+    Throws `PlatformNotSupportedException` on non-Windows platforms.
 
 ```csharp
 var renderer = RendererHelper.Attach(window, useDirtyRendering: false);
@@ -65,7 +65,7 @@ Thin, defensive wrappers around GLFW. All of them swallow exceptions.
 public static class Win32Helper
 ```
 
-Low‑level Win32 window manipulation. All methods **no‑op** when the handle is
+Low-level Win32 window manipulation. All methods **no-op** when the handle is
 `IntPtr.Zero`.
 
 | Method | Effect |
@@ -78,11 +78,11 @@ Low‑level Win32 window manipulation. All methods **no‑op** when the handle i
 | `ApplyVisibleInTaskbar(nint, bool)` | Toggles `WS_EX_TOOLWINDOW` / `WS_EX_APPWINDOW`. |
 | `ApplyMinimizeBox(nint, bool)` | Toggles `WS_MINIMIZEBOX`. |
 | `ApplyMaximizeBox(nint, bool)` | Toggles `WS_MAXIMIZEBOX`. |
-| `GetWindowLongPtr(nint, int)` / `SetWindowLongPtr(nint, int, nint)` | 32/64‑bit safe wrappers. |
+| `GetWindowLongPtr(nint, int)` / `SetWindowLongPtr(nint, int, nint)` | 32/64-bit safe wrappers. |
 
 !!! warning
     Prefer the equivalent `HandyWindow` properties (e.g. `IsMinimizable`)
-    when possible - they re‑apply automatically after initialization.
+    when possible - they re-apply automatically after initialization.
 
 ---
 
@@ -94,7 +94,7 @@ Low‑level Win32 window manipulation. All methods **no‑op** when the handle i
 internal static void EnsureSupportedPlatform();
 ```
 
-Throws `PlatformNotSupportedException` on non‑Windows platforms. Internal.
+Throws `PlatformNotSupportedException` on non-Windows platforms. Internal.
 
 ---
 

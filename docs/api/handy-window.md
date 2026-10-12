@@ -43,7 +43,7 @@ window.Run();
 ```
 
 !!! info "Why not `OnLoad`?"
-    `UIRenderer.AddRootControl` is thread‑safe and queues the control for the
+    `UIRenderer.AddRootControl` is thread-safe and queues the control for the
     next tick. There's no need to wait for the GL context to attach a control
     - only things that require a live GL context (like `SetIcon`) need to run
     after initialization.
@@ -62,7 +62,7 @@ window.Run();
 | `UseDirtyRendering` | `bool` | Mirrors the `UIRenderer` setting. |
 | `Size` | `SKSize?` | Client area size. |
 | `MinSize` / `MaxSize` | `SKSize?` | Size constraints. |
-| `Position` | `SKPoint?` | Top‑left position. |
+| `Position` | `SKPoint?` | Top-left position. |
 | `Opacity` | `float` | Window opacity (GLFW). |
 | `IsMovable` | `bool` | Whether the user can drag the window. |
 | `IsResizable` | `bool` | Whether the user can resize it. |
@@ -73,7 +73,7 @@ window.Run();
 | `TopMost` | `bool` | Always on top. |
 | `SubwindowParent` | `HandyWindow?` | Native parent window. |
 | `ModalParent` | `HandyWindow?` | Modal parent; disables the parent. |
-| `ModalChild` | `HandyWindow?` | Read‑only modal child. |
+| `ModalChild` | `HandyWindow?` | Read-only modal child. |
 | `InvalidateParentOnMove` | `bool` | Invalidate parent on move. |
 
 ## Events

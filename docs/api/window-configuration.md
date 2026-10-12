@@ -33,7 +33,7 @@ public record WindowConfiguration
 | `IsMaximizable` | `true` | |
 | `IsMinimizable` | `true` | |
 
-### Parent‑child
+### Parent-child
 
 | Property | Default | Description |
 | --- | --- | --- |

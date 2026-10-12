@@ -10,7 +10,7 @@ public class UIRenderer : IDisposable
 ```
 
 !!! tip "Thread safety"
-    `UIRenderer` uses internal locks and pending‑queue lists. `AddRootControl`,
+    `UIRenderer` uses internal locks and pending-queue lists. `AddRootControl`,
     `RemoveRootControl`, `AddModule`, `RemoveModule`, and `Invalidate` are all
     safe to call from any thread.
 
@@ -24,7 +24,7 @@ public UIRenderer(bool useDirtyRendering = true)
 | --- | --- | --- |
 | `useDirtyRendering` | `true` | When `true`, `RenderControls` returns early until the renderer is invalidated. Set to `false` for continuous repaint. |
 
-!!! info "Two‑frame invalidation"
+!!! info "Two-frame invalidation"
     `Invalidate()` queues **two** repaint frames internally. Many layout
     systems need one frame to apply a change and a second to render it.
 
@@ -52,7 +52,7 @@ public void Invalidate()
 ```
 
 Marks the renderer dirty for two frames. Call after mutating control state
-outside of the built‑in property setters (which already invalidate).
+outside of the built-in property setters (which already invalidate).
 
 ### `AddRootControl(IUIControl control)`
 
@@ -98,7 +98,7 @@ public void ProcessMouseEvent(MouseEventContext context)
 
 Runs a full mouse pass:
 
-1. Hit‑tests root controls (highest `ZIndex` first).
+1. Hit-tests root controls (highest `ZIndex` first).
 2. Updates `_pressedControl` on `MouseDown` and sets focus on the hit control.
 3. Dispatches the raw event recursively.
 4. On `MouseUp`, synthesizes a `Click` to `_pressedControl` if it's still under
@@ -106,7 +106,7 @@ Runs a full mouse pass:
 
 !!! tip "Clipping"
     Children outside a parent's bounds are clipped only when the parent has
-    `ScissoringEnabled = true`. Off‑clip controls receive `(-99999, -99999)`
+    `ScissoringEnabled = true`. Off-clip controls receive `(-99999, -99999)`
     as their cursor position.
 
 ### `ProcessKeyEvent(KeyEventContext context)`

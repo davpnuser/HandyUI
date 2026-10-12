@@ -109,4 +109,13 @@ nav:
       - WindowConfiguration: api/window-configuration.md
       - Silk.NET Helpers: api/silknet-helpers.md
       - VectorExtensions: api/vector-extensions.md
+    - Controls:
+      - Overview: api/controls/index.md
+      - CheckBox: api/controls/check-box.md
+      - Frame: api/controls/frame.md
+      - ImageButton: api/controls/image-button.md
+      - ImageLabel: api/controls/image-label.md
+      - TextBox: api/controls/text-box.md
+      - TextButton: api/controls/text-button.md
+      - TextLabel: api/controls/text-label.md
 copyright: ©2026 davpnuser

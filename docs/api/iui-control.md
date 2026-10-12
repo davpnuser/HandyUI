@@ -20,7 +20,7 @@ public interface IUIControl : IDisposable
 | `ZIndex` | `int` | Draw/hit order. |
 | `ParentChildPositioningEnabled` | `bool` | Whether `Location` is applied. |
 | `ScissoringEnabled` | `bool` | Whether the subtree is clipped to `Bounds`. |
-| `AlphaPaint` | `SKPaint` | Pre‑built paint reflecting `Opacity`. |
+| `AlphaPaint` | `SKPaint` | Pre-built paint reflecting `Opacity`. |
 | `Opacity` | `float` | `[0, 1]`. |
 | `IsHovered` | `bool` | Set by the renderer. |
 | `IsMouseDown` | `bool` | Set by the renderer. |
@@ -43,9 +43,9 @@ public interface IUIControl : IDisposable
 | `RequestFocus()` | Ask the renderer to focus this control. |
 | `ProcessMouseEvent(MouseEventContext)` | Route a mouse event. |
 | `ProcessKeyEvent(KeyEventContext)` | Route a key event. |
-| `Intersects(SKPoint)` | Hit‑test in local space. |
-| `Update(float, SKPoint)` | Per‑frame update. |
-| `Draw(SKCanvas)` | Per‑frame draw. |
+| `Intersects(SKPoint)` | Hit-test in local space. |
+| `Update(float, SKPoint)` | Per-frame update. |
+| `Draw(SKCanvas)` | Per-frame draw. |
 
 ## Fluent API: `IUIControl<TSelf>`
 

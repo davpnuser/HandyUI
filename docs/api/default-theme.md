@@ -2,7 +2,7 @@
 
 `HandyUI.Core.Classes.Themes.DefaultTheme`
 
-Supplies the built‑in light theme.
+Supplies the built-in light theme.
 
 ```csharp
 public static class DefaultTheme

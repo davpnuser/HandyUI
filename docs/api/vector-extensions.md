@@ -33,5 +33,5 @@ SKPoint back = v.ToSKPoint();
 ```
 
 !!! info "Integral precision"
-    `Vector2D<int>` truncates fractional coordinates. If you need sub‑pixel
+    `Vector2D<int>` truncates fractional coordinates. If you need sub-pixel
     accuracy, keep `SKPoint` / `SKSize` and only convert at the boundary.

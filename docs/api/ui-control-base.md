@@ -52,7 +52,7 @@ The control's rectangle in **its own** coordinate space.
 public int ZIndex { get; set; }
 ```
 
-Higher `ZIndex` = drawn later (on top) and hit‑tested first.
+Higher `ZIndex` = drawn later (on top) and hit-tested first.
 
 !!! tip "Sorting is lazy"
     Children are sorted on demand after a change. Calling
@@ -74,7 +74,7 @@ public bool ScissoringEnabled { get; set; }   // default: true
 ```
 
 When `true`, the renderer clips the subtree to `Bounds` and skips dispatching
-events to out‑of‑bounds children.
+events to out-of-bounds children.
 
 ### `AlphaPaint`
 
@@ -82,7 +82,7 @@ events to out‑of‑bounds children.
 public SKPaint AlphaPaint { get; }
 ```
 
-A pre‑built paint with `Color = White * Opacity`. Handy for tinting layers:
+A pre-built paint with `Color = White * Opacity`. Handy for tinting layers:
 
 ```csharp
 canvas.SaveLayer(AlphaPaint);
@@ -118,7 +118,7 @@ public bool IsEnabled { get; set; }   // default: true
 ```
 
 - `IsVisible == false` → the control and its children are not drawn or hit.
-- `IsEnabled == false` → the control is not hit, not keyboard‑interactive,
+- `IsEnabled == false` → the control is not hit, not keyboard-interactive,
   and cannot request focus.
 
 ## Events
@@ -149,7 +149,7 @@ public void Invalidate()
 ```
 
 Raises `Invalidated` and bubbles up to the parent. Call after mutating state
-outside of the built‑in properties.
+outside of the built-in properties.
 
 ### `RequestFocus()`
 
@@ -157,7 +157,7 @@ outside of the built‑in properties.
 public void RequestFocus()
 ```
 
-Asks the renderer to focus this control. No‑op when the control is disabled
+Asks the renderer to focus this control. No-op when the control is disabled
 or invisible.
 
 ### `ProcessMouseEvent(MouseEventContext)`

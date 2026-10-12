@@ -52,7 +52,7 @@ public record KeyEventContext(
 | Field | Description |
 | --- | --- |
 | `Type` | Key down / up / printable char. |
-| `KeyCode` | Virtual key code (Win32‑style). |
+| `KeyCode` | Virtual key code (Win32-style). |
 | `Character` | Printable char for `CharInput`, otherwise `'\0'`. |
 | `IsControlPressed` / `IsShiftPressed` / `IsAltPressed` | Modifier state. |
 

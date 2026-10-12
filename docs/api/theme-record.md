@@ -3,7 +3,7 @@
 `HandyUI.Core.Classes.Records.ThemeRecord`
 
 An immutable palette. Controls are expected to read from a `ThemeRecord`
-rather than hard‑coding colors.
+rather than hard-coding colors.
 
 ```csharp
 public record ThemeRecord(
@@ -23,7 +23,7 @@ public record ThemeRecord(
 | Field | Typical use |
 | --- | --- |
 | `PrimaryColor` | Accent / brand. |
-| `SecondaryColor` | Less‑emphasized accent. |
+| `SecondaryColor` | Less-emphasized accent. |
 | `DisabledColor` | Fill for disabled controls. |
 | `TextColor` | Primary text. |
 | `LightTextColor` | Text on dark / colored backgrounds. |
@@ -35,7 +35,7 @@ public record ThemeRecord(
 | `BorderColor` | Outline strokes. |
 
 !!! tip "Swapping themes at runtime"
-    Because it's a record, tweaking is a one‑liner with `with`:
+    Because it's a record, tweaking is a one-liner with `with`:
 
     ```csharp
     var dark = DefaultTheme.GetTheme() with

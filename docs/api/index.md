@@ -9,7 +9,7 @@ This section documents the public API surface of HandyUI.
 | [`UIRenderer`](ui-renderer.md) | Render loop, input dispatcher, control/module registry. |
 | [`ResourceManager`](resource-manager.md) | Loads resources from disk or embedded assembly resources. |
 | [`UIControlBase`](ui-control-base.md) | Base class for all drawable controls. |
-| [`BaseModule`](base-module.md) | Base class for logic‑only modules. |
+| [`BaseModule`](base-module.md) | Base class for logic-only modules. |
 
 ## Interfaces
 
@@ -37,8 +37,20 @@ This section documents the public API surface of HandyUI.
 
 | Type | Summary |
 | --- | --- |
-| [`DefaultTheme`](default-theme.md) | The built‑in light theme. |
+| [`DefaultTheme`](default-theme.md) | The built-in light theme. |
 | [`BorderDirection`](border-direction.md) | Where a stroke is drawn relative to its shape. |
+
+## Controls
+
+| Type | Summary |
+| --- | --- |
+| [`CheckBox`](controls/check-box.md) | Two-state toggle with a box and optional fill. |
+| [`Frame`](controls/frame.md) | Rectangle with a background fill and border. |
+| [`ImageButton`](controls/image-button.md) | Clickable button with an image and/or text. |
+| [`ImageLabel`](controls/image-label.md) | Static image with optional auto-sizing. |
+| [`TextBox`](controls/text-box.md) | Single-line editable text field with caret. |
+| [`TextButton`](controls/text-button.md) | Clickable button that renders a text label. |
+| [`TextLabel`](controls/text-label.md) | Static, non-interactive text label. |
 
 ## Silk.NET Adapter
 

@@ -20,5 +20,5 @@ public enum BorderDirection
 | `Outside` | Stroke lies entirely outside the shape. |
 
 !!! tip
-    For crisp 1‑pixel borders, prefer `Inside`. `Center` can blur depending
+    For crisp 1-pixel borders, prefer `Inside`. `Center` can blur depending
     on pixel alignment.

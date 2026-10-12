@@ -2,7 +2,7 @@
 
 `HandyUI.Core.Classes.Base.BaseModule`
 
-Base class for **logic‑only** components. Modules tick once per frame (via
+Base class for **logic-only** components. Modules tick once per frame (via
 `UIRenderer.UpdateModules`) but do not draw.
 
 ```csharp
