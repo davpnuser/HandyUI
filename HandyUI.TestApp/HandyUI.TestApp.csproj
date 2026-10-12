@@ -31,8 +31,4 @@
     <ProjectReference Include="..\HandyUI.SilkNet\HandyUI.SilkNet.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controls\" />
-  </ItemGroup>
-
 </Project>

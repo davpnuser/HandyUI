@@ -1,7 +1,7 @@
 ﻿using HandyUI.Core.Classes.Base;
 using SkiaSharp;
 
-namespace HandyUI.TestApp.Resources;
+namespace HandyUI.TestApp.Controls;
 
 public class TestControl : UIControlBase
 {
