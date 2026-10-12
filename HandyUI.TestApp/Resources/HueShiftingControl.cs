@@ -2,7 +2,7 @@
 using HandyUI.Core.Classes.Helper;
 using SkiaSharp;
 
-namespace HandyUI.TestApp;
+namespace HandyUI.TestApp.Resources;
 
 public class HueShiftingControl : UIControlBase
 {

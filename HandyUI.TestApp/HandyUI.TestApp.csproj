@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>False</UseWindowsForms>
 	<NoWarn>SYSLIB1054</NoWarn>
-	<AssemblyVersion>1.0.735</AssemblyVersion>
+	<AssemblyVersion>1.0.736</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,6 +29,10 @@
   <ItemGroup>
     <ProjectReference Include="..\HandyUI.Controls\HandyUI.Controls.csproj" />
     <ProjectReference Include="..\HandyUI.SilkNet\HandyUI.SilkNet.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controls\" />
   </ItemGroup>
 
 </Project>
