@@ -1,7 +1,7 @@
 ﻿using HandyUI.Controls;
 using HandyUI.SilkNet.Classes.Helper;
 using HandyUI.SilkNet.Classes.Structs;
-using HandyUI.TestApp;
+using HandyUI.TestApp.Controls;
 using SkiaSharp;
 
 var config = WindowConfiguration.Default with
