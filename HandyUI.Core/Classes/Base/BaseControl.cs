@@ -6,7 +6,7 @@ using SkiaSharp;
 
 namespace HandyUI.Core.Classes.Base;
 
-public abstract class UIControlBase : IUIControl
+public abstract class BaseControl : IControl
 {
     #region Properties
 
@@ -16,23 +16,23 @@ public abstract class UIControlBase : IUIControl
         Parent?.Invalidate();
     }
 
-    public IReadOnlyList<IUIControl> Children => _children.AsReadOnly();
+    public IReadOnlyList<IControl> Children => _children.AsReadOnly();
 
-    public UIControlBase? Parent
+    public BaseControl? Parent
     {
         get;
         set
         {
             if (field == value) return;
 
-            if (field is UIControlBase oldBase)
+            if (field is BaseControl oldBase)
             {
                 oldBase.RemoveChildInternal(this);
             }
 
             field = value;
 
-            if (field is UIControlBase newBase)
+            if (field is BaseControl newBase)
             {
                 newBase.AddChildInternal(this);
             }
@@ -150,7 +150,7 @@ public abstract class UIControlBase : IUIControl
     #region Events
 
     public event Action? Invalidated;
-    public event Action<IUIControl>? FocusRequested;
+    public event Action<IControl>? FocusRequested;
 
     #endregion
 
@@ -160,14 +160,14 @@ public abstract class UIControlBase : IUIControl
 
     private bool _isDisposed;
 
-    private readonly List<IUIControl> _children = [];
+    private readonly List<IControl> _children = [];
     private bool _childrenDirty = false;
 
     #endregion
 
     #region Internal Functions
 
-    internal void AddChildInternal(IUIControl child)
+    internal void AddChildInternal(IControl child)
     {
         if (!_children.Contains(child))
         {
@@ -178,7 +178,7 @@ public abstract class UIControlBase : IUIControl
         }
     }
 
-    internal void RemoveChildInternal(IUIControl child)
+    internal void RemoveChildInternal(IControl child)
     {
         if (_children.Remove(child))
         {
@@ -203,8 +203,8 @@ public abstract class UIControlBase : IUIControl
         }
     }
 
-    protected virtual void OnChildAdded(IUIControl control) { }
-    protected virtual void OnChildRemoved(IUIControl control) { }
+    protected virtual void OnChildAdded(IControl control) { }
+    protected virtual void OnChildRemoved(IControl control) { }
 
     #endregion
 
@@ -287,7 +287,7 @@ public abstract class UIControlBase : IUIControl
 
 #region Fluent APIs
 
-public abstract class UIControlBase<TSelf> : UIControlBase where TSelf : UIControlBase<TSelf>
+public abstract class BaseControl<TSelf> : BaseControl where TSelf : BaseControl<TSelf>
 {
     protected TSelf Self => (TSelf)this;
 
@@ -321,7 +321,7 @@ public abstract class UIControlBase<TSelf> : UIControlBase where TSelf : UIContr
         return Self;
     }
 
-    public TSelf WithParent(UIControlBase parentControl)
+    public TSelf WithParent(BaseControl parentControl)
     {
         Self.Parent = parentControl;
         return Self;

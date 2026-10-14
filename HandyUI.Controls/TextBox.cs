@@ -4,7 +4,7 @@ using SkiaSharp;
 
 namespace HandyUI.Controls;
 
-public class TextBox : UIControlBase<TextBox>
+public class TextBox : BaseControl<TextBox>
 {
     private SKTypeface? _cachedTypeface;
     private int _caretIndex;

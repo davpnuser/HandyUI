@@ -5,7 +5,7 @@ using SkiaSharp;
 
 namespace HandyUI.Controls;
 
-public class ImageButton : UIControlBase<ImageButton>
+public class ImageButton : BaseControl<ImageButton>
 {
     private SKTypeface? _cachedTypeface;
     private float? _explicitImageWidth;

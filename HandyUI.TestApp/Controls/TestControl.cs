@@ -3,7 +3,7 @@ using SkiaSharp;
 
 namespace HandyUI.TestApp.Controls;
 
-public class TestControl : UIControlBase
+public class TestControl : BaseControl
 {
     private readonly SKPaint _backgroundPaint;
     private readonly SKPaint _textPaint;

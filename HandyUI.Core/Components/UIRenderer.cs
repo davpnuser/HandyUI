@@ -15,9 +15,9 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
 
     #region Internal Fields
 
-    private readonly List<IUIControl> _rootControls = [];
-    private readonly List<IUIControl> _pendingRootControlsAdd = [];
-    private readonly List<IUIControl> _pendingRootControlsRemove = [];
+    private readonly List<IControl> _rootControls = [];
+    private readonly List<IControl> _pendingRootControlsAdd = [];
+    private readonly List<IControl> _pendingRootControlsRemove = [];
 
     private readonly Lock _rootControlsLock = new();
     private bool _isRootControlsOrderDirty = true;
@@ -27,8 +27,8 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
 
     private readonly bool _useDirtyRendering = useDirtyRendering;
 
-    private IUIControl? _pressedControl;
-    private IUIControl? _focusedControl;
+    private IControl? _pressedControl;
+    private IControl? _focusedControl;
 
     private readonly List<IModule> _modules = [];
     private readonly List<IModule> _pendingModulesAdd = [];
@@ -45,14 +45,14 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         _framesToRender = 2;
     }
 
-    public void AddRootControl(IUIControl control)
+    public void AddRootControl(IControl control)
     {
         ArgumentNullException.ThrowIfNull(control);
         lock (_pendingRootControlsAdd) _pendingRootControlsAdd.Add(control);
         Invalidate();
     }
 
-    public void RemoveRootControl(IUIControl control)
+    public void RemoveRootControl(IControl control)
     {
         ArgumentNullException.ThrowIfNull(control);
         lock (_pendingRootControlsRemove) _pendingRootControlsRemove.Add(control);
@@ -79,14 +79,14 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
 
     public void ProcessMouseEvent(MouseEventContext context)
     {
-        IUIControl[] rootSnapshot;
+        IControl[] rootSnapshot;
         lock (_rootControlsLock)
         {
             if (_isRootControlsOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isRootControlsOrderDirty = false; }
             rootSnapshot = [.. _rootControls];
         }
 
-        IUIControl? hitControl = null;
+        IControl? hitControl = null;
         for (var i = rootSnapshot.Length - 1; i >= 0; i--)
         {
             hitControl = HitTestRecursive(rootSnapshot[i], context.ClientPosition);
@@ -167,7 +167,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
 
     private void ProcessPendingControls()
     {
-        IUIControl[] toAdd, toRemove;
+        IControl[] toAdd, toRemove;
         lock (_pendingRootControlsAdd) { toAdd = [.. _pendingRootControlsAdd]; _pendingRootControlsAdd.Clear(); }
         lock (_pendingRootControlsRemove) { toRemove = [.. _pendingRootControlsRemove]; _pendingRootControlsRemove.Clear(); }
 
@@ -221,7 +221,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         }
     }
 
-    private static IUIControl? HitTestRecursive(IUIControl control, SKPoint cursorPosition, bool isMouseClipped = false)
+    private static IControl? HitTestRecursive(IControl control, SKPoint cursorPosition, bool isMouseClipped = false)
     {
         if (!control.IsVisible || !control.IsEnabled) return null;
 
@@ -229,7 +229,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         isMouseClipped = isMouseClipped || (control.ScissoringEnabled && !control.Bounds.Contains(localCursor));
 
         if (isMouseClipped) return null;
-        if (control is UIControlBase baseCtrl) baseCtrl.EnsureChildrenSorted();
+        if (control is BaseControl baseCtrl) baseCtrl.EnsureChildrenSorted();
 
         for (var i = control.Children.Count - 1; i >= 0; i--)
         {
@@ -240,7 +240,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         return control.Intersects(localCursor) ? control : null;
     }
 
-    private void DispatchMouseEventRecursive(IUIControl control, MouseEventContext context, bool isMouseClipped = false)
+    private void DispatchMouseEventRecursive(IControl control, MouseEventContext context, bool isMouseClipped = false)
     {
         if (!control.IsVisible) return;
 
@@ -254,12 +254,12 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
             DispatchMouseEventRecursive(child, context, clipForSubtree);
     }
 
-    private void OnControlFocusRequested(IUIControl control)
+    private void OnControlFocusRequested(IControl control)
     {
         SetFocus(control);
     }
 
-    private void SetFocus(IUIControl? target)
+    private void SetFocus(IControl? target)
     {
         if (_focusedControl == target) return;
         _focusedControl?.IsFocused = false;
@@ -267,7 +267,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         _focusedControl?.IsFocused = true;
     }
 
-    private void RenderRecursive(SKCanvas canvas, IUIControl control, SKPoint cursorPosition, float deltaTime, bool isMouseClipped = false)
+    private void RenderRecursive(SKCanvas canvas, IControl control, SKPoint cursorPosition, float deltaTime, bool isMouseClipped = false)
     {
         if (!control.IsVisible) return;
 
@@ -295,7 +295,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
             canvas.ClipRect(control.Bounds, SKClipOperation.Intersect, antialias: true);
         }
 
-        if (control is UIControlBase baseCtrl) baseCtrl.EnsureChildrenSorted();
+        if (control is BaseControl baseCtrl) baseCtrl.EnsureChildrenSorted();
 
         for (var i = 0; i < control.Children.Count; i++)
             RenderRecursive(canvas, control.Children[i], cursorPosition, deltaTime, clipForSubtree);
@@ -303,14 +303,14 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         canvas.RestoreToCount(saveCount);
     }
 
-    private static SKPoint GetLocalMousePosition(IUIControl control, SKPoint globalPoint)
+    private static SKPoint GetLocalMousePosition(IControl control, SKPoint globalPoint)
     {
         if (!control.ParentChildPositioningEnabled) return globalPoint;
         var absolutePos = GetAbsoluteLocation(control);
         return new SKPoint(globalPoint.X - absolutePos.X, globalPoint.Y - absolutePos.Y);
     }
 
-    private static SKPoint GetAbsoluteLocation(IUIControl control)
+    private static SKPoint GetAbsoluteLocation(IControl control)
     {
         float x = 0, y = 0;
         for (var current = control; current != null; current = current.Parent)
@@ -330,7 +330,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private static void DisposeRecursively(IUIControl control)
+    private static void DisposeRecursively(IControl control)
     {
         foreach (var childControl in control.Children)
         {

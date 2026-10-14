@@ -3,7 +3,7 @@ using SkiaSharp;
 
 namespace HandyUI.TestApp.Controls;
 
-public class FpsLabelControl : UIControlBase
+public class FpsLabelControl : BaseControl
 {
     private readonly SKPaint _paint;
     private readonly SKFont _font;

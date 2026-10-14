@@ -4,7 +4,7 @@ using SkiaSharp;
 
 namespace HandyUI.Controls;
 
-public class TextLabel : UIControlBase<TextLabel>
+public class TextLabel : BaseControl<TextLabel>
 {
     private SKTypeface? _cachedTypeface;
     private bool _colorsInitialized;

@@ -7,12 +7,12 @@ namespace HandyUI.Core.Interfaces;
 
 #region Core Interface
 
-public interface IUIControl : IDisposable
+public interface IControl : IDisposable
 {
     #region Properties
 
-    IReadOnlyList<IUIControl> Children { get; }
-    UIControlBase? Parent { get; set; }
+    IReadOnlyList<IControl> Children { get; }
+    BaseControl? Parent { get; set; }
 
     SKPoint Location { get; set; }
     SKRect Bounds { get; set; }
@@ -33,7 +33,7 @@ public interface IUIControl : IDisposable
 
     #region Events
 
-    event Action<IUIControl>? FocusRequested;
+    event Action<IControl>? FocusRequested;
     event Action? Invalidated;
 
     #endregion
@@ -60,7 +60,7 @@ public interface IUIControl : IDisposable
 
 #region Fluent APIs
 
-public interface IUIControl<TSelf> : IUIControl where TSelf : IUIControl<TSelf>
+public interface IControl<TSelf> : IControl where TSelf : IControl<TSelf>
 {
     TSelf WithLocation(SKPoint location);
     TSelf WithLocation(float x, float y);

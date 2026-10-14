@@ -3,7 +3,7 @@ using SkiaSharp;
 
 namespace HandyUI.TestApp.Controls;
 
-public class RegressionTestingControl : UIControlBase<RegressionTestingControl>
+public class RegressionTestingControl : BaseControl<RegressionTestingControl>
 {
     public override bool Intersects(SKPoint clientPoint)
     {

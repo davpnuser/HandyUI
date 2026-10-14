@@ -4,7 +4,7 @@ using SkiaSharp;
 
 namespace HandyUI.Controls;
 
-public class CheckBox : UIControlBase<CheckBox>
+public class CheckBox : BaseControl<CheckBox>
 {
     public CheckBox()
     {

@@ -4,7 +4,7 @@ using SkiaSharp;
 
 namespace HandyUI.Controls;
 
-public class ImageLabel : UIControlBase<ImageLabel>
+public class ImageLabel : BaseControl<ImageLabel>
 {
     private float? _explicitWidth;
     private float? _explicitHeight;

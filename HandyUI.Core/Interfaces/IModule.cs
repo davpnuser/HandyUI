@@ -35,7 +35,6 @@ public interface IModule : IDisposable
 public interface IModule<TSelf> : IModule where TSelf : IModule<TSelf>
 {
     TSelf WithIsEnabled(bool enabled);
-    TSelf WithOnUpdate(Action<float>? action);
     TSelf WithOnStateChanged(Action<bool>? action);
     TSelf WithAddToRenderer(UIRenderer renderer);
 }

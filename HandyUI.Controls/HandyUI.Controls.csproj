@@ -4,13 +4,13 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	<AssemblyVersion>2.1.0</AssemblyVersion>
+	<AssemblyVersion>2.1.1</AssemblyVersion>
 
-	<Title>HandyUI.Silk.NET</Title>
+	<Title>HandyUI.Controls</Title>
 	<Description>Platform-agnostic-at-its-core code-only C# UI framework powered by SkiaSharp.</Description>
 	<PackageReleaseNotes>To see the release changelog, view the CHANGELOG.md file in the HandyUI GitHub repository root.</PackageReleaseNotes>
 	<PackageTags>ui;framework;skiasharp;code-only;gui;rendering</PackageTags>
-	<PackageId>HandyUI.SilkNet</PackageId>
+	<PackageId>HandyUI.Controls</PackageId>
 	<Version>$(AssemblyVersion)</Version>
 	<Authors>davpnuser</Authors>
 	<PackageIcon>HandyUI-Logo.png</PackageIcon>
@@ -20,7 +20,6 @@
 	<RepositoryUrl>https://github.com/davpnuser/HandyUI/</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageProjectUrl>https://davpnuser.github.io/HandyUI/</PackageProjectUrl>
-	<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

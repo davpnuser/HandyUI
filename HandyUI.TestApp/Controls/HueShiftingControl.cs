@@ -4,7 +4,7 @@ using SkiaSharp;
 
 namespace HandyUI.TestApp.Controls;
 
-public class HueShiftingControl : UIControlBase
+public class HueShiftingControl : BaseControl
 {
     public float HueDelta = 36;
     private float _hue = 0f;

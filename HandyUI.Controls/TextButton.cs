@@ -5,7 +5,7 @@ using SkiaSharp;
 
 namespace HandyUI.Controls;
 
-public class TextButton : UIControlBase<TextButton>
+public class TextButton : BaseControl<TextButton>
 {
     private SKPoint _padding = new(12f, 6f);
     private SKTypeface? _cachedTypeface;

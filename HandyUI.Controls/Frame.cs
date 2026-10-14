@@ -5,7 +5,7 @@ using SkiaSharp;
 
 namespace HandyUI.Controls;
 
-public class Frame : UIControlBase<Frame>
+public class Frame : BaseControl<Frame>
 {
     private bool _customBackgroundColorSet;
     private bool _customBorderColorSet;
