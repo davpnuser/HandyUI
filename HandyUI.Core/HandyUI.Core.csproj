@@ -29,20 +29,9 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <None Remove="Resources\HandyUI-BigIcon-T.ico" />
-    <None Remove="Resources\HandyUI-BigIcon.ico" />
-    <None Remove="Resources\HandyUI-Logo-T.png" />
-    <None Remove="Resources\HandyUI-SmallIcon-T.ico" />
-    <None Remove="Resources\HandyUI-SmallIcon.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\HandyUI-BigIcon-T.ico" />
-    <EmbeddedResource Include="Resources\HandyUI-BigIcon.ico" />
-    <EmbeddedResource Include="Resources\HandyUI-Logo-T.png" />
+    <EmbeddedResource Include="Resources\HandyUI-Banner.png" />
     <EmbeddedResource Include="Resources\HandyUI-Logo.png" />
-    <EmbeddedResource Include="Resources\HandyUI-SmallIcon-T.ico" />
-    <EmbeddedResource Include="Resources\HandyUI-SmallIcon.ico" />
+    <EmbeddedResource Include="Resources\HandyUI-SmallLogo.png" />
   </ItemGroup>
 
   <ItemGroup>

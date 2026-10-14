@@ -1,5 +1,7 @@
 # Welcome to HandyUI documentation!
 
+# ![HandyUI Banner](assets/banner.png){ width="300" }
+
 This is the homepage for HandyUI documentation.
 
 You will get introduced to HandyUI and the reason to it's existence here.

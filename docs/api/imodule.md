@@ -24,13 +24,7 @@ public interface IModule : IDisposable
 public interface IModule<TSelf> : IModule where TSelf : IModule<TSelf>
 {
     TSelf WithIsEnabled(bool enabled);
-    TSelf WithOnUpdate(Action<float>? action);
     TSelf WithOnStateChanged(Action<bool>? action);
     TSelf WithAddToRenderer(UIRenderer renderer);
 }
 ```
-
-!!! note
-    `WithOnUpdate` is declared on the interface. `BaseModule<TSelf>` does not
-    currently implement it in source - override `Update` or implement it in
-    your own module if you need it.
