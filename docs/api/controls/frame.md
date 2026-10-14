@@ -6,7 +6,7 @@ A rectangle with a solid background fill and an optional border. Useful as
 a panel, card, or container for other controls.
 
 ```csharp
-public class Frame : UIControlBase<Frame>
+public class Frame : BaseControl<Frame>
 ```
 
 !!! warning "Namespace mismatch in the current source"

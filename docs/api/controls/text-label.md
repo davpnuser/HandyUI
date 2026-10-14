@@ -6,7 +6,7 @@ A non-interactive, single-line text label. `Bounds` is recalculated to fit
 the text whenever the font or content changes.
 
 ```csharp
-public class TextLabel : UIControlBase<TextLabel>
+public class TextLabel : BaseControl<TextLabel>
 ```
 
 ## Constructor

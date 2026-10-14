@@ -7,7 +7,7 @@ image's natural size; you can override that with explicit width/height or
 disable auto sizing.
 
 ```csharp
-public class ImageLabel : UIControlBase<ImageLabel>
+public class ImageLabel : BaseControl<ImageLabel>
 ```
 
 ## Constructor

@@ -7,7 +7,7 @@ text label. Supports hover and pressed visual states, custom fonts, and
 border direction.
 
 ```csharp
-public class ImageButton : UIControlBase<ImageButton>
+public class ImageButton : BaseControl<ImageButton>
 ```
 
 ## Constructor

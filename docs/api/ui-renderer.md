@@ -54,10 +54,10 @@ public void Invalidate()
 Marks the renderer dirty for two frames. Call after mutating control state
 outside of the built-in property setters (which already invalidate).
 
-### `AddRootControl(IUIControl control)`
+### `AddRootControl(IControl control)`
 
 ```csharp
-public void AddRootControl(IUIControl control)
+public void AddRootControl(IControl control)
 ```
 
 Queues `control` for addition as a root control. Attachment happens on the
@@ -67,10 +67,10 @@ next render/update tick.
     The renderer subscribes to the control's `FocusRequested` and `Invalidated`
     events on attach. Do not attach the same instance to two renderers.
 
-### `RemoveRootControl(IUIControl control)`
+### `RemoveRootControl(IControl control)`
 
 ```csharp
-public void RemoveRootControl(IUIControl control)
+public void RemoveRootControl(IControl control)
 ```
 
 Queues `control` for removal. On the next tick the renderer unsubscribes from

@@ -1,13 +1,13 @@
-# `UIControlBase`
+# `BaseControl`
 
-`HandyUI.Core.Classes.Base.UIControlBase`
+`HandyUI.Core.Classes.Base.BaseControl`
 
 The base class for every drawable control. Provides transformation, geometry,
 visual state, interaction state, a parent/children tree, and invalidation
 events.
 
 ```csharp
-public abstract class UIControlBase : IUIControl
+public abstract class BaseControl : IControl
 ```
 
 ## Properties
@@ -15,7 +15,7 @@ public abstract class UIControlBase : IUIControl
 ### `Children`
 
 ```csharp
-public IReadOnlyList<IUIControl> Children { get; }
+public IReadOnlyList<IControl> Children { get; }
 ```
 
 Do **not** mutate directly. Set a child's `Parent` instead.
@@ -23,7 +23,7 @@ Do **not** mutate directly. Set a child's `Parent` instead.
 ### `Parent`
 
 ```csharp
-public UIControlBase? Parent { get; set; }
+public BaseControl? Parent { get; set; }
 ```
 
 Setting this detaches from the old parent, attaches to the new one, and
@@ -135,7 +135,7 @@ keep its dirty flag accurate.
 ### `FocusRequested`
 
 ```csharp
-public event Action<IUIControl>? FocusRequested;
+public event Action<IControl>? FocusRequested;
 ```
 
 Raised by `RequestFocus()`. The renderer listens and sets focus accordingly.
@@ -197,16 +197,16 @@ public abstract void Draw(SKCanvas canvas);
 ```csharp
 protected virtual bool OnMouse(MouseEventContext mouseContext) => false;
 protected virtual bool OnKey(KeyEventContext keyContext) => false;
-protected virtual void OnChildAdded(IUIControl control) { }
-protected virtual void OnChildRemoved(IUIControl control) { }
+protected virtual void OnChildAdded(IControl control) { }
+protected virtual void OnChildRemoved(IControl control) { }
 protected virtual void OnDispose() { }
 ```
 
-## Fluent API: `UIControlBase<TSelf>`
+## Fluent API: `BaseControl<TSelf>`
 
 ```csharp
-public abstract class UIControlBase<TSelf> : UIControlBase
-    where TSelf : UIControlBase<TSelf>
+public abstract class BaseControl<TSelf> : BaseControl
+    where TSelf : BaseControl<TSelf>
 ```
 
 Every `With...` method returns `TSelf`:
@@ -224,7 +224,7 @@ new MyBox()
 | --- | --- |
 | `WithLocation(SKPoint)` / `WithLocation(float, float)` | `Location` |
 | `WithBounds(SKRect)` / `WithBounds(SKSize)` / `WithBounds(float, float, float, float)` | `Bounds` |
-| `WithParent(UIControlBase)` | `Parent` |
+| `WithParent(BaseControl)` | `Parent` |
 | `WithOpacity(float)` | `Opacity` |
 | `WithIsVisible(bool)` | `IsVisible` |
 | `WithIsEnabled(bool)` | `IsEnabled` |
@@ -235,7 +235,7 @@ new MyBox()
 ## Example
 
 ```csharp
-public sealed class ClickBox : UIControlBase<ClickBox>
+public sealed class ClickBox : BaseControl<ClickBox>
 {
     public event Action? Clicked;
 

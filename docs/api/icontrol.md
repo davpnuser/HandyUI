@@ -1,20 +1,20 @@
-# `IUIControl`
+# `IControl`
 
-`HandyUI.Core.Interfaces.IUIControl`
+`HandyUI.Core.Interfaces.IControl`
 
 The minimal contract for anything the `UIRenderer` can draw and route input
 to.
 
 ```csharp
-public interface IUIControl : IDisposable
+public interface IControl : IDisposable
 ```
 
 ## Properties
 
 | Property | Type | Description |
 | --- | --- | --- |
-| `Children` | `IReadOnlyList<IUIControl>` | Child controls. |
-| `Parent` | `UIControlBase?` | Parent control. |
+| `Children` | `IReadOnlyList<IControl>` | Child controls. |
+| `Parent` | `BaseControl?` | Parent control. |
 | `Location` | `SKPoint` | Offset relative to the parent. |
 | `Bounds` | `SKRect` | Rectangle in local space. |
 | `ZIndex` | `int` | Draw/hit order. |
@@ -47,10 +47,10 @@ public interface IUIControl : IDisposable
 | `Update(float, SKPoint)` | Per-frame update. |
 | `Draw(SKCanvas)` | Per-frame draw. |
 
-## Fluent API: `IUIControl<TSelf>`
+## Fluent API: `IControl<TSelf>`
 
 ```csharp
-public interface IUIControl<TSelf> : IUIControl where TSelf : IUIControl<TSelf>
+public interface IControl<TSelf> : IControl where TSelf : IControl<TSelf>
 {
     TSelf WithLocation(SKPoint location);
     TSelf WithLocation(float x, float y);

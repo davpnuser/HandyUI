@@ -7,7 +7,7 @@ color fill when checked. Clicking the box toggles `IsChecked` and raises
 `OnCheckChanged`.
 
 ```csharp
-public class CheckBox : UIControlBase<CheckBox>
+public class CheckBox : BaseControl<CheckBox>
 ```
 
 ## Properties
@@ -61,7 +61,7 @@ to `Theme.Default`.
 public new bool IsEnabled { get; set; }
 ```
 
-Shadows `UIControlBase.IsEnabled` so the brushes refresh automatically when
+Shadows `BaseControl.IsEnabled` so the brushes refresh automatically when
 the state changes. Behaves identically otherwise.
 
 ### `OnCheckChanged`

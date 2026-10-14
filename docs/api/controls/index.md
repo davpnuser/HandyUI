@@ -2,7 +2,7 @@
 
 Built-in controls shipped in the `HandyUI.Controls` package, under the
 `HandyUI.Controls` namespace. All of them derive from
-[`UIControlBase<TSelf>`](../ui-control-base.md), so they inherit the fluent
+[`BaseControl<TSelf>`](../ui-control-base.md), so they inherit the fluent
 `With…` pattern, invalidation, opacity, parent/child tree, and input routing.
 
 | Control | Purpose |

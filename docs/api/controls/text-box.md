@@ -7,7 +7,7 @@ and keyboard navigation. Handles character input, backspace, delete, arrow
 keys, home/end, and submit.
 
 ```csharp
-public class TextBox : UIControlBase<TextBox>
+public class TextBox : BaseControl<TextBox>
 ```
 
 ## Constructor

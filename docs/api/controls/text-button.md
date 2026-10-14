@@ -6,7 +6,7 @@ A clickable button that renders a text label. Supports hover and pressed
 states, auto-sizing, custom fonts, and configurable borders.
 
 ```csharp
-public class TextButton : UIControlBase<TextButton>
+public class TextButton : BaseControl<TextButton>
 ```
 
 ## Constructor
