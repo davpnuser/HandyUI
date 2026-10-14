@@ -10,14 +10,14 @@ live in `HandyUI.Core`; built-in controls ship in a separate
 | --- | --- |
 | [`UIRenderer`](ui-renderer.md) | Render loop, input dispatcher, control/module registry. |
 | [`ResourceManager`](resource-manager.md) | Loads resources from disk or embedded assembly resources. |
-| [`BaseControl`](ui-control-base.md) | Base class for all drawable controls. |
+| [`BaseControl`](base-control.md) | Base class for all drawable controls. |
 | [`BaseModule`](base-module.md) | Base class for logic-only modules. |
 
 ## Interfaces
 
 | Type | Summary |
 | --- | --- |
-| [`IControl`](iui-control.md) | Contract implemented by every control. |
+| [`IControl`](icontrol.md) | Contract implemented by every control. |
 | [`IModule`](imodule.md) | Contract implemented by every module. |
 
 ## Records & Contexts
