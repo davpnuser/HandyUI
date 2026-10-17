@@ -17,7 +17,7 @@ public static class ResourceManager
         SearchAssemblies.Add(Assembly.GetExecutingAssembly());
     }
 
-    public static Action<string, string>? OnError { get; set; }
+    public static Action<string, string>? WhenErrored { get; set; }
 
     public static void RegisterAssembly(Assembly assembly)
     {
@@ -98,9 +98,9 @@ public static class ResourceManager
     {
         if (ignoreErrors) return;
 
-        if (OnError != null)
+        if (WhenErrored != null)
         {
-            OnError(detail, path);
+            WhenErrored(detail, path);
         }
         else
         {

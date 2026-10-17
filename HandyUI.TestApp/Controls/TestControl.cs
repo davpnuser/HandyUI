@@ -35,7 +35,7 @@ public class TestControl : BaseControl
         RecalculateBounds();
     }
 
-    public override void Update(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
     {
         _num = Random.Shared.Next(100000, 999999);
         _formattedText = _num.ToString();
@@ -56,7 +56,7 @@ public class TestControl : BaseControl
         Bounds = new SKRect(0, 0, width, height);
     }
 
-    public override void Draw(SKCanvas canvas)
+    public override void OnDraw(SKCanvas canvas)
     {
         canvas.DrawRect(Bounds, _backgroundPaint);
         _font.GetFontMetrics(out var metrics);
@@ -67,7 +67,7 @@ public class TestControl : BaseControl
         canvas.DrawText(_formattedText, textX, textY, SKTextAlign.Left, _font, _textPaint);
     }
 
-    public override bool Intersects(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint? clientPoint)
     {
         return clientPoint != null && Bounds.Contains(clientPoint.Value.X, clientPoint.Value.Y);
     }

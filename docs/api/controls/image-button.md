@@ -120,16 +120,17 @@ public BorderDirection BorderDirection { get; set; }   // default: Inside
 
 ```csharp
 public event Action? Clicked;
-public Action?       OnClick { get; set; }
+public Action?       WhenClicked { get; set; }
 ```
 
-Both are invoked on a click. `WithOnClick` subscribes to both, so prefer
-one or the other in your own code to avoid double invocation.
+Both are invoked on a click. `WithOnClick` subscribes the delegate to both,
+so if you also subscribe to `Clicked` manually with the same handler it will
+run twice.
 
 !!! warning "Double firing with `WithOnClick`"
     `WithOnClick` subscribes the **same** delegate to both `Clicked` and
-    `OnClick`. If you also subscribe to `Clicked` manually with the same
-    handler, it will run twice. Use one channel consistently.
+    `WhenClicked`. Pick one channel for your own subscriptions to avoid
+    double invocations.
 
 ## Methods
 

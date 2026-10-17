@@ -10,17 +10,17 @@ public class HueShiftingControl : BaseControl
     private float _hue = 0f;
     private readonly SKPaint _paint = new() { Color = SKColors.Red, Style = SKPaintStyle.Fill };
 
-    public override bool Intersects(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint? clientPoint)
     {
         return clientPoint != null && Bounds.Contains((SKPoint)clientPoint);
     }
 
-    public override void Draw(SKCanvas canvas)
+    public override void OnDraw(SKCanvas canvas)
     {
         canvas.DrawRect(Bounds, _paint);
     }
 
-    public override void Update(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
     {
         _hue += deltaTime * HueDelta;
         _hue %= 360;

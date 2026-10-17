@@ -1,5 +1,5 @@
 ﻿using HandyUI.Core.Components;
-using HandyUI.SilkNet.Classes.Structs;
+using HandyUI.SilkNet.Classes.Records;
 using HandyUI.SilkNet.Classes.Tools;
 using HandyUI.SilkNet.Components;
 using Silk.NET.GLFW;

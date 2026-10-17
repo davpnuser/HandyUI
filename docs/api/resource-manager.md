@@ -21,10 +21,10 @@ public static class ResourceManager
 
 ## Properties
 
-### `OnError`
+### `WhenErrored`
 
 ```csharp
-public static Action<string, string>? OnError { get; set; }
+public static Action<string, string>? WhenErrored { get; set; }
 ```
 
 Optional callback invoked when a lookup fails and `ignoreErrors` was `false`.
@@ -32,7 +32,7 @@ Receives `(detail, path)`. If `null`, the manager throws a
 `FileNotFoundException` instead.
 
 ```csharp
-ResourceManager.OnError = (detail, path) =>
+ResourceManager.WhenErrored = (detail, path) =>
     Console.Error.WriteLine($"Couldn't load '{path}': {detail}");
 ```
 
@@ -64,7 +64,7 @@ public static bool GetResourceByPath(
 | --- | --- |
 | `relativePath` | Path like `Assets/icon.png` or a resource name. |
 | `resourceStream` | On success, a *seekable* `MemoryStream` at position `0`. |
-| `ignoreErrors` | If `false`, failures go through `OnError` (or throw). |
+| `ignoreErrors` | If `false`, failures go through `WhenErrored` (or throw). |
 | `additionalAssemblies` | Extra assemblies to check **in addition to** the global registry. |
 
 Returns `true` if a resource was found.

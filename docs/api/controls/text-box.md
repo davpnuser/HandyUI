@@ -29,7 +29,7 @@ public string Text { get; set; }   // default: string.Empty
 ```
 
 The current content. Setting this raises both `TextChanged` and
-`OnTextChanged`, and clamps the caret index to the new length.
+`WhenTextChanged`, and clamps the caret index to the new length.
 
 ### `PlaceholderText`
 
@@ -93,13 +93,13 @@ public Theme Theme { get; set; }
 public event Action<string>? TextChanged;
 public event Action<string>? Submitted;
 
-public Action<string>? OnTextChanged { get; set; }
-public Action<string>? OnSubmit      { get; set; }
+public Action<string>? WhenTextChanged { get; set; }
+public Action<string>? WhenSubmitted   { get; set; }
 ```
 
-- `TextChanged` / `OnTextChanged` fire whenever `Text` changes (typing,
+- `TextChanged` / `WhenTextChanged` fire whenever `Text` changes (typing,
   paste, programmatic assignment).
-- `Submitted` / `OnSubmit` fire when the user presses **Enter**.
+- `Submitted` / `WhenSubmitted` fire when the user presses **Enter**.
 
 !!! warning "Both channels fire"
     The `event` and the `Action` property are invoked back-to-back. Subscribe
@@ -107,24 +107,24 @@ public Action<string>? OnSubmit      { get; set; }
 
 ## Methods
 
-### `Intersects(SKPoint)`
+### `DoesIntersect(SKPoint?)`
 
 ```csharp
-public override bool Intersects(SKPoint clientPoint)
+public override bool DoesIntersect(SKPoint? clientPoint)
 ```
 
-### `Update(float, SKPoint)`
+### `OnUpdate(float, SKPoint?)`
 
 ```csharp
-public override void Update(float deltaTime, SKPoint clientMousePosition)
+public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
 ```
 
 Advances the caret blink timer while focused (500 ms on / off).
 
-### `Draw(SKCanvas)`
+### `OnDraw(SKCanvas)`
 
 ```csharp
-public override void Draw(SKCanvas canvas)
+public override void OnDraw(SKCanvas canvas)
 ```
 
 Draws the rounded background, border (focused vs. unfocused), the text or
@@ -147,7 +147,7 @@ placeholder, and the caret when focused and blinking on.
 | Delete (`46`) | Delete the character at the caret. |
 | Left (`37`) / Right (`39`) | Move the caret one character. |
 | Home (`36`) / End (`35`) | Jump to start/end. |
-| Enter (`13`) | Raise `Submitted` / `OnSubmit`. |
+| Enter (`13`) | Raise `Submitted` / `WhenSubmitted`. |
 
 ## Fluent API
 

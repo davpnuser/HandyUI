@@ -105,10 +105,10 @@ public bool RecalculateBounds()
 Recomputes `Bounds` from the text measurement and padding when
 `AutoSize == true`. Returns `true` if the bounds changed.
 
-### `Draw(SKCanvas)`
+### `OnDraw(SKCanvas)`
 
 ```csharp
-public override void Draw(SKCanvas canvas)
+public override void OnDraw(SKCanvas canvas)
 ```
 
 Draws the background, then the border, then the centered text.

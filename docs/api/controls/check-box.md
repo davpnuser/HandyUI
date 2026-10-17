@@ -4,7 +4,7 @@
 
 A two-state toggle rendered as a square box. Optionally displays a primary
 color fill when checked. Clicking the box toggles `IsChecked` and raises
-`OnCheckChanged`.
+`WhenCheckChanged`.
 
 ```csharp
 public class CheckBox : BaseControl<CheckBox>
@@ -19,7 +19,7 @@ public bool IsChecked { get; set; }   // default: false
 ```
 
 Whether the checkbox is currently checked. Setting this invalidates the
-control - it does **not** raise `OnCheckChanged` (only user interaction
+control - it does **not** raise `WhenCheckChanged` (only user interaction
 does).
 
 ### `BoxSize`
@@ -64,41 +64,42 @@ public new bool IsEnabled { get; set; }
 Shadows `BaseControl.IsEnabled` so the brushes refresh automatically when
 the state changes. Behaves identically otherwise.
 
-### `OnCheckChanged`
+### `WhenCheckChanged`
 
 ```csharp
-public Action<bool>? OnCheckChanged { get; set; }
+public Action<bool>? WhenCheckChanged { get; set; }
 ```
 
 Invoked with the new state whenever the user toggles the checkbox.
 
 !!! tip "Read vs. write"
     Assigning `IsChecked = true` programmatically does **not** fire
-    `OnCheckChanged`. This mirrors most UI frameworks and avoids surprising
+    `WhenCheckChanged`. This mirrors most UI frameworks and avoids surprising
     re-entrancy.
 
 ## Methods
 
-### `Intersects(SKPoint)`
+### `DoesIntersect(SKPoint?)`
 
 ```csharp
-public override bool Intersects(SKPoint clientPoint)
+public override bool DoesIntersect(SKPoint? clientPoint)
 ```
 
-Returns `true` when the point lies inside the box's `Bounds`.
+Returns `true` when the point lies inside the box's `Bounds`. Returns
+`false` for `null`.
 
-### `Update(float, SKPoint)`
+### `OnUpdate(float, SKPoint?)`
 
 ```csharp
-public override void Update(float deltaTime, SKPoint clientMousePosition)
+public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
 ```
 
 No-op except for the first frame, where it lazily initializes the brushes.
 
-### `Draw(SKCanvas)`
+### `OnDraw(SKCanvas)`
 
 ```csharp
-public override void Draw(SKCanvas canvas)
+public override void OnDraw(SKCanvas canvas)
 ```
 
 Draws the background (lighter when hovered), the border, and the primary
@@ -121,6 +122,10 @@ public CheckBox WithBoxSize(float size);
 public CheckBox WithTheme(Theme theme);
 public CheckBox WithOnCheckChanged(Action<bool> onCheckChanged);
 ```
+
+!!! note "Method name"
+    The fluent method is still `WithOnCheckChanged(...)` (for consistency
+    with other controls) but it assigns to the `WhenCheckChanged` property.
 
 ## Example
 

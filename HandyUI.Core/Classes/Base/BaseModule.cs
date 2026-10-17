@@ -35,7 +35,7 @@ public abstract class BaseModule : IModule
 
     #region Abstract/Virtual Methods
 
-    public abstract void Update(float deltaTime);
+    public abstract void OnUpdate(float deltaTime);
     protected virtual void OnStart() { }
     protected virtual void OnStop() { }
 

@@ -151,7 +151,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
             {
                 if (!module.IsEnabled) continue;
 
-                module.Update(deltaTime);
+                module.OnUpdate(deltaTime);
             }
 
             return true;
@@ -179,8 +179,8 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         {
             foreach (var control in toAdd)
             {
-                control.FocusRequested += OnControlFocusRequested;
-                control.Invalidated += OnControlInvalidated;
+                control.WhenFocusRequested += OnControlFocusRequested;
+                control.WhenInvalidated += OnControlInvalidated;
                 _rootControls.Add(control);
                 _isRootControlsOrderDirty = true;
             }
@@ -188,7 +188,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
             foreach (var control in toRemove)
             {
                 if (!_rootControls.Remove(control)) continue;
-                control.Invalidated -= OnControlInvalidated;
+                control.WhenInvalidated -= OnControlInvalidated;
                 if (_focusedControl == control) _focusedControl = null;
                 if (_pressedControl == control) _pressedControl = null;
                 control.Dispose();
@@ -239,7 +239,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
             if (hit != null) return hit;
         }
 
-        return control.Intersects(localCursor) ? control : null;
+        return control.DoesIntersect(localCursor) ? control : null;
     }
 
     private void DispatchMouseEventRecursive(IControl control, MouseEventContext context, bool isMouseClipped = false)
@@ -292,8 +292,8 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         canvas.Save();
         if (control.ParentChildPositioningEnabled) canvas.Translate(control.Location.X, control.Location.Y);
 
-        control.Update(deltaTime, effectiveCursor);
-        control.Draw(canvas);
+        control.OnUpdate(deltaTime, effectiveCursor);
+        control.OnDraw(canvas);
 
         if (control.ScissoringEnabled)
         {
@@ -356,7 +356,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
             {
                 foreach (var control in _rootControls)
                 {
-                    control.Invalidated -= OnControlInvalidated;
+                    control.WhenInvalidated -= OnControlInvalidated;
                     DisposeRecursively(control);
                 }
 

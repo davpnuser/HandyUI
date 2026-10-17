@@ -110,7 +110,7 @@ public class TextBox : BaseControl<TextBox>
             field = value ?? string.Empty;
             _caretIndex = Math.Clamp(_caretIndex, 0, field.Length);
             TextChanged?.Invoke(field);
-            OnTextChanged?.Invoke(field);
+            WhenTextChanged?.Invoke(field);
             Invalidate();
         }
     } = string.Empty;
@@ -265,8 +265,8 @@ public class TextBox : BaseControl<TextBox>
         }
     } = Theme.Default.ActiveColor;
 
-    public Action<string>? OnTextChanged { get; set; }
-    public Action<string>? OnSubmit { get; set; }
+    public Action<string>? WhenTextChanged { get; set; }
+    public Action<string>? WhenSubmitted { get; set; }
 
     public event Action<string>? TextChanged;
     public event Action<string>? Submitted;
@@ -304,12 +304,12 @@ public class TextBox : BaseControl<TextBox>
         }
     }
 
-    public override bool Intersects(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint? clientPoint)
     {
         return clientPoint != null && Bounds.Contains(clientPoint.Value.X, clientPoint.Value.Y);
     }
 
-    public override void Update(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
     {
         if (!_colorsInitialized)
             UpdateBrushes();
@@ -332,7 +332,7 @@ public class TextBox : BaseControl<TextBox>
         }
     }
 
-    public override void Draw(SKCanvas canvas)
+    public override void OnDraw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
@@ -484,7 +484,7 @@ public class TextBox : BaseControl<TextBox>
 
                 case 13:
                     Submitted?.Invoke(Text);
-                    OnSubmit?.Invoke(Text);
+                    WhenSubmitted?.Invoke(Text);
                     return true;
             }
         }
@@ -561,6 +561,6 @@ public class TextBox : BaseControl<TextBox>
         CaretColor = caret;
         return this;
     }
-    public TextBox WithOnTextChanged(Action<string> onTextChanged) { TextChanged += onTextChanged; OnTextChanged = onTextChanged; return this; }
-    public TextBox WithOnSubmit(Action<string> onSubmit) { Submitted += onSubmit; OnSubmit = onSubmit; return this; }
+    public TextBox WithOnTextChanged(Action<string> onTextChanged) { TextChanged += onTextChanged; WhenTextChanged = onTextChanged; return this; }
+    public TextBox WithOnSubmit(Action<string> onSubmit) { Submitted += onSubmit; WhenSubmitted = onSubmit; return this; }
 }

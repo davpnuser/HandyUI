@@ -9,52 +9,65 @@ Base class for **logic-only** components. Modules tick once per frame (via
 public abstract class BaseModule : IModule
 ```
 
+!!! info "No `OnStateChanged` event"
+    Unlike earlier versions, `BaseModule` no longer exposes an `OnStateChanged`
+    event and `IsEnabled` has a **protected setter**. Enable / disable from
+    the outside via `Start()` / `Stop()`, or subclass and expose your own
+    state API.
+
 ## Properties
 
 ### `IsEnabled`
 
 ```csharp
-public bool IsEnabled { get; set; }
+public bool IsEnabled { get; protected set; }
 ```
 
-Toggling this raises `OnStateChanged`. Disabled modules are skipped by the
-renderer's update loop.
-
-## Events
-
-### `OnStateChanged`
-
-```csharp
-public event Action<bool>? OnStateChanged;
-```
-
-Raised whenever `IsEnabled` changes.
+`true` while the module is running. Read-only from the outside - call
+`Start()` / `Stop()` (or `WithIsEnabled(...)` on the fluent builder) to
+change it.
 
 ## Methods
 
-### `Start()` / `Stop()`
+### `Start()`
 
 ```csharp
-public void Start() => IsEnabled = true;
-public void Stop()  => IsEnabled = false;
+public void Start()
 ```
 
-### `Update(float deltaTime)`
+Sets `IsEnabled = true` and invokes `OnStart()`.
+
+### `Stop()`
 
 ```csharp
-public abstract void Update(float deltaTime);
+public void Stop()
+```
+
+Sets `IsEnabled = false` and invokes `OnStop()`.
+
+### `OnUpdate(float deltaTime)`
+
+```csharp
+public abstract void OnUpdate(float deltaTime);
 ```
 
 Called once per frame while `IsEnabled == true`.
+
+## Virtual hooks
+
+```csharp
+protected virtual void OnStart() { }
+protected virtual void OnStop()  { }
+protected virtual void OnDispose() { }
+```
 
 ## Disposal
 
 ```csharp
 public void Dispose();
-protected virtual void OnDispose();
 ```
 
-Dispose is idempotent. Override `OnDispose` to clean up resources.
+Idempotent. Override `OnDispose` to clean up resources.
 
 ## Fluent API: `BaseModule<TSelf>`
 
@@ -65,8 +78,7 @@ public abstract class BaseModule<TSelf> : BaseModule
 
 | Method | Effect |
 | --- | --- |
-| `WithIsEnabled(bool)` | Sets `IsEnabled`. |
-| `WithOnStateChanged(Action<bool>)` | Subscribes to `OnStateChanged`. |
+| `WithIsEnabled(bool)` | Directly sets `IsEnabled` (bypasses `OnStart`/`OnStop`). |
 | `WithAddToRenderer(UIRenderer)` | Calls `renderer.AddModule(this)`. |
 
 ## Example
@@ -76,10 +88,15 @@ public sealed class FrameCounter : BaseModule<FrameCounter>
 {
     public int Frames { get; private set; }
 
-    public override void Update(float dt) => Frames++;
+    protected override void OnStart() => Console.WriteLine("starting");
+
+    public override void OnUpdate(float dt) => Frames++;
 }
 
 var counter = new FrameCounter().WithAddToRenderer(renderer);
+
+// later:
+counter.Start();
 ```
 
 !!! tip

@@ -1,6 +1,6 @@
 # `WindowConfiguration`
 
-`HandyUI.SilkNet.Classes.Structs.WindowConfiguration`
+`HandyUI.SilkNet.Classes.Records.WindowConfiguration`
 
 An immutable options record for `HandyWindow`.
 
@@ -32,6 +32,7 @@ public record WindowConfiguration
 | `IsCloseable` | `true` | |
 | `IsMaximizable` | `true` | |
 | `IsMinimizable` | `true` | |
+| `Icon` | `null` | Window icon as an `SKImage`. |
 
 ### Parent-child
 
@@ -78,7 +79,8 @@ public record WindowConfiguration
     {
         Title = "Chat",
         Size = new SKSize(420, 700),
-        IsResizable = false
+        IsResizable = false,
+        Icon = SKImage.FromEncodedData("Assets/chat.png")
     };
     ```
 

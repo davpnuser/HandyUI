@@ -9,13 +9,6 @@ a panel, card, or container for other controls.
 public class Frame : BaseControl<Frame>
 ```
 
-!!! warning "Namespace mismatch in the current source"
-    `Frame.cs` currently declares `namespace HandyUI.Controls.Controls;` -
-    every other control in the same package uses `HandyUI.Controls`. This is
-    almost certainly a typo. Until it's fixed, you'll have to reference it as
-    `HandyUI.Controls.Controls.Frame`. The rest of this page assumes the
-    intended namespace.
-
 ## Properties
 
 ### `Theme`
@@ -85,10 +78,10 @@ border.
 
 ## Methods
 
-### `Draw(SKCanvas)`
+### `OnDraw(SKCanvas)`
 
 ```csharp
-public override void Draw(SKCanvas canvas)
+public override void OnDraw(SKCanvas canvas)
 ```
 
 Draws the fill first (when its alpha is > 0), then the border (when the
@@ -123,4 +116,4 @@ var card = new Frame()
 
 !!! tip "Rounded corners"
     `Frame` draws rectangular corners only. For rounded panels, subclass it
-    and override `Draw` to call `canvas.DrawRoundRect`.
+    and override `OnDraw` to call `canvas.DrawRoundRect`.

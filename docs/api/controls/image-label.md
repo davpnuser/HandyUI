@@ -75,10 +75,10 @@ public bool RecalculateBounds()
 
 Recomputes `Bounds`. Returns `true` if the bounds actually changed.
 
-### `Draw(SKCanvas)`
+### `OnDraw(SKCanvas)`
 
 ```csharp
-public override void Draw(SKCanvas canvas)
+public override void OnDraw(SKCanvas canvas)
 ```
 
 When both an explicit width and height are set (and `AutoSize` is `true`),
