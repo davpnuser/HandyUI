@@ -64,8 +64,9 @@ Queues `control` for addition as a root control. Attachment happens on the
 next render/update tick.
 
 !!! note
-    The renderer subscribes to the control's `FocusRequested` and `Invalidated`
-    events on attach. Do not attach the same instance to two renderers.
+    The renderer subscribes to the control's `WhenFocusRequested` and
+    `WhenInvalidated` events on attach. Do not attach the same instance to
+    two renderers.
 
 ### `RemoveRootControl(IControl control)`
 
@@ -73,8 +74,9 @@ next render/update tick.
 public void RemoveRootControl(IControl control)
 ```
 
-Queues `control` for removal. On the next tick the renderer unsubscribes from
-events, clears focus/press tracking, and calls `Dispose()` on the control.
+Queues `control` for removal. On the next tick the renderer unsubscribes
+from events, clears focus/press tracking, and calls `Dispose()` on the
+control.
 
 !!! warning "Ownership"
     `RemoveRootControl` **disposes** the control. If you want to hide it
@@ -87,8 +89,8 @@ public void AddModule(IModule module)
 public void RemoveModule(IModule module)
 ```
 
-Queue a module for addition/removal. On removal, `Dispose()` is called if the
-module implements `IDisposable`.
+Queue a module for addition/removal. On removal, `Dispose()` is called if
+the module implements `IDisposable`.
 
 ### `ProcessMouseEvent(MouseEventContext context)`
 
@@ -101,13 +103,14 @@ Runs a full mouse pass:
 1. Hit-tests root controls (highest `ZIndex` first).
 2. Updates `_pressedControl` on `MouseDown` and sets focus on the hit control.
 3. Dispatches the raw event recursively.
-4. On `MouseUp`, synthesizes a `Click` to `_pressedControl` if it's still under
-   the cursor.
+4. On `MouseUp`, synthesizes a `Click` to `_pressedControl` if it's still
+   under the cursor.
 
-!!! tip "Clipping"
-    Children outside a parent's bounds are clipped only when the parent has
-    `ScissoringEnabled = true`. Off-clip controls receive `(-99999, -99999)`
-    as their cursor position.
+!!! info "Nullable `ClientPosition`"
+    `MouseEventContext.ClientPosition` is `SKPoint?`. A `null` value means
+    *"the cursor is not over this subtree"*. `ProcessMouseEvent` returns
+    early if the incoming event has a null position; the recursive dispatch
+    substitutes `null` for clipped descendants.
 
 ### `ProcessKeyEvent(KeyEventContext context)`
 
@@ -134,7 +137,8 @@ Returns `true` if a render actually happened.
 public bool UpdateModules(float deltaTime)
 ```
 
-Ticks every enabled module. Returns `true` if modules were actually updated.
+Ticks every enabled module by calling `module.OnUpdate(deltaTime)`. Returns
+`true` if modules were actually updated.
 
 ## Example
 

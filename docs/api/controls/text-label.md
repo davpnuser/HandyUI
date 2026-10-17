@@ -81,10 +81,10 @@ public bool RecalculateBounds()
 Fits `Bounds` to the text's measured width and the font's line height
 (`Descent - Ascent`). Returns `true` if the bounds changed.
 
-### `Draw(SKCanvas)`
+### `OnDraw(SKCanvas)`
 
 ```csharp
-public override void Draw(SKCanvas canvas)
+public override void OnDraw(SKCanvas canvas)
 ```
 
 Draws the text left-aligned at `Bounds.Left`, vertically centered in

@@ -32,8 +32,8 @@ public interface IControl : IDisposable
 
 | Event | Description |
 | --- | --- |
-| `FocusRequested` | Raised by `RequestFocus()`. |
-| `Invalidated` | Raised when state changes. |
+| `WhenFocusRequested` | Raised by `RequestFocus()`. |
+| `WhenInvalidated` | Raised when state changes. |
 
 ## Methods
 
@@ -43,9 +43,9 @@ public interface IControl : IDisposable
 | `RequestFocus()` | Ask the renderer to focus this control. |
 | `ProcessMouseEvent(MouseEventContext)` | Route a mouse event. |
 | `ProcessKeyEvent(KeyEventContext)` | Route a key event. |
-| `Intersects(SKPoint)` | Hit-test in local space. |
-| `Update(float, SKPoint)` | Per-frame update. |
-| `Draw(SKCanvas)` | Per-frame draw. |
+| `DoesIntersect(SKPoint?)` | Hit-test in local space (nullable = clipped). |
+| `OnUpdate(float, SKPoint?)` | Per-frame update. |
+| `OnDraw(SKCanvas)` | Per-frame draw. |
 
 ## Fluent API: `IControl<TSelf>`
 

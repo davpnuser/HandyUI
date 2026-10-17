@@ -14,7 +14,7 @@ public enum MouseEventType { Move, MouseDown, MouseUp, Click, Wheel }
 
 ```csharp
 public record MouseEventContext(
-    SKPoint ClientPosition,
+    SKPoint? ClientPosition,
     MouseEventType Type,
     MouseButton Button = MouseButton.None,
     int WheelDelta = 0);
@@ -22,10 +22,16 @@ public record MouseEventContext(
 
 | Field | Description |
 | --- | --- |
-| `ClientPosition` | Cursor position **in the receiving control's local space**. When clipped, the renderer substitutes `(-99999, -99999)`. |
+| `ClientPosition` | Cursor position **in the receiving control's local space**, or **`null`** when the cursor is clipped out of this subtree. |
 | `Type` | Which kind of event this is. |
 | `Button` | Which mouse button triggered the event (for button events). |
 | `WheelDelta` | Wheel delta in "clicks". Typically ±120 per notch. |
+
+!!! info "Null means clipped"
+    Rather than using a sentinel value like `(-99999, -99999)`,
+    `ClientPosition` is genuinely `null` when the control is out-of-bounds
+    because of clipping. Custom controls should treat `null` as
+    *"not hovered"* and return `false` from `DoesIntersect`.
 
 !!! info "Synthetic clicks"
     The renderer synthesizes a `Click` event on `MouseUp` when the same

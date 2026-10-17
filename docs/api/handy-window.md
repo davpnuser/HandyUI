@@ -44,9 +44,10 @@ window.Run();
 
 !!! info "Why not `OnLoad`?"
     `UIRenderer.AddRootControl` is thread-safe and queues the control for the
-    next tick. There's no need to wait for the GL context to attach a control
-    - only things that require a live GL context (like `SetIcon`) need to run
-    after initialization.
+    next tick. There's no need to wait for the GL context to attach a
+    control - only things that require a live GL context (like setting the
+    window `Icon`) need to run after initialization, and those are handled
+    for you through deferred properties.
 
 ## Properties
 
@@ -71,10 +72,30 @@ window.Run();
 | `IsMaximizable` | `bool` | Maximize button. |
 | `IsCloseable` | `bool` | If `false`, close requests are canceled. |
 | `TopMost` | `bool` | Always on top. |
+| `Icon` | `SKImage?` | Window icon, applied automatically after init. |
 | `SubwindowParent` | `HandyWindow?` | Native parent window. |
 | `ModalParent` | `HandyWindow?` | Modal parent; disables the parent. |
 | `ModalChild` | `HandyWindow?` | Read-only modal child. |
 | `InvalidateParentOnMove` | `bool` | Invalidate parent on move. |
+
+### `Icon`
+
+```csharp
+public SKImage? Icon { get; set; }
+```
+
+Assigning a new icon marks it pending; the actual Win32 `SetWindowIcon` call
+is deferred until the window is initialized and is replayed on the pump
+thread.
+
+```csharp
+window.Icon = SKImage.FromEncodedData("Assets/app-icon.png");
+```
+
+!!! info "No `SetIcon` method"
+    The old `SetIcon(SKImage)` method has been **removed**. Assign the `Icon`
+    property instead - it handles initialization timing and thread
+    marshalling for you.
 
 ## Events
 
@@ -142,15 +163,6 @@ Marshals a delegate onto the pump thread and blocks until it completes.
     Nested invokes from a **different** thread are fine, but a nested invoke
     issued from the pump thread must not block.
 
-### `SetIcon(SKImage)`
-
-```csharp
-public void SetIcon(SKImage newIcon)
-```
-
-Converts the image to RGBA and sets it as the window icon. Must be called
-after `Initialize()`.
-
 ### `SetSizeLimits(SKSize?, SKSize?)`
 
 ```csharp
@@ -173,5 +185,5 @@ Blocks until the GL context is ready (or times out).
 public void Dispose();
 ```
 
-Closes the window, waits up to 2 seconds for the pump thread, then marks the
+Closes the window, then marks the
 instance disposed.

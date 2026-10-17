@@ -2,13 +2,18 @@
 
 `HandyUI.Core.Classes.Base.BaseControl`
 
-The base class for every drawable control. Provides transformation, geometry,
-visual state, interaction state, a parent/children tree, and invalidation
-events.
+The base class for every drawable control. It provides transformation,
+geometry, visual state, interaction state, a parent/children tree, and
+invalidation events.
 
 ```csharp
 public abstract class BaseControl : IControl
 ```
+
+!!! info "Positioning is nullable"
+    Both `DoesIntersect` and `OnUpdate` receive `SKPoint?`. A **`null`**
+    value means *"the cursor is not over this control's subtree"* - this is
+    how the renderer propagates clipping without a magic sentinel value.
 
 ## Properties
 
@@ -123,19 +128,19 @@ public bool IsEnabled { get; set; }   // default: true
 
 ## Events
 
-### `Invalidated`
+### `WhenInvalidated`
 
 ```csharp
-public event Action? Invalidated;
+public event Action? WhenInvalidated;
 ```
 
 Raised when the control's visual state changes. The renderer subscribes to
 keep its dirty flag accurate.
 
-### `FocusRequested`
+### `WhenFocusRequested`
 
 ```csharp
-public event Action<IControl>? FocusRequested;
+public event Action<IControl>? WhenFocusRequested;
 ```
 
 Raised by `RequestFocus()`. The renderer listens and sets focus accordingly.
@@ -148,8 +153,8 @@ Raised by `RequestFocus()`. The renderer listens and sets focus accordingly.
 public void Invalidate()
 ```
 
-Raises `Invalidated` and bubbles up to the parent. Call after mutating state
-outside of the built-in properties.
+Raises `WhenInvalidated` and bubbles up to the parent. Call after mutating
+state outside of the built-in properties.
 
 ### `RequestFocus()`
 
@@ -181,16 +186,18 @@ otherwise `false`.
 ### Abstract methods
 
 ```csharp
-public abstract bool Intersects(SKPoint clientPoint);
-public abstract void Update(float deltaTime, SKPoint clientMousePosition);
-public abstract void Draw(SKCanvas canvas);
+public abstract bool DoesIntersect(SKPoint? clientPoint);
+public abstract void OnUpdate(float deltaTime, SKPoint? clientMousePosition);
+public abstract void OnDraw(SKCanvas canvas);
 ```
 
-- `Intersects` receives a point in the control's **local** space.
-- `Update` runs once per frame **before** `Draw`. `clientMousePosition` is
-  local (or `(-99999, -99999)` when clipped).
-- `Draw` runs after `Update`; the canvas is already translated to the control
-  origin when `ParentChildPositioningEnabled` is `true`.
+- `DoesIntersect` receives a point in the control's **local** space - or
+  `null` when the cursor is clipped out of the subtree. Return `false` for
+  null.
+- `OnUpdate` runs once per frame **before** `OnDraw`. `clientMousePosition`
+  is local (or `null` when clipped).
+- `OnDraw` runs after `OnUpdate`; the canvas is already translated to the
+  control origin when `ParentChildPositioningEnabled` is `true`.
 
 ## Virtual hooks
 
@@ -239,11 +246,12 @@ public sealed class ClickBox : BaseControl<ClickBox>
 {
     public event Action? Clicked;
 
-    public override bool Intersects(SKPoint p) => Bounds.Contains(p);
+    public override bool DoesIntersect(SKPoint? p)
+        => p is not null && Bounds.Contains(p.Value);
 
-    public override void Update(float dt, SKPoint mouse) { }
+    public override void OnUpdate(float dt, SKPoint? mouse) { }
 
-    public override void Draw(SKCanvas canvas)
+    public override void OnDraw(SKCanvas canvas)
     {
         using var paint = new SKPaint
         {
