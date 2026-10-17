@@ -19,7 +19,7 @@ public interface IModule : IDisposable
 
     #region Abstract/Virtual Methods
 
-    void Update(float deltaTime);
+    void OnUpdate(float deltaTime);
 
     #endregion
 }

@@ -94,7 +94,7 @@ public class CheckBox : BaseControl<CheckBox>
     private readonly SKPaint _darkerBackgroundPaint = new() { Style = SKPaintStyle.Fill };
     private readonly SKPaint _borderPaint = new() { Style = SKPaintStyle.Stroke, StrokeWidth = 2f };
 
-    public Action<bool>? OnCheckChanged { get; set; }
+    public Action<bool>? WhenCheckChanged { get; set; }
 
     private void RecalculateBounds()
     {
@@ -121,18 +121,18 @@ public class CheckBox : BaseControl<CheckBox>
         }
     }
 
-    public override bool Intersects(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint? clientPoint)
     {
         return clientPoint != null && Bounds.Contains(clientPoint.Value.X, clientPoint.Value.Y);
     }
 
-    public override void Update(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
     {
         if (!_colorsInitialized)
             UpdateBrushes();
     }
 
-    public override void Draw(SKCanvas canvas)
+    public override void OnDraw(SKCanvas canvas)
     {
         if (IsHovered)
             canvas.DrawRect(Bounds, _darkerBackgroundPaint);
@@ -155,7 +155,7 @@ public class CheckBox : BaseControl<CheckBox>
         if (mouseContext.Type == MouseEventType.MouseUp && IsHovered && IsEnabled)
         {
             IsChecked = !IsChecked;
-            OnCheckChanged?.Invoke(IsChecked);
+            WhenCheckChanged?.Invoke(IsChecked);
             return true;
         }
 
@@ -173,5 +173,5 @@ public class CheckBox : BaseControl<CheckBox>
     public CheckBox WithIsChecked(bool isChecked) { IsChecked = isChecked; return this; }
     public CheckBox WithBoxSize(float size) { BoxSize = size; return this; }
     public CheckBox WithTheme(Theme theme) { Theme = theme; return this; }
-    public CheckBox WithOnCheckChanged(Action<bool> onCheckChanged) { OnCheckChanged = onCheckChanged; return this; }
+    public CheckBox WithOnCheckChanged(Action<bool> onCheckChanged) { WhenCheckChanged = onCheckChanged; return this; }
 }

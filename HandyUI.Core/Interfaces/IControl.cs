@@ -33,12 +33,12 @@ public interface IControl : IDisposable
 
     #region Events
 
-    event Action<IControl>? FocusRequested;
-    event Action? Invalidated;
+    event Action<IControl>? WhenFocusRequested;
+    event Action? WhenInvalidated;
 
     #endregion
 
-    #region Event Methods
+    #region Methods
 
     void Invalidate();
     void RequestFocus();
@@ -49,9 +49,9 @@ public interface IControl : IDisposable
 
     #region Abstract/Virtual Methods
 
-    bool Intersects(SKPoint? clientPoint);
-    void Update(float deltaTime, SKPoint? clientMousePosition);
-    void Draw(SKCanvas canvas);
+    bool DoesIntersect(SKPoint? clientPoint);
+    void OnUpdate(float deltaTime, SKPoint? clientMousePosition);
+    void OnDraw(SKCanvas canvas);
 
     #endregion
 }

@@ -1,6 +1,6 @@
 ﻿using HandyUI.SilkNet.Classes.Extensions;
 using HandyUI.SilkNet.Classes.Helper;
-using HandyUI.SilkNet.Classes.Structs;
+using HandyUI.SilkNet.Classes.Records;
 using HandyUI.SilkNet.Classes.Tools;
 using Silk.NET.Core;
 using Silk.NET.Maths;
@@ -8,6 +8,7 @@ using Silk.NET.Windowing;
 using SkiaSharp;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace HandyUI.SilkNet.Components;
 
@@ -137,16 +138,18 @@ public class HandyWindow : IDisposable
         }
     }
 
-    public bool IsMovable
+    public bool VisibleInTaskbar
     {
         get;
         set
         {
+            if (field == value)
+                return;
+
             field = value;
-            if (!field && Position.HasValue)
-                _previousPosition = Position.Value;
+            ApplyVisibleInTaskbar();
         }
-    }
+    } = true;
 
     public bool IsResizable
     {
@@ -158,7 +161,20 @@ public class HandyWindow : IDisposable
         }
     }
 
-    public bool VisibleInTaskbar
+    public bool IsMovable
+    {
+        get;
+        set
+        {
+            field = value;
+            if (!field && Position.HasValue)
+                _previousPosition = Position.Value;
+        }
+    }
+
+    public bool IsCloseable { get; set; } = true;
+
+    public bool IsMaximizable
     {
         get;
         set
@@ -167,7 +183,7 @@ public class HandyWindow : IDisposable
                 return;
 
             field = value;
-            ApplyVisibleInTaskbar();
+            ApplyWindowButtons();
         }
     } = true;
 
@@ -184,7 +200,7 @@ public class HandyWindow : IDisposable
         }
     } = true;
 
-    public bool IsMaximizable
+    public SKImage? Icon
     {
         get;
         set
@@ -193,17 +209,15 @@ public class HandyWindow : IDisposable
                 return;
 
             field = value;
-            ApplyWindowButtons();
+            _iconNeedsApply = true;
         }
-    } = true;
+    }
 
     public bool TopMost
     {
         get => InternalWindow?.TopMost ?? false;
         set => InternalWindow?.TopMost = value;
     }
-
-    public bool IsCloseable { get; set; } = true;
 
     private readonly List<HandyWindow> _children = [];
 
@@ -324,6 +338,7 @@ public class HandyWindow : IDisposable
     private volatile bool _programmaticClose;
     private volatile bool _closeRequested;
     private volatile bool _isInitialized;
+    private volatile bool _iconNeedsApply;
     private volatile bool _opacityNeedsApply;
     private volatile bool _parentNeedsApply;
     private volatile bool _modalStateNeedsApply;
@@ -357,12 +372,13 @@ public class HandyWindow : IDisposable
         Opacity = windowConfiguration.Opacity;
         _centerOnStartup = windowConfiguration.IsCenteredOnStartup;
 
-        IsMovable = windowConfiguration.IsMovable;
-        IsResizable = windowConfiguration.IsResizable;
         VisibleInTaskbar = windowConfiguration.IsVisibleInTaskbar;
-        IsMinimizable = windowConfiguration.IsMinimizable;
-        IsMaximizable = windowConfiguration.IsMaximizable;
+        IsResizable = windowConfiguration.IsResizable;
+        IsMovable = windowConfiguration.IsMovable;
         IsCloseable = windowConfiguration.IsCloseable;
+        IsMaximizable = windowConfiguration.IsMaximizable;
+        IsMinimizable = windowConfiguration.IsMinimizable;
+        Icon = windowConfiguration.Icon;
 
         if (windowConfiguration.ModalParent is not null)
             ModalParent = windowConfiguration.ModalParent;
@@ -594,6 +610,8 @@ public class HandyWindow : IDisposable
                 try { window.DoEvents(); }
                 catch { /* do not crash */ }
 
+                #region Things need applying
+
                 if (IsInitialized && _parentNeedsApply)
                 {
                     var desired = SubwindowParent;
@@ -620,6 +638,11 @@ public class HandyWindow : IDisposable
                     ApplyVisibleInTaskbar();
                 }
 
+                if (IsInitialized && _iconNeedsApply)
+                {
+                    ApplyIcon();
+                }
+
                 if (IsInitialized && _windowButtonsNeedApply)
                 {
                     ApplyWindowButtons();
@@ -630,6 +653,8 @@ public class HandyWindow : IDisposable
                     _invalidateRequested = false;
                     RendererAdapter?.Invalidate();
                 }
+
+                #endregion
 
                 var useDirty = RendererAdapter?.UseDirtyRendering ?? UseDirtyRendering;
                 var invalidated = RendererAdapter?.IsInvalidated == true;
@@ -805,6 +830,53 @@ public class HandyWindow : IDisposable
         _visibleInTaskbarNeedsApply = false;
     }
 
+    private void ApplyIcon()
+    {
+        if (IsDisposed) return;
+
+        if (!OperatingSystem.IsWindows()) return;
+
+        if (!_isInitialized)
+        {
+            _iconNeedsApply = true;
+            return;
+        }
+
+        void apply()
+        {
+            if (Icon is null) return;
+
+            using var bmp = SKBitmap.FromImage(Icon);
+
+            var info = new SKImageInfo(bmp.Width, bmp.Height, SKColorType.Rgba8888, SKAlphaType.Unpremul);
+            using var rgba = new SKBitmap(info);
+            if (!bmp.CopyTo(rgba)) return;
+
+            var px = MemoryMarshal.Cast<byte, uint>(rgba.GetPixelSpan());
+            for (var i = 0; i < px.Length; i++)
+            {
+                px[i] = (px[i] & 0xFF00FF00u)
+                      | ((px[i] >> 16) & 0x000000FFu)
+                      | ((px[i] & 0x000000FFu) << 16);
+            }
+
+            var icon = new RawImage(rgba.Width, rgba.Height, rgba.Bytes);
+            InternalWindow!.SetWindowIcon(ref icon);
+        }
+
+        if (IsOnPumpThread)
+        {
+            apply();
+        }
+        else if (!_closeRequested)
+        {
+            try { Invoke(apply); }
+            catch { /* do not crash */ }
+        }
+
+        _iconNeedsApply = false;
+    }
+
     private void ApplyWindowButtons()
     {
         if (IsDisposed) return;
@@ -970,24 +1042,6 @@ public class HandyWindow : IDisposable
         _invalidateRequested = true;
 
         WakePumpThread();
-    }
-
-    public void SetIcon(SKImage newIcon)
-    {
-        ArgumentNullException.ThrowIfNull(newIcon);
-        if (InternalWindow is null) throw new InvalidOperationException("Window not created.");
-
-        Initialize();
-
-        Invoke(() =>
-        {
-            using var bmp = SKBitmap.FromImage(newIcon);
-            using var rgba = new SKBitmap(new SKImageInfo(bmp.Width, bmp.Height, SKColorType.Rgba8888));
-            bmp.CopyTo(rgba);
-
-            var icon = new RawImage(rgba.Width, rgba.Height, rgba.Bytes);
-            InternalWindow!.SetWindowIcon(ref icon);
-        });
     }
 
     public void SetSizeLimits(SKSize? minSize, SKSize? maxSize)

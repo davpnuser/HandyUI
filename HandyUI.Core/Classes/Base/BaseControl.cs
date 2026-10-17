@@ -12,7 +12,7 @@ public abstract class BaseControl : IControl
 
     public void Invalidate()
     {
-        Invalidated?.Invoke();
+        WhenInvalidated?.Invoke();
         Parent?.Invalidate();
     }
 
@@ -149,8 +149,8 @@ public abstract class BaseControl : IControl
 
     #region Events
 
-    public event Action? Invalidated;
-    public event Action<IControl>? FocusRequested;
+    public event Action? WhenInvalidated;
+    public event Action<IControl>? WhenFocusRequested;
 
     #endregion
 
@@ -208,12 +208,12 @@ public abstract class BaseControl : IControl
 
     #endregion
 
-    #region Event Methods
+    #region Methods
 
     public void RequestFocus()
     {
         if (!IsEnabled || !IsVisible) return;
-        FocusRequested?.Invoke(this);
+        WhenFocusRequested?.Invoke(this);
     }
 
     public bool ProcessMouseEvent(MouseEventContext mouseContext)
@@ -221,7 +221,7 @@ public abstract class BaseControl : IControl
         if (!IsVisible || !IsEnabled)
             return false;
 
-        IsHovered = Intersects(mouseContext.ClientPosition);
+        IsHovered = DoesIntersect(mouseContext.ClientPosition);
 
         if (mouseContext.Type == MouseEventType.MouseDown && IsHovered)
         {
@@ -254,9 +254,9 @@ public abstract class BaseControl : IControl
         return false;
     }
 
-    public abstract bool Intersects(SKPoint? clientPoint);
-    public abstract void Update(float deltaTime, SKPoint? clientMousePosition);
-    public abstract void Draw(SKCanvas canvas);
+    public abstract bool DoesIntersect(SKPoint? clientPoint);
+    public abstract void OnUpdate(float deltaTime, SKPoint? clientMousePosition);
+    public abstract void OnDraw(SKCanvas canvas);
 
     #endregion
 

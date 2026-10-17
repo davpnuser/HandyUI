@@ -318,7 +318,7 @@ public class ImageButton : BaseControl<ImageButton>
         }
     } = BorderDirection.Inside;
 
-    public Action? OnClick { get; set; }
+    public Action? WhenClicked { get; set; }
     public event Action? Clicked;
 
     private SKTypeface GetEffectiveTypeface()
@@ -396,18 +396,18 @@ public class ImageButton : BaseControl<ImageButton>
         }
     }
 
-    public override bool Intersects(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint? clientPoint)
     {
         return clientPoint != null && Bounds.Contains(clientPoint.Value.X, clientPoint.Value.Y);
     }
 
-    public override void Update(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
     {
         if (!_colorsInitialized)
             UpdateBrushes();
     }
 
-    public override void Draw(SKCanvas canvas)
+    public override void OnDraw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
@@ -488,7 +488,7 @@ public class ImageButton : BaseControl<ImageButton>
         if (mouseContext.Type == MouseEventType.MouseUp && IsHovered && IsEnabled)
         {
             Clicked?.Invoke();
-            OnClick?.Invoke();
+            WhenClicked?.Invoke();
             return true;
         }
 
@@ -556,5 +556,5 @@ public class ImageButton : BaseControl<ImageButton>
     }
     public ImageButton WithBorderThickness(float thickness) { BorderThickness = thickness; return this; }
     public ImageButton WithBorderDirection(BorderDirection direction) { BorderDirection = direction; return this; }
-    public ImageButton WithOnClick(Action onClick) { Clicked += onClick; OnClick += onClick; return this; }
+    public ImageButton WithOnClick(Action onClick) { Clicked += onClick; WhenClicked += onClick; return this; }
 }

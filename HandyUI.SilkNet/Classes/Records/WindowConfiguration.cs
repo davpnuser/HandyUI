@@ -3,7 +3,7 @@ using Silk.NET.Core.Contexts;
 using Silk.NET.Windowing;
 using SkiaSharp;
 
-namespace HandyUI.SilkNet.Classes.Structs;
+namespace HandyUI.SilkNet.Classes.Records;
 
 public record WindowConfiguration
 {
@@ -24,6 +24,7 @@ public record WindowConfiguration
     public bool IsCloseable { get; init; } = true;
     public bool IsMaximizable { get; init; } = true;
     public bool IsMinimizable { get; init; } = true;
+    public SKImage? Icon { get; init; } = null;
 
     // Parent-Child Relationships
     public HandyWindow? SubwindowParent { get; init; } = null;

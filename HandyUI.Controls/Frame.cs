@@ -149,18 +149,18 @@ public class Frame : BaseControl<Frame>
         }
     }
 
-    public override bool Intersects(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint? clientPoint)
     {
         return clientPoint != null && Bounds.Contains(clientPoint.Value.X, clientPoint.Value.Y);
     }
 
-    public override void Update(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
     {
         if (!_colorsInitialized)
             UpdateBrushes();
     }
 
-    public override void Draw(SKCanvas canvas)
+    public override void OnDraw(SKCanvas canvas)
     {
         if (!IsVisible) return;
 
