@@ -117,4 +117,6 @@ nav:
       - WindowConfiguration: api/window-configuration.md
       - Silk.NET Helpers: api/silknet-helpers.md
       - VectorExtensions: api/vector-extensions.md
+  - Extras:
+    - Branding: extras/branding.md
 copyright: ©2026 davpnuser

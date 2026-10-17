@@ -5,7 +5,7 @@ namespace HandyUI.TestApp.Controls;
 
 public class RegressionTestingControl : BaseControl<RegressionTestingControl>
 {
-    public override bool Intersects(SKPoint clientPoint)
+    public override bool Intersects(SKPoint? clientPoint)
     {
         return false;
     }
@@ -14,7 +14,7 @@ public class RegressionTestingControl : BaseControl<RegressionTestingControl>
     {
     }
 
-    public override void Update(float deltaTime, SKPoint clientMousePosition)
+    public override void Update(float deltaTime, SKPoint? clientMousePosition)
     {
         Console.WriteLine(deltaTime.ToString("F50"));
     }

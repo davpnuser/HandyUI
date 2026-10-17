@@ -254,8 +254,8 @@ public abstract class BaseControl : IControl
         return false;
     }
 
-    public abstract bool Intersects(SKPoint clientPoint);
-    public abstract void Update(float deltaTime, SKPoint clientMousePosition);
+    public abstract bool Intersects(SKPoint? clientPoint);
+    public abstract void Update(float deltaTime, SKPoint? clientMousePosition);
     public abstract void Draw(SKCanvas canvas);
 
     #endregion

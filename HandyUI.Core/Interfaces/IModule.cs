@@ -6,13 +6,7 @@ public interface IModule : IDisposable
 {
     #region Properties
 
-    bool IsEnabled { get; set; }
-
-    #endregion
-
-    #region Events
-
-    event Action<bool>? OnStateChanged;
+    bool IsEnabled { get; }
 
     #endregion
 
@@ -35,7 +29,6 @@ public interface IModule : IDisposable
 public interface IModule<TSelf> : IModule where TSelf : IModule<TSelf>
 {
     TSelf WithIsEnabled(bool enabled);
-    TSelf WithOnStateChanged(Action<bool>? action);
     TSelf WithAddToRenderer(UIRenderer renderer);
 }
 

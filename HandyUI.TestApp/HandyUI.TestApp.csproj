@@ -11,10 +11,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\HandyUI-SmallIcon-Tt.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\THIRD-PARTY-NOTICES.txt" Link="THIRD-PARTY-NOTICES.txt">
       <PackagePath>\</PackagePath>
       <Pack>true</Pack>

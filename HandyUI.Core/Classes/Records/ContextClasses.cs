@@ -22,7 +22,7 @@ public enum MouseEventType
 }
 
 public record MouseEventContext(
-    SKPoint ClientPosition,
+    SKPoint? ClientPosition,
     MouseEventType Type,
     MouseButton Button = MouseButton.None,
     int WheelDelta = 0

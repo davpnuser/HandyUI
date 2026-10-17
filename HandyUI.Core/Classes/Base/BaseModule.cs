@@ -7,24 +7,7 @@ public abstract class BaseModule : IModule
 {
     #region Properties
 
-    public bool IsEnabled
-    {
-        get;
-        set
-        {
-            if (value == field)
-                return;
-
-            OnStateChanged?.Invoke(value);
-            field = value;
-        }
-    }
-
-    #endregion
-
-    #region Events
-
-    public event Action<bool>? OnStateChanged;
+    public bool IsEnabled { get; protected set; }
 
     #endregion
 
@@ -39,11 +22,13 @@ public abstract class BaseModule : IModule
     public void Start()
     {
         IsEnabled = true;
+        OnStart();
     }
 
     public void Stop()
     {
         IsEnabled = false;
+        OnStop();
     }
 
     #endregion
@@ -51,6 +36,8 @@ public abstract class BaseModule : IModule
     #region Abstract/Virtual Methods
 
     public abstract void Update(float deltaTime);
+    protected virtual void OnStart() { }
+    protected virtual void OnStop() { }
 
     #endregion
 
@@ -88,12 +75,6 @@ public abstract class BaseModule<TSelf> : BaseModule where TSelf : BaseModule<TS
     public TSelf WithIsEnabled(bool enabled)
     {
         IsEnabled = enabled;
-        return Self;
-    }
-
-    public TSelf WithOnStateChanged(Action<bool>? action)
-    {
-        OnStateChanged += action;
         return Self;
     }
 

@@ -213,12 +213,12 @@ public class TextLabel : BaseControl<TextLabel>
         return true;
     }
 
-    public override bool Intersects(SKPoint clientPoint)
+    public override bool Intersects(SKPoint? clientPoint)
     {
-        return Bounds.Contains(clientPoint.X, clientPoint.Y);
+        return clientPoint != null && Bounds.Contains(clientPoint.Value.X, clientPoint.Value.Y);
     }
 
-    public override void Update(float deltaTime, SKPoint clientMousePosition)
+    public override void Update(float deltaTime, SKPoint? clientMousePosition)
     {
         if (!_colorsInitialized)
             UpdateBrushes();

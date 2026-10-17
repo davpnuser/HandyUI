@@ -304,12 +304,12 @@ public class TextBox : BaseControl<TextBox>
         }
     }
 
-    public override bool Intersects(SKPoint clientPoint)
+    public override bool Intersects(SKPoint? clientPoint)
     {
-        return Bounds.Contains(clientPoint.X, clientPoint.Y);
+        return clientPoint != null && Bounds.Contains(clientPoint.Value.X, clientPoint.Value.Y);
     }
 
-    public override void Update(float deltaTime, SKPoint clientMousePosition)
+    public override void Update(float deltaTime, SKPoint? clientMousePosition)
     {
         if (!_colorsInitialized)
             UpdateBrushes();
@@ -379,7 +379,7 @@ public class TextBox : BaseControl<TextBox>
     {
         if (mouseContext.Type == MouseEventType.MouseDown && mouseContext.Button == MouseButton.Left)
         {
-            if (IsHovered && IsEnabled)
+            if (IsHovered && IsEnabled && mouseContext.ClientPosition != null)
             {
                 if (!IsFocused)
                 {
@@ -389,7 +389,7 @@ public class TextBox : BaseControl<TextBox>
                 }
                 ResetCaretBlink();
 
-                var relativeClickX = mouseContext.ClientPosition.X - Bounds.Left - PaddingX;
+                var relativeClickX = mouseContext.ClientPosition.Value.X - Bounds.Left - PaddingX;
                 var newIndex = GetCaretIndexFromX(relativeClickX);
                 if (_caretIndex != newIndex)
                 {

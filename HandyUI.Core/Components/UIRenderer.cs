@@ -79,6 +79,8 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
 
     public void ProcessMouseEvent(MouseEventContext context)
     {
+        if (context.ClientPosition is not { } clientPosition) return;
+
         IControl[] rootSnapshot;
         lock (_rootControlsLock)
         {
@@ -89,7 +91,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         IControl? hitControl = null;
         for (var i = rootSnapshot.Length - 1; i >= 0; i--)
         {
-            hitControl = HitTestRecursive(rootSnapshot[i], context.ClientPosition);
+            hitControl = HitTestRecursive(rootSnapshot[i], clientPosition);
             if (hitControl != null) break;
         }
 
@@ -105,7 +107,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         {
             if (_pressedControl != null && _pressedControl == hitControl)
             {
-                var localPos = GetLocalMousePosition(_pressedControl, context.ClientPosition);
+                var localPos = GetLocalMousePosition(_pressedControl, clientPosition);
                 _pressedControl.ProcessMouseEvent(context with { Type = MouseEventType.Click, ClientPosition = localPos });
             }
             _pressedControl = null;
@@ -244,9 +246,12 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
     {
         if (!control.IsVisible) return;
 
-        var localPos = GetLocalMousePosition(control, context.ClientPosition);
+        if (context.ClientPosition is not { } clientPosition) return;
+
+        var localPos = GetLocalMousePosition(control, clientPosition);
         var clipForSubtree = isMouseClipped || (control.ScissoringEnabled && !control.Bounds.Contains(localPos));
-        var effectivePos = (clipForSubtree && control != _pressedControl) ? new SKPoint(-99999f, -99999f) : localPos;
+
+        var effectivePos = (clipForSubtree && control != _pressedControl) ? (SKPoint?)null : localPos;
 
         control.ProcessMouseEvent(context with { ClientPosition = effectivePos });
 
@@ -273,7 +278,8 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
 
         var localCursor = GetLocalMousePosition(control, cursorPosition);
         var clipForSubtree = isMouseClipped || (control.ScissoringEnabled && !control.Bounds.Contains(localCursor));
-        var effectiveCursor = (clipForSubtree && control != _pressedControl) ? new SKPoint(-99999f, -99999f) : localCursor;
+
+        var effectiveCursor = (clipForSubtree && control != _pressedControl) ? (SKPoint?)null : localCursor;
 
         var saveCount = canvas.SaveCount;
 

@@ -44,7 +44,7 @@ public class FpsLabelControl : BaseControl
         UpdateBounds();
     }
 
-    public override void Update(float deltaTime, SKPoint clientMousePosition)
+    public override void Update(float deltaTime, SKPoint? clientMousePosition)
     {
         _frameCount++;
         _elapsedTime += deltaTime;
@@ -66,9 +66,9 @@ public class FpsLabelControl : BaseControl
         canvas.DrawText(_fpsText, 0, -_font.Metrics.Ascent, SKTextAlign.Left, _font, _paint);
     }
 
-    public override bool Intersects(SKPoint clientPoint)
+    public override bool Intersects(SKPoint? clientPoint)
     {
-        return Bounds.Contains(clientPoint);
+        return clientPoint != null && Bounds.Contains((SKPoint)clientPoint);
     }
 
     private void UpdateBounds()

@@ -49,8 +49,8 @@ public interface IControl : IDisposable
 
     #region Abstract/Virtual Methods
 
-    bool Intersects(SKPoint clientPoint);
-    void Update(float deltaTime, SKPoint clientMousePosition);
+    bool Intersects(SKPoint? clientPoint);
+    void Update(float deltaTime, SKPoint? clientMousePosition);
     void Draw(SKCanvas canvas);
 
     #endregion
