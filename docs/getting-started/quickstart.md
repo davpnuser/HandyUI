@@ -70,36 +70,34 @@ You have two options:
 
     ![Multiple Windows Running](assets/quickstart/multiple-windows.png)
 
-## Adding a title to a window
+## Creating a window with a custom configuration
 
-### There are two ways to add a title to a window:
-* On Creation
-* On Runtime
+You can do this by passing in a configuration object with parameters into the window creation function.
 
-=== "On Creation"
+The example i will give right here is changing the title of the window.
 
-    ```csharp linenums="1"
-    using HandyUI.Controls;
-    using HandyUI.SilkNet.Classes.Helper;
-    using HandyUI.SilkNet.Classes.Records;
+To do this, you can create a WindowConfiguration object with the Title property set to the title you want.
 
-    var configuration = WindowConfiguration.Default with { Title = "Your title comes here!" };
-    var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(configuration);
+```csharp linenums="1"
+using HandyUI.Controls;
+using HandyUI.SilkNet.Classes.Helper;
+using HandyUI.SilkNet.Classes.Records;
 
-    new TextLabel()
-        .WithText("Hello, World!")
-        .WithTextSize(24)
-        .WithLocation(15, 15)
-        .WithAddToRenderer(renderer);
+var configuration = WindowConfiguration.Default with { Title = "Your title comes here!" };
 
-    await window.RunAsync();
-    ```
+var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(configuration);
 
-=== "On Runtime"
+new TextLabel()
+    .WithText("Hello, World!")
+    .WithTextSize(24)
+    .WithLocation(15, 15)
+    .WithAddToRenderer(renderer);
 
-    !!! info "Just one property away"
-        You can just modify the _"Title"_ property of your window object.
+await window.RunAsync();
+```
 
-Here's the result of modifying the title of the window:
+Here's the result of this example:
 
 ![A single window running](assets/quickstart/newtitle.png)
+
+For more info on custom configurations, you can check out the [WindowConfiguration](../api/window-configuration.md) page in the API Reference.
