@@ -22,7 +22,7 @@ You have two options:
     ```csharp linenums="1"
     using HandyUI.Controls;
     using HandyUI.SilkNet.Classes.Helper;
-    using HandyUI.SilkNet.Classes.Structs;
+    using HandyUI.SilkNet.Classes.Records;
 
     var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default);
 
@@ -46,7 +46,7 @@ You have two options:
     ```csharp linenums="1"
     using HandyUI.Controls;
     using HandyUI.SilkNet.Classes.Helper;
-    using HandyUI.SilkNet.Classes.Structs;
+    using HandyUI.SilkNet.Classes.Records;
 
     var (window1, renderer1) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default with { Title = "Window 1" });
     var (window2, renderer2) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default with { Title = "Window 2" });
@@ -81,7 +81,7 @@ You have two options:
     ```csharp linenums="1"
     using HandyUI.Controls;
     using HandyUI.SilkNet.Classes.Helper;
-    using HandyUI.SilkNet.Classes.Structs;
+    using HandyUI.SilkNet.Classes.Records;
 
     var configuration = WindowConfiguration.Default with { Title = "Your title comes here!" };
     var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(configuration);
