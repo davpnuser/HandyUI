@@ -1,30 +1,21 @@
 ﻿using HandyUI.Controls;
+using HandyUI.Core.Classes.Helper;
 using HandyUI.Core.Components;
 using HandyUI.SilkNet.Classes.Helper;
 using HandyUI.SilkNet.Classes.Records;
-using HandyUI.TestApp.Controls;
 using SkiaSharp;
 
-var config = WindowConfiguration.Default with
-{
-    Title = "Main Window",
-    Icon =
-        ResourceManager.GetResourceByPath("Resources/HandyUI-SmallLogo.png", out var iconStream)
-        ? SKImage.FromEncodedData(iconStream)
-        : null,
-    IsCloseable = false
-};
+var (window1, renderer1) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default with { Title = "Window 1", Icon = ResourceManager.GetResourceByPath("Resources/HandyUI-SmallLogo.png", out var imgStream) ? SKImage.FromEncodedData(imgStream) : null });
+var (window2, renderer2) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default with { Title = "Window 2" });
 
-var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(config);
+new Frame()
+    .WithSize(150, 150)
+    .WithBackgroundColor(SKColorHelper.FromHue(75))
+    .WithAddToRenderer(renderer1);
 
-new TextBox()
-    .WithPlaceholder("Hello, World!")
-    .WithTextSize(24)
-    .WithSize(250, 36)
-    .WithLocation(15, 15)
-    .WithAddToRenderer(renderer);
+new Frame()
+    .WithSize(150, 150)
+    .WithBackgroundColor(SKColorHelper.FromHue(50))
+    .WithAddToRenderer(renderer2);
 
-new RegressionTestingControl()
-    .WithAddToRenderer(renderer);
-
-await window.RunAsync();
+await Task.WhenAll(window1.RunAsync(), window2.RunAsync());

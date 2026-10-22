@@ -14,10 +14,7 @@ public static class WindowHelper
     public static UIRenderer CreateRenderer(HandyWindow window, bool useDirtyRendering)
     {
         PlatformTool.EnsureSupportedPlatform();
-
-        var renderer = RendererHelper.Attach(window, useDirtyRendering);
-
-        return renderer;
+        return RendererHelper.Attach(window, useDirtyRendering);
     }
 
     public static (HandyWindow window, UIRenderer renderer) CreateWindowAndGetRenderer(WindowConfiguration windowConfiguration)
@@ -39,7 +36,7 @@ public static class WindowHelper
         try { window.IsClosing = false; }
         catch { /* do not crash */ }
 
-        if (window.Native?.Glfw is nint rawHandle && rawHandle != nint.Zero)
+        if (window.Native?.Glfw is nint rawHandle && rawHandle != 0)
         {
             try
             {
@@ -56,7 +53,7 @@ public static class WindowHelper
 
     public static void TrySetOpacity(IWindow window, float opacity)
     {
-        if (window.Native?.Glfw is nint rawHandle && rawHandle != nint.Zero)
+        if (window.Native?.Glfw is nint rawHandle && rawHandle != 0)
         {
             try
             {
@@ -73,7 +70,7 @@ public static class WindowHelper
 
     public static float? TryGetOpacity(IWindow window)
     {
-        if (window.Native?.Glfw is nint rawHandle && rawHandle != nint.Zero)
+        if (window.Native?.Glfw is nint rawHandle && rawHandle != 0)
         {
             try
             {
