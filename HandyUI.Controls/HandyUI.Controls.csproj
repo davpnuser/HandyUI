@@ -23,9 +23,26 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controls\CheckBox.cs" />
+    <Compile Remove="Controls\Frame.cs" />
+    <Compile Remove="Controls\ImageButton.cs" />
+    <Compile Remove="Controls\ImageLabel.cs" />
+    <Compile Remove="Controls\TextBox.cs" />
+    <Compile Remove="Controls\TextButton.cs" />
+    <Compile Remove="Controls\TextLabel.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
 		<None Include="..\THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="\" />
 		<None Include="..\HandyUI-Logo.png" Pack="true" PackagePath="" Link="HandyUI-Logo.png" />
 		<None Include="..\NuGet-README.md" Pack="true" PackagePath="" Link="NuGet-README.md" />
+		<None Include="Controls\CheckBox.cs" />
+		<None Include="Controls\Frame.cs" />
+		<None Include="Controls\ImageButton.cs" />
+		<None Include="Controls\ImageLabel.cs" />
+		<None Include="Controls\TextBox.cs" />
+		<None Include="Controls\TextButton.cs" />
+		<None Include="Controls\TextLabel.cs" />
   </ItemGroup>
 
   <ItemGroup>
