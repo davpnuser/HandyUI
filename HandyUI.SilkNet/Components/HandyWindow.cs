@@ -363,6 +363,7 @@ public class HandyWindow : IDisposable
     public HandyWindow(WindowConfiguration windowConfiguration)
     {
         PlatformTool.EnsureSupportedPlatform();
+        ThemeHelper.EnsureInitialized();
 
         IsMovable = true;
         IsResizable = true;
@@ -464,6 +465,8 @@ public class HandyWindow : IDisposable
             }
 
             _closingHandled = true;
+
+            ThemeHelper.UnregisterWindow(this);
 
             window.IsVisible = false;
             _closeRequested = true;
@@ -1060,6 +1063,8 @@ public class HandyWindow : IDisposable
 
         if (disposing)
         {
+            ThemeHelper.UnregisterWindow(this);
+
             Close();
 
             if (!IsOnPumpThread)

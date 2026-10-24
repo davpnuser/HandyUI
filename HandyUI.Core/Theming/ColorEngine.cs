@@ -2,13 +2,39 @@
 
 public static class ColorEngine
 {
+    //public static (byte R, byte G, byte B) GetToneRgb(float baseR, float baseG, float baseB, int requestedTone)
+    //{
+    //    const int maxTone = 900;
+    //    const int minTone = 0;
+
+    //    var tone = Math.Clamp(requestedTone, minTone, maxTone);
+    //    var (_, c, h) = RgbToOklch(baseR, baseG, baseB);
+
+    //    var targetL = 0.98f - (tone / (float)maxTone * 0.83f);
+    //    var targetC = (tone is <= minTone or >= maxTone) ? Math.Min(c, 0.05f) : c;
+
+    //    return OklchToRgb(targetL, targetC, h);
+    //}
+
     public static (byte R, byte G, byte B) GetToneRgb(float baseR, float baseG, float baseB, int requestedTone)
     {
-        var tone = Math.Clamp(requestedTone, 50, 900);
+        const int maxTone = 900;
+        const int minTone = 0;
+
+        var tone = Math.Clamp(requestedTone, minTone, maxTone);
         var (_, c, h) = RgbToOklch(baseR, baseG, baseB);
 
-        var targetL = 0.98f - (tone / 900f * 0.83f);
-        var targetC = (tone is <= 50 or >= 900) ? Math.Min(c, 0.05f) : c;
+        var targetL = 0.99f - (tone / (float)maxTone * 0.84f);
+
+        float targetC;
+        if (tone == 0)
+        {
+            targetC = 0f;
+        }
+        else
+        {
+            targetC = tone < 300 ? Math.Min(c, 0.015f + (tone / 300f * (c - 0.015f))) : tone >= 850 ? Math.Min(c, 0.04f) : c;
+        }
 
         return OklchToRgb(targetL, targetC, h);
     }

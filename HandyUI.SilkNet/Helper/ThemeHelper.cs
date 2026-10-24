@@ -1,4 +1,6 @@
 ﻿using HandyUI.Core.Enums;
+using HandyUI.Core.Theming;
+using HandyUI.SilkNet.Components;
 using Microsoft.Win32;
 using SkiaSharp;
 using System.Runtime.Versioning;
@@ -11,12 +13,16 @@ public readonly record struct Appearance(SKColor AccentColor, ThemeMode Theme);
 public static class ThemeHelper
 {
     private static readonly SKColor FallbackColor = new(0, 120, 215);
-
     private static readonly Lock _gate = new();
+
     private static Action<Appearance>? _changed;
     private static SKColor _lastColor;
     private static ThemeMode _lastTheme;
     private static bool _watching;
+    private static bool _themeManagerAssigned;
+
+    private static readonly List<WeakReference<HandyWindow>> _registeredWindows = [];
+    private static bool _windowRefreshSubscribed;
 
     private static CancellationTokenSource? _linuxCts;
     private static DBusConnection? _linuxConnection;
@@ -42,23 +48,146 @@ public static class ThemeHelper
         }
     }
 
+    public static void EnsureInitialized()
+    {
+        Appearance initial;
+
+        lock (_gate)
+        {
+            if (_themeManagerAssigned) return;
+
+            _changed += ApplyToThemeManager;
+            _themeManagerAssigned = true;
+
+            if (!_watching) StartWatchingNoLock();
+
+            initial = new Appearance(_lastColor, _lastTheme);
+        }
+
+        ApplyToThemeManager(initial);
+    }
+
+    public static void Deinitialize()
+    {
+        lock (_gate)
+        {
+            if (!_themeManagerAssigned) return;
+
+            _changed -= ApplyToThemeManager;
+            _themeManagerAssigned = false;
+
+            if (_changed is null) StopWatchingNoLock();
+        }
+    }
+
+    public static void RegisterWindow(HandyWindow window)
+    {
+        ArgumentNullException.ThrowIfNull(window);
+
+        lock (_gate)
+        {
+            _registeredWindows.RemoveAll(static w => !w.TryGetTarget(out _));
+
+            foreach (var reference in _registeredWindows)
+            {
+                if (reference.TryGetTarget(out var target) && ReferenceEquals(target, window))
+                    return;
+            }
+
+            _registeredWindows.Add(new WeakReference<HandyWindow>(window));
+
+            if (!_windowRefreshSubscribed)
+            {
+                _changed += RefreshRegisteredWindows;
+                _windowRefreshSubscribed = true;
+            }
+
+            if (!_watching)
+                StartWatchingNoLock();
+        }
+    }
+
+    public static void UnregisterWindow(HandyWindow window)
+    {
+        ArgumentNullException.ThrowIfNull(window);
+
+        lock (_gate)
+        {
+            _registeredWindows.RemoveAll(w =>
+                !w.TryGetTarget(out var target) || ReferenceEquals(target, window));
+
+            if (_registeredWindows.Count == 0 && _windowRefreshSubscribed)
+            {
+                _changed -= RefreshRegisteredWindows;
+                _windowRefreshSubscribed = false;
+            }
+
+            if (_changed is null)
+                StopWatchingNoLock();
+        }
+    }
+
+    private static void RefreshRegisteredWindows(Appearance appearance)
+    {
+        _ = appearance;
+
+        HandyWindow[] windows;
+
+        lock (_gate)
+        {
+            _registeredWindows.RemoveAll(static w => !w.TryGetTarget(out _));
+
+            var live = new List<HandyWindow>(_registeredWindows.Count);
+            foreach (var reference in _registeredWindows)
+            {
+                if (reference.TryGetTarget(out var target))
+                    live.Add(target);
+            }
+            windows = [.. live];
+
+            if (_registeredWindows.Count == 0 && _windowRefreshSubscribed)
+            {
+                _changed -= RefreshRegisteredWindows;
+                _windowRefreshSubscribed = false;
+
+                if (_changed is null)
+                    StopWatchingNoLock();
+            }
+        }
+
+        foreach (var window in windows)
+        {
+            try { window.Invalidate(); }
+            catch { }
+        }
+    }
+
     public static SKColor GetColor()
     {
         return OperatingSystem.IsWindowsVersionAtLeast(10, 0, 10240) ? GetWindowsAccentColor()
-        : OperatingSystem.IsLinux() ? GetLinuxAccentColor()
-        : FallbackColor;
+            : OperatingSystem.IsLinux() ? GetLinuxAccentColor()
+            : FallbackColor;
     }
 
     public static ThemeMode GetTheme()
     {
         return OperatingSystem.IsWindowsVersionAtLeast(10, 0, 10240) ? GetWindowsTheme()
-        : OperatingSystem.IsLinux() ? GetLinuxTheme()
-        : ThemeMode.Unknown;
+            : OperatingSystem.IsLinux() ? GetLinuxTheme()
+            : ThemeMode.Unknown;
     }
 
     public static Appearance GetAppearance()
     {
         return new(GetColor(), GetTheme());
+    }
+
+    private static void ApplyToThemeManager(Appearance appearance)
+    {
+        ThemeManager.Instance.SetTheme(
+            appearance.AccentColor.Red,
+            appearance.AccentColor.Green,
+            appearance.AccentColor.Blue,
+            appearance.Theme);
     }
 
     [SupportedOSPlatform("windows10.0.10240")]

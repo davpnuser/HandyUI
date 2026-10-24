@@ -16,6 +16,7 @@ public static class RendererHelper
         {
             var adapter = new RendererAdapter(window.InternalWindow!, useDirtyRendering);
             window.RendererAdapter = adapter;
+            ThemeHelper.RegisterWindow(window);
             return adapter.InitializeAndGetRenderer();
         });
     }

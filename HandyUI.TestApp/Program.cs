@@ -1,5 +1,6 @@
-﻿using HandyUI.Controls;
+﻿//using HandyUI.Controls;
 using HandyUI.Core.Components;
+using HandyUI.Core.Helper;
 using HandyUI.SilkNet.Data;
 using HandyUI.SilkNet.Helper;
 using HandyUI.TestApp.Controls;
@@ -12,16 +13,20 @@ var config = WindowConfiguration.Default with
         ResourceManager.GetResourceByPath("Resources/HandyUI-SmallLogo.png", out var iconStream)
         ? SKImage.FromEncodedData(iconStream)
         : null,
+    //TransparentFrameBuffer = true,
 };
 
 var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(config);
+//renderer.BackgroundColor = SKColors.Transparent;
 
-new TextBox()
-    .WithPlaceholder("Hello, World!")
-    .WithTextSize(24)
-    .WithSize(250, 36)
-    .WithLocation(15, 15)
+var bc = new BigControl()
+    .WithBounds(new SKSize(800, 600))
     .WithAddToRenderer(renderer);
+
+window.OnResize += (newSize) =>
+{
+    bc.Bounds = newSize.ToSKRect();
+};
 
 new RegressionTestingControl()
     .WithAddToRenderer(renderer);

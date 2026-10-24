@@ -2,19 +2,34 @@
 using HandyUI.Core.Data;
 using HandyUI.Core.Enums;
 using HandyUI.Core.Interface;
+using HandyUI.Core.Theming;
 using SkiaSharp;
 
 namespace HandyUI.Core.Components;
 
-public class UIRenderer(bool useDirtyRendering = true) : IDisposable
+public class UIRenderer : IDisposable
 {
     #region Properties
 
-    public SKColor BackgroundColor { get; set; } = Theme.Default.DarkerBackgroundColor;
+    public SKColor BackgroundColor
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+
+            _backgroundColorCustom = value != ThemeManager.Instance.BackgroundPrimary;
+        }
+    } = ThemeManager.Instance.BackgroundPrimary;
 
     #endregion
 
     #region Internal Fields
+
+    private bool _backgroundColorCustom = false;
 
     private readonly List<IControl> _rootControls = [];
     private readonly List<IControl> _pendingRootControlsAdd = [];
@@ -26,7 +41,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
     private int _framesToRender = 2;
     private bool _isDisposed;
 
-    private readonly bool _useDirtyRendering = useDirtyRendering;
+    private readonly bool _useDirtyRendering;
 
     private IControl? _pressedControl;
     private IControl? _focusedControl;
@@ -36,6 +51,17 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
     private readonly List<IModule> _pendingModulesRemove = [];
 
     private readonly Lock _modulesLock = new();
+
+    #endregion
+
+    #region Constructor
+
+    public UIRenderer(bool useDirtyRendering = true)
+    {
+        _useDirtyRendering = useDirtyRendering;
+
+        ThemeManager.Instance.ThemeChanged += OnThemeChanged;
+    }
 
     #endregion
 
@@ -178,6 +204,14 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
     #endregion
 
     #region Internal Functions
+
+    private void OnThemeChanged()
+    {
+        if (!_backgroundColorCustom)
+        {
+            BackgroundColor = ThemeManager.Instance.BackgroundPrimary;
+        }
+    }
 
     private void OnControlInvalidated()
     {
@@ -395,6 +429,8 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
             }
             lock (_pendingModulesAdd) { foreach (var module in _pendingModulesAdd) module.Dispose(); _pendingModulesAdd.Clear(); }
             lock (_pendingModulesRemove) _pendingModulesRemove.Clear();
+
+            ThemeManager.Instance.ThemeChanged -= OnThemeChanged;
         }
 
         _isDisposed = true;
