@@ -1,7 +1,7 @@
 ﻿using HandyUI.Controls;
 using HandyUI.Core.Components;
-using HandyUI.SilkNet.Classes.Helper;
-using HandyUI.SilkNet.Classes.Records;
+using HandyUI.SilkNet.Data;
+using HandyUI.SilkNet.Helper;
 using HandyUI.TestApp.Controls;
 using SkiaSharp;
 
@@ -12,7 +12,6 @@ var config = WindowConfiguration.Default with
         ResourceManager.GetResourceByPath("Resources/HandyUI-SmallLogo.png", out var iconStream)
         ? SKImage.FromEncodedData(iconStream)
         : null,
-    IsCloseable = false
 };
 
 var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(config);

@@ -1,7 +1,7 @@
-﻿using HandyUI.SilkNet.Classes.Extensions;
-using HandyUI.SilkNet.Classes.Helper;
-using HandyUI.SilkNet.Classes.Records;
-using HandyUI.SilkNet.Classes.Tools;
+﻿using HandyUI.SilkNet.Data;
+using HandyUI.SilkNet.Extensions;
+using HandyUI.SilkNet.Helper;
+using HandyUI.SilkNet.Tool;
 using Silk.NET.Core;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;

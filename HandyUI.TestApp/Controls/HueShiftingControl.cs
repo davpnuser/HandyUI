@@ -1,5 +1,5 @@
-﻿using HandyUI.Core.Classes.Base;
-using HandyUI.Core.Classes.Helper;
+﻿using HandyUI.Core.Base;
+using HandyUI.Core.Helper;
 using SkiaSharp;
 
 namespace HandyUI.TestApp.Controls;

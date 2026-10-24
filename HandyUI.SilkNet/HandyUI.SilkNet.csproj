@@ -25,12 +25,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Classes\Enums\**" />
-    <EmbeddedResource Remove="Classes\Enums\**" />
-    <None Remove="Classes\Enums\**" />
-  </ItemGroup>
-
-  <ItemGroup>
 		<None Include="..\THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="\" />
 		<None Include="..\HandyUI-Logo.png" Pack="true" PackagePath="" Link="HandyUI-Logo.png" />
 		<None Include="..\NuGet-README.md" Pack="true" PackagePath="" Link="NuGet-README.md" />

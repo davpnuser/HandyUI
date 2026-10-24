@@ -1,5 +1,6 @@
-﻿using HandyUI.Core.Classes.Records;
-using HandyUI.Core.Components;
+﻿using HandyUI.Core.Components;
+using HandyUI.Core.Data;
+using HandyUI.Core.Enums;
 using Silk.NET.Input;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
@@ -252,7 +253,7 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
         _renderer.ProcessMouseEvent(new MouseEventContext(
             ClientPosition: _currentMousePos,
             Type: MouseEventType.Wheel,
-            Button: HandyUI.Core.Classes.Records.MouseButton.Middle,
+            Button: HandyUI.Core.Enums.MouseButton.Middle,
             WheelDelta: (int)(scroll.Y * 120)));
         Invalidate();
     }
@@ -346,14 +347,14 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
         };
     }
 
-    private static HandyUI.Core.Classes.Records.MouseButton MapButton(Silk.NET.Input.MouseButton button)
+    private static HandyUI.Core.Enums.MouseButton MapButton(Silk.NET.Input.MouseButton button)
     {
         return button switch
         {
-            Silk.NET.Input.MouseButton.Left => HandyUI.Core.Classes.Records.MouseButton.Left,
-            Silk.NET.Input.MouseButton.Right => HandyUI.Core.Classes.Records.MouseButton.Right,
-            Silk.NET.Input.MouseButton.Middle => HandyUI.Core.Classes.Records.MouseButton.Middle,
-            _ => HandyUI.Core.Classes.Records.MouseButton.None
+            Silk.NET.Input.MouseButton.Left => HandyUI.Core.Enums.MouseButton.Left,
+            Silk.NET.Input.MouseButton.Right => HandyUI.Core.Enums.MouseButton.Right,
+            Silk.NET.Input.MouseButton.Middle => HandyUI.Core.Enums.MouseButton.Middle,
+            _ => HandyUI.Core.Enums.MouseButton.None
         };
     }
 

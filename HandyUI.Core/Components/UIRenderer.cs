@@ -1,6 +1,7 @@
-﻿using HandyUI.Core.Classes.Base;
-using HandyUI.Core.Classes.Records;
-using HandyUI.Core.Interfaces;
+﻿using HandyUI.Core.Base;
+using HandyUI.Core.Data;
+using HandyUI.Core.Enums;
+using HandyUI.Core.Interface;
 using SkiaSharp;
 
 namespace HandyUI.Core.Components;
@@ -71,6 +72,22 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         ArgumentNullException.ThrowIfNull(module);
         lock (_pendingModulesRemove) _pendingModulesRemove.Add(module);
         Invalidate();
+    }
+
+    public bool IsPointOverAnyControl(SKPoint clientPosition)
+    {
+        lock (_rootControlsLock)
+        {
+            if (_isRootControlsOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isRootControlsOrderDirty = false; }
+
+            for (var i = _rootControls.Count - 1; i >= 0; i--)
+            {
+                if (HitTestRecursive(_rootControls[i], clientPosition) != null)
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     #endregion
