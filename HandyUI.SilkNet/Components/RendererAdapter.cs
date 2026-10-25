@@ -41,6 +41,7 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
 
     public UIRenderer InitializeAndGetRenderer()
     {
+        _renderer.WhenInvalidated += OnRendererInvalidated;
         _window.Load += OnWindowLoad;
         _window.FramebufferResize += OnFramebufferResize;
 
@@ -55,6 +56,14 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
     #region Internal Functions
 
     #region Rendering/Context Functions
+
+    private void OnRendererInvalidated()
+    {
+        _dirtyFramesRemaining = 2;
+
+        try { Silk.NET.GLFW.Glfw.GetApi().PostEmptyEvent(); }
+        catch { /* do not crash */ }
+    }
 
     internal void RenderFrame()
     {
@@ -367,6 +376,7 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
         if (_isDisposed) return;
         _isDisposed = true;
 
+        _renderer.WhenInvalidated -= OnRendererInvalidated;
         _window.Load -= OnWindowLoad;
         _window.FramebufferResize -= OnFramebufferResize;
 

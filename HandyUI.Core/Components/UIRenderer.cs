@@ -25,6 +25,8 @@ public class UIRenderer : IDisposable
         }
     } = ThemeManager.Instance.BackgroundPrimary;
 
+    public Tweener Tweener { get; }
+
     #endregion
 
     #region Internal Fields
@@ -54,6 +56,12 @@ public class UIRenderer : IDisposable
 
     #endregion
 
+    #region Events
+
+    public event Action? WhenInvalidated;
+
+    #endregion
+
     #region Constructor
 
     public UIRenderer(bool useDirtyRendering = true)
@@ -61,6 +69,10 @@ public class UIRenderer : IDisposable
         _useDirtyRendering = useDirtyRendering;
 
         ThemeManager.Instance.ThemeChanged += OnThemeChanged;
+
+        Tweener = new Tweener();
+        _modules.Add(Tweener);
+        Tweener.Start();
     }
 
     #endregion
@@ -70,6 +82,7 @@ public class UIRenderer : IDisposable
     public void Invalidate()
     {
         _framesToRender = 2;
+        WhenInvalidated?.Invoke();
     }
 
     public void AddRootControl(IControl control)
@@ -122,82 +135,114 @@ public class UIRenderer : IDisposable
 
     public void ProcessMouseEvent(MouseEventContext context)
     {
-        if (context.ClientPosition is not { } clientPosition) return;
-
-        IControl[] rootSnapshot;
-        lock (_rootControlsLock)
+        Tweener.SetCurrent(Tweener);
+        try
         {
-            if (_isRootControlsOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isRootControlsOrderDirty = false; }
-            rootSnapshot = [.. _rootControls];
-        }
+            if (context.ClientPosition is not { } clientPosition) return;
 
-        IControl? hitControl = null;
-        for (var i = rootSnapshot.Length - 1; i >= 0; i--)
-        {
-            hitControl = HitTestRecursive(rootSnapshot[i], clientPosition);
-            if (hitControl != null) break;
-        }
-
-        if (context.Type == MouseEventType.MouseDown)
-        {
-            _pressedControl = hitControl;
-            SetFocus(hitControl);
-        }
-
-        foreach (var root in rootSnapshot) DispatchMouseEventRecursive(root, context);
-
-        if (context.Type == MouseEventType.MouseUp)
-        {
-            if (_pressedControl != null && _pressedControl == hitControl)
+            IControl[] rootSnapshot;
+            lock (_rootControlsLock)
             {
-                var localPos = GetLocalMousePosition(_pressedControl, clientPosition);
-                _pressedControl.ProcessMouseEvent(context with { Type = MouseEventType.Click, ClientPosition = localPos });
+                if (_isRootControlsOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isRootControlsOrderDirty = false; }
+                rootSnapshot = [.. _rootControls];
             }
-            _pressedControl = null;
+
+            IControl? hitControl = null;
+            for (var i = rootSnapshot.Length - 1; i >= 0; i--)
+            {
+                hitControl = HitTestRecursive(rootSnapshot[i], clientPosition);
+                if (hitControl != null) break;
+            }
+
+            if (context.Type == MouseEventType.MouseDown)
+            {
+                _pressedControl = hitControl;
+                SetFocus(hitControl);
+            }
+
+            foreach (var root in rootSnapshot) DispatchMouseEventRecursive(root, context);
+
+            if (context.Type == MouseEventType.MouseUp)
+            {
+                if (_pressedControl != null && _pressedControl == hitControl)
+                {
+                    var localPos = GetLocalMousePosition(_pressedControl, clientPosition);
+                    _pressedControl.ProcessMouseEvent(context with { Type = MouseEventType.Click, ClientPosition = localPos });
+                }
+                _pressedControl = null;
+            }
+        }
+        finally
+        {
+            Tweener.SetCurrent(null);
         }
     }
 
     public bool ProcessKeyEvent(KeyEventContext context)
     {
-        return _focusedControl?.IsVisible == true && _focusedControl.IsEnabled && _focusedControl.ProcessKeyEvent(context);
+        Tweener.SetCurrent(Tweener);
+        try
+        {
+            return _focusedControl?.IsVisible == true && _focusedControl.IsEnabled && _focusedControl.ProcessKeyEvent(context);
+        }
+        finally
+        {
+            Tweener.SetCurrent(null);
+        }
     }
 
     public bool RenderControls(SKCanvas canvas, SKPoint cursorPosition, float deltaTime)
     {
-        ProcessPendingControls();
-
-        lock (_rootControlsLock)
+        Tweener.SetCurrent(Tweener);
+        try
         {
-            if (_useDirtyRendering && _framesToRender <= 0) return false;
+            ProcessPendingControls();
 
-            if (_isRootControlsOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isRootControlsOrderDirty = false; }
-            canvas.Clear(BackgroundColor);
+            lock (_rootControlsLock)
+            {
+                if (_useDirtyRendering && _framesToRender <= 0) return false;
 
-            foreach (var control in _rootControls)
-                RenderRecursive(canvas, control, cursorPosition, deltaTime);
+                if (_isRootControlsOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isRootControlsOrderDirty = false; }
+                canvas.Clear(BackgroundColor);
 
-            if (_useDirtyRendering) _framesToRender--;
+                foreach (var control in _rootControls)
+                    RenderRecursive(canvas, control, cursorPosition, deltaTime);
 
-            return true;
+                if (_useDirtyRendering) _framesToRender--;
+
+                return true;
+            }
+        }
+        finally
+        {
+            Tweener.SetCurrent(null);
         }
     }
 
     public bool UpdateModules(float deltaTime)
     {
-        ProcessPendingModules();
-
-        lock (_modulesLock)
+        Tweener.SetCurrent(Tweener);
+        try
         {
-            if (_useDirtyRendering && _framesToRender <= 0) return false;
+            ProcessPendingModules();
 
-            foreach (var module in _modules)
+            lock (_modulesLock)
             {
-                if (!module.IsEnabled) continue;
+                if (_useDirtyRendering && _framesToRender <= 0) return false;
 
-                module.OnUpdate(deltaTime);
+                foreach (var module in _modules)
+                {
+                    if (!module.IsEnabled) continue;
+
+                    module.OnUpdate(deltaTime);
+                }
+
+                return true;
             }
-
-            return true;
+        }
+        finally
+        {
+            Tweener.SetCurrent(null);
         }
     }
 

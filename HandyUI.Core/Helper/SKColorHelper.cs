@@ -45,5 +45,15 @@ public static class SKColorHelper
         return color.WithAlpha((byte)(255 - (transparency * 255)));
     }
 
+    public static SKColor Lerp(this SKColor c1, SKColor c2, float t)
+    {
+        t = Math.Clamp(t, 0f, 1f);
+        var r = (byte)(c1.Red + ((c2.Red - c1.Red) * t) + 0.5f);
+        var g = (byte)(c1.Green + ((c2.Green - c1.Green) * t) + 0.5f);
+        var b = (byte)(c1.Blue + ((c2.Blue - c1.Blue) * t) + 0.5f);
+        var a = (byte)(c1.Alpha + ((c2.Alpha - c1.Alpha) * t) + 0.5f);
+        return new SKColor(r, g, b, a);
+    }
+
     #endregion
 }

@@ -1,123 +1,86 @@
 ﻿using HandyUI.Core.Base;
 using HandyUI.Core.Enums;
+using HandyUI.Core.Theming;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;
 
 public class Frame : BaseControl<Frame>
 {
-    private bool _customBackgroundColorSet;
-    private bool _customBorderColorSet;
-    private bool _colorsInitialized;
+    #region Properties
 
-    private readonly SKPaint _backgroundPaint = new() { Style = SKPaintStyle.Fill, IsAntialias = false };
-    private readonly SKPaint _borderPaint = new() { Style = SKPaintStyle.Stroke, IsAntialias = false };
-
-    public Frame()
-    {
-        UpdateBrushes();
-    }
-
-    public new bool IsEnabled
+    public float Width
     {
         get;
         set
         {
-            if (field == value)
-                return;
+            var v = Math.Max(0f, value);
+            if (Math.Abs(field - v) < 0.0001f) return;
+            field = v;
+            ResizeToContent();
+            Invalidate();
+        }
+    } = 100f;
 
+    public float Height
+    {
+        get;
+        set
+        {
+            var v = Math.Max(0f, value);
+            if (Math.Abs(field - v) < 0.0001f) return;
+            field = v;
+            ResizeToContent();
+            Invalidate();
+        }
+    } = 100f;
+
+    public float CornerRadius
+    {
+        get;
+        set
+        {
+            var v = Math.Max(0f, value);
+            if (Math.Abs(field - v) < 0.0001f) return;
+            field = v;
+            Invalidate();
+        }
+    } = 4f;
+
+    public int Elevation
+    {
+        get;
+        set
+        {
+            var v = Math.Max(0, value);
+            if (field == v) return;
+            field = v;
+            Invalidate();
+        }
+    } = 1;
+
+    public bool HasBorder
+    {
+        get;
+        set
+        {
+            if (field == value) return;
             field = value;
-            UpdateBrushes();
             Invalidate();
         }
     } = true;
 
-    public Theme Theme
+    public float BorderWidth
     {
         get;
         set
         {
-            if (field == value)
-                return;
-
-            field = value;
-            if (!_customBackgroundColorSet) BackgroundColor = value.BackgroundColor;
-            if (!_customBorderColorSet) BorderColor = value.BorderColor;
-            UpdateBrushes();
+            var v = Math.Max(0f, value);
+            if (Math.Abs(field - v) < 0.0001f) return;
+            field = v;
             Invalidate();
         }
-    } = Theme.Default;
-
-    public float Width
-    {
-        get => Bounds.Width;
-        set
-        {
-            if (Math.Abs(Bounds.Width - value) < 0.001f) return;
-            Bounds = SKRect.Create(Location.X, Location.Y, value, Bounds.Height);
-            Invalidate();
-        }
-    }
-
-    public float Height
-    {
-        get => Bounds.Height;
-        set
-        {
-            if (Math.Abs(Bounds.Height - value) < 0.001f) return;
-            Bounds = SKRect.Create(Location.X, Location.Y, Bounds.Width, value);
-            Invalidate();
-        }
-    }
-
-    public SKSize Size
-    {
-        get => new(Bounds.Width, Bounds.Height);
-        set
-        {
-            if (Math.Abs(Bounds.Width - value.Width) < 0.001f && Math.Abs(Bounds.Height - value.Height) < 0.001f) return;
-            Bounds = SKRect.Create(Location.X, Location.Y, value.Width, value.Height);
-            Invalidate();
-        }
-    }
-
-    public SKColor BackgroundColor
-    {
-        get;
-        set
-        {
-            if (field == value) return;
-            field = value;
-            _customBackgroundColorSet = true;
-            UpdateBrushes();
-            Invalidate();
-        }
-    } = Theme.Default.BackgroundColor;
-
-    public SKColor BorderColor
-    {
-        get;
-        set
-        {
-            if (field == value) return;
-            field = value;
-            _customBorderColorSet = true;
-            UpdateBrushes();
-            Invalidate();
-        }
-    } = Theme.Default.BorderColor;
-
-    public float BorderThickness
-    {
-        get;
-        set
-        {
-            if (Math.Abs(field - value) < 0.001f) return;
-            field = value;
-            UpdateBrushes();
-            Invalidate();
-        }
-    } = 1.0f;
+    } = 1f;
 
     public BorderDirection BorderDirection
     {
@@ -130,85 +93,108 @@ public class Frame : BaseControl<Frame>
         }
     } = BorderDirection.Inside;
 
-    private void UpdateBrushes()
-    {
-        _colorsInitialized = true;
+    public bool HasShadow { get; set; } = true;
 
-        if (IsEnabled)
-        {
-            _backgroundPaint.Color = BackgroundColor;
-            _borderPaint.Color = BorderColor;
-            _borderPaint.StrokeWidth = BorderThickness;
-        }
-        else
-        {
-            _backgroundPaint.Color = Theme.DarkerBackgroundColor;
-            _borderPaint.Color = Theme.DisabledColor;
-            _borderPaint.StrokeWidth = BorderThickness;
-        }
+    #endregion
+
+    #region Internal Fields
+
+    private readonly SKPaint _bgPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
+    private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
+    private readonly SKPaint _shadowPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
+
+    #endregion
+
+    #region Constructor
+
+    public Frame()
+    {
+        ResizeToContent();
     }
+
+    #endregion
+
+    #region Overrides
 
     public override bool DoesIntersect(SKPoint? clientPoint)
     {
-        return clientPoint != null && Bounds.Contains(clientPoint.Value.X, clientPoint.Value.Y);
+        return clientPoint is { } p && Bounds.Contains(p);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
-    {
-        if (!_colorsInitialized)
-            UpdateBrushes();
-    }
+    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition) { }
 
     public override void OnDraw(SKCanvas canvas)
     {
-        if (!IsVisible) return;
+        var w = Bounds.Width;
+        var h = Bounds.Height;
+        if (w <= 0 || h <= 0) return;
 
-        if (_backgroundPaint.Color.Alpha > 0)
+        var rect = new SKRect(0, 0, w, h);
+
+        if (HasShadow && Elevation > 0)
         {
-            canvas.DrawRect(Bounds, _backgroundPaint);
+            _shadowPaint.Color = ThemeManager.Instance.Shadow;
+            var shadowRect = new SKRect(0, Elevation * 0.5f, w, h + (Elevation * 0.5f));
+            canvas.DrawRoundRect(shadowRect, CornerRadius, CornerRadius, _shadowPaint);
         }
 
-        if (BorderThickness > 0 && _borderPaint.Color.Alpha > 0)
+        _bgPaint.Color = IsEnabled
+            ? ThemeManager.Instance.SurfacePrimary
+            : ThemeManager.Instance.DisabledSurface;
+        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _bgPaint);
+
+        if (HasBorder)
         {
-            var borderRect = BorderDirection switch
+            _borderPaint.Color = ThemeManager.Instance.Border;
+            _borderPaint.StrokeWidth = BorderWidth;
+
+            var inset = BorderDirection switch
             {
-                BorderDirection.Inside => SKRect.Create(
-                    Bounds.Left + (BorderThickness / 2f),
-                    Bounds.Top + (BorderThickness / 2f),
-                    Bounds.Width - BorderThickness,
-                    Bounds.Height - BorderThickness),
-                BorderDirection.Outside => SKRect.Create(
-                    Bounds.Left - (BorderThickness / 2f),
-                    Bounds.Top - (BorderThickness / 2f),
-                    Bounds.Width + BorderThickness,
-                    Bounds.Height + BorderThickness),
-                _ => Bounds
+                BorderDirection.Center => BorderWidth * 0.5f,
+                BorderDirection.Outside => -BorderWidth * 0.5f,
+                _ => BorderWidth * 0.5f
             };
 
-            canvas.DrawRect(borderRect, _borderPaint);
+            var borderRect = new SKRect(
+                rect.Left + inset, rect.Top + inset,
+                rect.Right - inset, rect.Bottom - inset);
+
+            canvas.DrawRoundRect(borderRect, CornerRadius, CornerRadius, _borderPaint);
         }
     }
+
+    #endregion
+
+    #region Internal Helpers
+
+    private void ResizeToContent()
+    {
+        Bounds = new SKRect(0, 0, Width, Height);
+    }
+
+    #endregion
+
+    #region Fluent APIs
+
+    public Frame WithWidth(float width) { Width = width; return Self; }
+    public Frame WithHeight(float height) { Height = height; return Self; }
+    public Frame WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
+    public Frame WithElevation(int elevation) { Elevation = elevation; return Self; }
+    public Frame WithHasBorder(bool hasBorder) { HasBorder = hasBorder; return Self; }
+    public Frame WithBorderWidth(float width) { BorderWidth = width; return Self; }
+    public Frame WithBorderDirection(BorderDirection dir) { BorderDirection = dir; return Self; }
+    public Frame WithHasShadow(bool hasShadow) { HasShadow = hasShadow; return Self; }
+
+    #endregion
+
+    #region Disposal
 
     protected override void OnDispose()
     {
-        _backgroundPaint.Dispose();
+        _bgPaint.Dispose();
         _borderPaint.Dispose();
-        base.OnDispose();
+        _shadowPaint.Dispose();
     }
 
-    public Frame WithTheme(Theme theme) { Theme = theme; return this; }
-    public Frame WithWidth(float width) { Width = width; return this; }
-    public Frame WithHeight(float height) { Height = height; return this; }
-    public Frame WithSize(float width, float height) { Size = new SKSize(width, height); return this; }
-    public Frame WithBackgroundColor(SKColor color) { BackgroundColor = color; return this; }
-    public Frame WithBorder(SKColor color, float thickness = 1.0f, BorderDirection direction = BorderDirection.Inside)
-    {
-        BorderColor = color;
-        BorderThickness = thickness;
-        BorderDirection = direction;
-        return this;
-    }
-    public Frame WithBorderColor(SKColor color) { BorderColor = color; return this; }
-    public Frame WithBorderThickness(float thickness) { BorderThickness = thickness; return this; }
-    public Frame WithBorderDirection(BorderDirection direction) { BorderDirection = direction; return this; }
+    #endregion
 }

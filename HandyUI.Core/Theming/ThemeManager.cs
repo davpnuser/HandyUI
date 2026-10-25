@@ -61,8 +61,8 @@ public sealed class ThemeManager
     public SKColor SurfaceTertiary => GetTone(Mode == ThemeMode.Dark ? 600 : 100);
 
     public SKColor TextPrimary => GetTone(Mode == ThemeMode.Dark ? 50 : 900);
-    public SKColor TextSecondary => GetTone(Mode == ThemeMode.Dark ? 200 : 700);
-    public SKColor TextTertiary => GetTone(Mode == ThemeMode.Dark ? 400 : 500);
+    public SKColor TextSecondary => GetTone(Mode == ThemeMode.Dark ? 100 : 800);
+    public SKColor TextTertiary => GetTone(Mode == ThemeMode.Dark ? 150 : 750);
 
     public SKColor TextDisabled
     {
@@ -97,7 +97,7 @@ public sealed class ThemeManager
 
                 var color = Mode == ThemeMode.Dark
                     ? SKColors.Black.WithTransparency(0.62f)
-                    : SKColors.Black.WithTransparency(0.15f);
+                    : SKColors.Black.WithTransparency(0.80f);
 
                 _derivedCache[nameof(Shadow)] = color;
                 return color;

@@ -22,6 +22,10 @@
 	<PackageProjectUrl>https://davpnuser.github.io/HandyUI/</PackageProjectUrl>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Resources\Roboto.ttf" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<None Include="..\THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="\" />
 		<None Include="..\HandyUI-Logo.png" Pack="true" PackagePath="" Link="HandyUI-Logo.png" />
@@ -32,6 +36,7 @@
     <EmbeddedResource Include="Resources\HandyUI-Banner.png" />
     <EmbeddedResource Include="Resources\HandyUI-Logo.png" />
     <EmbeddedResource Include="Resources\HandyUI-SmallLogo.png" />
+    <EmbeddedResource Include="Resources\Roboto.ttf" />
   </ItemGroup>
 
   <ItemGroup>

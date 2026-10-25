@@ -318,7 +318,7 @@ public abstract class BaseControl<TSelf> : BaseControl where TSelf : BaseControl
 
     public TSelf WithBounds(float x, float y, float w, float h)
     {
-        Bounds = new SKRect(x, y, w, h);
+        Bounds = new SKRect(x, y, x + w, y + h);
         return Self;
     }
 
