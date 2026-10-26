@@ -141,6 +141,8 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
     #region Events
 
     public event Action<string>? WhenTextChanged;
+    public event Action? WhenFocusGained;
+    public event Action? WhenFocusLost;
 
     #endregion
 
@@ -171,8 +173,8 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         {
             _lastFocused = IsFocused;
             StartFocusAnimation(IsFocused ? 1f : 0f);
-            if (IsFocused) StartCursorBlink();
-            else StopCursorBlink();
+            if (IsFocused) { StartCursorBlink(); WhenFocusGained?.Invoke(); }
+            else { StopCursorBlink(); WhenFocusLost?.Invoke(); }
         }
     }
 
@@ -304,30 +306,14 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
                     _selectionAnchor = _cursorIndex;
                     WhenTextChanged?.Invoke(Text);
                     return true;
-                case 8:
-                    HandleBackspace(ctx);
-                    return true;
-                case 46:
-                    HandleDelete(ctx);
-                    return true;
-                case 37:
-                    HandleLeft(ctx);
-                    return true;
-                case 39:
-                    HandleRight(ctx);
-                    return true;
-                case 38:
-                    HandleUp(ctx);
-                    return true;
-                case 40:
-                    HandleDown(ctx);
-                    return true;
-                case 36:
-                    HandleHome(ctx);
-                    return true;
-                case 35:
-                    HandleEnd(ctx);
-                    return true;
+                case 8: HandleBackspace(ctx); return true;
+                case 46: HandleDelete(ctx); return true;
+                case 37: HandleLeft(ctx); return true;
+                case 39: HandleRight(ctx); return true;
+                case 38: HandleUp(ctx); return true;
+                case 40: HandleDown(ctx); return true;
+                case 36: HandleHome(ctx); return true;
+                case 35: HandleEnd(ctx); return true;
                 case 65:
                     if (ctx.IsControlPressed)
                     {
@@ -425,23 +411,20 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         else if (ctx.IsControlPressed)
         {
             var next = NextWordBoundary(_cursorIndex);
-            if (next > _cursorIndex)
-                Text = Text.Remove(_cursorIndex, next - _cursorIndex);
+            if (next > _cursorIndex) Text = Text.Remove(_cursorIndex, next - _cursorIndex);
         }
         else if (_cursorIndex < Text.Length)
         {
             Text = Text.Remove(_cursorIndex, 1);
         }
+
         _selectionAnchor = _cursorIndex;
         WhenTextChanged?.Invoke(Text);
     }
 
     private void HandleLeft(KeyEventContext ctx)
     {
-        var newPos = ctx.IsControlPressed
-            ? PrevWordBoundary(_cursorIndex)
-            : Math.Max(0, _cursorIndex - 1);
-
+        var newPos = ctx.IsControlPressed ? PrevWordBoundary(_cursorIndex) : Math.Max(0, _cursorIndex - 1);
         if (ctx.IsShiftPressed)
         {
             _cursorIndex = newPos;
@@ -452,10 +435,7 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
 
     private void HandleRight(KeyEventContext ctx)
     {
-        var newPos = ctx.IsControlPressed
-            ? NextWordBoundary(_cursorIndex)
-            : Math.Min(Text.Length, _cursorIndex + 1);
-
+        var newPos = ctx.IsControlPressed ? NextWordBoundary(_cursorIndex) : Math.Min(Text.Length, _cursorIndex + 1);
         if (ctx.IsShiftPressed)
         {
             _cursorIndex = newPos;
@@ -469,7 +449,6 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         var lines = Text.Split('\n');
         var (line, col) = GetLineCol(_cursorIndex, lines);
         _cursorIndex = line > 0 ? LineColToIndex(Math.Max(0, line - 1), col, lines) : 0;
-
         if (!ctx.IsShiftPressed) _selectionAnchor = _cursorIndex;
         Invalidate();
     }
@@ -479,7 +458,6 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         var lines = Text.Split('\n');
         var (line, col) = GetLineCol(_cursorIndex, lines);
         _cursorIndex = line < lines.Length - 1 ? LineColToIndex(line + 1, col, lines) : Text.Length;
-
         if (!ctx.IsShiftPressed) _selectionAnchor = _cursorIndex;
         Invalidate();
     }
@@ -500,9 +478,7 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
     {
         var lines = Text.Split('\n');
         var (line, _) = GetLineCol(_cursorIndex, lines);
-        var target = ctx.IsControlPressed
-            ? Text.Length
-            : LineColToIndex(line, lines[line].Length, lines);
+        var target = ctx.IsControlPressed ? Text.Length : LineColToIndex(line, lines[line].Length, lines);
         if (ctx.IsShiftPressed)
         {
             _cursorIndex = target;
@@ -574,8 +550,7 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         for (var i = 0; i < line.Length; i++)
         {
             var w = _font.MeasureText(line.AsSpan(0, i + 1));
-            if (x <= w)
-                return (x - prevW) < (w - x) ? i : i + 1;
+            if (x <= w) return (x - prevW) < (w - x) ? i : i + 1;
             prevW = w;
         }
         return line.Length;
@@ -658,6 +633,10 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
     public MultilineTextInput WithLineSpacing(float spacing) { LineSpacing = spacing; return Self; }
     public MultilineTextInput WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
     public MultilineTextInput WithPadding(float padding) { Padding = padding; return Self; }
+
+    public MultilineTextInput OnTextChanged(Action<string> handler) { WhenTextChanged += handler; return Self; }
+    public MultilineTextInput OnFocusGained(Action handler) { WhenFocusGained += handler; return Self; }
+    public MultilineTextInput OnFocusLost(Action handler) { WhenFocusLost += handler; return Self; }
 
     #endregion
 

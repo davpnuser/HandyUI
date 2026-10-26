@@ -1,34 +1,47 @@
 # Controls
 
-Built-in controls shipped in the `HandyUI.Controls` package, under the
-`HandyUI.Controls` namespace. All of them derive from
-[`BaseControl<TSelf>`](../ui-control-base.md), so they inherit the fluent
-`With…` pattern, invalidation, opacity, parent/child tree, and input routing.
+Built-in controls, all deriving from [`BaseControl<TSelf>`](../base-control.md).
+They live in `HandyUI.Controls`, under the `HandyUI.Controls.Controls`
+namespace (and `HandyUI.Controls.Enums` for related enums).
 
 | Control | Purpose |
 | --- | --- |
-| [`CheckBox`](check-box.md) | Toggle a boolean with a box + optional label. |
-| [`Frame`](frame.md) | A rectangle with a background fill and an optional border. |
-| [`ImageButton`](image-button.md) | A clickable button with an image and/or text. |
-| [`ImageLabel`](image-label.md) | A static image, optionally auto-sized. |
-| [`TextBox`](text-box.md) | An editable single-line text field with caret. |
-| [`TextButton`](text-button.md) | A clickable button that renders a text label. |
-| [`TextLabel`](text-label.md) | A static, non-interactive text label. |
+| [`Button`](button.md) | Filled text button with hover and ripple. |
+| [`CheckBox`](check-box.md) | Checkbox with text and animated checkmark. |
+| [`Frame`](frame.md) | Rounded rectangle with elevation, border, shadow. |
+| [`ItemBox`](item-box.md) | Selectable list item with exclusive selection. |
+| [`Label`](label.md) | Non-interactive text label. |
+| [`ListBox`](list-box.md) | Scrollable stack of child controls. |
+| [`MultilineTextInput`](multiline-text-input.md) | Multi-line text editor. |
+| [`Picture`](picture.md) | Non-interactive image. |
+| [`PictureButton`](picture-button.md) | Clickable image. |
+| [`ProgressBar`](progress-bar.md) | Determinate or indeterminate progress. |
+| [`ScrollFrame`](scroll-frame.md) | Scrollable viewport. |
+| [`Slider`](slider.md) | Draggable value slider. |
+| [`TextInput`](text-input.md) | Single-line text editor. |
+| [`Toggle`](toggle.md) | On/off switch. |
 
-!!! info "Package layout"
-    Controls are **not** part of `HandyUI.Core` - they live in a separate
-    NuGet package, `HandyUI.Controls`. Add it alongside `HandyUI.Core`:
+## Installation
 
-    ```bash
-    dotnet add package HandyUI.Core
-    dotnet add package HandyUI.Controls
-    ```
+```bash
+dotnet add package HandyUI.Core
+dotnet add package HandyUI.Controls
+```
 
-!!! info "Common conventions"
-    - All controls expose a `Theme` property of type
-      [`Theme`](../theme.md), defaulting to `Theme.Default`.
-    - Changing a themed color marks that channel as *custom*, so a later
-      `Theme` swap won't overwrite your choice.
-    - Every control overrides `IsEnabled` with a backing field that
-      refreshes its paint brushes when toggled.
-    - Every control disposes its `SKPaint` instances in `OnDispose`.
+## Common conventions
+
+- **Autosizing** - every control runs `ResizeToContent()` in its constructor
+  and whenever relevant properties change. Leave `Width` and `Height` at
+  their defaults (usually `0`) to auto-size to content.
+- **Theming** - controls read colors from
+  [`ThemeManager`](../theme-manager.md) at draw time, so changing the OS
+  theme updates every control live. Controls that also expose a `Theme`
+  property use it for per-control overrides.
+- **Events** - callback events follow the `WhenXxx` naming convention
+  (`WhenClicked`, `WhenToggled`, `WhenTextChanged`, …). Fluent helpers
+  attach to them directly (`OnClicked(...)`, `OnToggled(...)`).
+- **Animations** - hover, ripple, focus, and checkmark animations use
+  [`Tweener`](../tweener.md). They degrade gracefully if no tweener is
+  available (values snap to target).
+- **Disposal** - every control disposes its internal `SKPaint` and
+  `SKTypeface` instances in `OnDispose`.

@@ -1,6 +1,6 @@
 # `IModule`
 
-`HandyUI.Core.Interfaces.IModule`
+`HandyUI.Core.Interface.IModule`
 
 The contract for logic-only components ticked by the `UIRenderer`.
 
@@ -16,19 +16,14 @@ public interface IModule : IDisposable
 }
 ```
 
-!!! info "Get-only `IsEnabled`"
-    `IModule` exposes `IsEnabled` as **read-only**. To toggle it, call
-    `Start()` / `Stop()` (or, in fluent code, `WithIsEnabled(...)` when the
-    concrete builder supports it).
-
 ## Members
 
 | Member | Type | Description |
 | --- | --- | --- |
-| `IsEnabled` | `bool` | When `false`, `OnUpdate` is skipped. |
+| `IsEnabled` | `bool` | Read-only. When `false`, `OnUpdate` is skipped. |
 | `Start()` | `void` | Turns the module on. |
 | `Stop()` | `void` | Turns the module off. |
-| `OnUpdate(float)` | `void` | Called once per frame while enabled. |
+| `OnUpdate(float)` | `void` | Per-frame update while enabled. |
 
 ## Fluent API: `IModule<TSelf>`
 

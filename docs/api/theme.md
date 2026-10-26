@@ -1,11 +1,9 @@
 # `Theme`
 
-`HandyUI.Core.Classes.Records.Theme`
+`HandyUI.Core.Data.Theme`
 
-An immutable-looking palette: a plain C# `record` with public color **fields**
-and a static `Default` factory. Controls read their initial colors from a
-`Theme` and expose per-channel overrides so you can tweak a single color
-without cloning the whole palette.
+A plain palette record with **public `SKColor` fields**. Every built-in
+control exposes a `Theme` property you can swap to customize its colors.
 
 ```csharp
 public record Theme
@@ -27,10 +25,16 @@ public record Theme
 ```
 
 !!! info "Fields, not properties"
-    `Theme` uses **public fields** rather than auto-properties. That means
-    you can mutate an instance in place (`theme.PrimaryColor = SKColors.Red;`)
-    - and `with` expressions still work because the compiler's synthesized
-    copy constructor copies fields as well.
+    `Theme` uses public fields rather than auto-properties. You can mutate a
+    `Theme` instance in place (`theme.PrimaryColor = SKColors.Red;`) *and*
+    use `with` expressions - the record's compiler-generated copy
+    constructor copies fields, so both styles work.
+
+!!! tip "`Theme` vs. `ThemeManager`"
+    `Theme` is a **static palette** you attach to a control. The live,
+    system-aware palette is [`ThemeManager`](theme-manager.md), which generates
+    colors dynamically from the OS accent color. `Theme` does **not** react to
+    `ThemeManager.ThemeChanged`.
 
 ## Static members
 
@@ -40,8 +44,8 @@ public record Theme
 public static Theme Default => new();
 ```
 
-Returns a fresh `Theme` instance with the built-in light palette. Because it
-allocates on every access, cache it in a field if you call it in a hot loop:
+Returns a fresh `Theme` with the built-in light palette. Allocates on every
+call - cache it if you read it in a hot loop:
 
 ```csharp
 private static readonly Theme s_theme = Theme.Default;
@@ -63,42 +67,25 @@ private static readonly Theme s_theme = Theme.Default;
 | `SemiActiveColor` | `#DBEAFE` | Hover / soft highlight. |
 | `BorderColor` | `#CBD5E1` | Outline strokes. |
 
-## Custom palettes
-
-Because it's a record, `with` gives you a new instance without mutating the
-original:
+## Building custom palettes
 
 ```csharp
 var dark = Theme.Default with
 {
+    PrimaryColor          = SKColor.Parse("#F97316"),
     BackgroundColor       = SKColor.Parse("#131E37"),
     DarkerBackgroundColor = SKColor.Parse("#090C13"),
     TextColor             = SKColor.Parse("#F8FAFC"),
     BorderColor           = SKColor.Parse("#3F719A")
 };
 
-var accent = Theme.Default with { PrimaryColor = SKColors.Orange };
-```
-
-Every built-in control exposes `Theme` as a `Theme` property and a
-`WithTheme(Theme)` fluent method, so a palette swap is a one-liner:
-
-```csharp
-new TextButton()
-    .WithText("Save")
+new Frame()
     .WithTheme(dark)
+    .WithSize(320, 180)
     .WithAddToRenderer(renderer);
 ```
 
-!!! tip "Custom colors survive a theme swap"
-    When you assign an individual color on a control (e.g.
-    `button.NormalBackgroundColor = SKColors.Black;`), the control marks
-    that channel as customized. A later `WithTheme(...)` will only overwrite
-    the channels you haven't touched. This is implemented with private
-    `_customXxxSet` flags inside each control.
-
-!!! warning "Default is a factory, not a singleton"
-    `Theme.Default` allocates a new `Theme` each call. Do **not** compare
-    references (`Theme.Default == Theme.Default` is `false`). The record's
-    value-based `Equals` compares fields, so `Theme.Default.Equals(other)`
-    behaves as you'd expect.
+!!! warning "`Default` is not a singleton"
+    `Theme.Default` allocates a new record on every call, and `Theme.Default
+    == Theme.Default` is `false` (reference equality on record instances
+    compares fields, so `Equals` works - just don't use `ReferenceEquals`).

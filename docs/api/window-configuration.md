@@ -1,8 +1,8 @@
 # `WindowConfiguration`
 
-`HandyUI.SilkNet.Classes.Records.WindowConfiguration`
+`HandyUI.SilkNet.Data.WindowConfiguration`
 
-An immutable options record for `HandyWindow`.
+An immutable options record for [`HandyWindow`](handy-window.md).
 
 ```csharp
 public record WindowConfiguration
@@ -26,7 +26,7 @@ public record WindowConfiguration
 | `WindowBorder` | `Resizable` | Border style. |
 | `Opacity` | `1f` | Initial opacity. |
 | `IsCenteredOnStartup` | `false` | Center on the monitor. |
-| `IsVisibleInTaskbar` | `true` | Win32 taskbar. |
+| `IsVisibleInTaskbar` | `true` | Win32 taskbar visibility. |
 | `IsResizable` | `true` | |
 | `IsMovable` | `true` | |
 | `IsCloseable` | `true` | |
@@ -38,12 +38,12 @@ public record WindowConfiguration
 
 | Property | Default | Description |
 | --- | --- | --- |
-| `SubwindowParent` | `null` | Native parent. |
+| `SubwindowParent` | `null` | Native parent window. |
 | `ModalParent` | `null` | Modal parent; disables it. |
 
 !!! warning "Mutually exclusive"
     A window cannot have the same window as both `SubwindowParent` and
-    `ModalParent`. This throws at construction.
+    `ModalParent`. Throws at construction.
 
 ### Rendering
 
@@ -72,8 +72,6 @@ public record WindowConfiguration
 | `CustomWindowOptions` | `null` | Overrides the whole `WindowOptions`. |
 
 !!! tip "`with` expressions"
-    Because it's a record, tweaking a default is trivial:
-
     ```csharp
     var cfg = WindowConfiguration.Default with
     {

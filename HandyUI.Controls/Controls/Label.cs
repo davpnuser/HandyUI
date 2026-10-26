@@ -1,5 +1,7 @@
 ﻿using HandyUI.Core.Base;
 using HandyUI.Core.Components;
+using HandyUI.Core.Data;
+using HandyUI.Core.Enums;
 using HandyUI.Core.Theming;
 using SkiaSharp;
 
@@ -43,6 +45,7 @@ public class Label : BaseControl<Label>
             if (field == value) return;
             field = value ?? string.Empty;
             ResizeToContent();
+            WhenTextChanged?.Invoke(field);
             Invalidate();
         }
     } = string.Empty;
@@ -91,6 +94,16 @@ public class Label : BaseControl<Label>
 
     private readonly SKFont _font;
     private readonly SKPaint _textPaint = new() { IsAntialias = true };
+    private bool _lastHovered;
+
+    #endregion
+
+    #region Events
+
+    public event Action? WhenClicked;
+    public event Action? WhenHoverEntered;
+    public event Action? WhenHoverExited;
+    public event Action<string>? WhenTextChanged;
 
     #endregion
 
@@ -115,7 +128,13 @@ public class Label : BaseControl<Label>
         return clientPoint is { } p && Bounds.Contains(p);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition) { }
+    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
+    {
+        if (_lastHovered == IsHovered) return;
+        _lastHovered = IsHovered;
+        if (IsHovered) WhenHoverEntered?.Invoke();
+        else WhenHoverExited?.Invoke();
+    }
 
     public override void OnDraw(SKCanvas canvas)
     {
@@ -136,6 +155,16 @@ public class Label : BaseControl<Label>
         };
 
         canvas.DrawText(Text, x, baseline, TextAlign, _font, _textPaint);
+    }
+
+    protected override bool OnMouse(MouseEventContext ctx)
+    {
+        if (ctx.Type == MouseEventType.Click && IsHovered)
+        {
+            WhenClicked?.Invoke();
+            return true;
+        }
+        return false;
     }
 
     #endregion
@@ -162,6 +191,11 @@ public class Label : BaseControl<Label>
     public Label WithFontSize(float size) { FontSize = size; return Self; }
     public Label WithIsBold(bool bold) { IsBold = bold; return Self; }
     public Label WithTextAlign(SKTextAlign align) { TextAlign = align; return Self; }
+
+    public Label OnClicked(Action handler) { WhenClicked += handler; return Self; }
+    public Label OnHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
+    public Label OnHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
+    public Label OnTextChanged(Action<string> handler) { WhenTextChanged += handler; return Self; }
 
     #endregion
 

@@ -2,8 +2,9 @@
 
 `HandyUI.SilkNet.Components.HandyWindow`
 
-A window wrapper around Silk.NET's `IWindow` that runs a dedicated message
-pump thread, marshals calls with `Invoke`, and applies Win32 tweaks.
+A Silk.NET/GLFW-backed window that runs its own pump thread, marshals calls
+with `Invoke`, integrates with [`ThemeHelper`](theme-helper.md) for OS
+appearance, and applies Win32 tweaks when available.
 
 ```csharp
 public class HandyWindow : IDisposable
@@ -16,11 +17,18 @@ public class HandyWindow : IDisposable
 ## Construction
 
 ```csharp
-public HandyWindow(WindowConfiguration windowConfiguration)
+public HandyWindow(WindowConfiguration windowConfiguration);
 ```
 
 Creates the underlying window on a dedicated thread and returns once the
-window handle has been created (not necessarily initialized).
+window handle exists (not necessarily initialized).
+
+The constructor also:
+
+- calls `ThemeHelper.EnsureInitialized()`, which reads the OS accent +
+  light/dark mode and pushes them into [`ThemeManager`](theme-manager.md);
+- registers the window with `ThemeHelper` for automatic re-invalidation on
+  OS theme changes.
 
 ```csharp
 var window = new HandyWindow(WindowConfiguration.Default with { Title = "Demo" });
@@ -28,39 +36,36 @@ var window = new HandyWindow(WindowConfiguration.Default with { Title = "Demo" }
 
 ## Typical usage
 
-Add controls **directly to the renderer**, not inside `OnLoad`:
+Attach a renderer, add controls to it, and run:
 
 ```csharp
-var window   = new HandyWindow(WindowConfiguration.Default with { Title = "Hi" });
-var renderer = RendererHelper.Attach(window);
+var (window, renderer) =
+    WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default);
 
 renderer.AddRootControl(
-    new MyBox()
-        .WithLocation(40, 40)
-        .WithBounds(0, 0, 200, 120));
+    new Button().WithText("Save").WithLocation(20, 20));
 
 window.Run();
 ```
 
-!!! info "Why not `OnLoad`?"
-    `UIRenderer.AddRootControl` is thread-safe and queues the control for the
-    next tick. There's no need to wait for the GL context to attach a
-    control - only things that require a live GL context (like setting the
-    window `Icon`) need to run after initialization, and those are handled
-    for you through deferred properties.
+!!! info "Add controls to the renderer, not `OnLoad`"
+    `UIRenderer.AddRootControl` is thread-safe and queues the control for
+    the next tick. There is no reason to wait for the GL context - only
+    operations that genuinely need a live context (like the window icon)
+    are deferred automatically.
 
 ## Properties
 
 | Property | Type | Description |
 | --- | --- | --- |
 | `IsDisposed` | `bool` | True after `Dispose`. |
-| `IsInitialized` | `bool` | True after the GL context has been created. |
+| `IsInitialized` | `bool` | True after the GL context exists. |
 | `InternalWindow` | `IWindow?` | The underlying Silk.NET window. |
 | `Title` | `string` | Window title. |
 | `Border` | `WindowBorder` | Resizable / fixed / hidden. |
 | `State` | `WindowState` | Normal / maximized / minimized. |
 | `VSync` | `bool` | Toggle vertical sync. |
-| `UseDirtyRendering` | `bool` | Mirrors the `UIRenderer` setting. |
+| `UseDirtyRendering` | `bool` | Mirrors the renderer setting. |
 | `Size` | `SKSize?` | Client area size. |
 | `MinSize` / `MaxSize` | `SKSize?` | Size constraints. |
 | `Position` | `SKPoint?` | Top-left position. |
@@ -84,24 +89,19 @@ window.Run();
 public SKImage? Icon { get; set; }
 ```
 
-Assigning a new icon marks it pending; the actual Win32 `SetWindowIcon` call
-is deferred until the window is initialized and is replayed on the pump
-thread.
+Assigning a new icon marks it pending; the actual `SetWindowIcon` call is
+deferred until the window is initialized, marshaled onto the pump thread,
+and converted from RGBA to BGRA for Win32.
 
 ```csharp
 window.Icon = SKImage.FromEncodedData("Assets/app-icon.png");
 ```
 
-!!! info "No `SetIcon` method"
-    The old `SetIcon(SKImage)` method has been **removed**. Assign the `Icon`
-    property instead - it handles initialization timing and thread
-    marshalling for you.
-
 ## Events
 
 | Event | Signature | Raised when |
 | --- | --- | --- |
-| `OnLoad` | `Action` | Window GL context is initialized. |
+| `OnLoad` | `Action` | GL context initialized. |
 | `OnClosing` | `Action` | Window is about to close. |
 | `OnMove` | `Action<SKPoint>` | Window moved. |
 | `OnResize` | `Action<SKSize>` | Window resized. |
@@ -112,72 +112,33 @@ window.Icon = SKImage.FromEncodedData("Assets/app-icon.png");
 
 ### `Initialize()`
 
-```csharp
-public void Initialize()
-```
+Blocks until the GL context is ready.
 
-Requests initialization and blocks until the GL context is ready.
+### `Run()` / `RunAsync(CancellationToken)`
 
-### `Run()`
-
-```csharp
-public void Run()
-```
-
-Calls `Initialize()` then blocks until the window closes.
-
-### `RunAsync(CancellationToken)`
-
-```csharp
-public Task RunAsync(CancellationToken cancellationToken = default)
-```
-
-Async flavor of `Run`. Cancellation triggers `Close()`.
+Runs the window until it closes. `RunAsync` returns a `Task` completed on
+close; cancellation triggers `Close()`.
 
 ### `Close()`
 
-```csharp
-public void Close()
-```
-
-Requests the pump loop to exit and the window to close.
+Requests the pump loop to exit.
 
 ### `Invalidate()`
 
-```csharp
-public void Invalidate()
-```
-
 Marks the renderer dirty and wakes the pump thread.
-
-### `Invoke(Action)` / `Invoke<T>(Func<T>)`
-
-```csharp
-internal void Invoke(Action action);
-internal T   Invoke<T>(Func<T> func);
-```
-
-Marshals a delegate onto the pump thread and blocks until it completes.
-
-!!! tip "Nested invokes"
-    Nested invokes from a **different** thread are fine, but a nested invoke
-    issued from the pump thread must not block.
 
 ### `SetSizeLimits(SKSize?, SKSize?)`
 
-```csharp
-public void SetSizeLimits(SKSize? minSize, SKSize? maxSize)
-```
-
 Convenience wrapper around `MinSize` / `MaxSize`.
 
-### `WaitForInitialization(int timeoutMilliseconds = Timeout.Infinite)`
-
-```csharp
-public void WaitForInitialization(int timeoutMilliseconds = Timeout.Infinite)
-```
+### `WaitForInitialization(int = Timeout.Infinite)`
 
 Blocks until the GL context is ready (or times out).
+
+### `Invoke(Action)` / `Invoke<T>(Func<T>)`
+
+Marshals a delegate onto the pump thread. Nested invokes from another thread
+are fine; nested invokes from the pump thread must not block.
 
 ## Dispose
 
@@ -185,5 +146,5 @@ Blocks until the GL context is ready (or times out).
 public void Dispose();
 ```
 
-Closes the window, then marks the
-instance disposed.
+Unregisters from `ThemeHelper`, closes the window, waits up to two seconds
+for the pump thread, then marks the instance disposed.

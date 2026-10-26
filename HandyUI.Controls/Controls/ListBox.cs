@@ -56,6 +56,16 @@ public class ListBox : BaseControl<ListBox>
 
     private float _scrollOffset;
     private float _contentHeight;
+    private bool _lastHovered;
+
+    #endregion
+
+    #region Events
+
+    public event Action? WhenClicked;
+    public event Action? WhenHoverEntered;
+    public event Action? WhenHoverExited;
+    public event Action<float>? WhenScrollChanged;
 
     #endregion
 
@@ -75,7 +85,13 @@ public class ListBox : BaseControl<ListBox>
         return clientPoint is { } p && Bounds.Contains(p);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition) { }
+    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
+    {
+        if (_lastHovered == IsHovered) return;
+        _lastHovered = IsHovered;
+        if (IsHovered) WhenHoverEntered?.Invoke();
+        else WhenHoverExited?.Invoke();
+    }
 
     public override void OnDraw(SKCanvas canvas) { }
 
@@ -97,6 +113,13 @@ public class ListBox : BaseControl<ListBox>
             ScrollTo(_scrollOffset + delta);
             return true;
         }
+
+        if (ctx.Type == MouseEventType.Click && IsHovered)
+        {
+            WhenClicked?.Invoke();
+            return true;
+        }
+
         return false;
     }
 
@@ -133,6 +156,7 @@ public class ListBox : BaseControl<ListBox>
         foreach (var child in Children)
             child.Location = new SKPoint(child.Location.X, child.Location.Y - delta);
 
+        WhenScrollChanged?.Invoke(_scrollOffset);
         Invalidate();
     }
 
@@ -144,6 +168,11 @@ public class ListBox : BaseControl<ListBox>
     public ListBox WithHeight(float height) { Height = height; return Self; }
     public ListBox WithItemSpacing(float spacing) { ItemSpacing = spacing; return Self; }
     public ListBox WithScrollSpeed(float speed) { ScrollSpeed = speed; return Self; }
+
+    public ListBox OnClicked(Action handler) { WhenClicked += handler; return Self; }
+    public ListBox OnHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
+    public ListBox OnHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
+    public ListBox OnScrollChanged(Action<float> handler) { WhenScrollChanged += handler; return Self; }
 
     #endregion
 

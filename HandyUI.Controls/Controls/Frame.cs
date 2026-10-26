@@ -1,4 +1,5 @@
 ﻿using HandyUI.Core.Base;
+using HandyUI.Core.Data;
 using HandyUI.Core.Enums;
 using HandyUI.Core.Theming;
 using SkiaSharp;
@@ -18,6 +19,7 @@ public class Frame : BaseControl<Frame>
             if (Math.Abs(field - v) < 0.0001f) return;
             field = v;
             ResizeToContent();
+            WhenSizeChanged?.Invoke(Bounds.Width, Bounds.Height);
             Invalidate();
         }
     } = 100f;
@@ -31,6 +33,7 @@ public class Frame : BaseControl<Frame>
             if (Math.Abs(field - v) < 0.0001f) return;
             field = v;
             ResizeToContent();
+            WhenSizeChanged?.Invoke(Bounds.Width, Bounds.Height);
             Invalidate();
         }
     } = 100f;
@@ -93,7 +96,16 @@ public class Frame : BaseControl<Frame>
         }
     } = BorderDirection.Inside;
 
-    public bool HasShadow { get; set; } = true;
+    public bool HasShadow
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            Invalidate();
+        }
+    } = true;
 
     #endregion
 
@@ -102,6 +114,16 @@ public class Frame : BaseControl<Frame>
     private readonly SKPaint _bgPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
     private readonly SKPaint _borderPaint = new() { IsAntialias = true, Style = SKPaintStyle.Stroke };
     private readonly SKPaint _shadowPaint = new() { IsAntialias = true, Style = SKPaintStyle.Fill };
+    private bool _lastHovered;
+
+    #endregion
+
+    #region Events
+
+    public event Action? WhenClicked;
+    public event Action? WhenHoverEntered;
+    public event Action? WhenHoverExited;
+    public event Action<float, float>? WhenSizeChanged;
 
     #endregion
 
@@ -121,7 +143,13 @@ public class Frame : BaseControl<Frame>
         return clientPoint is { } p && Bounds.Contains(p);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition) { }
+    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
+    {
+        if (_lastHovered == IsHovered) return;
+        _lastHovered = IsHovered;
+        if (IsHovered) WhenHoverEntered?.Invoke();
+        else WhenHoverExited?.Invoke();
+    }
 
     public override void OnDraw(SKCanvas canvas)
     {
@@ -163,6 +191,16 @@ public class Frame : BaseControl<Frame>
         }
     }
 
+    protected override bool OnMouse(MouseEventContext ctx)
+    {
+        if (ctx.Type == MouseEventType.Click && IsHovered)
+        {
+            WhenClicked?.Invoke();
+            return true;
+        }
+        return false;
+    }
+
     #endregion
 
     #region Internal Helpers
@@ -184,6 +222,11 @@ public class Frame : BaseControl<Frame>
     public Frame WithBorderWidth(float width) { BorderWidth = width; return Self; }
     public Frame WithBorderDirection(BorderDirection dir) { BorderDirection = dir; return Self; }
     public Frame WithHasShadow(bool hasShadow) { HasShadow = hasShadow; return Self; }
+
+    public Frame OnClicked(Action handler) { WhenClicked += handler; return Self; }
+    public Frame OnHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
+    public Frame OnHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
+    public Frame OnSizeChanged(Action<float, float> handler) { WhenSizeChanged += handler; return Self; }
 
     #endregion
 

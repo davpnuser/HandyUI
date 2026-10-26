@@ -4,13 +4,9 @@ Records describing mouse and keyboard events passed to controls.
 
 ## Mouse
 
-```csharp
-public enum MouseButton { None, Left, Right, Middle }
-
-public enum MouseEventType { Move, MouseDown, MouseUp, Click, Wheel }
-```
-
 ### `MouseEventContext`
+
+`HandyUI.Core.Data.MouseEventContext`
 
 ```csharp
 public record MouseEventContext(
@@ -22,28 +18,35 @@ public record MouseEventContext(
 
 | Field | Description |
 | --- | --- |
-| `ClientPosition` | Cursor position **in the receiving control's local space**, or **`null`** when the cursor is clipped out of this subtree. |
-| `Type` | Which kind of event this is. |
-| `Button` | Which mouse button triggered the event (for button events). |
-| `WheelDelta` | Wheel delta in "clicks". Typically ±120 per notch. |
+| `ClientPosition` | Cursor position in the receiving control's local space, or **`null`** when clipped out of this subtree. |
+| `Type` | Event kind (`Move`, `MouseDown`, `MouseUp`, `Click`, `Wheel`). |
+| `Button` | Which mouse button triggered the event. |
+| `WheelDelta` | Wheel delta in "clicks" (±120 per notch). |
 
 !!! info "Null means clipped"
-    Rather than using a sentinel value like `(-99999, -99999)`,
-    `ClientPosition` is genuinely `null` when the control is out-of-bounds
-    because of clipping. Custom controls should treat `null` as
-    *"not hovered"* and return `false` from `DoesIntersect`.
+    `ClientPosition` is `null` - not a sentinel - when the control is
+    outside its parent's clip region. Treat null as *"not hovered"* and
+    return `false` from `DoesIntersect`.
 
-!!! info "Synthetic clicks"
-    The renderer synthesizes a `Click` event on `MouseUp` when the same
-    control was pressed and is still under the cursor.
+### Enums
+
+`HandyUI.Core.Enums.MouseEventType`
+
+```csharp
+public enum MouseEventType { Move, MouseDown, MouseUp, Click, Wheel }
+```
+
+`HandyUI.Core.Enums.MouseButton`
+
+```csharp
+public enum MouseButton { None, Left, Right, Middle }
+```
 
 ## Keyboard
 
-```csharp
-public enum KeyEventType { KeyDown, KeyUp, CharInput }
-```
-
 ### `KeyEventContext`
+
+`HandyUI.Core.Data.KeyEventContext`
 
 ```csharp
 public record KeyEventContext(
@@ -57,39 +60,20 @@ public record KeyEventContext(
 
 | Field | Description |
 | --- | --- |
-| `Type` | Key down / up / printable char. |
+| `Type` | `KeyDown`, `KeyUp`, or `CharInput`. |
 | `KeyCode` | Virtual key code (Win32-style). |
-| `Character` | Printable char for `CharInput`, otherwise `'\0'`. |
-| `IsControlPressed` / `IsShiftPressed` / `IsAltPressed` | Modifier state. |
+| `Character` | Printable char for `CharInput`; `'\0'` otherwise. |
+| Modifiers | Current modifier state. |
 
-!!! tip "Use `CharInput` for text"
-    Text boxes should only insert characters on `CharInput`, not on `KeyDown`.
-    `KeyDown` is for navigation (arrows, tab, enter, …).
+!!! tip "Insert text on `CharInput`"
+    Text editors should insert characters on `CharInput`, and use `KeyDown`
+    for navigation (arrows, tab, enter, …). This separates layout behavior
+    from OS-specific key codes.
 
-## Example
+### Enum
+
+`HandyUI.Core.Enums.KeyEventType`
 
 ```csharp
-protected override bool OnMouse(MouseEventContext ctx)
-{
-    switch (ctx.Type)
-    {
-        case MouseEventType.Click:
-            if (ctx.Button == MouseButton.Left) HandleLeftClick();
-            return true;
-        case MouseEventType.Wheel:
-            Scroll(ctx.WheelDelta);
-            return true;
-    }
-    return false;
-}
-
-protected override bool OnKey(KeyEventContext ctx)
-{
-    if (ctx.Type == KeyEventType.CharInput)
-    {
-        _buffer.Append(ctx.Character);
-        return true;
-    }
-    return false;
-}
+public enum KeyEventType { KeyDown, KeyUp, CharInput }
 ```

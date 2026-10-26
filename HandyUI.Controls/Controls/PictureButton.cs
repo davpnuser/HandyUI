@@ -46,6 +46,7 @@ public class PictureButton : BaseControl<PictureButton>
             if (ReferenceEquals(field, value)) return;
             field = value;
             ResizeToContent();
+            WhenImageChanged?.Invoke(value);
             Invalidate();
         }
     }
@@ -102,6 +103,9 @@ public class PictureButton : BaseControl<PictureButton>
     #region Events
 
     public event Action? WhenClicked;
+    public event Action<SKImage?>? WhenImageChanged;
+    public event Action? WhenHoverEntered;
+    public event Action? WhenHoverExited;
 
     #endregion
 
@@ -117,6 +121,8 @@ public class PictureButton : BaseControl<PictureButton>
         if (_lastHovered == IsHovered) return;
         _lastHovered = IsHovered;
         StartHoverAnimation(IsHovered ? 1f : 0f);
+        if (IsHovered) WhenHoverEntered?.Invoke();
+        else WhenHoverExited?.Invoke();
     }
 
     public override void OnDraw(SKCanvas canvas)
@@ -163,10 +169,8 @@ public class PictureButton : BaseControl<PictureButton>
         if (_isRippleActive && _rippleProgress is > 0f and < 1f)
         {
             canvas.Save();
-            if (CornerRadius > 0.01f)
-                canvas.ClipPath(GetClipPath(), antialias: true);
-            else
-                canvas.ClipRect(rect);
+            if (CornerRadius > 0.01f) canvas.ClipPath(GetClipPath(), antialias: true);
+            else canvas.ClipRect(rect);
 
             var maxRadius = MathF.Sqrt((w * w) + (h * h)) * 0.5f;
             var radius = maxRadius * _rippleProgress;
@@ -280,6 +284,11 @@ public class PictureButton : BaseControl<PictureButton>
     public PictureButton WithImage(SKImage? image) { Image = image; return Self; }
     public PictureButton WithStretchMode(StretchMode mode) { StretchMode = mode; return Self; }
     public PictureButton WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
+
+    public PictureButton OnClicked(Action handler) { WhenClicked += handler; return Self; }
+    public PictureButton OnImageChanged(Action<SKImage?> handler) { WhenImageChanged += handler; return Self; }
+    public PictureButton OnHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
+    public PictureButton OnHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
 
     #endregion
 

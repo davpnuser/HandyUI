@@ -296,6 +296,8 @@ public class Toggle : BaseControl<Toggle>
     public Toggle WithThumbSize(float size) { ThumbSize = size; return Self; }
     public Toggle WithTextGap(float gap) { TextGap = gap; return Self; }
 
+    public Toggle OnToggled(Action<bool> handler) { WhenToggled += handler; return Self; }
+
     #endregion
 
     #region Disposal

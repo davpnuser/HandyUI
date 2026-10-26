@@ -532,6 +532,8 @@ public class TextInput : BaseControl<TextInput>
     public TextInput WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
     public TextInput WithPadding(float horizontal, float vertical) { HorizontalPadding = horizontal; VerticalPadding = vertical; return Self; }
 
+    public TextInput OnTextChanged(Action<string> handler) { WhenTextChanged += handler; return Self; }
+
     #endregion
 
     #region Disposal

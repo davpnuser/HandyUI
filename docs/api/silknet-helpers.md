@@ -2,14 +2,15 @@
 
 ## `RendererHelper`
 
-`HandyUI.SilkNet.Classes.Helper.RendererHelper`
+`HandyUI.SilkNet.Helper.RendererHelper`
 
 ```csharp
-public static UIRenderer Attach(HandyWindow window, bool useDirtyRendering = true)
+public static UIRenderer Attach(HandyWindow window, bool useDirtyRendering = true);
 ```
 
-Creates a `RendererAdapter`, stores it on the window, and returns the
-underlying `UIRenderer`.
+Creates a `RendererAdapter`, assigns it to the window, registers the window
+with [`ThemeHelper`](theme-helper.md) for automatic theme-driven
+invalidation, and returns the underlying `UIRenderer`.
 
 !!! warning "Windows only"
     Throws `PlatformNotSupportedException` on non-Windows platforms.
@@ -22,7 +23,7 @@ var renderer = RendererHelper.Attach(window, useDirtyRendering: false);
 
 ## `WindowHelper`
 
-`HandyUI.SilkNet.Classes.Helper.WindowHelper`
+`HandyUI.SilkNet.Helper.WindowHelper`
 
 ```csharp
 public static UIRenderer CreateRenderer(HandyWindow window, bool useDirtyRendering);
@@ -33,37 +34,21 @@ public static (HandyWindow window, UIRenderer renderer)
 Convenience factories. `CreateWindowAndGetRenderer` builds a `HandyWindow`
 **and** attaches a renderer in one shot.
 
-```csharp
-var (window, renderer) =
-    WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default);
-
-renderer.AddRootControl(new MyBox().WithBounds(0, 0, 160, 48));
-window.Run();
-```
-
 ### Other functions
 
 ```csharp
-public static void TryCancelClose(IWindow window);
-public static void TrySetOpacity(IWindow window, float opacity);
+public static void  TryCancelClose(IWindow window);
+public static void  TrySetOpacity(IWindow window, float opacity);
 public static float? TryGetOpacity(IWindow window);
 ```
 
-Thin, defensive wrappers around GLFW. All of them swallow exceptions.
-
-!!! tip
-    `TryGetOpacity` returns `null` if the operation isn't supported - check
-    for a value before using it.
+Thin, defensive wrappers around GLFW that swallow exceptions.
 
 ---
 
 ## `Win32Helper`
 
-`HandyUI.SilkNet.Classes.Helper.Win32Helper`
-
-```csharp
-public static class Win32Helper
-```
+`HandyUI.SilkNet.Helper.Win32Helper`
 
 Low-level Win32 window manipulation. All methods **no-op** when the handle is
 `IntPtr.Zero`.
@@ -81,14 +66,14 @@ Low-level Win32 window manipulation. All methods **no-op** when the handle is
 | `GetWindowLongPtr(nint, int)` / `SetWindowLongPtr(nint, int, nint)` | 32/64-bit safe wrappers. |
 
 !!! warning
-    Prefer the equivalent `HandyWindow` properties (e.g. `IsMinimizable`)
-    when possible - they re-apply automatically after initialization.
+    Prefer the `HandyWindow` properties (e.g. `IsMinimizable`) - they
+    re-apply automatically after initialization.
 
 ---
 
 ## `PlatformTool`
 
-`HandyUI.SilkNet.Classes.Tools.PlatformTool`
+`HandyUI.SilkNet.Tool.PlatformTool`
 
 ```csharp
 internal static void EnsureSupportedPlatform();
@@ -100,7 +85,7 @@ Throws `PlatformNotSupportedException` on non-Windows platforms. Internal.
 
 ## `GlfwTool`
 
-`HandyUI.SilkNet.Classes.Tools.GlfwTool`
+`HandyUI.SilkNet.Tool.GlfwTool`
 
 ```csharp
 internal static void EnsureGlfwInitialized();

@@ -45,6 +45,7 @@ public class ProgressBar : BaseControl<ProgressBar>
             var v = Math.Clamp(value, 0f, 100f);
             if (Math.Abs(field - v) < 0.0001f) return;
             field = v;
+            WhenValueChanged?.Invoke(v);
             Invalidate();
         }
     }
@@ -86,6 +87,12 @@ public class ProgressBar : BaseControl<ProgressBar>
     private readonly SKPaint _fgPaint = new() { IsAntialias = true };
     private float _indeterminateProgress;
     private TweenHandle _indeterminateTween;
+
+    #endregion
+
+    #region Events
+
+    public event Action<float>? WhenValueChanged;
 
     #endregion
 
@@ -185,6 +192,8 @@ public class ProgressBar : BaseControl<ProgressBar>
     public ProgressBar WithIsIndeterminate(bool indeterminate) { IsIndeterminate = indeterminate; return Self; }
     public ProgressBar WithBarHeight(float height) { BarHeight = height; return Self; }
     public ProgressBar WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
+
+    public ProgressBar OnValueChanged(Action<float> handler) { WhenValueChanged += handler; return Self; }
 
     #endregion
 

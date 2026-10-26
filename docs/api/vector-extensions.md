@@ -1,6 +1,6 @@
 # `VectorExtensions`
 
-`HandyUI.SilkNet.Classes.Extensions.VectorExtensions`
+`HandyUI.SilkNet.Extensions.VectorExtensions`
 
 Conversions between SkiaSharp geometry and Silk.NET's `Vector2D<int>`.
 
@@ -33,5 +33,5 @@ SKPoint back = v.ToSKPoint();
 ```
 
 !!! info "Integral precision"
-    `Vector2D<int>` truncates fractional coordinates. If you need sub-pixel
-    accuracy, keep `SKPoint` / `SKSize` and only convert at the boundary.
+    `Vector2D<int>` truncates fractional coordinates. Keep `SKPoint`/`SKSize`
+    for sub-pixel work; convert only at the Silk.NET boundary.

@@ -54,6 +54,12 @@ public class ScrollFrame : BaseControl<ScrollFrame>
 
     #endregion
 
+    #region Events
+
+    public event Action<float>? WhenScrollChanged;
+
+    #endregion
+
     #region Constructor
 
     public ScrollFrame()
@@ -146,6 +152,7 @@ public class ScrollFrame : BaseControl<ScrollFrame>
         foreach (var child in Children)
             child.Location = new SKPoint(child.Location.X, child.Location.Y - delta);
 
+        WhenScrollChanged?.Invoke(_scrollOffset);
         ShowScrollbar();
         Invalidate();
     }
@@ -167,6 +174,8 @@ public class ScrollFrame : BaseControl<ScrollFrame>
     public ScrollFrame WithHeight(float height) { Height = height; return Self; }
     public ScrollFrame WithScrollSpeed(float speed) { ScrollSpeed = speed; return Self; }
     public ScrollFrame WithScrollbarWidth(float width) { ScrollbarWidth = width; return Self; }
+
+    public ScrollFrame OnScrollChanged(Action<float> handler) { WhenScrollChanged += handler; return Self; }
 
     #endregion
 

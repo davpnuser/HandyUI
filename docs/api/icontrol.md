@@ -1,6 +1,6 @@
 # `IControl`
 
-`HandyUI.Core.Interfaces.IControl`
+`HandyUI.Core.Interface.IControl`
 
 The minimal contract for anything the `UIRenderer` can draw and route input
 to.
@@ -20,7 +20,7 @@ public interface IControl : IDisposable
 | `ZIndex` | `int` | Draw/hit order. |
 | `ParentChildPositioningEnabled` | `bool` | Whether `Location` is applied. |
 | `ScissoringEnabled` | `bool` | Whether the subtree is clipped to `Bounds`. |
-| `AlphaPaint` | `SKPaint` | Pre-built paint reflecting `Opacity`. |
+| `AlphaPaint` | `SKPaint` | Pre-built `White * Opacity` paint. |
 | `Opacity` | `float` | `[0, 1]`. |
 | `IsHovered` | `bool` | Set by the renderer. |
 | `IsMouseDown` | `bool` | Set by the renderer. |
@@ -43,7 +43,7 @@ public interface IControl : IDisposable
 | `RequestFocus()` | Ask the renderer to focus this control. |
 | `ProcessMouseEvent(MouseEventContext)` | Route a mouse event. |
 | `ProcessKeyEvent(KeyEventContext)` | Route a key event. |
-| `DoesIntersect(SKPoint?)` | Hit-test in local space (nullable = clipped). |
+| `DoesIntersect(SKPoint?)` | Hit-test in local space (`null` → clipped). |
 | `OnUpdate(float, SKPoint?)` | Per-frame update. |
 | `OnDraw(SKCanvas)` | Per-frame draw. |
 

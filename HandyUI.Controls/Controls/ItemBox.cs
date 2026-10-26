@@ -71,6 +71,7 @@ public class ItemBox : BaseControl<ItemBox>
             if (field == value) return;
             field = value;
             StartSelectAnimation(value ? 1f : 0f);
+            WhenSelectionChanged?.Invoke(value);
             Invalidate();
         }
     }
@@ -120,6 +121,9 @@ public class ItemBox : BaseControl<ItemBox>
     #region Events
 
     public event Action<ItemBox>? WhenClicked;
+    public event Action<bool>? WhenSelectionChanged;
+    public event Action? WhenHoverEntered;
+    public event Action? WhenHoverExited;
 
     #endregion
 
@@ -150,6 +154,8 @@ public class ItemBox : BaseControl<ItemBox>
         {
             _lastHovered = IsHovered;
             StartHoverAnimation(IsHovered ? 1f : 0f);
+            if (IsHovered) WhenHoverEntered?.Invoke();
+            else WhenHoverExited?.Invoke();
         }
     }
 
@@ -272,6 +278,11 @@ public class ItemBox : BaseControl<ItemBox>
     public ItemBox WithFontSize(float size) { FontSize = size; return Self; }
     public ItemBox WithIsSelected(bool selected) { IsSelected = selected; return Self; }
     public ItemBox WithPadding(float horizontal, float vertical) { HorizontalPadding = horizontal; VerticalPadding = vertical; return Self; }
+
+    public ItemBox OnClicked(Action<ItemBox> handler) { WhenClicked += handler; return Self; }
+    public ItemBox OnSelectionChanged(Action<bool> handler) { WhenSelectionChanged += handler; return Self; }
+    public ItemBox OnHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
+    public ItemBox OnHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
 
     #endregion
 

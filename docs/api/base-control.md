@@ -1,19 +1,18 @@
 # `BaseControl`
 
-`HandyUI.Core.Classes.Base.BaseControl`
+`HandyUI.Core.Base.BaseControl`
 
-The base class for every drawable control. It provides transformation,
-geometry, visual state, interaction state, a parent/children tree, and
-invalidation events.
+The base class for every drawable control. Provides transformation, geometry,
+visual state, interaction state, and a parent/children tree.
 
 ```csharp
 public abstract class BaseControl : IControl
 ```
 
-!!! info "Positioning is nullable"
-    Both `DoesIntersect` and `OnUpdate` receive `SKPoint?`. A **`null`**
-    value means *"the cursor is not over this control's subtree"* - this is
-    how the renderer propagates clipping without a magic sentinel value.
+!!! info "Nullable mouse position"
+    `DoesIntersect` and `OnUpdate` receive `SKPoint?`. **`null`** means *"the
+    cursor is not over this subtree"* (clipped out). Custom controls should
+    treat `null` as not hovered.
 
 ## Properties
 
@@ -23,7 +22,7 @@ public abstract class BaseControl : IControl
 public IReadOnlyList<IControl> Children { get; }
 ```
 
-Do **not** mutate directly. Set a child's `Parent` instead.
+Read-only. Attach/detach via `Parent`.
 
 ### `Parent`
 
@@ -32,24 +31,18 @@ public BaseControl? Parent { get; set; }
 ```
 
 Setting this detaches from the old parent, attaches to the new one, and
-invalidates both sides.
+invalidates both.
 
-### `Location`
+### `Location` / `Bounds`
 
 ```csharp
 public SKPoint Location { get; set; }
+public SKRect  Bounds   { get; set; }
 ```
 
-Offset relative to the parent, applied only when
-`ParentChildPositioningEnabled` is `true`.
-
-### `Bounds`
-
-```csharp
-public SKRect Bounds { get; set; }
-```
-
-The control's rectangle in **its own** coordinate space.
+`Location` is the offset from the parent (applied only when
+`ParentChildPositioningEnabled` is `true`). `Bounds` is the rectangle in
+this control's local space.
 
 ### `ZIndex`
 
@@ -57,51 +50,29 @@ The control's rectangle in **its own** coordinate space.
 public int ZIndex { get; set; }
 ```
 
-Higher `ZIndex` = drawn later (on top) and hit-tested first.
+Higher = drawn later (on top) and hit-tested first. Children are sorted
+lazily; `InvalidateChildrenOrder()` is rarely needed.
 
-!!! tip "Sorting is lazy"
-    Children are sorted on demand after a change. Calling
-    `InvalidateChildrenOrder()` is rarely necessary.
-
-### `ParentChildPositioningEnabled`
+### `ParentChildPositioningEnabled` / `ScissoringEnabled`
 
 ```csharp
 public bool ParentChildPositioningEnabled { get; set; }   // default: true
+public bool ScissoringEnabled { get; set; }               // default: true
 ```
 
-When `false`, the control ignores its `Location` when resolving absolute
-positions.
+- `ParentChildPositioningEnabled` - whether `Location` is applied.
+- `ScissoringEnabled` - whether the subtree is clipped to `Bounds` and skips
+  input that falls outside.
 
-### `ScissoringEnabled`
-
-```csharp
-public bool ScissoringEnabled { get; set; }   // default: true
-```
-
-When `true`, the renderer clips the subtree to `Bounds` and skips dispatching
-events to out-of-bounds children.
-
-### `AlphaPaint`
+### `AlphaPaint` / `Opacity`
 
 ```csharp
 public SKPaint AlphaPaint { get; }
+public float   Opacity   { get; set; }   // clamped to [0, 1]
 ```
 
-A pre-built paint with `Color = White * Opacity`. Handy for tinting layers:
-
-```csharp
-canvas.SaveLayer(AlphaPaint);
-// draw children...
-canvas.Restore();
-```
-
-### `Opacity`
-
-```csharp
-public float Opacity { get; set; }   // clamped to [0, 1]
-```
-
-Setting this updates `AlphaPaint.Color` and invalidates.
+`AlphaPaint` is a pre-built paint with `Color = White * Opacity` - useful for
+`canvas.SaveLayer(AlphaPaint)`.
 
 ### Interaction state
 
@@ -111,9 +82,8 @@ public bool IsMouseDown { get; private set; }
 public bool IsFocused  { get; set; }
 ```
 
-`IsHovered` and `IsMouseDown` are managed by the renderer. `IsFocused` is
-managed by the renderer but exposed as settable so custom controls can
-reflect it.
+`IsHovered` / `IsMouseDown` are updated by the renderer. `IsFocused` is
+managed by the renderer but exposed as settable.
 
 ### `IsVisible` / `IsEnabled`
 
@@ -122,9 +92,8 @@ public bool IsVisible { get; set; }   // default: true
 public bool IsEnabled { get; set; }   // default: true
 ```
 
-- `IsVisible == false` → the control and its children are not drawn or hit.
-- `IsEnabled == false` → the control is not hit, not keyboard-interactive,
-  and cannot request focus.
+- `IsVisible == false` → not drawn, not hit.
+- `IsEnabled == false` → not hit, not keyboard-interactive, cannot focus.
 
 ## Events
 
@@ -134,8 +103,8 @@ public bool IsEnabled { get; set; }   // default: true
 public event Action? WhenInvalidated;
 ```
 
-Raised when the control's visual state changes. The renderer subscribes to
-keep its dirty flag accurate.
+Raised when the control's visual state changes. `UIRenderer` subscribes to
+this to keep its dirty flag accurate.
 
 ### `WhenFocusRequested`
 
@@ -143,14 +112,14 @@ keep its dirty flag accurate.
 public event Action<IControl>? WhenFocusRequested;
 ```
 
-Raised by `RequestFocus()`. The renderer listens and sets focus accordingly.
+Raised by `RequestFocus()`. The renderer listens and sets focus.
 
 ## Methods
 
 ### `Invalidate()`
 
 ```csharp
-public void Invalidate()
+public void Invalidate();
 ```
 
 Raises `WhenInvalidated` and bubbles up to the parent. Call after mutating
@@ -159,25 +128,24 @@ state outside of the built-in properties.
 ### `RequestFocus()`
 
 ```csharp
-public void RequestFocus()
+public void RequestFocus();
 ```
 
-Asks the renderer to focus this control. No-op when the control is disabled
-or invisible.
+Asks the renderer to focus this control. No-op when disabled or invisible.
 
 ### `ProcessMouseEvent(MouseEventContext)`
 
 ```csharp
-public bool ProcessMouseEvent(MouseEventContext mouseContext)
+public bool ProcessMouseEvent(MouseEventContext mouseContext);
 ```
 
-Updates `IsHovered` and `IsMouseDown`, then calls `OnMouse`. You generally
-don't call this yourself.
+Updates `IsHovered`/`IsMouseDown`, then calls `OnMouse`. Normally only the
+renderer calls this.
 
 ### `ProcessKeyEvent(KeyEventContext)`
 
 ```csharp
-public bool ProcessKeyEvent(KeyEventContext keyContext)
+public bool ProcessKeyEvent(KeyEventContext keyContext);
 ```
 
 Returns `OnKey(keyContext)` if the control is visible, enabled, and focused;
@@ -191,13 +159,9 @@ public abstract void OnUpdate(float deltaTime, SKPoint? clientMousePosition);
 public abstract void OnDraw(SKCanvas canvas);
 ```
 
-- `DoesIntersect` receives a point in the control's **local** space - or
-  `null` when the cursor is clipped out of the subtree. Return `false` for
-  null.
-- `OnUpdate` runs once per frame **before** `OnDraw`. `clientMousePosition`
-  is local (or `null` when clipped).
-- `OnDraw` runs after `OnUpdate`; the canvas is already translated to the
-  control origin when `ParentChildPositioningEnabled` is `true`.
+- `DoesIntersect` - hit-test in local space (`null` → return `false`).
+- `OnUpdate` - runs before `OnDraw`; `clientMousePosition` is local or `null`.
+- `OnDraw` - canvas is already translated to the control's origin.
 
 ## Virtual hooks
 
@@ -216,21 +180,10 @@ public abstract class BaseControl<TSelf> : BaseControl
     where TSelf : BaseControl<TSelf>
 ```
 
-Every `With...` method returns `TSelf`:
-
-```csharp
-new MyBox()
-    .WithLocation(10, 10)
-    .WithBounds(0, 0, 200, 100)
-    .WithOpacity(0.85f)
-    .WithZIndex(5)
-    .WithAddToRenderer(renderer);
-```
-
 | Method | Sets |
 | --- | --- |
 | `WithLocation(SKPoint)` / `WithLocation(float, float)` | `Location` |
-| `WithBounds(SKRect)` / `WithBounds(SKSize)` / `WithBounds(float, float, float, float)` | `Bounds` |
+| `WithBounds(SKRect)` / `WithBounds(SKSize)` / `WithBounds(float x, float y, float w, float h)` | `Bounds` |
 | `WithParent(BaseControl)` | `Parent` |
 | `WithOpacity(float)` | `Opacity` |
 | `WithIsVisible(bool)` | `IsVisible` |
@@ -238,6 +191,10 @@ new MyBox()
 | `WithParentChildPositioningEnabled(bool)` | `ParentChildPositioningEnabled` |
 | `WithZIndex(int)` | `ZIndex` |
 | `WithAddToRenderer(UIRenderer)` | `renderer.AddRootControl(this)` |
+
+!!! tip "`WithBounds(x, y, w, h)` takes position + size"
+    `WithBounds(10, 20, 100, 40)` creates an `SKRect` from `(10, 20)` to
+    `(110, 60)`.
 
 ## Example
 
@@ -247,7 +204,7 @@ public sealed class ClickBox : BaseControl<ClickBox>
     public event Action? Clicked;
 
     public override bool DoesIntersect(SKPoint? p)
-        => p is not null && Bounds.Contains(p.Value);
+        => p is { } value && Bounds.Contains(value);
 
     public override void OnUpdate(float dt, SKPoint? mouse) { }
 
@@ -271,7 +228,5 @@ public sealed class ClickBox : BaseControl<ClickBox>
     }
 }
 
-new ClickBox()
-    .WithBounds(0, 0, 160, 48)
-    .WithAddToRenderer(renderer);
+new ClickBox().WithBounds(0, 0, 160, 48).WithAddToRenderer(renderer);
 ```

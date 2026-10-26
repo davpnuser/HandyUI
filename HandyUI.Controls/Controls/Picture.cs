@@ -1,5 +1,7 @@
 ﻿using HandyUI.Controls.Enums;
 using HandyUI.Core.Base;
+using HandyUI.Core.Data;
+using HandyUI.Core.Enums;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;
@@ -42,6 +44,7 @@ public class Picture : BaseControl<Picture>
             if (ReferenceEquals(field, value)) return;
             field = value;
             ResizeToContent();
+            WhenImageChanged?.Invoke(value);
             Invalidate();
         }
     }
@@ -63,6 +66,16 @@ public class Picture : BaseControl<Picture>
 
     private readonly SKPaint _paint = new() { IsAntialias = true };
     private readonly SKSamplingOptions _sampling = new(SKFilterMode.Linear, SKMipmapMode.Linear);
+    private bool _lastHovered;
+
+    #endregion
+
+    #region Events
+
+    public event Action? WhenClicked;
+    public event Action<SKImage?>? WhenImageChanged;
+    public event Action? WhenHoverEntered;
+    public event Action? WhenHoverExited;
 
     #endregion
 
@@ -73,7 +86,13 @@ public class Picture : BaseControl<Picture>
         return clientPoint is { } p && Bounds.Contains(p);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition) { }
+    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
+    {
+        if (_lastHovered == IsHovered) return;
+        _lastHovered = IsHovered;
+        if (IsHovered) WhenHoverEntered?.Invoke();
+        else WhenHoverExited?.Invoke();
+    }
 
     public override void OnDraw(SKCanvas canvas)
     {
@@ -105,6 +124,16 @@ public class Picture : BaseControl<Picture>
         }
 
         canvas.DrawImage(Image, destRect, _sampling, _paint);
+    }
+
+    protected override bool OnMouse(MouseEventContext ctx)
+    {
+        if (ctx.Type == MouseEventType.Click && IsHovered)
+        {
+            WhenClicked?.Invoke();
+            return true;
+        }
+        return false;
     }
 
     #endregion
@@ -144,6 +173,11 @@ public class Picture : BaseControl<Picture>
     public Picture WithHeight(float height) { Height = height; return Self; }
     public Picture WithImage(SKImage? image) { Image = image; return Self; }
     public Picture WithStretchMode(StretchMode mode) { StretchMode = mode; return Self; }
+
+    public Picture OnClicked(Action handler) { WhenClicked += handler; return Self; }
+    public Picture OnImageChanged(Action<SKImage?> handler) { WhenImageChanged += handler; return Self; }
+    public Picture OnHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
+    public Picture OnHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
 
     #endregion
 
