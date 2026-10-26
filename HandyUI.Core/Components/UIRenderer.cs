@@ -1,19 +1,37 @@
-﻿using HandyUI.Core.Classes.Base;
-using HandyUI.Core.Classes.Records;
-using HandyUI.Core.Interfaces;
+﻿using HandyUI.Core.Base;
+using HandyUI.Core.Data;
+using HandyUI.Core.Enums;
+using HandyUI.Core.Interface;
+using HandyUI.Core.Theming;
 using SkiaSharp;
 
 namespace HandyUI.Core.Components;
 
-public class UIRenderer(bool useDirtyRendering = true) : IDisposable
+public class UIRenderer : IDisposable
 {
     #region Properties
 
-    public SKColor BackgroundColor { get; set; } = Theme.Default.DarkerBackgroundColor;
+    public SKColor BackgroundColor
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+
+            _backgroundColorCustom = value != ThemeManager.Instance.BackgroundPrimary;
+        }
+    } = ThemeManager.Instance.BackgroundPrimary;
+
+    public Tweener Tweener { get; }
 
     #endregion
 
     #region Internal Fields
+
+    private bool _backgroundColorCustom = false;
 
     private readonly List<IControl> _rootControls = [];
     private readonly List<IControl> _pendingRootControlsAdd = [];
@@ -25,7 +43,7 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
     private int _framesToRender = 2;
     private bool _isDisposed;
 
-    private readonly bool _useDirtyRendering = useDirtyRendering;
+    private readonly bool _useDirtyRendering;
 
     private IControl? _pressedControl;
     private IControl? _focusedControl;
@@ -38,11 +56,33 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
 
     #endregion
 
+    #region Events
+
+    public event Action? WhenInvalidated;
+
+    #endregion
+
+    #region Constructor
+
+    public UIRenderer(bool useDirtyRendering = true)
+    {
+        _useDirtyRendering = useDirtyRendering;
+
+        ThemeManager.Instance.ThemeChanged += OnThemeChanged;
+
+        Tweener = new Tweener();
+        _modules.Add(Tweener);
+        Tweener.Start();
+    }
+
+    #endregion
+
     #region Methods
 
     public void Invalidate()
     {
         _framesToRender = 2;
+        WhenInvalidated?.Invoke();
     }
 
     public void AddRootControl(IControl control)
@@ -73,94 +113,150 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
         Invalidate();
     }
 
+    public bool IsPointOverAnyControl(SKPoint clientPosition)
+    {
+        lock (_rootControlsLock)
+        {
+            if (_isRootControlsOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isRootControlsOrderDirty = false; }
+
+            for (var i = _rootControls.Count - 1; i >= 0; i--)
+            {
+                if (HitTestRecursive(_rootControls[i], clientPosition) != null)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
     #endregion
 
     #region Event Handling Methods
 
     public void ProcessMouseEvent(MouseEventContext context)
     {
-        if (context.ClientPosition is not { } clientPosition) return;
-
-        IControl[] rootSnapshot;
-        lock (_rootControlsLock)
+        Tweener.SetCurrent(Tweener);
+        try
         {
-            if (_isRootControlsOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isRootControlsOrderDirty = false; }
-            rootSnapshot = [.. _rootControls];
-        }
+            if (context.ClientPosition is not { } clientPosition) return;
 
-        IControl? hitControl = null;
-        for (var i = rootSnapshot.Length - 1; i >= 0; i--)
-        {
-            hitControl = HitTestRecursive(rootSnapshot[i], clientPosition);
-            if (hitControl != null) break;
-        }
-
-        if (context.Type == MouseEventType.MouseDown)
-        {
-            _pressedControl = hitControl;
-            SetFocus(hitControl);
-        }
-
-        foreach (var root in rootSnapshot) DispatchMouseEventRecursive(root, context);
-
-        if (context.Type == MouseEventType.MouseUp)
-        {
-            if (_pressedControl != null && _pressedControl == hitControl)
+            IControl[] rootSnapshot;
+            lock (_rootControlsLock)
             {
-                var localPos = GetLocalMousePosition(_pressedControl, clientPosition);
-                _pressedControl.ProcessMouseEvent(context with { Type = MouseEventType.Click, ClientPosition = localPos });
+                if (_isRootControlsOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isRootControlsOrderDirty = false; }
+                rootSnapshot = [.. _rootControls];
             }
-            _pressedControl = null;
+
+            IControl? hitControl = null;
+            for (var i = rootSnapshot.Length - 1; i >= 0; i--)
+            {
+                hitControl = HitTestRecursive(rootSnapshot[i], clientPosition);
+                if (hitControl != null) break;
+            }
+
+            if (context.Type == MouseEventType.MouseDown)
+            {
+                _pressedControl = hitControl;
+                SetFocus(hitControl);
+            }
+
+            foreach (var root in rootSnapshot) DispatchMouseEventRecursive(root, context);
+
+            if (context.Type == MouseEventType.MouseUp)
+            {
+                if (_pressedControl != null && _pressedControl == hitControl)
+                {
+                    var localPos = GetLocalMousePosition(_pressedControl, clientPosition);
+                    _pressedControl.ProcessMouseEvent(context with { Type = MouseEventType.Click, ClientPosition = localPos });
+                }
+                _pressedControl = null;
+            }
+        }
+        finally
+        {
+            Tweener.SetCurrent(null);
         }
     }
 
     public bool ProcessKeyEvent(KeyEventContext context)
     {
-        return _focusedControl?.IsVisible == true && _focusedControl.IsEnabled && _focusedControl.ProcessKeyEvent(context);
+        Tweener.SetCurrent(Tweener);
+        try
+        {
+            return _focusedControl?.IsVisible == true && _focusedControl.IsEnabled && _focusedControl.ProcessKeyEvent(context);
+        }
+        finally
+        {
+            Tweener.SetCurrent(null);
+        }
     }
 
     public bool RenderControls(SKCanvas canvas, SKPoint cursorPosition, float deltaTime)
     {
-        ProcessPendingControls();
-
-        lock (_rootControlsLock)
+        Tweener.SetCurrent(Tweener);
+        try
         {
-            if (_useDirtyRendering && _framesToRender <= 0) return false;
+            ProcessPendingControls();
 
-            if (_isRootControlsOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isRootControlsOrderDirty = false; }
-            canvas.Clear(BackgroundColor);
+            lock (_rootControlsLock)
+            {
+                if (_useDirtyRendering && _framesToRender <= 0) return false;
 
-            foreach (var control in _rootControls)
-                RenderRecursive(canvas, control, cursorPosition, deltaTime);
+                if (_isRootControlsOrderDirty) { _rootControls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex)); _isRootControlsOrderDirty = false; }
+                canvas.Clear(BackgroundColor);
 
-            if (_useDirtyRendering) _framesToRender--;
+                foreach (var control in _rootControls)
+                    RenderRecursive(canvas, control, cursorPosition, deltaTime);
 
-            return true;
+                if (_useDirtyRendering) _framesToRender--;
+
+                return true;
+            }
+        }
+        finally
+        {
+            Tweener.SetCurrent(null);
         }
     }
 
     public bool UpdateModules(float deltaTime)
     {
-        ProcessPendingModules();
-
-        lock (_modulesLock)
+        Tweener.SetCurrent(Tweener);
+        try
         {
-            if (_useDirtyRendering && _framesToRender <= 0) return false;
+            ProcessPendingModules();
 
-            foreach (var module in _modules)
+            lock (_modulesLock)
             {
-                if (!module.IsEnabled) continue;
+                if (_useDirtyRendering && _framesToRender <= 0) return false;
 
-                module.OnUpdate(deltaTime);
+                foreach (var module in _modules)
+                {
+                    if (!module.IsEnabled) continue;
+
+                    module.OnUpdate(deltaTime);
+                }
+
+                return true;
             }
-
-            return true;
+        }
+        finally
+        {
+            Tweener.SetCurrent(null);
         }
     }
 
     #endregion
 
     #region Internal Functions
+
+    private void OnThemeChanged()
+    {
+        if (!_backgroundColorCustom)
+        {
+            BackgroundColor = ThemeManager.Instance.BackgroundPrimary;
+        }
+    }
 
     private void OnControlInvalidated()
     {
@@ -378,6 +474,8 @@ public class UIRenderer(bool useDirtyRendering = true) : IDisposable
             }
             lock (_pendingModulesAdd) { foreach (var module in _pendingModulesAdd) module.Dispose(); _pendingModulesAdd.Clear(); }
             lock (_pendingModulesRemove) _pendingModulesRemove.Clear();
+
+            ThemeManager.Instance.ThemeChanged -= OnThemeChanged;
         }
 
         _isDisposed = true;

@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>2.2.0</AssemblyVersion>
+    <AssemblyVersion>3.0.0</AssemblyVersion>
 	  
     <Title>HandyUI</Title>
 	<Description>Platform-agnostic-at-its-core code-only C# UI framework powered by SkiaSharp.</Description>
@@ -22,6 +22,10 @@
 	<PackageProjectUrl>https://davpnuser.github.io/HandyUI/</PackageProjectUrl>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Resources\Roboto.ttf" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<None Include="..\THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="\" />
 		<None Include="..\HandyUI-Logo.png" Pack="true" PackagePath="" Link="HandyUI-Logo.png" />
@@ -32,6 +36,7 @@
     <EmbeddedResource Include="Resources\HandyUI-Banner.png" />
     <EmbeddedResource Include="Resources\HandyUI-Logo.png" />
     <EmbeddedResource Include="Resources\HandyUI-SmallLogo.png" />
+    <EmbeddedResource Include="Resources\Roboto.ttf" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,9 +1,9 @@
 # `Frame`
 
-`HandyUI.Controls.Frame`
+`HandyUI.Controls.Controls.Frame`
 
-A rectangle with a solid background fill and an optional border. Useful as
-a panel, card, or container for other controls.
+A rounded rectangle with a background, optional border, elevation shadow,
+and click/hover events. Useful as a panel, card, or container.
 
 ```csharp
 public class Frame : BaseControl<Frame>
@@ -11,109 +11,96 @@ public class Frame : BaseControl<Frame>
 
 ## Properties
 
-### `Theme`
+### `Width` / `Height`
 
 ```csharp
-public Theme Theme { get; set; }
+public float Width  { get; set; }   // default: 100f
+public float Height { get; set; }   // default: 100f
 ```
 
-Palette used when the frame is disabled (and to seed the default background
-and border colors). Assigning a new theme only overwrites `BackgroundColor`
-or `BorderColor` if they haven't been customized via a `With…` call.
+Unlike most controls, `Frame` defaults to `100 × 100` and *does* auto-size
+when set to `0`.
 
-### `Width` / `Height` / `Size`
+### `CornerRadius`
 
 ```csharp
-public float Width  { get; set; }
-public float Height { get; set; }
-public SKSize Size  { get; set; }
+public float CornerRadius { get; set; }   // default: 4f
 ```
 
-Convenience accessors over `Bounds`. Assigning any of them keeps the frame
-anchored at its current `Location`.
-
-### `BackgroundColor`
+### `Elevation`
 
 ```csharp
-public SKColor BackgroundColor { get; set; }
+public int Elevation { get; set; }   // default: 1
 ```
 
-Fill color. Assigning it marks the channel as customized so a later
-`Theme` swap won't overwrite it.
+Shadow offset when `HasShadow` is `true`. `0` skips the shadow.
 
-### `BorderColor`
-
-```csharp
-public SKColor BorderColor { get; set; }
-```
-
-Stroke color. Same customization semantics as `BackgroundColor`.
-
-### `BorderThickness`
+### `HasBorder` / `BorderWidth` / `BorderDirection`
 
 ```csharp
-public float BorderThickness { get; set; }   // default: 1f
-```
-
-Stroke width. Set to `0` to hide the border entirely.
-
-### `BorderDirection`
-
-```csharp
+public bool HasBorder       { get; set; }   // default: true
+public float BorderWidth    { get; set; }   // default: 1f
 public BorderDirection BorderDirection { get; set; }   // default: Inside
 ```
 
-Where the stroke is drawn relative to the frame's bounds. See
-[`BorderDirection`](../border-direction.md).
-
-### `IsEnabled` (shadowed)
+### `HasShadow`
 
 ```csharp
-public new bool IsEnabled { get; set; }
+public bool HasShadow { get; set; }   // default: true
 ```
 
-Refreshes the brushes when toggled. Disabled frames use
-`Theme.DarkerBackgroundColor` for the fill and `Theme.DisabledColor` for the
-border.
+## Events
+
+```csharp
+public event Action? WhenClicked;
+public event Action? WhenHoverEntered;
+public event Action? WhenHoverExited;
+public event Action<float, float>? WhenSizeChanged;
+```
+
+`WhenSizeChanged` receives `(Width, Height)` after the frame resizes.
 
 ## Methods
 
-### `OnDraw(SKCanvas)`
+### `DoesIntersect(SKPoint?)` / `OnUpdate(float, SKPoint?)` / `OnDraw(SKCanvas)`
+
+Standard `BaseControl` overrides.
+
+### `OnMouse(MouseEventContext)` - override hook
 
 ```csharp
-public override void OnDraw(SKCanvas canvas)
+protected override bool OnMouse(MouseEventContext ctx);
 ```
 
-Draws the fill first (when its alpha is > 0), then the border (when the
-thickness and alpha are both > 0). Border geometry is adjusted according to
-`BorderDirection`.
+Raises `WhenClicked` on `Click`.
 
 ## Fluent API
 
 ```csharp
-public Frame WithTheme(Theme theme);
 public Frame WithWidth(float width);
 public Frame WithHeight(float height);
-public Frame WithSize(float width, float height);
-public Frame WithBackgroundColor(SKColor color);
-public Frame WithBorder(SKColor color, float thickness = 1.0f,
-                       BorderDirection direction = BorderDirection.Inside);
-public Frame WithBorderColor(SKColor color);
-public Frame WithBorderThickness(float thickness);
-public Frame WithBorderDirection(BorderDirection direction);
+public Frame WithCornerRadius(float radius);
+public Frame WithElevation(int elevation);
+public Frame WithHasBorder(bool hasBorder);
+public Frame WithBorderWidth(float width);
+public Frame WithBorderDirection(BorderDirection dir);
+public Frame WithHasShadow(bool hasShadow);
+public Frame OnClicked(Action handler);
+public Frame OnHoverEntered(Action handler);
+public Frame OnHoverExited(Action handler);
+public Frame OnSizeChanged(Action<float, float> handler);
 ```
 
 ## Example
 
 ```csharp
 var card = new Frame()
-    .WithSize(320, 180)
-    .WithBackgroundColor(SKColors.White)
-    .WithBorder(SKColor.Parse("#CBD5E1"), 1f, BorderDirection.Inside)
+    .WithWidth(320)
+    .WithHeight(180)
+    .WithCornerRadius(8)
+    .WithElevation(3)
+    .WithBorderWidth(1)
+    .WithBorderDirection(BorderDirection.Inside)
     .WithLocation(40, 40)
     .WithAddToRenderer(renderer);
 ```
-
-!!! tip "Rounded corners"
-    `Frame` draws rectangular corners only. For rounded panels, subclass it
-    and override `OnDraw` to call `canvas.DrawRoundRect`.

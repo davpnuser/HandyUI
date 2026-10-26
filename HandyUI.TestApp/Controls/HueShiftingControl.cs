@@ -1,10 +1,10 @@
-﻿using HandyUI.Core.Classes.Base;
-using HandyUI.Core.Classes.Helper;
+﻿using HandyUI.Core.Base;
+using HandyUI.Core.Helper;
 using SkiaSharp;
 
 namespace HandyUI.TestApp.Controls;
 
-public class HueShiftingControl : BaseControl
+public class HueShiftingControl : BaseControl<HueShiftingControl>
 {
     public float HueDelta = 36;
     private float _hue = 0f;

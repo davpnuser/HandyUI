@@ -90,31 +90,45 @@ nav:
     - Core:
       - UIRenderer: api/ui-renderer.md
       - ResourceManager: api/resource-manager.md
+      - FontManager: api/font-manager.md
       - BaseControl: api/base-control.md
       - BaseModule: api/base-module.md
     - Interfaces:
       - IControl: api/icontrol.md
       - IModule: api/imodule.md
-    - Records & Contexts:
-      - Input Contexts: api/contexts.md
+    - Animation:
+      - Tweener: api/tweener.md
+    - Theming:
       - Theme: api/theme.md
+      - ThemeManager: api/theme-manager.md
+    - Data:
+      - Input Contexts: api/contexts.md
+    - Enums:
+      - BorderDirection: api/border-direction.md
+      - StretchMode: api/stretch-mode.md
     - Helpers:
       - SKColorHelper: api/sk-color-helper.md
       - SKRectHelper: api/sk-rect-helper.md
-    - Enums:
-      - BorderDirection: api/border-direction.md
     - Controls:
       - Overview: api/controls/index.md
+      - Button: api/controls/button.md
       - CheckBox: api/controls/check-box.md
       - Frame: api/controls/frame.md
-      - ImageButton: api/controls/image-button.md
-      - ImageLabel: api/controls/image-label.md
-      - TextBox: api/controls/text-box.md
-      - TextButton: api/controls/text-button.md
-      - TextLabel: api/controls/text-label.md
+      - ItemBox: api/controls/item-box.md
+      - Label: api/controls/label.md
+      - ListBox: api/controls/list-box.md
+      - MultilineTextInput: api/controls/multiline-text-input.md
+      - Picture: api/controls/picture.md
+      - PictureButton: api/controls/picture-button.md
+      - ProgressBar: api/controls/progress-bar.md
+      - ScrollFrame: api/controls/scroll-frame.md
+      - Slider: api/controls/slider.md
+      - TextInput: api/controls/text-input.md
+      - Toggle: api/controls/toggle.md
     - Silk.NET Adapter:
       - HandyWindow: api/handy-window.md
       - WindowConfiguration: api/window-configuration.md
+      - ThemeHelper: api/theme-helper.md
       - Silk.NET Helpers: api/silknet-helpers.md
       - VectorExtensions: api/vector-extensions.md
   - Extras:

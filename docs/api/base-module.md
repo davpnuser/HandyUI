@@ -1,19 +1,13 @@
 # `BaseModule`
 
-`HandyUI.Core.Classes.Base.BaseModule`
+`HandyUI.Core.Base.BaseModule`
 
-Base class for **logic-only** components. Modules tick once per frame (via
-`UIRenderer.UpdateModules`) but do not draw.
+Base class for **logic-only** components. Modules tick once per frame via
+`UIRenderer.UpdateModules` but do not draw.
 
 ```csharp
 public abstract class BaseModule : IModule
 ```
-
-!!! info "No `OnStateChanged` event"
-    Unlike earlier versions, `BaseModule` no longer exposes an `OnStateChanged`
-    event and `IsEnabled` has a **protected setter**. Enable / disable from
-    the outside via `Start()` / `Stop()`, or subclass and expose your own
-    state API.
 
 ## Properties
 
@@ -23,35 +17,34 @@ public abstract class BaseModule : IModule
 public bool IsEnabled { get; protected set; }
 ```
 
-`true` while the module is running. Read-only from the outside - call
-`Start()` / `Stop()` (or `WithIsEnabled(...)` on the fluent builder) to
-change it.
+Read-only outside the module. `true` while running. Call `Start()` / `Stop()`
+to change it - that's also what triggers the `OnStart` / `OnStop` hooks.
 
 ## Methods
 
 ### `Start()`
 
 ```csharp
-public void Start()
+public void Start();
 ```
 
-Sets `IsEnabled = true` and invokes `OnStart()`.
+Sets `IsEnabled = true` and calls `OnStart()`.
 
 ### `Stop()`
 
 ```csharp
-public void Stop()
+public void Stop();
 ```
 
-Sets `IsEnabled = false` and invokes `OnStop()`.
+Sets `IsEnabled = false` and calls `OnStop()`.
 
-### `OnUpdate(float deltaTime)`
+### `OnUpdate(float)`
 
 ```csharp
 public abstract void OnUpdate(float deltaTime);
 ```
 
-Called once per frame while `IsEnabled == true`.
+Called once per frame while enabled.
 
 ## Virtual hooks
 
@@ -64,10 +57,10 @@ protected virtual void OnDispose() { }
 ## Disposal
 
 ```csharp
-public void Dispose();
+public void Dispose();   // idempotent
 ```
 
-Idempotent. Override `OnDispose` to clean up resources.
+Override `OnDispose` to clean up resources.
 
 ## Fluent API: `BaseModule<TSelf>`
 
@@ -78,8 +71,8 @@ public abstract class BaseModule<TSelf> : BaseModule
 
 | Method | Effect |
 | --- | --- |
-| `WithIsEnabled(bool)` | Directly sets `IsEnabled` (bypasses `OnStart`/`OnStop`). |
-| `WithAddToRenderer(UIRenderer)` | Calls `renderer.AddModule(this)`. |
+| `WithIsEnabled(bool)` | Sets `IsEnabled` directly (bypasses `OnStart`/`OnStop`). |
+| `WithAddToRenderer(UIRenderer)` | `renderer.AddModule(this)`. |
 
 ## Example
 
@@ -88,17 +81,11 @@ public sealed class FrameCounter : BaseModule<FrameCounter>
 {
     public int Frames { get; private set; }
 
-    protected override void OnStart() => Console.WriteLine("starting");
+    protected override void OnStart() => Console.WriteLine("started");
 
     public override void OnUpdate(float dt) => Frames++;
 }
 
 var counter = new FrameCounter().WithAddToRenderer(renderer);
-
-// later:
 counter.Start();
 ```
-
-!!! tip
-    Modules are disposed automatically when removed from the renderer or when
-    the renderer itself is disposed.

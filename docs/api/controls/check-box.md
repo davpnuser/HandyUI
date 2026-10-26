@@ -1,10 +1,9 @@
 # `CheckBox`
 
-`HandyUI.Controls.CheckBox`
+`HandyUI.Controls.Controls.CheckBox`
 
-A two-state toggle rendered as a square box. Optionally displays a primary
-color fill when checked. Clicking the box toggles `IsChecked` and raises
-`WhenCheckChanged`.
+A checkbox rendered as a square box with an optional text label. The
+checkmark draws progressively when checked, using an animated tween.
 
 ```csharp
 public class CheckBox : BaseControl<CheckBox>
@@ -12,136 +11,92 @@ public class CheckBox : BaseControl<CheckBox>
 
 ## Properties
 
+### `Width` / `Height`
+
+```csharp
+public float Width  { get; set; }
+public float Height { get; set; }
+```
+
+`0` means auto-size.
+
+### `Text`
+
+```csharp
+public string Text { get; set; }   // default: string.Empty
+```
+
+Label shown to the right of the box.
+
+### `FontSize`
+
+```csharp
+public float FontSize { get; set; }   // default: 14f
+```
+
 ### `IsChecked`
 
 ```csharp
-public bool IsChecked { get; set; }   // default: false
+public bool IsChecked { get; set; }
 ```
 
-Whether the checkbox is currently checked. Setting this invalidates the
-control - it does **not** raise `WhenCheckChanged` (only user interaction
-does).
+Toggles the checkmark with an animation.
 
-### `BoxSize`
+### `BoxSize` / `BorderWidth` / `TextGap`
 
 ```csharp
-public float BoxSize { get; set; }   // default: 20f
-```
-
-Side length of the box in pixels. Changing this recalculates `Bounds`.
-
-### `Spacing`
-
-```csharp
-public float Spacing { get; set; }   // default: 5f
-```
-
-Inner padding between the border and the checked fill.
-
-### `BorderWidth`
-
-```csharp
+public float BoxSize     { get; set; }   // default: 18f
 public float BorderWidth { get; set; }   // default: 2f
+public float TextGap     { get; set; }   // default: 8f
 ```
 
-Stroke width of the box border.
+## Events
 
-### `Theme`
+### `WhenToggled`
 
 ```csharp
-public Theme Theme { get; set; }
+public event Action<bool>? WhenToggled;
 ```
 
-Palette used for the primary fill, background, and border colors. Defaults
-to `Theme.Default`.
-
-### `IsEnabled` (shadowed)
-
-```csharp
-public new bool IsEnabled { get; set; }
-```
-
-Shadows `BaseControl.IsEnabled` so the brushes refresh automatically when
-the state changes. Behaves identically otherwise.
-
-### `WhenCheckChanged`
-
-```csharp
-public Action<bool>? WhenCheckChanged { get; set; }
-```
-
-Invoked with the new state whenever the user toggles the checkbox.
-
-!!! tip "Read vs. write"
-    Assigning `IsChecked = true` programmatically does **not** fire
-    `WhenCheckChanged`. This mirrors most UI frameworks and avoids surprising
-    re-entrancy.
+Raised with the new state when the user clicks the checkbox. Setting
+`IsChecked` programmatically does **not** raise this event.
 
 ## Methods
 
-### `DoesIntersect(SKPoint?)`
+### `DoesIntersect(SKPoint?)` / `OnUpdate(float, SKPoint?)` / `OnDraw(SKCanvas)`
 
-```csharp
-public override bool DoesIntersect(SKPoint? clientPoint)
-```
-
-Returns `true` when the point lies inside the box's `Bounds`. Returns
-`false` for `null`.
-
-### `OnUpdate(float, SKPoint?)`
-
-```csharp
-public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
-```
-
-No-op except for the first frame, where it lazily initializes the brushes.
-
-### `OnDraw(SKCanvas)`
-
-```csharp
-public override void OnDraw(SKCanvas canvas)
-```
-
-Draws the background (lighter when hovered), the border, and the primary
-fill when checked.
+Standard `BaseControl` overrides.
 
 ### `OnMouse(MouseEventContext)` - override hook
 
 ```csharp
-protected override bool OnMouse(MouseEventContext mouseContext)
+protected override bool OnMouse(MouseEventContext ctx);
 ```
 
-Toggles `IsChecked` on `MouseUp` while hovered and enabled. Returns `true`
-when it handled the event.
+Toggles `IsChecked` on `Click` when hovered.
 
 ## Fluent API
 
 ```csharp
+public CheckBox WithWidth(float width);
+public CheckBox WithHeight(float height);
+public CheckBox WithText(string text);
+public CheckBox WithFontSize(float size);
 public CheckBox WithIsChecked(bool isChecked);
 public CheckBox WithBoxSize(float size);
-public CheckBox WithTheme(Theme theme);
-public CheckBox WithOnCheckChanged(Action<bool> onCheckChanged);
+public CheckBox WithBorderWidth(float width);
+public CheckBox WithTextGap(float gap);
+public CheckBox OnToggled(Action<bool> handler);
 ```
-
-!!! note "Method name"
-    The fluent method is still `WithOnCheckChanged(...)` (for consistency
-    with other controls) but it assigns to the `WhenCheckChanged` property.
 
 ## Example
 
 ```csharp
-var dark = Theme.Default with { PrimaryColor = SKColors.Orange };
-
 var agree = new CheckBox()
+    .WithText("I agree to the terms")
     .WithIsChecked(true)
-    .WithBoxSize(22f)
-    .WithTheme(dark)
-    .WithOnCheckChanged(checked =>
-        Console.WriteLine($"Agreed: {checked}"))
+    .WithBoxSize(20)
+    .OnToggled(checked => Console.WriteLine($"Agreed: {checked}"))
     .WithLocation(24, 24)
     .WithAddToRenderer(renderer);
 ```
-
-!!! warning "Disposal"
-    `CheckBox` disposes its four internal paints in `OnDispose`. Do not
-    share them with other controls.

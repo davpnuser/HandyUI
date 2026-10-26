@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>2.2.0</AssemblyVersion>
+    <AssemblyVersion>3.0.0</AssemblyVersion>
     <NoWarn>SYSLIB1054</NoWarn>
 
     <Title>HandyUI.Silk.NET</Title>
@@ -25,21 +25,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Classes\Enums\**" />
-    <EmbeddedResource Remove="Classes\Enums\**" />
-    <None Remove="Classes\Enums\**" />
-  </ItemGroup>
-
-  <ItemGroup>
 		<None Include="..\THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="\" />
 		<None Include="..\HandyUI-Logo.png" Pack="true" PackagePath="" Link="HandyUI-Logo.png" />
 		<None Include="..\NuGet-README.md" Pack="true" PackagePath="" Link="NuGet-README.md" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Win32.SystemEvents" Version="10.0.13" />
     <PackageReference Include="Silk.NET.Input" Version="2.23.0" />
     <PackageReference Include="Silk.NET.OpenGL" Version="2.23.0" />
     <PackageReference Include="Silk.NET.Windowing" Version="2.23.0" />
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.95.1" />
   </ItemGroup>
 
   <ItemGroup>
