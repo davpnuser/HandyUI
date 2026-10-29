@@ -20,15 +20,15 @@ You have two options:
     ### You can create a window just like this:
 
     ```csharp linenums="1"
-    using HandyUI.Controls;
-    using HandyUI.SilkNet.Classes.Helper;
-    using HandyUI.SilkNet.Classes.Records;
+    using HandyUI.Controls.Controls;
+    using HandyUI.SilkNet.Data;
+    using HandyUI.SilkNet.Helper;
 
     var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default);
 
-    new TextLabel()
+    new Label()
         .WithText("Hello, World!")
-        .WithTextSize(24)
+        .WithFontSize(24)
         .WithLocation(15, 15)
         .WithAddToRenderer(renderer);
 
@@ -45,8 +45,8 @@ You have two options:
 
     ```csharp linenums="1"
     using HandyUI.Controls.Controls;
-    using HandyUI.SilkNet.Classes.Helper;
-    using HandyUI.SilkNet.Classes.Records;
+    using HandyUI.SilkNet.Data;
+    using HandyUI.SilkNet.Helper;
 
     var (window1, renderer1) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default with { Title = "Window 1" });
     var (window2, renderer2) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default with { Title = "Window 2" });
@@ -80,8 +80,8 @@ To do this, you can create a WindowConfiguration object with the Title property 
 
 ```csharp linenums="1"
 using HandyUI.Controls.Controls;
-using HandyUI.SilkNet.Classes.Helper;
-using HandyUI.SilkNet.Classes.Records;
+using HandyUI.SilkNet.Data;
+using HandyUI.SilkNet.Helper;
 
 var configuration = WindowConfiguration.Default with { Title = "Your title comes here!" };
 
