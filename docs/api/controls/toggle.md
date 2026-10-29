@@ -3,7 +3,7 @@
 `HandyUI.Controls.Controls.Toggle`
 
 An on/off switch with an animated thumb, optional text label, and a subtle
-thumb-shadow.
+thumb shadow. Text can be multi-line.
 
 ```csharp
 public class Toggle : BaseControl<Toggle>
@@ -21,11 +21,20 @@ public float Height { get; set; }
 `0` means auto-size to `TrackWidth` (plus `TextGap` and text width when
 `Text` is set).
 
-### `Text` / `FontSize`
+### `Text`
 
 ```csharp
-public string Text     { get; set; }   // default: string.Empty
-public float  FontSize { get; set; }   // default: 14f
+public string Text { get; set; }   // default: string.Empty
+```
+
+Split on `'\n'` when drawn; the track is vertically centered against the
+whole block of text.
+
+### `FontSize` / `Typeface`
+
+```csharp
+public float      FontSize { get; set; }   // default: 14f
+public SKTypeface Typeface { get; set; }   // default: FontManager.DefaultFont
 ```
 
 ### `IsOn`
@@ -60,8 +69,8 @@ Space between the track and the text label.
 public event Action<bool>? WhenToggled;
 ```
 
-Raised with the new state when the user clicks the toggle. Assigning
-`IsOn` programmatically does **not** raise this event.
+Raised with the new state when the user clicks the toggle. Assigning `IsOn`
+programmatically does **not** raise this event.
 
 ## Methods
 
@@ -84,6 +93,7 @@ public Toggle WithWidth(float width);
 public Toggle WithHeight(float height);
 public Toggle WithText(string text);
 public Toggle WithFontSize(float size);
+public Toggle WithTypeface(SKTypeface? typeface);
 public Toggle WithIsOn(bool isOn);
 public Toggle WithTrackWidth(float width);
 public Toggle WithTrackHeight(float height);
@@ -96,7 +106,7 @@ public Toggle OnToggled(Action<bool> handler);
 
 ```csharp
 var darkMode = new Toggle()
-    .WithText("Enable dark mode")
+    .WithText("Enable dark mode\n(requires restart)")
     .WithIsOn(false)
     .OnToggled(on => ApplyTheme(on ? ThemeMode.Dark : ThemeMode.Light))
     .WithLocation(24, 24)

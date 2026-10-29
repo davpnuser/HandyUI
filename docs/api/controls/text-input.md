@@ -20,17 +20,39 @@ public float Height { get; set; }
 
 `0` means auto-size based on the current text (or placeholder) plus padding.
 
-### `Text` / `Placeholder`
+### `Text`
 
 ```csharp
-public string Text        { get; set; }   // default: string.Empty
+public string Text { get; set; }   // default: string.Empty
+```
+
+**Line breaks and tabs are sanitized on assignment** - `\r\n`, `\r`, and `\n`
+become spaces, and `\t` becomes four spaces. This keeps the control strictly
+single-line regardless of what paste or programmatic assignment delivers.
+
+```csharp
+input.Text = "hello\nworld";   // stored as "hello world"
+input.Text = "a\tb";           // stored as "a    b"
+```
+
+### `Placeholder`
+
+```csharp
 public string Placeholder { get; set; }   // default: string.Empty
 ```
 
-### `FontSize` / `CornerRadius`
+Shown when `Text` is empty.
+
+### `FontSize` / `Typeface`
 
 ```csharp
-public float FontSize     { get; set; }   // default: 14f
+public float      FontSize { get; set; }   // default: 14f
+public SKTypeface Typeface { get; set; }   // default: FontManager.DefaultFont
+```
+
+### `CornerRadius`
+
+```csharp
 public float CornerRadius { get; set; }   // default: 4f
 ```
 
@@ -49,7 +71,8 @@ public float VerticalPadding   { get; set; }   // default: 8f
 public event Action<string>? WhenTextChanged;
 ```
 
-Fires on every text mutation - typing, delete, selection replace.
+Fires on every text mutation - typing, delete, selection replace, and
+programmatic assignment (after sanitization).
 
 ## Methods
 
@@ -88,6 +111,7 @@ public TextInput WithHeight(float height);
 public TextInput WithText(string text);
 public TextInput WithPlaceholder(string placeholder);
 public TextInput WithFontSize(float size);
+public TextInput WithTypeface(SKTypeface? typeface);
 public TextInput WithCornerRadius(float radius);
 public TextInput WithPadding(float horizontal, float vertical);
 public TextInput OnTextChanged(Action<string> handler);
@@ -105,6 +129,8 @@ var search = new TextInput()
     .WithAddToRenderer(renderer);
 ```
 
-!!! tip "Focus"
-    `TextInput` requests focus on click. To focus programmatically, call
-    `search.RequestFocus()`.
+!!! tip "Single-line by design"
+    If you want multi-line input, use
+    [`MultilineTextInput`](multiline-text-input.md). `TextInput` enforces
+    single-line behavior by sanitizing `\n`, `\r`, and `\t` on every text
+    assignment.

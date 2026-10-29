@@ -3,7 +3,8 @@
 `HandyUI.Controls.Controls.Button`
 
 A filled text button with rounded corners, elevation shadow, hover color
-blending, and a click ripple.
+blending, and a click ripple. Text can be multi-line; lines are stacked and
+centered vertically.
 
 ```csharp
 public class Button : BaseControl<Button>
@@ -26,6 +27,9 @@ public float Height { get; set; }
 public string Text { get; set; }   // default: string.Empty
 ```
 
+Split on `'\n'` when drawn - newlines start a new centered line. The button
+auto-sizes to the widest line and the total stacked height.
+
 ### `CornerRadius`
 
 ```csharp
@@ -40,12 +44,16 @@ public int Elevation { get; set; }   // default: 2
 
 Shadow offset in pixels. `0` disables the shadow. Grows slightly on hover.
 
-### `FontSize` / `IsBold`
+### `FontSize` / `Typeface` / `IsBold`
 
 ```csharp
-public float FontSize { get; set; }   // default: 14f
-public bool  IsBold   { get; set; }
+public float      FontSize { get; set; }   // default: 14f
+public SKTypeface Typeface { get; set; }   // default: FontManager.DefaultFont
+public bool       IsBold   { get; set; }
 ```
+
+`Typeface` returns `FontManager.DefaultFont` when the underlying font has no
+explicit typeface. Assigning `null` falls back to `FontManager.DefaultFont`.
 
 ### `HorizontalPadding` / `VerticalPadding`
 
@@ -110,6 +118,7 @@ public Button WithText(string text);
 public Button WithCornerRadius(float radius);
 public Button WithElevation(int elevation);
 public Button WithFontSize(float size);
+public Button WithTypeface(SKTypeface? typeface);
 public Button WithIsBold(bool bold);
 public Button WithPadding(float horizontal, float vertical);
 public Button OnClicked(Action handler);
@@ -119,7 +128,7 @@ public Button OnClicked(Action handler);
 
 ```csharp
 var save = new Button()
-    .WithText("Save")
+    .WithText("Save\nchanges")
     .WithCornerRadius(6)
     .WithElevation(3)
     .WithFontSize(15)
@@ -129,3 +138,11 @@ var save = new Button()
     .WithLocation(24, 80)
     .WithAddToRenderer(renderer);
 ```
+
+!!! tip "Custom typefaces"
+    Load one through [`FontManager`](../font-manager.md) and pass it in:
+
+    ```csharp
+    var inter = FontManager.GetTypeface("Fonts/Inter-SemiBold.ttf");
+    button.WithTypeface(inter);
+    ```

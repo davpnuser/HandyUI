@@ -4,7 +4,7 @@
 
 A selectable list-style item. Selection is **exclusive among siblings** -
 selecting one `ItemBox` deselects all other `ItemBox` children of the same
-parent.
+parent. Text can be multi-line.
 
 ```csharp
 public class ItemBox : BaseControl<ItemBox>
@@ -21,11 +21,20 @@ public float Height { get; set; }
 
 `0` means auto-size.
 
-### `Text` / `FontSize`
+### `Text`
 
 ```csharp
-public string Text     { get; set; }   // default: string.Empty
-public float  FontSize { get; set; }   // default: 14f
+public string Text { get; set; }   // default: string.Empty
+```
+
+Split on `'\n'` when drawn - each line is left-aligned after
+`HorizontalPadding`.
+
+### `FontSize` / `Typeface`
+
+```csharp
+public float      FontSize { get; set; }   // default: 14f
+public SKTypeface Typeface { get; set; }   // default: FontManager.DefaultFont
 ```
 
 ### `IsSelected`
@@ -75,6 +84,7 @@ public ItemBox WithWidth(float width);
 public ItemBox WithHeight(float height);
 public ItemBox WithText(string text);
 public ItemBox WithFontSize(float size);
+public ItemBox WithTypeface(SKTypeface? typeface);
 public ItemBox WithIsSelected(bool selected);
 public ItemBox WithPadding(float horizontal, float vertical);
 public ItemBox OnClicked(Action<ItemBox> handler);
@@ -88,7 +98,7 @@ public ItemBox OnHoverExited(Action handler);
 ```csharp
 var list = new Frame().WithSize(240, 200).WithAddToRenderer(renderer);
 
-foreach (var name in new[] { "Inbox", "Sent", "Drafts" })
+foreach (var name in new[] { "Inbox", "Sent\n(items pending)", "Drafts" })
 {
     new ItemBox()
         .WithText(name)

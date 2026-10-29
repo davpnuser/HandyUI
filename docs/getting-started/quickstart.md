@@ -44,22 +44,22 @@ You have two options:
     ### You can also create multiple windows at the same time.
 
     ```csharp linenums="1"
-    using HandyUI.Controls;
+    using HandyUI.Controls.Controls;
     using HandyUI.SilkNet.Classes.Helper;
     using HandyUI.SilkNet.Classes.Records;
 
     var (window1, renderer1) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default with { Title = "Window 1" });
     var (window2, renderer2) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default with { Title = "Window 2" });
 
-    new TextLabel()
+    new Label()
         .WithText("Hello, World!")
-        .WithTextSize(24)
+        .WithFontSize(24)
         .WithLocation(15, 15)
         .WithAddToRenderer(renderer1);
 
-    new TextLabel()
+    new Label()
         .WithText("Hello World, Once Again!")
-        .WithTextSize(24)
+        .WithFontSize(24)
         .WithLocation(15, 15)
         .WithAddToRenderer(renderer2);
 
@@ -79,7 +79,7 @@ The example i will give right here is changing the title of the window.
 To do this, you can create a WindowConfiguration object with the Title property set to the title you want.
 
 ```csharp linenums="1"
-using HandyUI.Controls;
+using HandyUI.Controls.Controls;
 using HandyUI.SilkNet.Classes.Helper;
 using HandyUI.SilkNet.Classes.Records;
 
@@ -87,9 +87,9 @@ var configuration = WindowConfiguration.Default with { Title = "Your title comes
 
 var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(configuration);
 
-new TextLabel()
+new Label()
     .WithText("Hello, World!")
-    .WithTextSize(24)
+    .WithFontSize(24)
     .WithLocation(15, 15)
     .WithAddToRenderer(renderer);
 

@@ -3,7 +3,8 @@
 `HandyUI.Controls.Controls.CheckBox`
 
 A checkbox rendered as a square box with an optional text label. The
-checkmark draws progressively when checked, using an animated tween.
+checkmark draws progressively when checked, using an animated tween. Text can
+be multi-line; the box aligns with the block of text vertically.
 
 ```csharp
 public class CheckBox : BaseControl<CheckBox>
@@ -26,12 +27,14 @@ public float Height { get; set; }
 public string Text { get; set; }   // default: string.Empty
 ```
 
-Label shown to the right of the box.
+Label shown to the right of the box. Split on `'\n'` when drawn; the box is
+vertically centered against the whole text block.
 
-### `FontSize`
+### `FontSize` / `Typeface`
 
 ```csharp
-public float FontSize { get; set; }   // default: 14f
+public float      FontSize { get; set; }   // default: 14f
+public SKTypeface Typeface { get; set; }   // default: FontManager.DefaultFont
 ```
 
 ### `IsChecked`
@@ -82,6 +85,7 @@ public CheckBox WithWidth(float width);
 public CheckBox WithHeight(float height);
 public CheckBox WithText(string text);
 public CheckBox WithFontSize(float size);
+public CheckBox WithTypeface(SKTypeface? typeface);
 public CheckBox WithIsChecked(bool isChecked);
 public CheckBox WithBoxSize(float size);
 public CheckBox WithBorderWidth(float width);
@@ -93,7 +97,7 @@ public CheckBox OnToggled(Action<bool> handler);
 
 ```csharp
 var agree = new CheckBox()
-    .WithText("I agree to the terms")
+    .WithText("I agree to the terms\nand privacy policy")
     .WithIsChecked(true)
     .WithBoxSize(20)
     .OnToggled(checked => Console.WriteLine($"Agreed: {checked}"))

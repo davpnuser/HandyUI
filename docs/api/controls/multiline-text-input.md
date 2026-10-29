@@ -18,7 +18,7 @@ public float Width  { get; set; }
 public float Height { get; set; }
 ```
 
-`0` means auto-size to content (largest line and number of lines).
+`0` means auto-size to content (widest line and number of lines).
 
 ### `Text` / `Placeholder`
 
@@ -27,12 +27,19 @@ public string Text        { get; set; }   // default: string.Empty
 public string Placeholder { get; set; }   // default: string.Empty
 ```
 
-Setting `Text` clamps the cursor and selection anchor to the new length.
+Newlines are preserved (this is the multi-line editor). Setting `Text`
+clamps the cursor and selection anchor to the new length.
 
-### `FontSize` / `LineSpacing`
+### `FontSize` / `Typeface`
 
 ```csharp
-public float FontSize    { get; set; }   // default: 14f
+public float      FontSize { get; set; }   // default: 14f
+public SKTypeface Typeface { get; set; }   // default: FontManager.DefaultFont
+```
+
+### `LineSpacing`
+
+```csharp
 public float LineSpacing { get; set; }   // default: 4f
 ```
 
@@ -94,6 +101,7 @@ public MultilineTextInput WithHeight(float height);
 public MultilineTextInput WithText(string text);
 public MultilineTextInput WithPlaceholder(string placeholder);
 public MultilineTextInput WithFontSize(float size);
+public MultilineTextInput WithTypeface(SKTypeface? typeface);
 public MultilineTextInput WithLineSpacing(float spacing);
 public MultilineTextInput WithCornerRadius(float radius);
 public MultilineTextInput WithPadding(float padding);
