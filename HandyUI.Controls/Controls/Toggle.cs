@@ -64,6 +64,19 @@ public class Toggle : BaseControl<Toggle>
         }
     } = 14f;
 
+    public SKTypeface Typeface
+    {
+        get => _font.Typeface ?? FontManager.DefaultFont!;
+        set
+        {
+            var v = value ?? FontManager.DefaultFont!;
+            if (ReferenceEquals(_font.Typeface, v)) return;
+            _font.Typeface = v;
+            ResizeToContent();
+            Invalidate();
+        }
+    }
+
     public bool IsOn
     {
         get;
@@ -221,8 +234,14 @@ public class Toggle : BaseControl<Toggle>
                 : ThemeManager.Instance.TextDisabled;
 
             var fm = _font.Metrics;
-            var baseline = (Bounds.Height * 0.5f) - ((fm.Ascent + fm.Descent) * 0.5f);
-            canvas.DrawText(Text, trackW + TextGap, baseline, SKTextAlign.Left, _font, _textPaint);
+            var lineHeight = fm.Descent - fm.Ascent;
+            var lines = Text.Split('\n');
+            var totalH = lines.Length * lineHeight;
+            var topY = (Bounds.Height - totalH) * 0.5f;
+            var baseline = topY - fm.Ascent;
+
+            for (var i = 0; i < lines.Length; i++)
+                canvas.DrawText(lines[i], trackW + TextGap, baseline + (i * lineHeight), SKTextAlign.Left, _font, _textPaint);
         }
     }
 
@@ -244,11 +263,21 @@ public class Toggle : BaseControl<Toggle>
     private void ResizeToContent()
     {
         var fm = _font.Metrics;
-        var textHeight = fm.Descent - fm.Ascent;
+        var lineHeight = fm.Descent - fm.Ascent;
+        var lines = Text.Split('\n');
+        var textHeight = lines.Length * lineHeight;
+
+        var maxTextWidth = 0f;
+        foreach (var line in lines)
+        {
+            var lw = _font.MeasureText(line);
+            if (lw > maxTextWidth) maxTextWidth = lw;
+        }
+
         var contentH = Math.Max(ThumbSize, Math.Max(TrackHeight, textHeight));
         var contentW = string.IsNullOrEmpty(Text)
             ? TrackWidth
-            : TrackWidth + TextGap + _font.MeasureText(Text);
+            : TrackWidth + TextGap + maxTextWidth;
         var w = Width > 0f ? Width : contentW;
         var h = Height > 0f ? Height : contentH;
         Bounds = new SKRect(0, 0, w, h);
@@ -290,6 +319,7 @@ public class Toggle : BaseControl<Toggle>
     public Toggle WithHeight(float height) { Height = height; return Self; }
     public Toggle WithText(string text) { Text = text; return Self; }
     public Toggle WithFontSize(float size) { FontSize = size; return Self; }
+    public Toggle WithTypeface(SKTypeface? typeface) { Typeface = typeface!; return Self; }
     public Toggle WithIsOn(bool isOn) { IsOn = isOn; return Self; }
     public Toggle WithTrackWidth(float width) { TrackWidth = width; return Self; }
     public Toggle WithTrackHeight(float height) { TrackHeight = height; return Self; }

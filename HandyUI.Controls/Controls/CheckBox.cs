@@ -64,6 +64,19 @@ public class CheckBox : BaseControl<CheckBox>
         }
     } = 14f;
 
+    public SKTypeface Typeface
+    {
+        get => _font.Typeface ?? FontManager.DefaultFont!;
+        set
+        {
+            var v = value ?? FontManager.DefaultFont!;
+            if (ReferenceEquals(_font.Typeface, v)) return;
+            _font.Typeface = v;
+            ResizeToContent();
+            Invalidate();
+        }
+    }
+
     public bool IsChecked
     {
         get;
@@ -225,8 +238,14 @@ public class CheckBox : BaseControl<CheckBox>
                 : ThemeManager.Instance.TextDisabled;
 
             var fm = _font.Metrics;
-            var baseline = (Bounds.Height * 0.5f) - ((fm.Ascent + fm.Descent) * 0.5f);
-            canvas.DrawText(Text, size + TextGap, baseline, SKTextAlign.Left, _font, _textPaint);
+            var lineHeight = fm.Descent - fm.Ascent;
+            var lines = Text.Split('\n');
+            var totalH = lines.Length * lineHeight;
+            var topY = (Bounds.Height - totalH) * 0.5f;
+            var baseline = topY - fm.Ascent;
+
+            for (var i = 0; i < lines.Length; i++)
+                canvas.DrawText(lines[i], size + TextGap, baseline + (i * lineHeight), SKTextAlign.Left, _font, _textPaint);
         }
     }
 
@@ -248,11 +267,21 @@ public class CheckBox : BaseControl<CheckBox>
     private void ResizeToContent()
     {
         var fm = _font.Metrics;
-        var textHeight = fm.Descent - fm.Ascent;
+        var lineHeight = fm.Descent - fm.Ascent;
+        var lines = Text.Split('\n');
+        var textHeight = lines.Length * lineHeight;
+
+        var maxTextWidth = 0f;
+        foreach (var line in lines)
+        {
+            var lw = _font.MeasureText(line);
+            if (lw > maxTextWidth) maxTextWidth = lw;
+        }
+
         var contentH = Math.Max(BoxSize, textHeight);
         var contentW = string.IsNullOrEmpty(Text)
             ? BoxSize
-            : BoxSize + TextGap + _font.MeasureText(Text);
+            : BoxSize + TextGap + maxTextWidth;
         var w = Width > 0f ? Width : contentW;
         var h = Height > 0f ? Height : contentH;
         Bounds = new SKRect(0, 0, w, h);
@@ -294,6 +323,7 @@ public class CheckBox : BaseControl<CheckBox>
     public CheckBox WithHeight(float height) { Height = height; return Self; }
     public CheckBox WithText(string text) { Text = text; return Self; }
     public CheckBox WithFontSize(float size) { FontSize = size; return Self; }
+    public CheckBox WithTypeface(SKTypeface? typeface) { Typeface = typeface!; return Self; }
     public CheckBox WithIsChecked(bool isChecked) { IsChecked = isChecked; return Self; }
     public CheckBox WithBoxSize(float size) { BoxSize = size; return Self; }
     public CheckBox WithBorderWidth(float width) { BorderWidth = width; return Self; }

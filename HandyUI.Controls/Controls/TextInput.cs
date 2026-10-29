@@ -42,7 +42,13 @@ public class TextInput : BaseControl<TextInput>
         get;
         set
         {
-            field = value ?? string.Empty;
+            var sanitized = (value ?? string.Empty)
+                .Replace("\r\n", " ")
+                .Replace('\r', ' ')
+                .Replace('\n', ' ')
+                .Replace("\t", "    ");
+            if (field == sanitized) return;
+            field = sanitized;
             if (_cursorIndex > field.Length) _cursorIndex = field.Length;
             if (_selectionAnchor > field.Length) _selectionAnchor = field.Length;
             ResizeToContent();
@@ -75,6 +81,19 @@ public class TextInput : BaseControl<TextInput>
             Invalidate();
         }
     } = 14f;
+
+    public SKTypeface Typeface
+    {
+        get => _font.Typeface ?? FontManager.DefaultFont!;
+        set
+        {
+            var v = value ?? FontManager.DefaultFont!;
+            if (ReferenceEquals(_font.Typeface, v)) return;
+            _font.Typeface = v;
+            ResizeToContent();
+            Invalidate();
+        }
+    }
 
     public float CornerRadius
     {
@@ -529,6 +548,7 @@ public class TextInput : BaseControl<TextInput>
     public TextInput WithText(string text) { Text = text; return Self; }
     public TextInput WithPlaceholder(string placeholder) { Placeholder = placeholder; return Self; }
     public TextInput WithFontSize(float size) { FontSize = size; return Self; }
+    public TextInput WithTypeface(SKTypeface? typeface) { Typeface = typeface!; return Self; }
     public TextInput WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
     public TextInput WithPadding(float horizontal, float vertical) { HorizontalPadding = horizontal; VerticalPadding = vertical; return Self; }
 

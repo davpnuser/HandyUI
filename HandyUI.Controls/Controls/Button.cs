@@ -89,6 +89,19 @@ public class Button : BaseControl<Button>
         }
     } = 14f;
 
+    public SKTypeface Typeface
+    {
+        get => _font.Typeface ?? FontManager.DefaultFont!;
+        set
+        {
+            var v = value ?? FontManager.DefaultFont!;
+            if (ReferenceEquals(_font.Typeface, v)) return;
+            _font.Typeface = v;
+            ResizeToContent();
+            Invalidate();
+        }
+    }
+
     public bool IsBold
     {
         get;
@@ -240,8 +253,14 @@ public class Button : BaseControl<Button>
                 : ThemeManager.Instance.GetTone(400);
 
             var fm = _font.Metrics;
-            var baseline = (h * 0.5f) - ((fm.Ascent + fm.Descent) * 0.5f);
-            canvas.DrawText(Text, w * 0.5f, baseline, SKTextAlign.Center, _font, _textPaint);
+            var lineHeight = fm.Descent - fm.Ascent;
+            var lines = Text.Split('\n');
+            var totalH = lines.Length * lineHeight;
+            var topY = (h - totalH) * 0.5f;
+            var baseline = topY - fm.Ascent;
+
+            for (var i = 0; i < lines.Length; i++)
+                canvas.DrawText(lines[i], w * 0.5f, baseline + (i * lineHeight), SKTextAlign.Center, _font, _textPaint);
         }
     }
 
@@ -279,9 +298,18 @@ public class Button : BaseControl<Button>
     private void ResizeToContent()
     {
         var fm = _font.Metrics;
-        var textWidth = string.IsNullOrEmpty(Text) ? 0f : _font.MeasureText(Text);
-        var contentW = textWidth + (HorizontalPadding * 2f);
-        var contentH = fm.Descent - fm.Ascent + (VerticalPadding * 2f);
+        var lineHeight = fm.Descent - fm.Ascent;
+        var lines = Text.Split('\n');
+
+        var maxTextWidth = 0f;
+        foreach (var line in lines)
+        {
+            var lw = _font.MeasureText(line);
+            if (lw > maxTextWidth) maxTextWidth = lw;
+        }
+
+        var contentW = maxTextWidth + (HorizontalPadding * 2f);
+        var contentH = (lines.Length * lineHeight) + (VerticalPadding * 2f);
         var w = Width > 0f ? Width : contentW;
         var h = Height > 0f ? Height : contentH;
         Bounds = new SKRect(0, 0, w, h);
@@ -324,6 +352,7 @@ public class Button : BaseControl<Button>
     public Button WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
     public Button WithElevation(int elevation) { Elevation = elevation; return Self; }
     public Button WithFontSize(float size) { FontSize = size; return Self; }
+    public Button WithTypeface(SKTypeface? typeface) { Typeface = typeface!; return Self; }
     public Button WithIsBold(bool bold) { IsBold = bold; return Self; }
     public Button WithPadding(float horizontal, float vertical) { HorizontalPadding = horizontal; VerticalPadding = vertical; return Self; }
 

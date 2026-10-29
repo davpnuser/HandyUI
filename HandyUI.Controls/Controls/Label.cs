@@ -64,6 +64,19 @@ public class Label : BaseControl<Label>
         }
     } = 14f;
 
+    public SKTypeface Typeface
+    {
+        get => _font.Typeface ?? FontManager.DefaultFont!;
+        set
+        {
+            var v = value ?? FontManager.DefaultFont!;
+            if (ReferenceEquals(_font.Typeface, v)) return;
+            _font.Typeface = v;
+            ResizeToContent();
+            Invalidate();
+        }
+    }
+
     public bool IsBold
     {
         get;
@@ -145,7 +158,11 @@ public class Label : BaseControl<Label>
             : ThemeManager.Instance.TextDisabled;
 
         var fm = _font.Metrics;
-        var baseline = (Bounds.Height * 0.5f) - ((fm.Ascent + fm.Descent) * 0.5f);
+        var lineHeight = fm.Descent - fm.Ascent;
+        var lines = Text.Split('\n');
+        var totalH = lines.Length * lineHeight;
+        var topY = (Bounds.Height - totalH) * 0.5f;
+        var baseline = topY - fm.Ascent;
 
         var x = TextAlign switch
         {
@@ -154,7 +171,8 @@ public class Label : BaseControl<Label>
             _ => 0f
         };
 
-        canvas.DrawText(Text, x, baseline, TextAlign, _font, _textPaint);
+        for (var i = 0; i < lines.Length; i++)
+            canvas.DrawText(lines[i], x, baseline + (i * lineHeight), TextAlign, _font, _textPaint);
     }
 
     protected override bool OnMouse(MouseEventContext ctx)
@@ -174,8 +192,18 @@ public class Label : BaseControl<Label>
     private void ResizeToContent()
     {
         var fm = _font.Metrics;
-        var contentW = string.IsNullOrEmpty(Text) ? 0f : _font.MeasureText(Text);
-        var contentH = fm.Descent - fm.Ascent;
+        var lineHeight = fm.Descent - fm.Ascent;
+        var lines = Text.Split('\n');
+
+        var maxW = 0f;
+        foreach (var line in lines)
+        {
+            var lw = _font.MeasureText(line);
+            if (lw > maxW) maxW = lw;
+        }
+
+        var contentW = maxW;
+        var contentH = lines.Length * lineHeight;
         var w = Width > 0f ? Width : contentW;
         var h = Height > 0f ? Height : contentH;
         Bounds = new SKRect(0, 0, w, h);
@@ -189,6 +217,7 @@ public class Label : BaseControl<Label>
     public Label WithHeight(float height) { Height = height; return Self; }
     public Label WithText(string text) { Text = text; return Self; }
     public Label WithFontSize(float size) { FontSize = size; return Self; }
+    public Label WithTypeface(SKTypeface? typeface) { Typeface = typeface!; return Self; }
     public Label WithIsBold(bool bold) { IsBold = bold; return Self; }
     public Label WithTextAlign(SKTextAlign align) { TextAlign = align; return Self; }
 

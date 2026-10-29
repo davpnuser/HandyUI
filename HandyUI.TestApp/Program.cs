@@ -219,7 +219,7 @@ var scrollFrame = new ScrollFrame()
 
 for (var i = 0; i < 6; i++)
 {
-    new Label()
+    new Button()
         .WithText($"Scrollable item {i + 1}")
         .WithLocation(12, 10 + (i * 40))
         .WithParent(scrollFrame);

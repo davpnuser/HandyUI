@@ -76,6 +76,19 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         }
     } = 14f;
 
+    public SKTypeface Typeface
+    {
+        get => _font.Typeface ?? FontManager.DefaultFont;
+        set
+        {
+            var v = value ?? FontManager.DefaultFont!;
+            if (ReferenceEquals(_font.Typeface, v)) return;
+            _font.Typeface = v;
+            ResizeToContent();
+            Invalidate();
+        }
+    }
+
     public float LineSpacing
     {
         get;
@@ -630,6 +643,7 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
     public MultilineTextInput WithText(string text) { Text = text; return Self; }
     public MultilineTextInput WithPlaceholder(string placeholder) { Placeholder = placeholder; return Self; }
     public MultilineTextInput WithFontSize(float size) { FontSize = size; return Self; }
+    public MultilineTextInput WithTypeface(SKTypeface? typeface) { Typeface = typeface!; return Self; }
     public MultilineTextInput WithLineSpacing(float spacing) { LineSpacing = spacing; return Self; }
     public MultilineTextInput WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
     public MultilineTextInput WithPadding(float padding) { Padding = padding; return Self; }
