@@ -37,6 +37,7 @@ public class HandyWindow : IDisposable
             InternalWindow.Title = value;
         }
     }
+
     public WindowBorder Border
     {
         get => InternalWindow is null ? WindowBorder.Hidden : InternalWindow.WindowBorder;
@@ -46,8 +47,24 @@ public class HandyWindow : IDisposable
                 return;
 
             InternalWindow.WindowBorder = value;
+            _titleBarNeedsApply = true;
+            ApplyTitleBarVisibility();
         }
     }
+
+    public bool IsTitleBarVisible
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+            _titleBarNeedsApply = true;
+            ApplyTitleBarVisibility();
+        }
+    } = true;
 
     public WindowState State
     {
@@ -158,6 +175,8 @@ public class HandyWindow : IDisposable
         {
             field = value;
             InternalWindow?.WindowBorder = field ? Border : WindowBorder.Fixed;
+            _titleBarNeedsApply = true;
+            ApplyTitleBarVisibility();
         }
     }
 
@@ -183,7 +202,8 @@ public class HandyWindow : IDisposable
                 return;
 
             field = value;
-            ApplyWindowButtons();
+            _titleBarNeedsApply = true;
+            ApplyTitleBarVisibility();
         }
     } = true;
 
@@ -196,7 +216,8 @@ public class HandyWindow : IDisposable
                 return;
 
             field = value;
-            ApplyWindowButtons();
+            _titleBarNeedsApply = true;
+            ApplyTitleBarVisibility();
         }
     } = true;
 
@@ -325,8 +346,7 @@ public class HandyWindow : IDisposable
     {
         get
         {
-            if (_trayIcon is null)
-                _trayIcon = new TrayIcon(this);
+            _trayIcon ??= new TrayIcon(this);
             return _trayIcon;
         }
     }
@@ -353,6 +373,10 @@ public class HandyWindow : IDisposable
     private bool _visibleInTaskbarBeforeHide;
     private TrayIcon? _trayIcon;
 
+    private Win32Helper.WndProc? _titleBarWndProc;
+    private nint _originalTitleBarWndProc;
+    private bool _titleBarSubclassed;
+
     internal bool IsOnPumpThread => Thread.CurrentThread == _pumpThread;
 
     private static readonly Lock WindowCreationLock = new();
@@ -376,6 +400,7 @@ public class HandyWindow : IDisposable
     private volatile bool _modalStateNeedsApply;
     private volatile bool _visibleInTaskbarNeedsApply;
     private volatile bool _windowButtonsNeedApply;
+    private volatile bool _titleBarNeedsApply;
     private volatile bool _closingHandled;
     private volatile bool _invalidateRequested;
     private readonly bool _autoInit;
@@ -411,6 +436,7 @@ public class HandyWindow : IDisposable
         IsCloseable = windowConfiguration.IsCloseable;
         IsMaximizable = windowConfiguration.IsMaximizable;
         IsMinimizable = windowConfiguration.IsMinimizable;
+        IsTitleBarVisible = windowConfiguration.IsTitleBarVisible;
         Icon = windowConfiguration.Icon;
 
         if (windowConfiguration.ModalParent is not null)
@@ -699,6 +725,11 @@ public class HandyWindow : IDisposable
                     ApplyWindowButtons();
                 }
 
+                if (IsInitialized && _titleBarNeedsApply)
+                {
+                    ApplyTitleBarVisibility();
+                }
+
                 if (_invalidateRequested)
                 {
                     _invalidateRequested = false;
@@ -785,9 +816,10 @@ public class HandyWindow : IDisposable
         if (InternalWindow is null) return false;
         if (!OperatingSystem.IsWindows()) return false;
         if (!Win32Helper.GetCursorPos(out var pt)) return false;
+        if (InternalWindow.Native?.Win32?.Hwnd is not nint hwnd || hwnd == nint.Zero) return false;
+        if (!Win32Helper.GetWindowRect(hwnd, out var rect)) return false;
 
-        var pos = InternalWindow.Position;
-        _dragOffset = new SKPoint(pt.X - pos.X, pt.Y - pos.Y);
+        _dragOffset = new SKPoint(pt.X - rect.Left, pt.Y - rect.Top);
 
         return true;
     }
@@ -797,14 +829,15 @@ public class HandyWindow : IDisposable
         if (InternalWindow is null || _dragOffset is null) return;
         if (!OperatingSystem.IsWindows()) return;
         if (!Win32Helper.GetCursorPos(out var pt)) return;
+        if (InternalWindow.Native?.Win32?.Hwnd is not nint hwnd || hwnd == nint.Zero) return;
 
         var newX = pt.X - (int)_dragOffset.Value.X;
         var newY = pt.Y - (int)_dragOffset.Value.Y;
 
-        var pos = InternalWindow.Position;
-        if (newX == pos.X && newY == pos.Y) return;
+        if (Win32Helper.GetWindowRect(hwnd, out var rect) && rect.Left == newX && rect.Top == newY)
+            return;
 
-        InternalWindow.Position = new Vector2D<int>(newX, newY);
+        Win32Helper.SetWindowPosition(hwnd, newX, newY);
         _previousPosition = new SKPoint(newX, newY);
     }
 
@@ -985,8 +1018,11 @@ public class HandyWindow : IDisposable
             {
                 try
                 {
-                    Win32Helper.ApplyMinimizeBox(h, IsMinimizable);
-                    Win32Helper.ApplyMaximizeBox(h, IsMaximizable);
+                    if (IsTitleBarVisible && Border != WindowBorder.Hidden)
+                    {
+                        Win32Helper.ApplyMinimizeBox(h, IsMinimizable);
+                        Win32Helper.ApplyMaximizeBox(h, IsMaximizable);
+                    }
                 }
                 catch { }
             }
@@ -1003,6 +1039,102 @@ public class HandyWindow : IDisposable
         }
 
         _windowButtonsNeedApply = false;
+    }
+
+    private void ApplyTitleBarVisibility()
+    {
+        if (IsDisposed) return;
+
+        if (!OperatingSystem.IsWindows()) return;
+
+        if (!_isInitialized || InternalWindow?.Native?.Win32?.Hwnd is not nint hwnd || hwnd == nint.Zero)
+        {
+            _titleBarNeedsApply = true;
+            return;
+        }
+
+        void apply()
+        {
+            if (InternalWindow?.Native?.Win32?.Hwnd is nint h && h != nint.Zero)
+            {
+                try
+                {
+                    EnsureTitleBarSubclassInstalled();
+
+                    var visible = IsTitleBarVisible && Border != WindowBorder.Hidden;
+                    var resizable = IsResizable;
+
+                    Win32Helper.ApplyTitleBarVisibility(h, visible, resizable, IsMinimizable, IsMaximizable);
+                }
+                catch { }
+            }
+        }
+
+        if (IsOnPumpThread)
+        {
+            apply();
+        }
+        else if (!_closeRequested)
+        {
+            try { Invoke(apply); }
+            catch { }
+        }
+
+        _titleBarNeedsApply = false;
+    }
+
+    private void EnsureTitleBarSubclassInstalled()
+    {
+        if (_titleBarSubclassed) return;
+        if (InternalWindow?.Native?.Win32?.Hwnd is not nint hwnd || hwnd == nint.Zero) return;
+
+        _titleBarWndProc = TitleBarWndProc;
+        _originalTitleBarWndProc = Win32Helper.SetWindowLongPtr(
+            hwnd,
+            Win32Helper.GWLP_WNDPROC,
+            Marshal.GetFunctionPointerForDelegate(_titleBarWndProc));
+        _titleBarSubclassed = true;
+    }
+
+    private nint TitleBarWndProc(nint hWnd, uint msg, nint wParam, nint lParam)
+    {
+        if (!IsTitleBarVisible && Border != WindowBorder.Hidden)
+        {
+            if (msg == Win32Helper.WM_NCCALCSIZE && wParam != nint.Zero)
+                return nint.Zero;
+
+            if (msg == Win32Helper.WM_NCHITTEST && IsResizable)
+            {
+                var hit = HandleNcHitTest(hWnd, lParam);
+                if (hit != nint.Zero)
+                    return hit;
+            }
+        }
+
+        return Win32Helper.CallWindowProc(_originalTitleBarWndProc, hWnd, msg, wParam, lParam);
+    }
+
+    private static nint HandleNcHitTest(nint hWnd, nint lParam)
+    {
+        if (!Win32Helper.GetWindowRect(hWnd, out var rect)) return nint.Zero;
+
+        var value = lParam.ToInt64();
+        var x = (short)(value & 0xFFFF);
+        var y = (short)((value >> 16) & 0xFFFF);
+
+        const int border = 6;
+
+        var left = x >= rect.Left && x < rect.Left + border;
+        var right = x < rect.Right && x >= rect.Right - border;
+        var top = y >= rect.Top && y < rect.Top + border;
+        var bottom = y < rect.Bottom && y >= rect.Bottom - border;
+
+        if (top && left) return Win32Helper.HTTOPLEFT;
+        if (top && right) return Win32Helper.HTTOPRIGHT;
+        if (bottom && left) return Win32Helper.HTBOTTOMLEFT;
+        if (bottom && right) return Win32Helper.HTBOTTOMRIGHT;
+        if (left) return Win32Helper.HTLEFT;
+        return right ? Win32Helper.HTRIGHT : top ? Win32Helper.HTTOP : bottom ? Win32Helper.HTBOTTOM : nint.Zero;
     }
 
     #endregion
@@ -1029,12 +1161,10 @@ public class HandyWindow : IDisposable
             {
                 action();
             }
-
             catch (Exception e)
             {
                 ex = e;
             }
-
             finally
             {
                 done.Set();

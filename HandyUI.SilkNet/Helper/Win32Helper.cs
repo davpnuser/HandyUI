@@ -15,6 +15,9 @@ public static class Win32Helper
     private const nint WS_CLIPCHILDREN = 0x02000000;
     private const nint WS_MINIMIZEBOX = 0x00020000;
     private const nint WS_MAXIMIZEBOX = 0x00010000;
+    private const nint WS_CAPTION = 0x00C00000;
+    private const nint WS_SYSMENU = 0x00080000;
+    private const nint WS_THICKFRAME = 0x00040000;
 
     private const nint WS_EX_TOOLWINDOW = 0x00000080;
     private const nint WS_EX_APPWINDOW = 0x00040000;
@@ -24,12 +27,26 @@ public static class Win32Helper
     private const uint WM_NCLBUTTONDOWN = 0x00A1;
     private const nint HTCAPTION = 0x0002;
 
+    public const uint WM_NCCALCSIZE = 0x0083;
+    public const uint WM_NCHITTEST = 0x0084;
+
+    public const nint HTCLIENT = 1;
+    public const nint HTLEFT = 10;
+    public const nint HTRIGHT = 11;
+    public const nint HTTOP = 12;
+    public const nint HTTOPLEFT = 13;
+    public const nint HTTOPRIGHT = 14;
+    public const nint HTBOTTOM = 15;
+    public const nint HTBOTTOMLEFT = 16;
+    public const nint HTBOTTOMRIGHT = 17;
+
     private const int SW_HIDE = 0;
     private const int SW_SHOW = 5;
 
     private const uint SWP_NOSIZE = 0x0001;
     private const uint SWP_NOMOVE = 0x0002;
     private const uint SWP_NOZORDER = 0x0004;
+    private const uint SWP_NOACTIVATE = 0x0010;
     private const uint SWP_FRAMECHANGED = 0x0020;
 
     public static readonly nint HWND_MESSAGE = new(-3);
@@ -81,7 +98,7 @@ public static class Win32Helper
 
     #endregion
 
-    #region Tray Icon Structures
+    #region Structures
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     public struct NOTIFYICONDATA
@@ -121,6 +138,15 @@ public static class Win32Helper
     {
         public int X;
         public int Y;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RECT
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
     }
 
     #endregion
@@ -181,6 +207,9 @@ public static class Win32Helper
 
     [DllImport("user32.dll", EntryPoint = "CallWindowProcW", SetLastError = true)]
     public static extern nint CallWindowProc(nint lpPrevWndFunc, nint hWnd, uint msg, nint wParam, nint lParam);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool GetWindowRect(nint hWnd, out RECT lpRect);
 
     [DllImport("shell32.dll", EntryPoint = "Shell_NotifyIconW", CharSet = CharSet.Unicode, SetLastError = true)]
     public static extern bool Shell_NotifyIcon(uint dwMessage, ref NOTIFYICONDATA lpData);
@@ -278,6 +307,12 @@ public static class Win32Helper
         PostMessage(hWnd, WM_NULL, 0, 0);
     }
 
+    public static bool SetWindowPosition(nint hWnd, int x, int y)
+    {
+        return hWnd != nint.Zero && SetWindowPos(hWnd, nint.Zero, x, y, 0, 0,
+                            SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+    }
+
     public static void ApplyVisibleInTaskbar(nint hWnd, bool visibleInTaskbar)
     {
         if (hWnd == nint.Zero) return;
@@ -306,6 +341,38 @@ public static class Win32Helper
     public static void ApplyMaximizeBox(nint hWnd, bool enabled)
     {
         ApplyStyleBit(hWnd, WS_MAXIMIZEBOX, enabled);
+    }
+
+    public static void ApplyTitleBarVisibility(
+        nint hWnd,
+        bool visible,
+        bool resizable,
+        bool minimizable,
+        bool maximizable)
+    {
+        if (hWnd == nint.Zero) return;
+
+        var style = GetWindowLongPtr(hWnd, GWL_STYLE);
+
+        style &= ~(WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
+
+        if (visible)
+        {
+            style |= WS_CAPTION | WS_SYSMENU;
+
+            if (resizable) style |= WS_THICKFRAME;
+            if (minimizable) style |= WS_MINIMIZEBOX;
+            if (maximizable) style |= WS_MAXIMIZEBOX;
+        }
+        else if (resizable)
+        {
+            style |= WS_THICKFRAME;
+        }
+
+        SetWindowLongPtr(hWnd, GWL_STYLE, style);
+
+        SetWindowPos(hWnd, nint.Zero, 0, 0, 0, 0,
+                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
     }
 
     public static void StartWindowDrag(nint hWnd)

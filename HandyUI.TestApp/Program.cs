@@ -3,7 +3,6 @@ using HandyUI.Core.Components;
 using HandyUI.SilkNet.Components;
 using HandyUI.SilkNet.Data;
 using HandyUI.SilkNet.Helper;
-using Silk.NET.Windowing;
 using SkiaSharp;
 
 SKImage? logoImage = null;
@@ -16,7 +15,9 @@ var config = WindowConfiguration.Default with
     Size = new(1050, 1000),
     Icon = logoImage,
     //WindowBorder = WindowBorder.Resizable,
-    WindowBorder = WindowBorder.Hidden
+    //WindowBorder = WindowBorder.Hidden,
+    //IsTitleBarVisible = false,
+    //IsResizable = false
 };
 
 var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(config);
