@@ -120,6 +120,8 @@ public class Frame : BaseControl<Frame>
 
     #region Events
 
+    public event Action? WhenMouseDown;
+    public event Action? WhenMouseUp;
     public event Action? WhenClicked;
     public event Action? WhenHoverEntered;
     public event Action? WhenHoverExited;
@@ -193,11 +195,20 @@ public class Frame : BaseControl<Frame>
 
     protected override bool OnMouse(MouseEventContext ctx)
     {
-        if (ctx.Type == MouseEventType.Click && IsHovered)
+        if (IsHovered)
         {
-            WhenClicked?.Invoke();
+            if (ctx.Type == MouseEventType.MouseDown)
+                WhenMouseDown?.Invoke();
+
+            if (ctx.Type == MouseEventType.MouseUp)
+                WhenMouseUp?.Invoke();
+
+            if (ctx.Type == MouseEventType.Click)
+                WhenClicked?.Invoke();
+
             return true;
         }
+
         return false;
     }
 
@@ -214,6 +225,8 @@ public class Frame : BaseControl<Frame>
 
     #region Fluent APIs
 
+    public Frame WithSize(float width, float height) { Width = width; Height = height; return Self; }
+    public Frame WithSize(SKSize size) { Width = size.Width; Height = size.Height; return Self; }
     public Frame WithWidth(float width) { Width = width; return Self; }
     public Frame WithHeight(float height) { Height = height; return Self; }
     public Frame WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
@@ -223,10 +236,12 @@ public class Frame : BaseControl<Frame>
     public Frame WithBorderDirection(BorderDirection dir) { BorderDirection = dir; return Self; }
     public Frame WithHasShadow(bool hasShadow) { HasShadow = hasShadow; return Self; }
 
-    public Frame OnClicked(Action handler) { WhenClicked += handler; return Self; }
-    public Frame OnHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
-    public Frame OnHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
-    public Frame OnSizeChanged(Action<float, float> handler) { WhenSizeChanged += handler; return Self; }
+    public Frame WithWhenMouseDown(Action handler) { WhenMouseDown += handler; return Self; }
+    public Frame WithWhenMouseUp(Action handler) { WhenMouseUp += handler; return Self; }
+    public Frame WithWhenClicked(Action handler) { WhenClicked += handler; return Self; }
+    public Frame WithWhenHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
+    public Frame WithWhenHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
+    public Frame WithWhenSizeChanged(Action<float, float> handler) { WhenSizeChanged += handler; return Self; }
 
     #endregion
 

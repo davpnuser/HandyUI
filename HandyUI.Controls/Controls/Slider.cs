@@ -256,7 +256,7 @@ public class Slider : BaseControl<Slider>
     public Slider WithTrackHeight(float height) { TrackHeight = height; return Self; }
     public Slider WithThumbRadius(float radius) { ThumbRadius = radius; return Self; }
 
-    public Slider OnValueChanged(Action<float> handler) { WhenValueChanged += handler; return Self; }
+    public Slider WithWhenValueChanged(Action<float> handler) { WhenValueChanged += handler; return Self; }
 
     #endregion
 

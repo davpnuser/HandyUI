@@ -309,10 +309,10 @@ public class ItemBox : BaseControl<ItemBox>
     public ItemBox WithIsSelected(bool selected) { IsSelected = selected; return Self; }
     public ItemBox WithPadding(float horizontal, float vertical) { HorizontalPadding = horizontal; VerticalPadding = vertical; return Self; }
 
-    public ItemBox OnClicked(Action<ItemBox> handler) { WhenClicked += handler; return Self; }
-    public ItemBox OnSelectionChanged(Action<bool> handler) { WhenSelectionChanged += handler; return Self; }
-    public ItemBox OnHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
-    public ItemBox OnHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
+    public ItemBox WithWhenClicked(Action<ItemBox> handler) { WhenClicked += handler; return Self; }
+    public ItemBox WithWhenSelectionChanged(Action<bool> handler) { WhenSelectionChanged += handler; return Self; }
+    public ItemBox WithWhenHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
+    public ItemBox WithWhenHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
 
     #endregion
 

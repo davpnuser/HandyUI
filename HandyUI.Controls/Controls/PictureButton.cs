@@ -285,10 +285,10 @@ public class PictureButton : BaseControl<PictureButton>
     public PictureButton WithStretchMode(StretchMode mode) { StretchMode = mode; return Self; }
     public PictureButton WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
 
-    public PictureButton OnClicked(Action handler) { WhenClicked += handler; return Self; }
-    public PictureButton OnImageChanged(Action<SKImage?> handler) { WhenImageChanged += handler; return Self; }
-    public PictureButton OnHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
-    public PictureButton OnHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
+    public PictureButton WithWhenClicked(Action handler) { WhenClicked += handler; return Self; }
+    public PictureButton WithWhenImageChanged(Action<SKImage?> handler) { WhenImageChanged += handler; return Self; }
+    public PictureButton WithWhenHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
+    public PictureButton WithWhenHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
 
     #endregion
 

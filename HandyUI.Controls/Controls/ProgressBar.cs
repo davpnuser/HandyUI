@@ -193,7 +193,7 @@ public class ProgressBar : BaseControl<ProgressBar>
     public ProgressBar WithBarHeight(float height) { BarHeight = height; return Self; }
     public ProgressBar WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
 
-    public ProgressBar OnValueChanged(Action<float> handler) { WhenValueChanged += handler; return Self; }
+    public ProgressBar WithWhenValueChanged(Action<float> handler) { WhenValueChanged += handler; return Self; }
 
     #endregion
 

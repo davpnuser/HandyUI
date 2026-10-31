@@ -175,7 +175,7 @@ public class ScrollFrame : BaseControl<ScrollFrame>
     public ScrollFrame WithScrollSpeed(float speed) { ScrollSpeed = speed; return Self; }
     public ScrollFrame WithScrollbarWidth(float width) { ScrollbarWidth = width; return Self; }
 
-    public ScrollFrame OnScrollChanged(Action<float> handler) { WhenScrollChanged += handler; return Self; }
+    public ScrollFrame WithWhenScrollChanged(Action<float> handler) { WhenScrollChanged += handler; return Self; }
 
     #endregion
 

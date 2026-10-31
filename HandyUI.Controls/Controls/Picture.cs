@@ -174,10 +174,10 @@ public class Picture : BaseControl<Picture>
     public Picture WithImage(SKImage? image) { Image = image; return Self; }
     public Picture WithStretchMode(StretchMode mode) { StretchMode = mode; return Self; }
 
-    public Picture OnClicked(Action handler) { WhenClicked += handler; return Self; }
-    public Picture OnImageChanged(Action<SKImage?> handler) { WhenImageChanged += handler; return Self; }
-    public Picture OnHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
-    public Picture OnHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
+    public Picture WithWhenClicked(Action handler) { WhenClicked += handler; return Self; }
+    public Picture WithWhenImageChanged(Action<SKImage?> handler) { WhenImageChanged += handler; return Self; }
+    public Picture WithWhenHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
+    public Picture WithWhenHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
 
     #endregion
 

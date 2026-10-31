@@ -221,10 +221,10 @@ public class Label : BaseControl<Label>
     public Label WithIsBold(bool bold) { IsBold = bold; return Self; }
     public Label WithTextAlign(SKTextAlign align) { TextAlign = align; return Self; }
 
-    public Label OnClicked(Action handler) { WhenClicked += handler; return Self; }
-    public Label OnHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
-    public Label OnHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
-    public Label OnTextChanged(Action<string> handler) { WhenTextChanged += handler; return Self; }
+    public Label WithWhenClicked(Action handler) { WhenClicked += handler; return Self; }
+    public Label WithWhenHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
+    public Label WithWhenHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
+    public Label WithWhenTextChanged(Action<string> handler) { WhenTextChanged += handler; return Self; }
 
     #endregion
 

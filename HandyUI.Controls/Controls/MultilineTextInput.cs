@@ -648,9 +648,9 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
     public MultilineTextInput WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
     public MultilineTextInput WithPadding(float padding) { Padding = padding; return Self; }
 
-    public MultilineTextInput OnTextChanged(Action<string> handler) { WhenTextChanged += handler; return Self; }
-    public MultilineTextInput OnFocusGained(Action handler) { WhenFocusGained += handler; return Self; }
-    public MultilineTextInput OnFocusLost(Action handler) { WhenFocusLost += handler; return Self; }
+    public MultilineTextInput WithWhenTextChanged(Action<string> handler) { WhenTextChanged += handler; return Self; }
+    public MultilineTextInput WithWhenFocusGained(Action handler) { WhenFocusGained += handler; return Self; }
+    public MultilineTextInput WithWhenFocusLost(Action handler) { WhenFocusLost += handler; return Self; }
 
     #endregion
 

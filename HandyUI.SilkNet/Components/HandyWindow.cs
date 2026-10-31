@@ -285,7 +285,7 @@ public class HandyWindow : IDisposable
             if (InternalWindow?.Native?.Win32?.Hwnd is nint h && h != nint.Zero)
             {
                 try { Win32Helper.SetEnabled(h, _modalChild is null); }
-                catch { /* do not crash */ }
+                catch { }
             }
         }
 
@@ -296,7 +296,7 @@ public class HandyWindow : IDisposable
         else if (!_closeRequested)
         {
             try { Invoke(apply); }
-            catch { /* do not crash */ }
+            catch { }
         }
 
         _modalStateNeedsApply = false;
@@ -304,22 +304,54 @@ public class HandyWindow : IDisposable
 
     public bool InvalidateParentOnMove { get; set; } = true;
 
+    public bool IsDragging
+    {
+        get => _isDragging;
+        set
+        {
+            if (_isDragging == value || IsDisposed) return;
+
+            _isDragging = value;
+            _dragOffset = null;
+
+            if (value)
+                Invalidate();
+        }
+    }
+
+    public bool IsHidden => _isHidden;
+
+    public TrayIcon TrayIcon
+    {
+        get
+        {
+            if (_trayIcon is null)
+                _trayIcon = new TrayIcon(this);
+            return _trayIcon;
+        }
+    }
+
     #endregion
 
     #region Events
 
-    public event Action? OnLoad;
-    public event Action? OnClosing;
-    public event Action<SKPoint>? OnMove;
-    public event Action<SKSize>? OnResize;
-    public event Action<WindowState>? OnStateChanged;
-    public event Action<bool>? OnFocusChanged;
+    public event Action? WhenLoaded;
+    public event Action? WhenClosing;
+    public event Action<SKPoint>? WhenMoved;
+    public event Action<SKSize>? WhenResized;
+    public event Action<WindowState>? WhenStateChanged;
+    public event Action<bool>? WhenFocusChanged;
 
     #endregion
 
     #region Internal Fields
 
     private volatile HandyWindow? _modalChild;
+    private volatile bool _isDragging;
+    private volatile bool _isHidden;
+    private SKPoint? _dragOffset;
+    private bool _visibleInTaskbarBeforeHide;
+    private TrayIcon? _trayIcon;
 
     internal bool IsOnPumpThread => Thread.CurrentThread == _pumpThread;
 
@@ -445,7 +477,7 @@ public class HandyWindow : IDisposable
             if (_centerOnStartup)
                 window.Center();
 
-            OnLoad?.Invoke();
+            WhenLoaded?.Invoke();
         };
 
         _windowCreated.Set();
@@ -481,7 +513,10 @@ public class HandyWindow : IDisposable
             foreach (var child in _children.ToArray())
                 child.InternalWindow?.Close();
 
-            OnClosing?.Invoke();
+            _trayIcon?.Dispose();
+            _trayIcon = null;
+
+            WhenClosing?.Invoke();
 
             _closedTcs?.TrySetResult();
             _closedSignal.Set();
@@ -503,13 +538,13 @@ public class HandyWindow : IDisposable
 
             try
             {
-                if (!IsMovable && _previousPosition is not null)
+                if (!IsMovable && !_isDragging && _previousPosition is not null)
                     window.Position = _previousPosition.ToVector2D();
 
                 else
-                    OnMove?.Invoke(newPos.ToSKPoint());
+                    WhenMoved?.Invoke(newPos.ToSKPoint());
             }
-            catch { _moveInProgress = false; /* do not crash */ }
+            catch { _moveInProgress = false; }
             finally { _moveInProgress = false; }
 
             if (_moveTick++ == 4)
@@ -537,8 +572,8 @@ public class HandyWindow : IDisposable
 
             _resizeInProgress = true;
 
-            try { OnResize?.Invoke(newSize.ToSKSize()); }
-            catch { _resizeInProgress = false; /* do not crash */ }
+            try { WhenResized?.Invoke(newSize.ToSKSize()); }
+            catch { _resizeInProgress = false; }
             finally { _resizeInProgress = false; }
 
             if (_resizeTick++ == 4)
@@ -556,17 +591,17 @@ public class HandyWindow : IDisposable
 
         #region Other Handlers
 
-        window.StateChanged += s => OnStateChanged?.Invoke(s);
+        window.StateChanged += s => WhenStateChanged?.Invoke(s);
 
         window.FocusChanged += f =>
         {
             if (f && _modalChild is not null)
             {
                 try { _modalChild.Invoke(() => _modalChild.InternalWindow?.Focus()); }
-                catch { /* do not crash */ }
+                catch { }
             }
 
-            OnFocusChanged?.Invoke(f);
+            WhenFocusChanged?.Invoke(f);
         };
 
         #endregion
@@ -595,7 +630,7 @@ public class HandyWindow : IDisposable
                 {
                     hadWork = true;
                     try { work(); }
-                    catch {  /* do not crash */ }
+                    catch { }
                 }
 
                 if (!window.IsInitialized)
@@ -603,7 +638,7 @@ public class HandyWindow : IDisposable
                     if (_autoInit || _initRequested)
                     {
                         try { window.Initialize(); }
-                        catch { /* do not crash */ }
+                        catch { }
                     }
 
                     Thread.Sleep(1);
@@ -611,7 +646,20 @@ public class HandyWindow : IDisposable
                 }
 
                 try { window.DoEvents(); }
-                catch { /* do not crash */ }
+                catch { }
+
+                #region Drag Update
+
+                if (_isDragging)
+                {
+                    if (_dragOffset is null)
+                        TryComputeDragOffset();
+
+                    if (_dragOffset is not null)
+                        UpdateDragPosition();
+                }
+
+                #endregion
 
                 #region Things need applying
 
@@ -662,21 +710,28 @@ public class HandyWindow : IDisposable
                 var useDirty = RendererAdapter?.UseDirtyRendering ?? UseDirtyRendering;
                 var invalidated = RendererAdapter?.IsInvalidated == true;
 
-                var shouldRender = !useDirty || invalidated
-                                || (frameStart - _lastFrameTime) >= IdleRefreshSeconds;
+                var shouldRender = !_isHidden && (!useDirty || invalidated
+                                || (frameStart - _lastFrameTime) >= IdleRefreshSeconds);
 
                 if (shouldRender)
                 {
                     try { RendererAdapter?.RenderFrame(); }
-                    catch { /* do not crash */ }
+                    catch { }
 
                     try { window.GLContext?.SwapBuffers(); }
-                    catch { /* do not crash */ }
+                    catch { }
 
                     _lastFrameTime = _pumpStopwatch.Elapsed.TotalSeconds;
                 }
 
-                if (!useDirty)
+                if (_isDragging)
+                {
+                    try { glfw.PollEvents(); }
+                    catch { }
+
+                    Thread.Sleep(1);
+                }
+                else if (!useDirty)
                 {
                     if (!vsync && targetFps > 0)
                     {
@@ -697,7 +752,7 @@ public class HandyWindow : IDisposable
                             if (_invalidateRequested) { glfw.PollEvents(); }
                             else { glfw.WaitEventsTimeout(IdleRefreshSeconds); }
                         }
-                        catch { /* do not crash */ }
+                        catch { }
                     }
                 }
             }
@@ -707,10 +762,10 @@ public class HandyWindow : IDisposable
             _programmaticClose = true;
 
             try { window.Close(); }
-            catch { /* do not crash */ }
+            catch { }
 
             try { window.Dispose(); }
-            catch { /* do not crash */ }
+            catch { }
 
             InternalWindow = null;
 
@@ -719,6 +774,38 @@ public class HandyWindow : IDisposable
         }
 
         #endregion
+    }
+
+    #endregion
+
+    #region Drag Helpers
+
+    private bool TryComputeDragOffset()
+    {
+        if (InternalWindow is null) return false;
+        if (!OperatingSystem.IsWindows()) return false;
+        if (!Win32Helper.GetCursorPos(out var pt)) return false;
+
+        var pos = InternalWindow.Position;
+        _dragOffset = new SKPoint(pt.X - pos.X, pt.Y - pos.Y);
+
+        return true;
+    }
+
+    private void UpdateDragPosition()
+    {
+        if (InternalWindow is null || _dragOffset is null) return;
+        if (!OperatingSystem.IsWindows()) return;
+        if (!Win32Helper.GetCursorPos(out var pt)) return;
+
+        var newX = pt.X - (int)_dragOffset.Value.X;
+        var newY = pt.Y - (int)_dragOffset.Value.Y;
+
+        var pos = InternalWindow.Position;
+        if (newX == pos.X && newY == pos.Y) return;
+
+        InternalWindow.Position = new Vector2D<int>(newX, newY);
+        _previousPosition = new SKPoint(newX, newY);
     }
 
     #endregion
@@ -754,13 +841,13 @@ public class HandyWindow : IDisposable
         if (InternalWindow?.Native?.Win32?.Hwnd is nint hwnd && hwnd != nint.Zero)
         {
             try { Win32Helper.WakeWindow(hwnd); }
-            catch { /* do not crash */ }
+            catch { }
         }
     }
 
     private void RenderNow()
     {
-        if (IsDisposed || !_isInitialized)
+        if (IsDisposed || !_isInitialized || _isHidden)
             return;
 
         if (InternalWindow is null || RendererAdapter is null)
@@ -775,7 +862,7 @@ public class HandyWindow : IDisposable
             RendererAdapter.RenderFrame();
             InternalWindow.GLContext?.SwapBuffers();
         }
-        catch { /* do not crash */ }
+        catch { }
     }
 
     private void ApplySizeLimitsInternal()
@@ -816,7 +903,7 @@ public class HandyWindow : IDisposable
             if (InternalWindow?.Native?.Win32?.Hwnd is nint h && h != nint.Zero)
             {
                 try { Win32Helper.ApplyVisibleInTaskbar(h, VisibleInTaskbar); }
-                catch { /* do not crash */ }
+                catch { }
             }
         }
 
@@ -827,7 +914,7 @@ public class HandyWindow : IDisposable
         else if (!_closeRequested)
         {
             try { Invoke(apply); }
-            catch { /* do not crash */ }
+            catch { }
         }
 
         _visibleInTaskbarNeedsApply = false;
@@ -874,7 +961,7 @@ public class HandyWindow : IDisposable
         else if (!_closeRequested)
         {
             try { Invoke(apply); }
-            catch { /* do not crash */ }
+            catch { }
         }
 
         _iconNeedsApply = false;
@@ -901,7 +988,7 @@ public class HandyWindow : IDisposable
                     Win32Helper.ApplyMinimizeBox(h, IsMinimizable);
                     Win32Helper.ApplyMaximizeBox(h, IsMaximizable);
                 }
-                catch { /* do not crash */ }
+                catch { }
             }
         }
 
@@ -912,7 +999,7 @@ public class HandyWindow : IDisposable
         else if (!_closeRequested)
         {
             try { Invoke(apply); }
-            catch { /* do not crash */ }
+            catch { }
         }
 
         _windowButtonsNeedApply = false;
@@ -955,7 +1042,7 @@ public class HandyWindow : IDisposable
         });
 
         try { Silk.NET.GLFW.Glfw.GetApi().PostEmptyEvent(); }
-        catch { /* do not crash */ }
+        catch { }
 
         if (!done.Wait(TimeSpan.FromSeconds(10)))
             throw new TimeoutException("HandyWindow pump thread did not process the work item.");
@@ -1031,7 +1118,7 @@ public class HandyWindow : IDisposable
         _closeRequested = true;
 
         try { Silk.NET.GLFW.Glfw.GetApi().PostEmptyEvent(); }
-        catch { /* do not crash */ }
+        catch { }
     }
 
     #endregion
@@ -1053,6 +1140,54 @@ public class HandyWindow : IDisposable
         MaxSize = maxSize;
     }
 
+    public void BeginDrag()
+    {
+        if (IsDisposed) return;
+
+        if (InternalWindow?.Native?.Win32?.Hwnd is nint hwnd && hwnd != nint.Zero)
+        {
+            if (IsOnPumpThread)
+                Win32Helper.StartWindowDrag(hwnd);
+            else
+                Invoke(() => Win32Helper.StartWindowDrag(hwnd));
+        }
+    }
+
+    public void Hide()
+    {
+        if (IsDisposed) return;
+
+        _visibleInTaskbarBeforeHide = VisibleInTaskbar;
+        VisibleInTaskbar = false;
+        _isHidden = true;
+
+        Invoke(() =>
+        {
+            ApplyVisibleInTaskbar();
+            if (InternalWindow?.Native?.Win32?.Hwnd is nint hwnd && hwnd != nint.Zero)
+                Win32Helper.ShowWindowVisible(hwnd, false);
+            else
+                InternalWindow!.IsVisible = false;
+        });
+    }
+
+    public void Show()
+    {
+        if (IsDisposed) return;
+
+        VisibleInTaskbar = _visibleInTaskbarBeforeHide;
+        _isHidden = false;
+
+        Invoke(() =>
+        {
+            ApplyVisibleInTaskbar();
+            if (InternalWindow?.Native?.Win32?.Hwnd is nint hwnd && hwnd != nint.Zero)
+                Win32Helper.ShowWindowVisible(hwnd, true);
+            else
+                InternalWindow!.IsVisible = true;
+        });
+    }
+
     #endregion
 
     #region Disposal Functions
@@ -1064,6 +1199,9 @@ public class HandyWindow : IDisposable
         if (disposing)
         {
             ThemeHelper.UnregisterWindow(this);
+
+            _trayIcon?.Dispose();
+            _trayIcon = null;
 
             Close();
 

@@ -169,10 +169,10 @@ public class ListBox : BaseControl<ListBox>
     public ListBox WithItemSpacing(float spacing) { ItemSpacing = spacing; return Self; }
     public ListBox WithScrollSpeed(float speed) { ScrollSpeed = speed; return Self; }
 
-    public ListBox OnClicked(Action handler) { WhenClicked += handler; return Self; }
-    public ListBox OnHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
-    public ListBox OnHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
-    public ListBox OnScrollChanged(Action<float> handler) { WhenScrollChanged += handler; return Self; }
+    public ListBox WithWhenClicked(Action handler) { WhenClicked += handler; return Self; }
+    public ListBox WithWhenHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
+    public ListBox WithWhenHoverExited(Action handler) { WhenHoverExited += handler; return Self; }
+    public ListBox WithWhenScrollChanged(Action<float> handler) { WhenScrollChanged += handler; return Self; }
 
     #endregion
 

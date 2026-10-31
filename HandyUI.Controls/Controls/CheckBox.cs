@@ -329,7 +329,7 @@ public class CheckBox : BaseControl<CheckBox>
     public CheckBox WithBorderWidth(float width) { BorderWidth = width; return Self; }
     public CheckBox WithTextGap(float gap) { TextGap = gap; return Self; }
 
-    public CheckBox OnToggled(Action<bool> handler) { WhenToggled += handler; return Self; }
+    public CheckBox WithWhenToggled(Action<bool> handler) { WhenToggled += handler; return Self; }
 
     #endregion
 

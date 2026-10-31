@@ -356,7 +356,7 @@ public class Button : BaseControl<Button>
     public Button WithIsBold(bool bold) { IsBold = bold; return Self; }
     public Button WithPadding(float horizontal, float vertical) { HorizontalPadding = horizontal; VerticalPadding = vertical; return Self; }
 
-    public Button OnClicked(Action handler) { WhenClicked += handler; return Self; }
+    public Button WithWhenClicked(Action handler) { WhenClicked += handler; return Self; }
 
     #endregion
 
