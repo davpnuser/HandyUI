@@ -107,6 +107,17 @@ public class Frame : BaseControl<Frame>
         }
     } = true;
 
+    public bool HasBackground
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            Invalidate();
+        }
+    } = true;
+
     #endregion
 
     #region Internal Fields
@@ -168,10 +179,13 @@ public class Frame : BaseControl<Frame>
             canvas.DrawRoundRect(shadowRect, CornerRadius, CornerRadius, _shadowPaint);
         }
 
-        _bgPaint.Color = IsEnabled
-            ? ThemeManager.Instance.SurfacePrimary
-            : ThemeManager.Instance.DisabledSurface;
-        canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _bgPaint);
+        if (HasBackground)
+        {
+            _bgPaint.Color = IsEnabled
+                ? ThemeManager.Instance.SurfacePrimary
+                : ThemeManager.Instance.DisabledSurface;
+            canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _bgPaint);
+        }
 
         if (HasBorder)
         {
@@ -232,9 +246,10 @@ public class Frame : BaseControl<Frame>
     public Frame WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
     public Frame WithElevation(int elevation) { Elevation = elevation; return Self; }
     public Frame WithHasBorder(bool hasBorder) { HasBorder = hasBorder; return Self; }
+    public Frame WithHasShadow(bool hasShadow) { HasShadow = hasShadow; return Self; }
+    public Frame WithHasBackground(bool hasBackground) { HasBackground = hasBackground; return Self; }
     public Frame WithBorderWidth(float width) { BorderWidth = width; return Self; }
     public Frame WithBorderDirection(BorderDirection dir) { BorderDirection = dir; return Self; }
-    public Frame WithHasShadow(bool hasShadow) { HasShadow = hasShadow; return Self; }
 
     public Frame WithWhenMouseDown(Action handler) { WhenMouseDown += handler; return Self; }
     public Frame WithWhenMouseUp(Action handler) { WhenMouseUp += handler; return Self; }

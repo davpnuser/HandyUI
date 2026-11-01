@@ -18,12 +18,14 @@ public static class Win32Helper
     private const nint WS_CAPTION = 0x00C00000;
     private const nint WS_SYSMENU = 0x00080000;
     private const nint WS_THICKFRAME = 0x00040000;
+    private const nint WS_MAXIMIZE = 0x01000000;
 
     private const nint WS_EX_TOOLWINDOW = 0x00000080;
     private const nint WS_EX_APPWINDOW = 0x00040000;
 
     public const uint WM_NULL = 0x0000;
     public const uint WM_COMMAND = 0x0111;
+    public const uint WM_GETMINMAXINFO = 0x0024;
     private const uint WM_NCLBUTTONDOWN = 0x00A1;
     private const nint HTCAPTION = 0x0002;
 
@@ -42,12 +44,16 @@ public static class Win32Helper
 
     private const int SW_HIDE = 0;
     private const int SW_SHOW = 5;
+    private const int SW_RESTORE = 9;
+    private const int SW_MAXIMIZE = 3;
 
     private const uint SWP_NOSIZE = 0x0001;
     private const uint SWP_NOMOVE = 0x0002;
     private const uint SWP_NOZORDER = 0x0004;
     private const uint SWP_NOACTIVATE = 0x0010;
     private const uint SWP_FRAMECHANGED = 0x0020;
+
+    private const uint MONITOR_DEFAULTTONEAREST = 2;
 
     public static readonly nint HWND_MESSAGE = new(-3);
 
@@ -149,6 +155,25 @@ public static class Win32Helper
         public int Bottom;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct MONITORINFO
+    {
+        public int cbSize;
+        public RECT rcMonitor;
+        public RECT rcWork;
+        public uint dwFlags;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct MINMAXINFO
+    {
+        public POINT ptReserved;
+        public POINT ptMaxSize;
+        public POINT ptMaxPosition;
+        public POINT ptMinTrackSize;
+        public POINT ptMaxTrackSize;
+    }
+
     #endregion
 
     #region Native Methods
@@ -210,6 +235,12 @@ public static class Win32Helper
 
     [DllImport("user32.dll", SetLastError = true)]
     public static extern bool GetWindowRect(nint hWnd, out RECT lpRect);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern nint MonitorFromWindow(nint hwnd, uint dwFlags);
+
+    [DllImport("user32.dll", EntryPoint = "GetMonitorInfoW", SetLastError = true)]
+    private static extern bool GetMonitorInfo(nint hMonitor, ref MONITORINFO lpmi);
 
     [DllImport("shell32.dll", EntryPoint = "Shell_NotifyIconW", CharSet = CharSet.Unicode, SetLastError = true)]
     public static extern bool Shell_NotifyIcon(uint dwMessage, ref NOTIFYICONDATA lpData);
@@ -311,6 +342,40 @@ public static class Win32Helper
     {
         return hWnd != nint.Zero && SetWindowPos(hWnd, nint.Zero, x, y, 0, 0,
                             SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+    }
+
+    public static bool IsMaximized(nint hWnd)
+    {
+        return hWnd != nint.Zero && (GetWindowLongPtr(hWnd, GWL_STYLE) & WS_MAXIMIZE) != 0;
+    }
+
+    public static void ApplyMaximizedBounds(nint hWnd, nint lParam)
+    {
+        if (hWnd == nint.Zero || lParam == nint.Zero) return;
+
+        var monitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+        if (monitor == nint.Zero) return;
+
+        var mi = new MONITORINFO { cbSize = Marshal.SizeOf<MONITORINFO>() };
+        if (!GetMonitorInfo(monitor, ref mi)) return;
+
+        var mmi = Marshal.PtrToStructure<MINMAXINFO>(lParam);
+
+        mmi.ptMaxPosition.X = mi.rcWork.Left;
+        mmi.ptMaxPosition.Y = mi.rcWork.Top;
+        mmi.ptMaxSize.X = mi.rcWork.Right - mi.rcWork.Left;
+        mmi.ptMaxSize.Y = mi.rcWork.Bottom - mi.rcWork.Top;
+
+        Marshal.StructureToPtr(mmi, lParam, false);
+    }
+
+    public static void RefreshMaximize(nint hWnd)
+    {
+        if (hWnd == nint.Zero) return;
+        if (!IsMaximized(hWnd)) return;
+
+        ShowWindow(hWnd, SW_RESTORE);
+        ShowWindow(hWnd, SW_MAXIMIZE);
     }
 
     public static void ApplyVisibleInTaskbar(nint hWnd, bool visibleInTaskbar)

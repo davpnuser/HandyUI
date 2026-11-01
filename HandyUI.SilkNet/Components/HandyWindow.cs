@@ -147,11 +147,15 @@ public class HandyWindow : IDisposable
         get => InternalWindow is not null ? new SKPoint(InternalWindow.Position.X, InternalWindow.Position.Y) : null;
         set
         {
-            if (InternalWindow is not null && value is not null)
-            {
+            if (InternalWindow is null || value is null)
+                return;
+
+            if (OperatingSystem.IsWindows() && InternalWindow.Native?.Win32?.Hwnd is nint hwnd && hwnd != nint.Zero)
+                Win32Helper.SetWindowPosition(hwnd, (int)value.Value.X, (int)value.Value.Y);
+            else
                 InternalWindow.Position = new Vector2D<int>((int)value.Value.X, (int)value.Value.Y);
-                _previousPosition = value;
-            }
+
+            _previousPosition = value;
         }
     }
 
@@ -185,11 +189,15 @@ public class HandyWindow : IDisposable
         get;
         set
         {
+            if (field == value)
+                return;
+
             field = value;
-            if (!field && Position.HasValue)
-                _previousPosition = Position.Value;
+
+            if (!field)
+                _previousPosition = GetAccuratePosition();
         }
-    }
+    } = true;
 
     public bool IsCloseable { get; set; } = true;
 
@@ -336,7 +344,13 @@ public class HandyWindow : IDisposable
             _dragOffset = null;
 
             if (value)
+            {
                 Invalidate();
+            }
+            else if (!IsMovable)
+            {
+                RestorePreviousPosition();
+            }
         }
     }
 
@@ -346,7 +360,8 @@ public class HandyWindow : IDisposable
     {
         get
         {
-            _trayIcon ??= new TrayIcon(this);
+            if (_trayIcon is null)
+                _trayIcon = new TrayIcon(this);
             return _trayIcon;
         }
     }
@@ -500,6 +515,9 @@ public class HandyWindow : IDisposable
             _isInitialized = true;
             _initSignal.Set();
 
+            if (!IsMovable)
+                _previousPosition = GetAccuratePosition();
+
             if (_centerOnStartup)
                 window.Center();
 
@@ -564,13 +582,16 @@ public class HandyWindow : IDisposable
 
             try
             {
-                if (!IsMovable && !_isDragging && _previousPosition is not null)
-                    window.Position = _previousPosition.ToVector2D();
-
+                if (!IsMovable && !_isDragging)
+                {
+                    RestorePreviousPosition();
+                }
                 else
+                {
                     WhenMoved?.Invoke(newPos.ToSKPoint());
+                }
             }
-            catch { _moveInProgress = false; }
+            catch { }
             finally { _moveInProgress = false; }
 
             if (_moveTick++ == 4)
@@ -811,6 +832,35 @@ public class HandyWindow : IDisposable
 
     #region Drag Helpers
 
+    private SKPoint? GetAccuratePosition()
+    {
+        if (InternalWindow is null)
+            return null;
+
+        if (OperatingSystem.IsWindows())
+        {
+            if (InternalWindow.Native?.Win32?.Hwnd is nint hwnd && hwnd != nint.Zero)
+            {
+                if (Win32Helper.GetWindowRect(hwnd, out var rect))
+                    return new SKPoint(rect.Left, rect.Top);
+            }
+
+            return null;
+        }
+
+        return new SKPoint(InternalWindow.Position.X, InternalWindow.Position.Y);
+    }
+
+    private void RestorePreviousPosition()
+    {
+        if (_previousPosition is null || InternalWindow is null) return;
+
+        if (OperatingSystem.IsWindows() && InternalWindow.Native?.Win32?.Hwnd is nint hwnd && hwnd != nint.Zero)
+            Win32Helper.SetWindowPosition(hwnd, (int)_previousPosition.Value.X, (int)_previousPosition.Value.Y);
+        else
+            InternalWindow.Position = _previousPosition.Value.ToVector2D();
+    }
+
     private bool TryComputeDragOffset()
     {
         if (InternalWindow is null) return false;
@@ -838,7 +888,6 @@ public class HandyWindow : IDisposable
             return;
 
         Win32Helper.SetWindowPosition(hwnd, newX, newY);
-        _previousPosition = new SKPoint(newX, newY);
     }
 
     #endregion
@@ -1065,6 +1114,7 @@ public class HandyWindow : IDisposable
                     var resizable = IsResizable;
 
                     Win32Helper.ApplyTitleBarVisibility(h, visible, resizable, IsMinimizable, IsMaximizable);
+                    Win32Helper.RefreshMaximize(h);
                 }
                 catch { }
             }
@@ -1103,7 +1153,14 @@ public class HandyWindow : IDisposable
             if (msg == Win32Helper.WM_NCCALCSIZE && wParam != nint.Zero)
                 return nint.Zero;
 
-            if (msg == Win32Helper.WM_NCHITTEST && IsResizable)
+            if (msg == Win32Helper.WM_GETMINMAXINFO)
+            {
+                Win32Helper.CallWindowProc(_originalTitleBarWndProc, hWnd, msg, wParam, lParam);
+                Win32Helper.ApplyMaximizedBounds(hWnd, lParam);
+                return nint.Zero;
+            }
+
+            if (msg == Win32Helper.WM_NCHITTEST && IsResizable && !Win32Helper.IsMaximized(hWnd))
             {
                 var hit = HandleNcHitTest(hWnd, lParam);
                 if (hit != nint.Zero)

@@ -3,7 +3,10 @@ using HandyUI.Core.Components;
 using HandyUI.SilkNet.Components;
 using HandyUI.SilkNet.Data;
 using HandyUI.SilkNet.Helper;
+using Silk.NET.Windowing;
 using SkiaSharp;
+
+#region Setup
 
 SKImage? logoImage = null;
 if (ResourceManager.GetResourceByPath("Resources/HandyUI-SmallLogo.png", out var logoStream))
@@ -12,43 +15,83 @@ if (ResourceManager.GetResourceByPath("Resources/HandyUI-SmallLogo.png", out var
 var config = WindowConfiguration.Default with
 {
     Title = "Test Showcase",
-    Size = new(1050, 1000),
     Icon = logoImage,
-    //WindowBorder = WindowBorder.Resizable,
-    //WindowBorder = WindowBorder.Hidden,
     //IsTitleBarVisible = false,
-    //IsResizable = false
+    MinSize = new(500, 500)
 };
 
 var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(config);
 
-new Frame()
-    .WithSize(150, 150)
-    .WithLocation(50, 50)
+var cb = new Button()
+    .WithZIndex(2)
+    .WithText("Close")
+    .WithWhenClicked(window.Close)
+    .WithAddToRenderer(renderer);
+
+var mb = new Button()
+    .WithZIndex(2)
+    .WithText("Minimize")
+    .WithLocation(cb.Bounds.Width, 0)
+    .WithWhenClicked(() => { window.State = WindowState.Minimized; })
+    .WithAddToRenderer(renderer);
+
+var mxb = new Button()
+    .WithZIndex(2)
+    .WithText("Maximize")
+    .WithLocation(mb.Bounds.Width + cb.Bounds.Width, 0)
+    .WithAddToRenderer(renderer);
+
+var titleBar = new Frame()
+    .WithZIndex(1)
+    .WithHasShadow(false)
+    .WithHasBorder(false)
+    .WithSize(3500, cb.Bounds.Height)
+    .WithLocation(0, 0)
     .WithWhenMouseDown(() => { window.IsDragging = true; })
     .WithWhenMouseUp(() => { window.IsDragging = false; })
     .WithAddToRenderer(renderer);
+
+var state = false;
+
+mxb.WhenClicked += () =>
+{
+    if (state == false)
+    {
+        mxb.Text = "Restore";
+        window.State = WindowState.Maximized;
+        state = true;
+    }
+    else if (state == true)
+    {
+        mxb.Text = "Maximize";
+        window.State = WindowState.Normal;
+        state = false;
+    }
+
+    titleBar.IsEnabled = !state;
+};
+
+var container = new Frame()
+    .WithSize(3500, 3500)
+    .WithLocation(0, cb.Bounds.Height)
+    .WithHasBackground(false)
+    .WithHasShadow(false)
+    .WithHasBorder(false)
+    .WithAddToRenderer(renderer);
+
+#endregion
 
 new Label()
     .WithText("Hello, World!")
     .WithFontSize(24)
     .WithLocation(15, 15)
-    .WithAddToRenderer(renderer);
+    .WithParent(container);
 
 new Label()
     .WithText("Right-click the tray icon to hide/show this window.")
     .WithFontSize(14)
     .WithLocation(15, 55)
-    .WithAddToRenderer(renderer);
-
-var nb = new Button()
-    .WithText("test test test")
-    .WithAddToRenderer(renderer);
-
-//nb.WhenClicked += () =>
-//{
-//    window.IsDragging = true;
-//};
+    .WithParent(container);
 
 window.TrayIcon.Icon = logoImage;
 window.TrayIcon.ToolTip = "Test Showcase";
