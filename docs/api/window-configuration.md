@@ -32,6 +32,7 @@ public record WindowConfiguration
 | `IsCloseable` | `true` | |
 | `IsMaximizable` | `true` | |
 | `IsMinimizable` | `true` | |
+| `IsTitleBarVisible` | `true` | Whether the OS title bar is shown. |
 | `Icon` | `null` | Window icon as an `SKImage`. |
 
 ### Parent-child
@@ -71,13 +72,14 @@ public record WindowConfiguration
 | `PumpThreadName` | `null` → `HandyWindow-<Title>` | Name of the pump thread. |
 | `CustomWindowOptions` | `null` | Overrides the whole `WindowOptions`. |
 
-!!! tip "`with` expressions"
+!!! tip "Custom chrome"
     ```csharp
     var cfg = WindowConfiguration.Default with
     {
         Title = "Chat",
         Size = new SKSize(420, 700),
-        IsResizable = false,
+        IsResizable = true,
+        IsTitleBarVisible = false,
         Icon = SKImage.FromEncodedData("Assets/chat.png")
     };
     ```

@@ -11,30 +11,12 @@ public class PictureButton : BaseControl<PictureButton>
 
 ## Properties
 
-### `Width` / `Height`
-
-```csharp
-public float Width  { get; set; }
-public float Height { get; set; }
-```
-
-`0` means auto-size to the image.
-
-### `Image` / `StretchMode`
-
-```csharp
-public SKImage? Image { get; set; }
-public StretchMode StretchMode { get; set; }   // default: Uniform
-```
-
-### `CornerRadius`
-
-```csharp
-public float CornerRadius { get; set; }   // default: 4f
-```
-
-The image is clipped to a rounded rectangle of this radius, and the ripple
-respects the same shape.
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Width` / `Height` | `float` | `0` | Auto-sized when `0`. |
+| `Image` | `SKImage?` | `null` | |
+| `StretchMode` | `StretchMode` | `Uniform` | |
+| `CornerRadius` | `float` | `4f` | Also shapes the ripple clip. |
 
 ## Events
 
@@ -47,18 +29,7 @@ public event Action? WhenHoverExited;
 
 ## Methods
 
-### `DoesIntersect(SKPoint?)` / `OnUpdate(float, SKPoint?)` / `OnDraw(SKCanvas)`
-
-Standard `BaseControl` overrides.
-
-### `OnMouse(MouseEventContext)` - override hook
-
-```csharp
-protected override bool OnMouse(MouseEventContext ctx);
-```
-
-- `MouseDown` starts the ripple at the click position.
-- `Click` raises `WhenClicked`.
+`DoesIntersect`, `OnUpdate`, `OnDraw`, `OnMouse` - standard overrides.
 
 ## Fluent API
 
@@ -68,10 +39,11 @@ public PictureButton WithHeight(float height);
 public PictureButton WithImage(SKImage? image);
 public PictureButton WithStretchMode(StretchMode mode);
 public PictureButton WithCornerRadius(float radius);
-public PictureButton OnClicked(Action handler);
-public PictureButton OnImageChanged(Action<SKImage?> handler);
-public PictureButton OnHoverEntered(Action handler);
-public PictureButton OnHoverExited(Action handler);
+
+public PictureButton WithWhenClicked(Action handler);
+public PictureButton WithWhenImageChanged(Action<SKImage?> handler);
+public PictureButton WithWhenHoverEntered(Action handler);
+public PictureButton WithWhenHoverExited(Action handler);
 ```
 
 ## Example
@@ -82,7 +54,7 @@ var iconButton = new PictureButton()
     .WithWidth(32)
     .WithHeight(32)
     .WithCornerRadius(16)
-    .OnClicked(() => Settings())
+    .WithWhenClicked(() => Settings())
     .WithLocation(40, 20)
     .WithAddToRenderer(renderer);
 ```

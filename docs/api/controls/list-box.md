@@ -2,10 +2,8 @@
 
 `HandyUI.Controls.Controls.ListBox`
 
-A vertically scrolling container. Children are laid out top-to-bottom
-automatically and reflow when children are added or removed. `ListBox` itself
-does not draw anything - it just manages layout and scrolling for its
-children.
+A vertically scrolling container that auto-lays-out its children top to
+bottom.
 
 ```csharp
 public class ListBox : BaseControl<ListBox>
@@ -13,28 +11,11 @@ public class ListBox : BaseControl<ListBox>
 
 ## Properties
 
-### `Width` / `Height`
-
-```csharp
-public float Width  { get; set; }   // default: 200f
-public float Height { get; set; }   // default: 200f
-```
-
-### `ItemSpacing`
-
-```csharp
-public float ItemSpacing { get; set; }   // default: 0
-```
-
-Vertical gap between children.
-
-### `ScrollSpeed`
-
-```csharp
-public float ScrollSpeed { get; set; }   // default: 40f
-```
-
-Pixels per wheel notch.
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Width` / `Height` | `float` | `200f` | |
+| `ItemSpacing` | `float` | `0` | Vertical gap between children. |
+| `ScrollSpeed` | `float` | `40f` | Pixels per wheel notch. |
 
 ## Events
 
@@ -45,26 +26,10 @@ public event Action? WhenHoverExited;
 public event Action<float>? WhenScrollChanged;
 ```
 
-`WhenScrollChanged` receives the current scroll offset (in pixels).
-
 ## Methods
 
-### `OnChildAdded(IControl)` / `OnChildRemoved(IControl)` - override hooks
-
-```csharp
-protected override void OnChildAdded(IControl control);
-protected override void OnChildRemoved(IControl control);
-```
-
-Both call `RecalculateLayout()`.
-
-### `OnMouse(MouseEventContext)` - override hook
-
-```csharp
-protected override bool OnMouse(MouseEventContext ctx);
-```
-
-Handles wheel scrolling and raises `WhenClicked`.
+`OnChildAdded` / `OnChildRemoved` trigger `RecalculateLayout()`. `OnMouse`
+handles wheel scrolling and `WhenClicked`.
 
 ## Fluent API
 
@@ -73,10 +38,11 @@ public ListBox WithWidth(float width);
 public ListBox WithHeight(float height);
 public ListBox WithItemSpacing(float spacing);
 public ListBox WithScrollSpeed(float speed);
-public ListBox OnClicked(Action handler);
-public ListBox OnHoverEntered(Action handler);
-public ListBox OnHoverExited(Action handler);
-public ListBox OnScrollChanged(Action<float> handler);
+
+public ListBox WithWhenClicked(Action handler);
+public ListBox WithWhenHoverEntered(Action handler);
+public ListBox WithWhenHoverExited(Action handler);
+public ListBox WithWhenScrollChanged(Action<float> handler);
 ```
 
 ## Example
@@ -94,8 +60,3 @@ foreach (var name in Directory.GetFiles(".").Take(100))
     new ItemBox().WithText(name).WithWidth(240).WithParent(list);
 }
 ```
-
-!!! warning "Children are re-laid out"
-    `ListBox` overrides each child's `Location` in `RecalculateLayout()`. If
-    you set a child's `Location` manually, it will be overwritten on the next
-    layout pass.

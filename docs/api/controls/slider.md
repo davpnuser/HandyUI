@@ -10,57 +10,23 @@ public class Slider : BaseControl<Slider>
 
 ## Properties
 
-### `Width` / `Height`
-
-```csharp
-public float Width  { get; set; }   // default: 200f
-public float Height { get; set; }
-```
-
-`Height` defaults to `ThumbRadius * 2` when left at `0`.
-
-### `Minimum` / `Maximum` / `Value`
-
-```csharp
-public float Minimum { get; set; }   // default: 0
-public float Maximum { get; set; }   // default: 100
-public float Value   { get; set; }   // clamped to [Minimum, Maximum]
-```
-
-Adjusting `Minimum` above `Maximum` clamps `Maximum` upward (and vice versa).
-
-### `TrackHeight` / `ThumbRadius`
-
-```csharp
-public float TrackHeight { get; set; }   // default: 4f
-public float ThumbRadius { get; set; }   // default: 7f
-```
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Width` / `Height` | `float` | `200f` / `ThumbRadius*2` | |
+| `Minimum` / `Maximum` | `float` | `0` / `100` | Auto-clamped against each other. |
+| `Value` | `float` | `0` | Clamped to `[Minimum, Maximum]`. |
+| `TrackHeight` | `float` | `4f` | |
+| `ThumbRadius` | `float` | `7f` | |
 
 ## Events
-
-### `WhenValueChanged`
 
 ```csharp
 public event Action<float>? WhenValueChanged;
 ```
 
-Raised on every value change during drag.
-
 ## Methods
 
-### `DoesIntersect(SKPoint?)` / `OnUpdate(float, SKPoint?)` / `OnDraw(SKCanvas)`
-
-Standard `BaseControl` overrides.
-
-### `OnMouse(MouseEventContext)` - override hook
-
-```csharp
-protected override bool OnMouse(MouseEventContext ctx);
-```
-
-- `MouseDown` on the track begins dragging and jumps to the click position.
-- `Move` while dragging updates `Value`.
-- `MouseUp` ends the drag and fades the hover glow if the cursor left.
+`DoesIntersect`, `OnUpdate`, `OnDraw`, `OnMouse` - standard overrides.
 
 ## Fluent API
 
@@ -72,7 +38,8 @@ public Slider WithMax(float max);
 public Slider WithValue(float value);
 public Slider WithTrackHeight(float height);
 public Slider WithThumbRadius(float radius);
-public Slider OnValueChanged(Action<float> handler);
+
+public Slider WithWhenValueChanged(Action<float> handler);
 ```
 
 ## Example
@@ -83,7 +50,7 @@ var volume = new Slider()
     .WithMin(0)
     .WithMax(100)
     .WithValue(75)
-    .OnValueChanged(v => player.Volume = v / 100f)
+    .WithWhenValueChanged(v => player.Volume = v / 100f)
     .WithLocation(40, 300)
     .WithAddToRenderer(renderer);
 ```

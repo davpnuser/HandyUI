@@ -2,8 +2,9 @@
 
 `HandyUI.Controls.Controls.Frame`
 
-A rounded rectangle with a background, optional border, elevation shadow,
-and click/hover events. Useful as a panel, card, or container.
+A rounded rectangle with a background fill, optional border, elevation
+shadow, and click/hover events. Useful as a panel, card, container, or
+custom title bar.
 
 ```csharp
 public class Frame : BaseControl<Frame>
@@ -11,47 +12,22 @@ public class Frame : BaseControl<Frame>
 
 ## Properties
 
-### `Width` / `Height`
-
-```csharp
-public float Width  { get; set; }   // default: 100f
-public float Height { get; set; }   // default: 100f
-```
-
-Unlike most controls, `Frame` defaults to `100 × 100` and *does* auto-size
-when set to `0`.
-
-### `CornerRadius`
-
-```csharp
-public float CornerRadius { get; set; }   // default: 4f
-```
-
-### `Elevation`
-
-```csharp
-public int Elevation { get; set; }   // default: 1
-```
-
-Shadow offset when `HasShadow` is `true`. `0` skips the shadow.
-
-### `HasBorder` / `BorderWidth` / `BorderDirection`
-
-```csharp
-public bool HasBorder       { get; set; }   // default: true
-public float BorderWidth    { get; set; }   // default: 1f
-public BorderDirection BorderDirection { get; set; }   // default: Inside
-```
-
-### `HasShadow`
-
-```csharp
-public bool HasShadow { get; set; }   // default: true
-```
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Width` / `Height` | `float` | `100f` | Frame size (auto-sizes when set to `0`). |
+| `CornerRadius` | `float` | `4f` | |
+| `Elevation` | `int` | `1` | Shadow offset. |
+| `HasBorder` | `bool` | `true` | Draw the border. |
+| `BorderWidth` | `float` | `1f` | |
+| `BorderDirection` | `BorderDirection` | `Inside` | See [`BorderDirection`](../border-direction.md). |
+| `HasShadow` | `bool` | `true` | Draw the elevation shadow. |
+| `HasBackground` | `bool` | `true` | Draw the fill. Set `false` for transparent containers. |
 
 ## Events
 
 ```csharp
+public event Action? WhenMouseDown;
+public event Action? WhenMouseUp;
 public event Action? WhenClicked;
 public event Action? WhenHoverEntered;
 public event Action? WhenHoverExited;
@@ -62,45 +38,60 @@ public event Action<float, float>? WhenSizeChanged;
 
 ## Methods
 
-### `DoesIntersect(SKPoint?)` / `OnUpdate(float, SKPoint?)` / `OnDraw(SKCanvas)`
-
-Standard `BaseControl` overrides.
-
 ### `OnMouse(MouseEventContext)` - override hook
 
 ```csharp
 protected override bool OnMouse(MouseEventContext ctx);
 ```
 
-Raises `WhenClicked` on `Click`.
+Raises `WhenMouseDown` / `WhenMouseUp` / `WhenClicked` while hovered.
 
 ## Fluent API
 
 ```csharp
 public Frame WithWidth(float width);
 public Frame WithHeight(float height);
+public Frame WithSize(float width, float height);
+public Frame WithSize(SKSize size);
 public Frame WithCornerRadius(float radius);
 public Frame WithElevation(int elevation);
 public Frame WithHasBorder(bool hasBorder);
+public Frame WithHasShadow(bool hasShadow);
+public Frame WithHasBackground(bool hasBackground);
 public Frame WithBorderWidth(float width);
 public Frame WithBorderDirection(BorderDirection dir);
-public Frame WithHasShadow(bool hasShadow);
-public Frame OnClicked(Action handler);
-public Frame OnHoverEntered(Action handler);
-public Frame OnHoverExited(Action handler);
-public Frame OnSizeChanged(Action<float, float> handler);
+
+public Frame WithWhenMouseDown(Action handler);
+public Frame WithWhenMouseUp(Action handler);
+public Frame WithWhenClicked(Action handler);
+public Frame WithWhenHoverEntered(Action handler);
+public Frame WithWhenHoverExited(Action handler);
+public Frame WithWhenSizeChanged(Action<float, float> handler);
 ```
 
 ## Example
 
 ```csharp
 var card = new Frame()
-    .WithWidth(320)
-    .WithHeight(180)
+    .WithSize(320, 180)
     .WithCornerRadius(8)
     .WithElevation(3)
     .WithBorderWidth(1)
-    .WithBorderDirection(BorderDirection.Inside)
+    .WithWhenClicked(() => OpenSettings())
     .WithLocation(40, 40)
     .WithAddToRenderer(renderer);
+
+// Transparent container:
+var overlay = new Frame()
+    .WithSize(400, 300)
+    .WithHasBackground(false)
+    .WithHasBorder(false)
+    .WithHasShadow(false)
+    .WithAddToRenderer(renderer);
 ```
+
+!!! tip "Custom title bar"
+    Set `HasBackground = false` and `HasBorder = false` on a `Frame` placed
+    at the top of a `HandyWindow` with `IsTitleBarVisible = false`, then
+    handle `WhenMouseDown` by calling `window.BeginDrag` for OS-driven
+    dragging.

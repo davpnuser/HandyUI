@@ -128,6 +128,8 @@ nav:
     - Silk.NET Adapter:
       - HandyWindow: api/handy-window.md
       - WindowConfiguration: api/window-configuration.md
+      - TrayIcon: api/tray-icon.md
+      - TrayMenuItem: api/tray-menu-item.md
       - ThemeHelper: api/theme-helper.md
       - Silk.NET Helpers: api/silknet-helpers.md
       - VectorExtensions: api/vector-extensions.md

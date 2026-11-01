@@ -2,9 +2,7 @@
 
 `HandyUI.Controls.Controls.CheckBox`
 
-A checkbox rendered as a square box with an optional text label. The
-checkmark draws progressively when checked, using an animated tween. Text can
-be multi-line; the box aligns with the block of text vertically.
+A checkbox with a square box, animated checkmark, and multi-line text label.
 
 ```csharp
 public class CheckBox : BaseControl<CheckBox>
@@ -12,46 +10,16 @@ public class CheckBox : BaseControl<CheckBox>
 
 ## Properties
 
-### `Width` / `Height`
-
-```csharp
-public float Width  { get; set; }
-public float Height { get; set; }
-```
-
-`0` means auto-size.
-
-### `Text`
-
-```csharp
-public string Text { get; set; }   // default: string.Empty
-```
-
-Label shown to the right of the box. Split on `'\n'` when drawn; the box is
-vertically centered against the whole text block.
-
-### `FontSize` / `Typeface`
-
-```csharp
-public float      FontSize { get; set; }   // default: 14f
-public SKTypeface Typeface { get; set; }   // default: FontManager.DefaultFont
-```
-
-### `IsChecked`
-
-```csharp
-public bool IsChecked { get; set; }
-```
-
-Toggles the checkmark with an animation.
-
-### `BoxSize` / `BorderWidth` / `TextGap`
-
-```csharp
-public float BoxSize     { get; set; }   // default: 18f
-public float BorderWidth { get; set; }   // default: 2f
-public float TextGap     { get; set; }   // default: 8f
-```
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Width` / `Height` | `float` | `0` | Auto-sized when `0`. |
+| `Text` | `string` | `""` | Multi-line label. |
+| `FontSize` | `float` | `14f` | |
+| `Typeface` | `SKTypeface` | `FontManager.DefaultFont` | |
+| `IsChecked` | `bool` | `false` | Animates the checkmark. |
+| `BoxSize` | `float` | `18f` | Side length (min `4`). |
+| `BorderWidth` | `float` | `2f` | Min `0.5`. |
+| `TextGap` | `float` | `8f` | Space between box and text. |
 
 ## Events
 
@@ -61,22 +29,12 @@ public float TextGap     { get; set; }   // default: 8f
 public event Action<bool>? WhenToggled;
 ```
 
-Raised with the new state when the user clicks the checkbox. Setting
-`IsChecked` programmatically does **not** raise this event.
+Raised when the user clicks the checkbox. Programmatic `IsChecked` changes
+do **not** raise it.
 
 ## Methods
 
-### `DoesIntersect(SKPoint?)` / `OnUpdate(float, SKPoint?)` / `OnDraw(SKCanvas)`
-
-Standard `BaseControl` overrides.
-
-### `OnMouse(MouseEventContext)` - override hook
-
-```csharp
-protected override bool OnMouse(MouseEventContext ctx);
-```
-
-Toggles `IsChecked` on `Click` when hovered.
+`DoesIntersect`, `OnUpdate`, `OnDraw`, `OnMouse` - standard overrides.
 
 ## Fluent API
 
@@ -90,7 +48,8 @@ public CheckBox WithIsChecked(bool isChecked);
 public CheckBox WithBoxSize(float size);
 public CheckBox WithBorderWidth(float width);
 public CheckBox WithTextGap(float gap);
-public CheckBox OnToggled(Action<bool> handler);
+
+public CheckBox WithWhenToggled(Action<bool> handler);
 ```
 
 ## Example
@@ -100,7 +59,15 @@ var agree = new CheckBox()
     .WithText("I agree to the terms\nand privacy policy")
     .WithIsChecked(true)
     .WithBoxSize(20)
-    .OnToggled(checked => Console.WriteLine($"Agreed: {checked}"))
+    .WithWhenToggled(checked => Console.WriteLine($"Agreed: {checked}"))
     .WithLocation(24, 24)
     .WithAddToRenderer(renderer);
 ```
+
+!!! tip "Custom typefaces"
+    Load one through [`FontManager`](../font-manager.md) and pass it in:
+
+    ```csharp
+    var inter = FontManager.GetTypeface("Fonts/Inter-SemiBold.ttf");
+    control.WithTypeface(inter);
+    ```

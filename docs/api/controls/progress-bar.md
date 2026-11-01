@@ -2,8 +2,7 @@
 
 `HandyUI.Controls.Controls.ProgressBar`
 
-A horizontal progress bar. Determinate mode fills from `0` to `Value`;
-indeterminate mode slides a segment back and forth.
+A horizontal progress bar in determinate or indeterminate mode.
 
 ```csharp
 public class ProgressBar : BaseControl<ProgressBar>
@@ -11,60 +10,24 @@ public class ProgressBar : BaseControl<ProgressBar>
 
 ## Properties
 
-### `Width` / `Height`
-
-```csharp
-public float Width  { get; set; }   // default: 200f
-public float Height { get; set; }   // default: 4f
-```
-
-### `Value`
-
-```csharp
-public float Value { get; set; }   // clamped to [0, 100]
-```
-
-Percentage fill in determinate mode.
-
-### `IsIndeterminate`
-
-```csharp
-public bool IsIndeterminate { get; set; }
-```
-
-When `true`, a 35 %-wide segment slides continuously. Assigning `true` starts
-the animation tween; assigning `false` stops it and resets progress.
-
-### `BarHeight`
-
-```csharp
-public float BarHeight { get; set; }   // default: 4f
-```
-
-Thickness of the visible bar (centered vertically in `Bounds`).
-
-### `CornerRadius`
-
-```csharp
-public float CornerRadius { get; set; }   // default: 2f
-```
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Width` / `Height` | `float` | `200f` / `4f` | |
+| `Value` | `float` | `0` | Percentage, clamped to `[0, 100]`. |
+| `IsIndeterminate` | `bool` | `false` | Toggles the sliding-segment animation. |
+| `BarHeight` | `float` | `4f` | Visible bar thickness (centered vertically). |
+| `CornerRadius` | `float` | `2f` | |
 
 ## Events
-
-### `WhenValueChanged`
 
 ```csharp
 public event Action<float>? WhenValueChanged;
 ```
 
-Raised whenever `Value` actually changes (clamped).
-
 ## Methods
 
-### `DoesIntersect(SKPoint?)` / `OnUpdate(float, SKPoint?)` / `OnDraw(SKCanvas)`
-
-Standard `BaseControl` overrides. `OnUpdate` is a no-op - animation is driven
-by the tween.
+`DoesIntersect`, `OnDraw` - standard overrides. `OnUpdate` is a no-op
+(animation is driven by `Tweener`).
 
 ## Fluent API
 
@@ -75,7 +38,8 @@ public ProgressBar WithValue(float value);
 public ProgressBar WithIsIndeterminate(bool indeterminate);
 public ProgressBar WithBarHeight(float height);
 public ProgressBar WithCornerRadius(float radius);
-public ProgressBar OnValueChanged(Action<float> handler);
+
+public ProgressBar WithWhenValueChanged(Action<float> handler);
 ```
 
 ## Example
@@ -89,8 +53,3 @@ var progress = new ProgressBar()
     .WithLocation(40, 200)
     .WithAddToRenderer(renderer);
 ```
-
-!!! tip "Indeterminate mode"
-    Use `IsIndeterminate = true` when you don't know the total work (e.g.
-    loading). Switch to determinate (`IsIndeterminate = false; Value = ...;`)
-    once progress becomes measurable.

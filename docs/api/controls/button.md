@@ -3,8 +3,7 @@
 `HandyUI.Controls.Controls.Button`
 
 A filled text button with rounded corners, elevation shadow, hover color
-blending, and a click ripple. Text can be multi-line; lines are stacked and
-centered vertically.
+blending, and a click ripple. Text can be multi-line.
 
 ```csharp
 public class Button : BaseControl<Button>
@@ -12,57 +11,18 @@ public class Button : BaseControl<Button>
 
 ## Properties
 
-### `Width` / `Height`
-
-```csharp
-public float Width  { get; set; }
-public float Height { get; set; }
-```
-
-`0` (the default) means *auto-size* to content.
-
-### `Text`
-
-```csharp
-public string Text { get; set; }   // default: string.Empty
-```
-
-Split on `'\n'` when drawn - newlines start a new centered line. The button
-auto-sizes to the widest line and the total stacked height.
-
-### `CornerRadius`
-
-```csharp
-public float CornerRadius { get; set; }   // default: 2f
-```
-
-### `Elevation`
-
-```csharp
-public int Elevation { get; set; }   // default: 2
-```
-
-Shadow offset in pixels. `0` disables the shadow. Grows slightly on hover.
-
-### `FontSize` / `Typeface` / `IsBold`
-
-```csharp
-public float      FontSize { get; set; }   // default: 14f
-public SKTypeface Typeface { get; set; }   // default: FontManager.DefaultFont
-public bool       IsBold   { get; set; }
-```
-
-`Typeface` returns `FontManager.DefaultFont` when the underlying font has no
-explicit typeface. Assigning `null` falls back to `FontManager.DefaultFont`.
-
-### `HorizontalPadding` / `VerticalPadding`
-
-```csharp
-public float HorizontalPadding { get; set; }   // default: 16f
-public float VerticalPadding   { get; set; }   // default: 8f
-```
-
-Used to size the content area when `Width`/`Height` are `0`.
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Width` | `float` | `0` | Auto-sized when `0`. |
+| `Height` | `float` | `0` | Auto-sized when `0`. |
+| `Text` | `string` | `""` | Split on `'\n'` - each newline starts a new centered line. |
+| `CornerRadius` | `float` | `2f` | Rounds the fill and clipping path. |
+| `Elevation` | `int` | `2` | Shadow offset in pixels. Grows by `2` while hovered. |
+| `FontSize` | `float` | `14f` | |
+| `Typeface` | `SKTypeface` | `FontManager.DefaultFont` | Assigning `null` restores the default. |
+| `IsBold` | `bool` | `false` | Embolds the font. |
+| `HorizontalPadding` | `float` | `16f` | Content width padding. |
+| `VerticalPadding` | `float` | `8f` | Content height padding. |
 
 ## Events
 
@@ -72,33 +32,13 @@ Used to size the content area when `Width`/`Height` are `0`.
 public event Action? WhenClicked;
 ```
 
-Raised on `Click` (which the renderer synthesizes on `MouseUp` inside the
-button).
+Raised on the renderer-synthesized `Click` event.
 
 ## Methods
 
-### `DoesIntersect(SKPoint?)`
+### `DoesIntersect(SKPoint?)` / `OnUpdate(float, SKPoint?)` / `OnDraw(SKCanvas)`
 
-```csharp
-public override bool DoesIntersect(SKPoint? clientPoint);
-```
-
-### `OnUpdate(float, SKPoint?)`
-
-```csharp
-public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition);
-```
-
-Updates the hover amount when `IsHovered` changes.
-
-### `OnDraw(SKCanvas)`
-
-```csharp
-public override void OnDraw(SKCanvas canvas);
-```
-
-Draws the shadow, accent-colored fill (blended with `AccentHover` on hover),
-the ripple (if active), and centered text.
+Standard `BaseControl` overrides. `OnUpdate` drives the hover color blend.
 
 ### `OnMouse(MouseEventContext)` - override hook
 
@@ -106,8 +46,7 @@ the ripple (if active), and centered text.
 protected override bool OnMouse(MouseEventContext ctx);
 ```
 
-- On `MouseDown`, starts the ripple at the click position.
-- On `Click`, raises `WhenClicked`.
+Starts the ripple on `MouseDown` and raises `WhenClicked` on `Click`.
 
 ## Fluent API
 
@@ -121,7 +60,8 @@ public Button WithFontSize(float size);
 public Button WithTypeface(SKTypeface? typeface);
 public Button WithIsBold(bool bold);
 public Button WithPadding(float horizontal, float vertical);
-public Button OnClicked(Action handler);
+
+public Button WithWhenClicked(Action handler);
 ```
 
 ## Example
@@ -134,7 +74,7 @@ var save = new Button()
     .WithFontSize(15)
     .WithIsBold(true)
     .WithPadding(20, 10)
-    .OnClicked(() => Save())
+    .WithWhenClicked(() => Save())
     .WithLocation(24, 80)
     .WithAddToRenderer(renderer);
 ```
@@ -144,5 +84,5 @@ var save = new Button()
 
     ```csharp
     var inter = FontManager.GetTypeface("Fonts/Inter-SemiBold.ttf");
-    button.WithTypeface(inter);
+    control.WithTypeface(inter);
     ```

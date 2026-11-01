@@ -11,80 +11,28 @@ public class Toggle : BaseControl<Toggle>
 
 ## Properties
 
-### `Width` / `Height`
-
-```csharp
-public float Width  { get; set; }
-public float Height { get; set; }
-```
-
-`0` means auto-size to `TrackWidth` (plus `TextGap` and text width when
-`Text` is set).
-
-### `Text`
-
-```csharp
-public string Text { get; set; }   // default: string.Empty
-```
-
-Split on `'\n'` when drawn; the track is vertically centered against the
-whole block of text.
-
-### `FontSize` / `Typeface`
-
-```csharp
-public float      FontSize { get; set; }   // default: 14f
-public SKTypeface Typeface { get; set; }   // default: FontManager.DefaultFont
-```
-
-### `IsOn`
-
-```csharp
-public bool IsOn { get; set; }
-```
-
-Animates the thumb between off and on positions.
-
-### `TrackWidth` / `TrackHeight` / `ThumbSize`
-
-```csharp
-public float TrackWidth  { get; set; }   // default: 36f
-public float TrackHeight { get; set; }   // default: 14f
-public float ThumbSize   { get; set; }   // default: 20f
-```
-
-### `TextGap`
-
-```csharp
-public float TextGap { get; set; }   // default: 8f
-```
-
-Space between the track and the text label.
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Width` / `Height` | `float` | `0` | Auto-sized when `0`. |
+| `Text` | `string` | `""` | Multi-line. |
+| `FontSize` | `float` | `14f` | |
+| `Typeface` | `SKTypeface` | `FontManager.DefaultFont` | |
+| `IsOn` | `bool` | `false` | Animates the thumb. |
+| `TrackWidth` / `TrackHeight` | `float` | `36f` / `14f` | |
+| `ThumbSize` | `float` | `20f` | |
+| `TextGap` | `float` | `8f` | |
 
 ## Events
-
-### `WhenToggled`
 
 ```csharp
 public event Action<bool>? WhenToggled;
 ```
 
-Raised with the new state when the user clicks the toggle. Assigning `IsOn`
-programmatically does **not** raise this event.
+Raised on user click. Programmatic `IsOn` changes do **not** raise it.
 
 ## Methods
 
-### `DoesIntersect(SKPoint?)` / `OnUpdate(float, SKPoint?)` / `OnDraw(SKCanvas)`
-
-Standard `BaseControl` overrides.
-
-### `OnMouse(MouseEventContext)` - override hook
-
-```csharp
-protected override bool OnMouse(MouseEventContext ctx);
-```
-
-Toggles `IsOn` on `Click` when hovered.
+`DoesIntersect`, `OnUpdate`, `OnDraw`, `OnMouse` - standard overrides.
 
 ## Fluent API
 
@@ -99,7 +47,8 @@ public Toggle WithTrackWidth(float width);
 public Toggle WithTrackHeight(float height);
 public Toggle WithThumbSize(float size);
 public Toggle WithTextGap(float gap);
-public Toggle OnToggled(Action<bool> handler);
+
+public Toggle WithWhenToggled(Action<bool> handler);
 ```
 
 ## Example
@@ -108,7 +57,15 @@ public Toggle OnToggled(Action<bool> handler);
 var darkMode = new Toggle()
     .WithText("Enable dark mode\n(requires restart)")
     .WithIsOn(false)
-    .OnToggled(on => ApplyTheme(on ? ThemeMode.Dark : ThemeMode.Light))
+    .WithWhenToggled(on => ApplyTheme(on ? ThemeMode.Dark : ThemeMode.Light))
     .WithLocation(24, 24)
     .WithAddToRenderer(renderer);
 ```
+
+!!! tip "Custom typefaces"
+    Load one through [`FontManager`](../font-manager.md) and pass it in:
+
+    ```csharp
+    var inter = FontManager.GetTypeface("Fonts/Inter-SemiBold.ttf");
+    control.WithTypeface(inter);
+    ```

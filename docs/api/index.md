@@ -94,6 +94,8 @@ The public API of HandyUI is split across three packages:
 | --- | --- |
 | [`HandyWindow`](handy-window.md) | GLFW-backed window with a pump thread. |
 | [`WindowConfiguration`](window-configuration.md) | Options record for `HandyWindow`. |
+| [`TrayIcon`](tray-icon.md) | Notification-area icon with events and context menu. |
+| [`TrayMenuItem`](tray-menu-item.md) | One entry in a tray context menu. |
 | [`ThemeHelper`](theme-helper.md) | Reads OS accent color and dark/light mode. |
 | [`RendererHelper`](silknet-helpers.md#rendererhelper) | Attaches a `UIRenderer` to a `HandyWindow`. |
 | [`WindowHelper`](silknet-helpers.md#windowhelper) | Window/renderer factories and platform tweaks. |

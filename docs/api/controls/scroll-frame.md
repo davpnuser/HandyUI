@@ -2,9 +2,9 @@
 
 `HandyUI.Controls.Controls.ScrollFrame`
 
-A scrolling viewport. Children scroll inside `Bounds` and a scrollbar appears
-on the right when content is taller than the visible area. The scrollbar
-fades out shortly after the last scroll event.
+A scrolling viewport with a fade-out scrollbar. Does **not** re-lay out
+children - you position them yourself; the frame translates by the current
+scroll offset.
 
 ```csharp
 public class ScrollFrame : BaseControl<ScrollFrame>
@@ -12,29 +12,12 @@ public class ScrollFrame : BaseControl<ScrollFrame>
 
 ## Properties
 
-### `Width` / `Height`
-
-```csharp
-public float Width  { get; set; }   // default: 200f
-public float Height { get; set; }   // default: 200f
-```
-
-### `ScrollSpeed`
-
-```csharp
-public float ScrollSpeed { get; set; }   // default: 40f
-```
-
-Pixels per wheel notch.
-
-### `ScrollbarWidth` / `ScrollbarMinThumbHeight`
-
-```csharp
-public float ScrollbarWidth          { get; set; }   // default: 4f
-public float ScrollbarMinThumbHeight { get; set; }   // default: 24f
-```
-
-Thumb height is `max(minHeight, trackHeight * viewport / content)`.
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Width` / `Height` | `float` | `200f` | |
+| `ScrollSpeed` | `float` | `40f` | Pixels per wheel notch. |
+| `ScrollbarWidth` | `float` | `4f` | |
+| `ScrollbarMinThumbHeight` | `float` | `24f` | Minimum thumb height. |
 
 ## Events
 
@@ -42,26 +25,10 @@ Thumb height is `max(minHeight, trackHeight * viewport / content)`.
 public event Action<float>? WhenScrollChanged;
 ```
 
-Fires with the current scroll offset (in pixels) after each scroll step.
-
 ## Methods
 
-### `OnChildAdded(IControl)` / `OnChildRemoved(IControl)` - override hooks
-
-```csharp
-protected override void OnChildAdded(IControl control);
-protected override void OnChildRemoved(IControl control);
-```
-
-Both recompute the total content height.
-
-### `OnMouse(MouseEventContext)` - override hook
-
-```csharp
-protected override bool OnMouse(MouseEventContext ctx);
-```
-
-Handles wheel scrolling when hovered.
+`OnChildAdded` / `OnChildRemoved` recompute content height. `OnMouse`
+handles wheel scrolling.
 
 ## Fluent API
 
@@ -70,7 +37,8 @@ public ScrollFrame WithWidth(float width);
 public ScrollFrame WithHeight(float height);
 public ScrollFrame WithScrollSpeed(float speed);
 public ScrollFrame WithScrollbarWidth(float width);
-public ScrollFrame OnScrollChanged(Action<float> handler);
+
+public ScrollFrame WithWhenScrollChanged(Action<float> handler);
 ```
 
 ## Example
@@ -92,8 +60,3 @@ for (var i = 0; i < 20; i++)
         .WithParent(scroller);
 }
 ```
-
-!!! info "Layout is manual"
-    Unlike `ListBox`, `ScrollFrame` does **not** re-lay out children. Set
-    each child's `Location` yourself; `ScrollFrame` just translates them by
-    the current scroll offset.

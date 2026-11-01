@@ -3,7 +3,7 @@
 `HandyUI.Core.Data.Theme`
 
 A plain palette record with **public `SKColor` fields**. Every built-in
-control exposes a `Theme` property you can swap to customize its colors.
+control uses the default theme provided by the ThemeManager.
 
 ```csharp
 public record Theme

@@ -2,8 +2,8 @@
 
 `HandyUI.Controls.Controls.MultilineTextInput`
 
-A multi-line text editor with a blinking cursor, mouse-drag selection,
-word-wise navigation (Ctrl), and multi-line copy/cut/paste support.
+A multi-line text editor with cursor blink, drag selection, and word-wise
+navigation.
 
 ```csharp
 public class MultilineTextInput : BaseControl<MultilineTextInput>
@@ -11,44 +11,16 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
 
 ## Properties
 
-### `Width` / `Height`
-
-```csharp
-public float Width  { get; set; }
-public float Height { get; set; }
-```
-
-`0` means auto-size to content (widest line and number of lines).
-
-### `Text` / `Placeholder`
-
-```csharp
-public string Text        { get; set; }   // default: string.Empty
-public string Placeholder { get; set; }   // default: string.Empty
-```
-
-Newlines are preserved (this is the multi-line editor). Setting `Text`
-clamps the cursor and selection anchor to the new length.
-
-### `FontSize` / `Typeface`
-
-```csharp
-public float      FontSize { get; set; }   // default: 14f
-public SKTypeface Typeface { get; set; }   // default: FontManager.DefaultFont
-```
-
-### `LineSpacing`
-
-```csharp
-public float LineSpacing { get; set; }   // default: 4f
-```
-
-### `CornerRadius` / `Padding`
-
-```csharp
-public float CornerRadius { get; set; }   // default: 4f
-public float Padding      { get; set; }   // default: 12f
-```
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Width` / `Height` | `float` | `0` | Auto-sized when `0`. |
+| `Text` | `string` | `""` | Newlines preserved. Clamps cursor + selection. |
+| `Placeholder` | `string` | `""` | Shown when empty. |
+| `FontSize` | `float` | `14f` | |
+| `Typeface` | `SKTypeface` | `FontManager.DefaultFont` | |
+| `LineSpacing` | `float` | `4f` | Extra pixels between lines. |
+| `CornerRadius` | `float` | `4f` | |
+| `Padding` | `float` | `12f` | All-sides inner padding. |
 
 ## Events
 
@@ -58,40 +30,12 @@ public event Action? WhenFocusGained;
 public event Action? WhenFocusLost;
 ```
 
-`WhenTextChanged` fires on every mutation - typing, paste, delete, etc.
-
 ## Methods
 
-### `DoesIntersect(SKPoint?)` / `OnUpdate(float, SKPoint?)` / `OnDraw(SKCanvas)`
-
-Standard `BaseControl` overrides.
-
-### `OnMouse(MouseEventContext)` - override hook
-
-```csharp
-protected override bool OnMouse(MouseEventContext ctx);
-```
-
-Handles click-to-position-cursor, drag selection, focus requests.
-
-### `OnKey(KeyEventContext)` - override hook
-
-```csharp
-protected override bool OnKey(KeyEventContext ctx);
-```
-
-Full keyboard support:
-
-| Key | Behavior |
-| --- | --- |
-| Printable character | Insert at cursor (replaces selection). |
-| Enter | Insert newline. |
-| Backspace | Delete previous char/selection; Ctrl+Backspace deletes previous word. |
-| Delete | Delete next char/selection; Ctrl+Delete deletes next word. |
-| ←/→ | Move cursor; Shift extends selection. |
-| ↑/↓ | Move cursor between lines; Shift extends selection. |
-| Home/End | Start/end of line; Ctrl = start/end of document. |
-| Ctrl+A | Select all. |
+`DoesIntersect`, `OnUpdate`, `OnDraw`, `OnMouse`, `OnKey` - standard
+overrides. `OnKey` supports printable chars, Enter, Backspace/Delete
+(Ctrl = word), arrows (Shift = extend), Home/End (Ctrl = start/end of
+document), and Ctrl+A.
 
 ## Fluent API
 
@@ -105,9 +49,10 @@ public MultilineTextInput WithTypeface(SKTypeface? typeface);
 public MultilineTextInput WithLineSpacing(float spacing);
 public MultilineTextInput WithCornerRadius(float radius);
 public MultilineTextInput WithPadding(float padding);
-public MultilineTextInput OnTextChanged(Action<string> handler);
-public MultilineTextInput OnFocusGained(Action handler);
-public MultilineTextInput OnFocusLost(Action handler);
+
+public MultilineTextInput WithWhenTextChanged(Action<string> handler);
+public MultilineTextInput WithWhenFocusGained(Action handler);
+public MultilineTextInput WithWhenFocusLost(Action handler);
 ```
 
 ## Example
@@ -118,7 +63,15 @@ var notes = new MultilineTextInput()
     .WithHeight(200)
     .WithPlaceholder("Write your notes here…")
     .WithLineSpacing(6)
-    .OnTextChanged(t => Console.WriteLine($"{t.Length} chars"))
+    .WithWhenTextChanged(t => Console.WriteLine($"{t.Length} chars"))
     .WithLocation(40, 40)
     .WithAddToRenderer(renderer);
 ```
+
+!!! tip "Custom typefaces"
+    Load one through [`FontManager`](../font-manager.md) and pass it in:
+
+    ```csharp
+    var inter = FontManager.GetTypeface("Fonts/Inter-SemiBold.ttf");
+    control.WithTypeface(inter);
+    ```

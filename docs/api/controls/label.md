@@ -2,8 +2,8 @@
 
 `HandyUI.Controls.Controls.Label`
 
-A non-interactive text label with alignment and bold support. Auto-sizes its
-bounds to fit the current text, including multi-line content.
+A non-interactive text label with alignment and bold support. Multi-line
+aware.
 
 ```csharp
 public class Label : BaseControl<Label>
@@ -11,39 +11,14 @@ public class Label : BaseControl<Label>
 
 ## Properties
 
-### `Width` / `Height`
-
-```csharp
-public float Width  { get; set; }
-public float Height { get; set; }
-```
-
-`0` means auto-size to the widest line and total stacked height.
-
-### `Text`
-
-```csharp
-public string Text { get; set; }   // default: string.Empty
-```
-
-Split on `'\n'` when drawn - every line honors `TextAlign`.
-
-### `FontSize` / `Typeface` / `IsBold`
-
-```csharp
-public float      FontSize { get; set; }   // default: 14f
-public SKTypeface Typeface { get; set; }   // default: FontManager.DefaultFont
-public bool       IsBold   { get; set; }
-```
-
-### `TextAlign`
-
-```csharp
-public SKTextAlign TextAlign { get; set; }   // default: Left
-```
-
-Horizontal alignment within `Bounds`: `Left`, `Center`, or `Right`. Applies
-to every line of a multi-line label.
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Width` / `Height` | `float` | `0` | Auto-sized when `0`. |
+| `Text` | `string` | `""` | Split on `'\n'`; each line honors `TextAlign`. |
+| `FontSize` | `float` | `14f` | |
+| `Typeface` | `SKTypeface` | `FontManager.DefaultFont` | |
+| `IsBold` | `bool` | `false` | |
+| `TextAlign` | `SKTextAlign` | `Left` | `Left` / `Center` / `Right`. |
 
 ## Events
 
@@ -54,21 +29,9 @@ public event Action? WhenHoverExited;
 public event Action<string>? WhenTextChanged;
 ```
 
-`WhenTextChanged` fires whenever `Text` is set.
-
 ## Methods
 
-### `DoesIntersect(SKPoint?)` / `OnUpdate(float, SKPoint?)` / `OnDraw(SKCanvas)`
-
-Standard `BaseControl` overrides.
-
-### `OnMouse(MouseEventContext)` - override hook
-
-```csharp
-protected override bool OnMouse(MouseEventContext ctx);
-```
-
-Raises `WhenClicked` on `Click`.
+`DoesIntersect`, `OnUpdate`, `OnDraw`, `OnMouse` - standard overrides.
 
 ## Fluent API
 
@@ -80,10 +43,11 @@ public Label WithFontSize(float size);
 public Label WithTypeface(SKTypeface? typeface);
 public Label WithIsBold(bool bold);
 public Label WithTextAlign(SKTextAlign align);
-public Label OnClicked(Action handler);
-public Label OnHoverEntered(Action handler);
-public Label OnHoverExited(Action handler);
-public Label OnTextChanged(Action<string> handler);
+
+public Label WithWhenClicked(Action handler);
+public Label WithWhenHoverEntered(Action handler);
+public Label WithWhenHoverExited(Action handler);
+public Label WithWhenTextChanged(Action<string> handler);
 ```
 
 ## Example
@@ -98,3 +62,11 @@ var header = new Label()
     .WithLocation(24, 24)
     .WithAddToRenderer(renderer);
 ```
+
+!!! tip "Custom typefaces"
+    Load one through [`FontManager`](../font-manager.md) and pass it in:
+
+    ```csharp
+    var inter = FontManager.GetTypeface("Fonts/Inter-SemiBold.ttf");
+    control.WithTypeface(inter);
+    ```

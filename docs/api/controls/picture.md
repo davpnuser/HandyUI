@@ -2,8 +2,7 @@
 
 `HandyUI.Controls.Controls.Picture`
 
-A non-interactive image with four stretch modes. Auto-sizes to the image
-unless you override `Width`/`Height`.
+A non-interactive image with four stretch modes.
 
 ```csharp
 public class Picture : BaseControl<Picture>
@@ -11,31 +10,11 @@ public class Picture : BaseControl<Picture>
 
 ## Properties
 
-### `Width` / `Height`
-
-```csharp
-public float Width  { get; set; }
-public float Height { get; set; }
-```
-
-`0` means auto-size to `Image.Width` / `Image.Height`.
-
-### `Image`
-
-```csharp
-public SKImage? Image { get; set; }
-```
-
-Assigning a new image triggers `ResizeToContent()` and raises
-`WhenImageChanged`.
-
-### `StretchMode`
-
-```csharp
-public StretchMode StretchMode { get; set; }   // default: Uniform
-```
-
-See [`StretchMode`](../stretch-mode.md) for behavior.
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Width` / `Height` | `float` | `0` | Auto-sized to the image when `0`. |
+| `Image` | `SKImage?` | `null` | Setting it triggers `WhenImageChanged`. |
+| `StretchMode` | `StretchMode` | `Uniform` | See [`StretchMode`](../stretch-mode.md). |
 
 ## Events
 
@@ -48,17 +27,7 @@ public event Action? WhenHoverExited;
 
 ## Methods
 
-### `DoesIntersect(SKPoint?)` / `OnUpdate(float, SKPoint?)` / `OnDraw(SKCanvas)`
-
-Standard `BaseControl` overrides.
-
-### `OnMouse(MouseEventContext)` - override hook
-
-```csharp
-protected override bool OnMouse(MouseEventContext ctx);
-```
-
-Raises `WhenClicked` on `Click`.
+`DoesIntersect`, `OnUpdate`, `OnDraw`, `OnMouse` - standard overrides.
 
 ## Fluent API
 
@@ -67,10 +36,11 @@ public Picture WithWidth(float width);
 public Picture WithHeight(float height);
 public Picture WithImage(SKImage? image);
 public Picture WithStretchMode(StretchMode mode);
-public Picture OnClicked(Action handler);
-public Picture OnImageChanged(Action<SKImage?> handler);
-public Picture OnHoverEntered(Action handler);
-public Picture OnHoverExited(Action handler);
+
+public Picture WithWhenClicked(Action handler);
+public Picture WithWhenImageChanged(Action<SKImage?> handler);
+public Picture WithWhenHoverEntered(Action handler);
+public Picture WithWhenHoverExited(Action handler);
 ```
 
 ## Example
@@ -80,11 +50,7 @@ var logo = new Picture()
     .WithImage(myImage)
     .WithWidth(256)
     .WithHeight(128)
-    .WithStretchMode(StretchMode.Uniform)   // letterbox
+    .WithStretchMode(StretchMode.Uniform)
     .WithLocation(32, 32)
     .WithAddToRenderer(renderer);
 ```
-
-!!! tip "Aspect-ratio preservation"
-    `StretchMode.Uniform` and `UniformToFill` preserve the source aspect
-    ratio. Use `Fill` only when you deliberately want distortion.

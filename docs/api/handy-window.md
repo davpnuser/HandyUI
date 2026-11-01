@@ -2,9 +2,10 @@
 
 `HandyUI.SilkNet.Components.HandyWindow`
 
-A Silk.NET/GLFW-backed window that runs its own pump thread, marshals calls
-with `Invoke`, integrates with [`ThemeHelper`](theme-helper.md) for OS
-appearance, and applies Win32 tweaks when available.
+A Silk.NET/GLFW-backed window with its own pump thread, Win32 integrations,
+and a "hide-the-title-bar" mode for custom chrome. Integrates with
+[`ThemeHelper`](theme-helper.md) for OS appearance and exposes a
+[`TrayIcon`](tray-icon.md) via a lazily-created `TrayIcon` property.
 
 ```csharp
 public class HandyWindow : IDisposable
@@ -23,20 +24,14 @@ public HandyWindow(WindowConfiguration windowConfiguration);
 Creates the underlying window on a dedicated thread and returns once the
 window handle exists (not necessarily initialized).
 
-The constructor also:
-
-- calls `ThemeHelper.EnsureInitialized()`, which reads the OS accent +
-  light/dark mode and pushes them into [`ThemeManager`](theme-manager.md);
-- registers the window with `ThemeHelper` for automatic re-invalidation on
-  OS theme changes.
+The constructor also calls `ThemeHelper.EnsureInitialized()` and registers
+the window for automatic re-invalidation when the OS theme changes.
 
 ```csharp
 var window = new HandyWindow(WindowConfiguration.Default with { Title = "Demo" });
 ```
 
 ## Typical usage
-
-Attach a renderer, add controls to it, and run:
 
 ```csharp
 var (window, renderer) =
@@ -48,11 +43,10 @@ renderer.AddRootControl(
 window.Run();
 ```
 
-!!! info "Add controls to the renderer, not `OnLoad`"
+!!! info "Add controls to the renderer, not `WhenLoaded`"
     `UIRenderer.AddRootControl` is thread-safe and queues the control for
-    the next tick. There is no reason to wait for the GL context - only
-    operations that genuinely need a live context (like the window icon)
-    are deferred automatically.
+    the next tick. Only operations that genuinely need a live GL context
+    (icon, tray icon, title bar tweaks) are deferred automatically.
 
 ## Properties
 
@@ -63,12 +57,13 @@ window.Run();
 | `InternalWindow` | `IWindow?` | The underlying Silk.NET window. |
 | `Title` | `string` | Window title. |
 | `Border` | `WindowBorder` | Resizable / fixed / hidden. |
+| `IsTitleBarVisible` | `bool` | Whether the OS title bar is shown (default: `true`). |
 | `State` | `WindowState` | Normal / maximized / minimized. |
 | `VSync` | `bool` | Toggle vertical sync. |
 | `UseDirtyRendering` | `bool` | Mirrors the renderer setting. |
 | `Size` | `SKSize?` | Client area size. |
 | `MinSize` / `MaxSize` | `SKSize?` | Size constraints. |
-| `Position` | `SKPoint?` | Top-left position. |
+| `Position` | `SKPoint?` | Top-left window position. |
 | `Opacity` | `float` | Window opacity (GLFW). |
 | `IsMovable` | `bool` | Whether the user can drag the window. |
 | `IsResizable` | `bool` | Whether the user can resize it. |
@@ -82,63 +77,148 @@ window.Run();
 | `ModalParent` | `HandyWindow?` | Modal parent; disables the parent. |
 | `ModalChild` | `HandyWindow?` | Read-only modal child. |
 | `InvalidateParentOnMove` | `bool` | Invalidate parent on move. |
+| `IsDragging` | `bool` | True while a custom drag (via `BeginDrag`/pump) is active. |
+| `IsHidden` | `bool` | True while `Hide()` has removed the window from view. |
+| `TrayIcon` | `TrayIcon` | Lazily-created tray icon for this window. |
 
-### `Icon`
+### `IsTitleBarVisible`
 
 ```csharp
-public SKImage? Icon { get; set; }
+public bool IsTitleBarVisible { get; set; }   // default: true
 ```
 
-Assigning a new icon marks it pending; the actual `SetWindowIcon` call is
-deferred until the window is initialized, marshaled onto the pump thread,
-and converted from RGBA to BGRA for Win32.
+When `false` and `Border` is not `WindowBorder.Hidden`, the window is
+subclassed to strip the OS title bar via `WM_NCCALCSIZE` and reimplement
+resize hit-testing with `WM_NCHITTEST`. Combine with `Border = Resizable`
+to keep resize edges while drawing your own chrome.
 
 ```csharp
-window.Icon = SKImage.FromEncodedData("Assets/app-icon.png");
+var window = new HandyWindow(WindowConfiguration.Default with
+{
+    Title = "Custom Chrome",
+    IsTitleBarVisible = false
+});
+
+// Your controls can now draw the title bar area themselves.
+```
+
+!!! tip "Drag with the Win32 pump loop"
+    When the title bar is hidden, call `window.BeginDrag()` from your
+    custom title bar's `MouseDown` to hand control to the OS drag loop:
+
+    ```csharp
+    titleBar.WhenMouseDown += window.BeginDrag;
+    ```
+
+### `IsDragging` / `BeginDrag()`
+
+```csharp
+public bool IsDragging { get; set; }
+
+public void BeginDrag();
+```
+
+`BeginDrag()` calls `Win32Helper.StartWindowDrag(hwnd)` on the pump thread.
+Setting `IsDragging = true` starts the internal drag tracker (cursor
+capture on the pump loop); setting it to `false` restores the previous
+position if `IsMovable` is off.
+
+### `IsHidden` / `Hide()` / `Show()`
+
+```csharp
+public bool IsHidden { get; }
+
+public void Hide();
+public void Show();
+```
+
+`Hide()` sets `VisibleInTaskbar = false`, hides the window, and skips
+rendering until `Show()` restores it. The previous taskbar-visibility state
+is remembered and restored by `Show()`.
+
+!!! info "Why not `IsVisible`?"
+    `Hide()` also removes the window from the taskbar and pauses the pump
+    loop's render path. Use it for "close to tray" behavior:
+
+    ```csharp
+    window.WhenClosing += () =>
+    {
+        // Cancel the close and hide instead.
+        WindowHelper.TryCancelClose(window.InternalWindow!);
+        window.Hide();
+    };
+    ```
+
+### `TrayIcon`
+
+```csharp
+public TrayIcon TrayIcon { get; }
+```
+
+A lazily-created [`TrayIcon`](tray-icon.md) bound to this window. It is
+disposed automatically when the window closes.
+
+```csharp
+window.TrayIcon.Icon = SKImage.FromEncodedData("Assets/tray.png");
+window.TrayIcon.ToolTip = "My App";
+window.TrayIcon.MenuItems.Add(
+    new TrayMenuItem("Show", () => window.Show()));
+window.TrayIcon.MenuItems.Add(TrayMenuItem.Separator());
+window.TrayIcon.MenuItems.Add(
+    new TrayMenuItem("Quit", () => window.Close()));
+window.TrayIcon.Show();
 ```
 
 ## Events
 
 | Event | Signature | Raised when |
 | --- | --- | --- |
-| `OnLoad` | `Action` | GL context initialized. |
-| `OnClosing` | `Action` | Window is about to close. |
-| `OnMove` | `Action<SKPoint>` | Window moved. |
-| `OnResize` | `Action<SKSize>` | Window resized. |
-| `OnStateChanged` | `Action<WindowState>` | Minimize/maximize/normal. |
-| `OnFocusChanged` | `Action<bool>` | Focus gained/lost. |
+| `WhenLoaded` | `Action` | GL context initialized. |
+| `WhenClosing` | `Action` | Window is about to close. |
+| `WhenMoved` | `Action<SKPoint>` | Window moved. |
+| `WhenResized` | `Action<SKSize>` | Window resized. |
+| `WhenStateChanged` | `Action<WindowState>` | Minimize/maximize/normal. |
+| `WhenFocusChanged` | `Action<bool>` | Focus gained/lost. |
+
+```csharp
+window.WhenLoaded += () => Console.WriteLine("Ready");
+window.WhenClosing += () => SaveLayout();
+window.WhenResized += size => Layout.Recalculate(size);
+```
 
 ## Methods
 
-### `Initialize()`
+### Lifecycle
 
-Blocks until the GL context is ready.
+```csharp
+public void Initialize();     // blocks until GL context is ready
+public void Run();            // Initialize + block until close
+public Task RunAsync(CancellationToken = default);
+public void Close();
+public void WaitForInitialization(int timeout = Timeout.Infinite);
+```
 
-### `Run()` / `RunAsync(CancellationToken)`
+### Windowing
 
-Runs the window until it closes. `RunAsync` returns a `Task` completed on
-close; cancellation triggers `Close()`.
+```csharp
+public void Invalidate();
+public void SetSizeLimits(SKSize? min, SKSize? max);
 
-### `Close()`
+public void Hide();
+public void Show();
 
-Requests the pump loop to exit.
+public void BeginDrag();
+```
 
-### `Invalidate()`
+### Marshalling
 
-Marks the renderer dirty and wakes the pump thread.
+```csharp
+internal void Invoke(Action action);
+internal T   Invoke<T>(Func<T> func);
+```
 
-### `SetSizeLimits(SKSize?, SKSize?)`
-
-Convenience wrapper around `MinSize` / `MaxSize`.
-
-### `WaitForInitialization(int = Timeout.Infinite)`
-
-Blocks until the GL context is ready (or times out).
-
-### `Invoke(Action)` / `Invoke<T>(Func<T>)`
-
-Marshals a delegate onto the pump thread. Nested invokes from another thread
-are fine; nested invokes from the pump thread must not block.
+Runs a delegate on the pump thread. Nested invokes from another thread are
+fine; nested invokes from the pump thread must not block.
 
 ## Dispose
 
@@ -146,5 +226,5 @@ are fine; nested invokes from the pump thread must not block.
 public void Dispose();
 ```
 
-Unregisters from `ThemeHelper`, closes the window, waits up to two seconds
-for the pump thread, then marks the instance disposed.
+Unregisters from `ThemeHelper`, disposes the tray icon, closes the window,
+and waits up to two seconds for the pump thread.

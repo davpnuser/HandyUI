@@ -2,9 +2,7 @@
 
 `HandyUI.Controls.Controls.ItemBox`
 
-A selectable list-style item. Selection is **exclusive among siblings** -
-selecting one `ItemBox` deselects all other `ItemBox` children of the same
-parent. Text can be multi-line.
+A selectable list-style item. Selection is **exclusive among siblings**.
 
 ```csharp
 public class ItemBox : BaseControl<ItemBox>
@@ -12,47 +10,14 @@ public class ItemBox : BaseControl<ItemBox>
 
 ## Properties
 
-### `Width` / `Height`
-
-```csharp
-public float Width  { get; set; }
-public float Height { get; set; }
-```
-
-`0` means auto-size.
-
-### `Text`
-
-```csharp
-public string Text { get; set; }   // default: string.Empty
-```
-
-Split on `'\n'` when drawn - each line is left-aligned after
-`HorizontalPadding`.
-
-### `FontSize` / `Typeface`
-
-```csharp
-public float      FontSize { get; set; }   // default: 14f
-public SKTypeface Typeface { get; set; }   // default: FontManager.DefaultFont
-```
-
-### `IsSelected`
-
-```csharp
-public bool IsSelected { get; set; }
-```
-
-Setting it animates a background highlight and a 3-pixel accent bar on the
-left edge. It also auto-deselects any sibling `ItemBox` instances under the
-same parent.
-
-### `HorizontalPadding` / `VerticalPadding`
-
-```csharp
-public float HorizontalPadding { get; set; }   // default: 16f
-public float VerticalPadding   { get; set; }   // default: 8f
-```
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Width` / `Height` | `float` | `0` | Auto-sized when `0`. |
+| `Text` | `string` | `""` | Multi-line. |
+| `FontSize` | `float` | `14f` | |
+| `Typeface` | `SKTypeface` | `FontManager.DefaultFont` | |
+| `IsSelected` | `bool` | `false` | Animates a highlight + 3-pixel accent bar. Auto-deselects siblings. |
+| `HorizontalPadding` / `VerticalPadding` | `float` | `16f` / `8f` | |
 
 ## Events
 
@@ -65,17 +30,7 @@ public event Action? WhenHoverExited;
 
 ## Methods
 
-### `DoesIntersect(SKPoint?)` / `OnUpdate(float, SKPoint?)` / `OnDraw(SKCanvas)`
-
-Standard `BaseControl` overrides.
-
-### `OnMouse(MouseEventContext)` - override hook
-
-```csharp
-protected override bool OnMouse(MouseEventContext ctx);
-```
-
-Toggles `IsSelected` on `MouseDown`, deselecting siblings when selecting.
+`DoesIntersect`, `OnUpdate`, `OnDraw`, `OnMouse` - standard overrides.
 
 ## Fluent API
 
@@ -87,10 +42,11 @@ public ItemBox WithFontSize(float size);
 public ItemBox WithTypeface(SKTypeface? typeface);
 public ItemBox WithIsSelected(bool selected);
 public ItemBox WithPadding(float horizontal, float vertical);
-public ItemBox OnClicked(Action<ItemBox> handler);
-public ItemBox OnSelectionChanged(Action<bool> handler);
-public ItemBox OnHoverEntered(Action handler);
-public ItemBox OnHoverExited(Action handler);
+
+public ItemBox WithWhenClicked(Action<ItemBox> handler);
+public ItemBox WithWhenSelectionChanged(Action<bool> handler);
+public ItemBox WithWhenHoverEntered(Action handler);
+public ItemBox WithWhenHoverExited(Action handler);
 ```
 
 ## Example
@@ -98,7 +54,7 @@ public ItemBox OnHoverExited(Action handler);
 ```csharp
 var list = new Frame().WithSize(240, 200).WithAddToRenderer(renderer);
 
-foreach (var name in new[] { "Inbox", "Sent\n(items pending)", "Drafts" })
+foreach (var name in new[] { "Inbox", "Sent", "Drafts" })
 {
     new ItemBox()
         .WithText(name)
@@ -107,6 +63,10 @@ foreach (var name in new[] { "Inbox", "Sent\n(items pending)", "Drafts" })
 }
 ```
 
-!!! tip "Sibling selection is automatic"
-    You don't need to track which item is selected - `ItemBox` deselects
-    siblings itself.
+!!! tip "Custom typefaces"
+    Load one through [`FontManager`](../font-manager.md) and pass it in:
+
+    ```csharp
+    var inter = FontManager.GetTypeface("Fonts/Inter-SemiBold.ttf");
+    control.WithTypeface(inter);
+    ```

@@ -2,8 +2,8 @@
 
 `HandyUI.Controls.Controls.TextInput`
 
-A single-line text editor with a blinking cursor, drag selection, and
-word-wise navigation.
+A single-line text editor. Line breaks and tabs are sanitized to spaces on
+assignment.
 
 ```csharp
 public class TextInput : BaseControl<TextInput>
@@ -11,97 +11,28 @@ public class TextInput : BaseControl<TextInput>
 
 ## Properties
 
-### `Width` / `Height`
-
-```csharp
-public float Width  { get; set; }
-public float Height { get; set; }
-```
-
-`0` means auto-size based on the current text (or placeholder) plus padding.
-
-### `Text`
-
-```csharp
-public string Text { get; set; }   // default: string.Empty
-```
-
-**Line breaks and tabs are sanitized on assignment** - `\r\n`, `\r`, and `\n`
-become spaces, and `\t` becomes four spaces. This keeps the control strictly
-single-line regardless of what paste or programmatic assignment delivers.
-
-```csharp
-input.Text = "hello\nworld";   // stored as "hello world"
-input.Text = "a\tb";           // stored as "a    b"
-```
-
-### `Placeholder`
-
-```csharp
-public string Placeholder { get; set; }   // default: string.Empty
-```
-
-Shown when `Text` is empty.
-
-### `FontSize` / `Typeface`
-
-```csharp
-public float      FontSize { get; set; }   // default: 14f
-public SKTypeface Typeface { get; set; }   // default: FontManager.DefaultFont
-```
-
-### `CornerRadius`
-
-```csharp
-public float CornerRadius { get; set; }   // default: 4f
-```
-
-### `HorizontalPadding` / `VerticalPadding`
-
-```csharp
-public float HorizontalPadding { get; set; }   // default: 12f
-public float VerticalPadding   { get; set; }   // default: 8f
-```
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `Width` / `Height` | `float` | `0` | Auto-sized when `0`. |
+| `Text` | `string` | `""` | **Sanitized**: `\r\n`/`\r`/`\n` → space, `\t` → 4 spaces. |
+| `Placeholder` | `string` | `""` | |
+| `FontSize` | `float` | `14f` | |
+| `Typeface` | `SKTypeface` | `FontManager.DefaultFont` | |
+| `CornerRadius` | `float` | `4f` | |
+| `HorizontalPadding` / `VerticalPadding` | `float` | `12f` / `8f` | |
 
 ## Events
-
-### `WhenTextChanged`
 
 ```csharp
 public event Action<string>? WhenTextChanged;
 ```
 
-Fires on every text mutation - typing, delete, selection replace, and
-programmatic assignment (after sanitization).
+Fires on every mutation (after sanitization for programmatic assignment).
 
 ## Methods
 
-### `DoesIntersect(SKPoint?)` / `OnUpdate(float, SKPoint?)` / `OnDraw(SKCanvas)`
-
-Standard `BaseControl` overrides.
-
-### `OnMouse(MouseEventContext)` - override hook
-
-```csharp
-protected override bool OnMouse(MouseEventContext ctx);
-```
-
-Handles click-to-position-cursor and drag selection, and requests focus.
-
-### `OnKey(KeyEventContext)` - override hook
-
-```csharp
-protected override bool OnKey(KeyEventContext ctx);
-```
-
-| Key | Behavior |
-| --- | --- |
-| Printable character | Insert at cursor. |
-| Backspace | Delete previous char (Ctrl = previous word). |
-| Delete | Delete next char (Ctrl = next word). |
-| ←/→ | Move cursor (Shift = extend selection). |
-| Home/End | Jump to start/end. |
-| Ctrl+A | Select all. |
+`DoesIntersect`, `OnUpdate`, `OnDraw`, `OnMouse`, `OnKey` - standard
+overrides.
 
 ## Fluent API
 
@@ -114,7 +45,8 @@ public TextInput WithFontSize(float size);
 public TextInput WithTypeface(SKTypeface? typeface);
 public TextInput WithCornerRadius(float radius);
 public TextInput WithPadding(float horizontal, float vertical);
-public TextInput OnTextChanged(Action<string> handler);
+
+public TextInput WithWhenTextChanged(Action<string> handler);
 ```
 
 ## Example
@@ -124,13 +56,15 @@ var search = new TextInput()
     .WithWidth(260)
     .WithPlaceholder("Search…")
     .WithCornerRadius(8)
-    .OnTextChanged(q => Results.Filter(q))
+    .WithWhenTextChanged(q => Results.Filter(q))
     .WithLocation(24, 24)
     .WithAddToRenderer(renderer);
 ```
 
-!!! tip "Single-line by design"
-    If you want multi-line input, use
-    [`MultilineTextInput`](multiline-text-input.md). `TextInput` enforces
-    single-line behavior by sanitizing `\n`, `\r`, and `\t` on every text
-    assignment.
+!!! tip "Custom typefaces"
+    Load one through [`FontManager`](../font-manager.md) and pass it in:
+
+    ```csharp
+    var inter = FontManager.GetTypeface("Fonts/Inter-SemiBold.ttf");
+    control.WithTypeface(inter);
+    ```
