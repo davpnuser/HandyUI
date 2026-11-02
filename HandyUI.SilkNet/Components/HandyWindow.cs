@@ -66,6 +66,8 @@ public class HandyWindow : IDisposable
         }
     } = true;
 
+    public IList<SKRect> DragRegions { get; } = [];
+
     public WindowState State
     {
         get => InternalWindow is null ? WindowState.Normal : InternalWindow.WindowState;
@@ -1148,11 +1150,8 @@ public class HandyWindow : IDisposable
 
     private nint TitleBarWndProc(nint hWnd, uint msg, nint wParam, nint lParam)
     {
-        if (!IsTitleBarVisible && Border != WindowBorder.Hidden)
+        if (!IsTitleBarVisible)
         {
-            if (msg == Win32Helper.WM_NCCALCSIZE && wParam != nint.Zero)
-                return nint.Zero;
-
             if (msg == Win32Helper.WM_GETMINMAXINFO)
             {
                 Win32Helper.CallWindowProc(_originalTitleBarWndProc, hWnd, msg, wParam, lParam);
@@ -1160,15 +1159,57 @@ public class HandyWindow : IDisposable
                 return nint.Zero;
             }
 
-            if (msg == Win32Helper.WM_NCHITTEST && IsResizable && !Win32Helper.IsMaximized(hWnd))
+            if (msg == Win32Helper.WM_NCCALCSIZE && wParam != nint.Zero)
+            {
+                if (Win32Helper.IsMaximized(hWnd))
+                    Win32Helper.ApplyMaximizedClientRect(hWnd, lParam);
+
+                return nint.Zero;
+            }
+        }
+
+        if (msg == Win32Helper.WM_NCHITTEST)
+        {
+            if (!IsTitleBarVisible && IsResizable && !Win32Helper.IsMaximized(hWnd))
             {
                 var hit = HandleNcHitTest(hWnd, lParam);
                 if (hit != nint.Zero)
                     return hit;
             }
+
+            if (IsPointInDragRegion(hWnd, lParam))
+                return Win32Helper.HTCAPTION;
+
+            if (!IsTitleBarVisible)
+                return Win32Helper.HTCLIENT;
         }
 
         return Win32Helper.CallWindowProc(_originalTitleBarWndProc, hWnd, msg, wParam, lParam);
+    }
+
+    private bool IsPointInDragRegion(nint hWnd, nint lParam)
+    {
+        if (DragRegions.Count == 0) return false;
+
+        var value = lParam.ToInt64();
+        var pt = new Win32Helper.POINT
+        {
+            X = (short)(value & 0xFFFF),
+            Y = (short)((value >> 16) & 0xFFFF),
+        };
+
+        if (!Win32Helper.ScreenToClient(hWnd, ref pt)) return false;
+
+        foreach (var region in DragRegions)
+        {
+            if (pt.X >= region.Left && pt.X < region.Right
+                && pt.Y >= region.Top && pt.Y < region.Bottom)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static nint HandleNcHitTest(nint hWnd, nint lParam)

@@ -16,7 +16,7 @@ var config = WindowConfiguration.Default with
 {
     Title = "Test Showcase",
     Icon = logoImage,
-    //IsTitleBarVisible = false,
+    IsTitleBarVisible = false,
     MinSize = new(500, 500)
 };
 
@@ -47,9 +47,13 @@ var titleBar = new Frame()
     .WithHasBorder(false)
     .WithSize(3500, cb.Bounds.Height)
     .WithLocation(0, 0)
-    .WithWhenMouseDown(() => { window.IsDragging = true; })
-    .WithWhenMouseUp(() => { window.IsDragging = false; })
+    //.WithWhenMouseDown(window.BeginDrag)
+    //.WithWhenMouseUp(() => { window.IsDragging = false; })
     .WithAddToRenderer(renderer);
+
+var winSize = window.Size ?? new SKSize(800, 600);
+var left = mxb.Location.X + mxb.Bounds.Width;
+window.DragRegions.Add(new SKRect(left, 0, winSize.Width, mxb.Height));
 
 var state = false;
 

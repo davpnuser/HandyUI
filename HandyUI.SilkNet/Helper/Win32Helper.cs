@@ -18,7 +18,6 @@ public static class Win32Helper
     private const nint WS_CAPTION = 0x00C00000;
     private const nint WS_SYSMENU = 0x00080000;
     private const nint WS_THICKFRAME = 0x00040000;
-    private const nint WS_MAXIMIZE = 0x01000000;
 
     private const nint WS_EX_TOOLWINDOW = 0x00000080;
     private const nint WS_EX_APPWINDOW = 0x00040000;
@@ -27,7 +26,7 @@ public static class Win32Helper
     public const uint WM_COMMAND = 0x0111;
     public const uint WM_GETMINMAXINFO = 0x0024;
     private const uint WM_NCLBUTTONDOWN = 0x00A1;
-    private const nint HTCAPTION = 0x0002;
+    public const nint HTCAPTION = 0x0002;
 
     public const uint WM_NCCALCSIZE = 0x0083;
     public const uint WM_NCHITTEST = 0x0084;
@@ -174,6 +173,14 @@ public static class Win32Helper
         public POINT ptMaxTrackSize;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NCCALCSIZE_PARAMS
+    {
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+        public RECT[] rgrc;
+        public nint lppos;
+    }
+
     #endregion
 
     #region Native Methods
@@ -214,6 +221,9 @@ public static class Win32Helper
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool ShowWindow(nint hWnd, int nCmdShow);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool IsZoomed(nint hWnd);
 
     [DllImport("user32.dll", EntryPoint = "CreateWindowExW", CharSet = CharSet.Unicode, SetLastError = true)]
     public static extern nint CreateWindowEx(
@@ -281,6 +291,9 @@ public static class Win32Helper
     [DllImport("user32.dll", SetLastError = true)]
     public static extern bool SetMenuDefaultItem(nint hMenu, uint uItem, uint fByPos);
 
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool ScreenToClient(nint hWnd, ref POINT lpPoint);
+
     #endregion
 
     #region Cross-bitness Long Wrappers
@@ -346,7 +359,7 @@ public static class Win32Helper
 
     public static bool IsMaximized(nint hWnd)
     {
-        return hWnd != nint.Zero && (GetWindowLongPtr(hWnd, GWL_STYLE) & WS_MAXIMIZE) != 0;
+        return hWnd != nint.Zero && IsZoomed(hWnd);
     }
 
     public static void ApplyMaximizedBounds(nint hWnd, nint lParam)
@@ -361,18 +374,33 @@ public static class Win32Helper
 
         var mmi = Marshal.PtrToStructure<MINMAXINFO>(lParam);
 
-        mmi.ptMaxPosition.X = mi.rcWork.Left;
-        mmi.ptMaxPosition.Y = mi.rcWork.Top;
+        mmi.ptMaxPosition.X = mi.rcWork.Left - mi.rcMonitor.Left;
+        mmi.ptMaxPosition.Y = mi.rcWork.Top - mi.rcMonitor.Top;
         mmi.ptMaxSize.X = mi.rcWork.Right - mi.rcWork.Left;
         mmi.ptMaxSize.Y = mi.rcWork.Bottom - mi.rcWork.Top;
 
         Marshal.StructureToPtr(mmi, lParam, false);
     }
 
+    public static void ApplyMaximizedClientRect(nint hWnd, nint lParam)
+    {
+        if (hWnd == nint.Zero || lParam == nint.Zero) return;
+
+        var monitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+        if (monitor == nint.Zero) return;
+
+        var mi = new MONITORINFO { cbSize = Marshal.SizeOf<MONITORINFO>() };
+        if (!GetMonitorInfo(monitor, ref mi)) return;
+
+        var p = Marshal.PtrToStructure<NCCALCSIZE_PARAMS>(lParam);
+        p.rgrc[0] = mi.rcWork;
+        Marshal.StructureToPtr(p, lParam, false);
+    }
+
     public static void RefreshMaximize(nint hWnd)
     {
         if (hWnd == nint.Zero) return;
-        if (!IsMaximized(hWnd)) return;
+        if (!IsZoomed(hWnd)) return;
 
         ShowWindow(hWnd, SW_RESTORE);
         ShowWindow(hWnd, SW_MAXIMIZE);
@@ -419,20 +447,22 @@ public static class Win32Helper
 
         var style = GetWindowLongPtr(hWnd, GWL_STYLE);
 
-        style &= ~(WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
+        style |= WS_CAPTION | WS_SYSMENU;
 
-        if (visible)
-        {
-            style |= WS_CAPTION | WS_SYSMENU;
-
-            if (resizable) style |= WS_THICKFRAME;
-            if (minimizable) style |= WS_MINIMIZEBOX;
-            if (maximizable) style |= WS_MAXIMIZEBOX;
-        }
-        else if (resizable)
-        {
+        if (resizable)
             style |= WS_THICKFRAME;
-        }
+        else
+            style &= ~WS_THICKFRAME;
+
+        if (minimizable)
+            style |= WS_MINIMIZEBOX;
+        else
+            style &= ~WS_MINIMIZEBOX;
+
+        if (maximizable)
+            style |= WS_MAXIMIZEBOX;
+        else
+            style &= ~WS_MAXIMIZEBOX;
 
         SetWindowLongPtr(hWnd, GWL_STYLE, style);
 
