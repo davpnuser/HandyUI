@@ -1,9 +1,9 @@
-﻿using HandyUI.Core.Base;
-using HandyUI.Core.Components;
-using HandyUI.Core.Data;
-using HandyUI.Core.Enums;
-using HandyUI.Core.Helper;
-using HandyUI.Core.Theming;
+﻿using HandyUI.Core.v1.Base;
+using HandyUI.Core.v1.Components;
+using HandyUI.Core.v1.Data;
+using HandyUI.Core.v1.Enums;
+using HandyUI.Core.v1.Helper;
+using HandyUI.Core.v1.Theming;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;

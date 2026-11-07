@@ -1,6 +1,6 @@
-﻿using HandyUI.Core.Components;
-using HandyUI.Core.Data;
-using HandyUI.Core.Enums;
+﻿using HandyUI.Core.v1.Components;
+using HandyUI.Core.v1.Data;
+using HandyUI.Core.v1.Enums;
 using Silk.NET.Input;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
@@ -221,7 +221,7 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
     {
         _currentMousePos = new SKPoint(position.X, position.Y);
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            ClientPosition: _currentMousePos,
+            Position: _currentMousePos,
             Type: MouseEventType.Move));
 
         if (UseDirtyRendering)
@@ -242,7 +242,7 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
     private void OnMouseDown(IMouse mouse, Silk.NET.Input.MouseButton button)
     {
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            ClientPosition: _currentMousePos,
+            Position: _currentMousePos,
             Type: MouseEventType.MouseDown,
             Button: MapButton(button)));
         Invalidate();
@@ -251,7 +251,7 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
     private void OnMouseUp(IMouse mouse, Silk.NET.Input.MouseButton button)
     {
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            ClientPosition: _currentMousePos,
+            Position: _currentMousePos,
             Type: MouseEventType.MouseUp,
             Button: MapButton(button)));
         Invalidate();
@@ -260,9 +260,9 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
     private void OnMouseScroll(IMouse mouse, ScrollWheel scroll)
     {
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            ClientPosition: _currentMousePos,
+            Position: _currentMousePos,
             Type: MouseEventType.Wheel,
-            Button: HandyUI.Core.Enums.MouseButton.Middle,
+            Button: HandyUI.Core.v1.Enums.MouseButton.Middle,
             WheelDelta: (int)(scroll.Y * 120)));
         Invalidate();
     }
@@ -356,14 +356,14 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
         };
     }
 
-    private static HandyUI.Core.Enums.MouseButton MapButton(Silk.NET.Input.MouseButton button)
+    private static HandyUI.Core.v1.Enums.MouseButton MapButton(Silk.NET.Input.MouseButton button)
     {
         return button switch
         {
-            Silk.NET.Input.MouseButton.Left => HandyUI.Core.Enums.MouseButton.Left,
-            Silk.NET.Input.MouseButton.Right => HandyUI.Core.Enums.MouseButton.Right,
-            Silk.NET.Input.MouseButton.Middle => HandyUI.Core.Enums.MouseButton.Middle,
-            _ => HandyUI.Core.Enums.MouseButton.None
+            Silk.NET.Input.MouseButton.Left => HandyUI.Core.v1.Enums.MouseButton.Left,
+            Silk.NET.Input.MouseButton.Right => HandyUI.Core.v1.Enums.MouseButton.Right,
+            Silk.NET.Input.MouseButton.Middle => HandyUI.Core.v1.Enums.MouseButton.Middle,
+            _ => HandyUI.Core.v1.Enums.MouseButton.None
         };
     }
 

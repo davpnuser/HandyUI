@@ -1,4 +1,4 @@
-﻿using HandyUI.Core.Components;
+﻿using HandyUI.Core.v1.Components;
 using HandyUI.SilkNet.Components;
 
 namespace HandyUI.SilkNet.Helper;

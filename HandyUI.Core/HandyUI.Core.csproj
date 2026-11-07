@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>3.0.3</AssemblyVersion>
+    <AssemblyVersion>3.0.7</AssemblyVersion>
 	  
     <Title>HandyUI</Title>
 	<Description>Platform-agnostic-at-its-core code-only C# UI framework powered by SkiaSharp.</Description>
@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\Roboto.ttf" />
+    <None Remove="v1\Resources\Roboto.ttf" />
   </ItemGroup>
 
 	<ItemGroup>
@@ -33,10 +33,10 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\HandyUI-Banner.png" />
-    <EmbeddedResource Include="Resources\HandyUI-Logo.png" />
-    <EmbeddedResource Include="Resources\HandyUI-SmallLogo.png" />
-    <EmbeddedResource Include="Resources\Roboto.ttf" />
+    <EmbeddedResource Include="v1\Resources\HandyUI-Banner.png" />
+    <EmbeddedResource Include="v1\Resources\HandyUI-Logo.png" />
+    <EmbeddedResource Include="v1\Resources\HandyUI-SmallLogo.png" />
+    <EmbeddedResource Include="v1\Resources\Roboto.ttf" />
   </ItemGroup>
 
   <ItemGroup>

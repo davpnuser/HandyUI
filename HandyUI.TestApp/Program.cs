@@ -1,5 +1,5 @@
 ﻿using HandyUI.Controls.Controls;
-using HandyUI.Core.Components;
+using HandyUI.Core.v1.Components;
 using HandyUI.SilkNet.Components;
 using HandyUI.SilkNet.Data;
 using HandyUI.SilkNet.Helper;
