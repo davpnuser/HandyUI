@@ -169,12 +169,11 @@ public abstract class BaseControl : IControl
     public abstract void OnDraw(SKCanvas canvas);
     public abstract void OnUpdate(UpdateContext updateContext);
 
-    public virtual bool OnMouse(MouseEventContext eventContext) => false;
+    protected virtual bool OnMouse(MouseEventContext eventContext) => false;
+    protected virtual bool OnKey(KeyEventContext eventContext) => false;
 
-    public virtual bool OnKey(KeyEventContext eventContext) => false;
-
-    public virtual void OnChildAdded(IControl child) { }
-    public virtual void OnChildRemoved(IControl child) { }
+    protected virtual void OnChildAdded(IControl child) { }
+    protected virtual void OnChildRemoved(IControl child) { }
 
     #endregion
 

@@ -1,1 +1,0 @@
-﻿namespace HandyUI.Core.Data.Enums;

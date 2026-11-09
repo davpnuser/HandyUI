@@ -8,4 +8,13 @@
   <Project Path="HandyUI.Core/HandyUI.Core.csproj" />
   <Project Path="HandyUI.SilkNet/HandyUI.SilkNet.csproj" Id="26fe0261-0cb9-4f94-ade8-cce4f0bdd934" />
   <Project Path="HandyUI.TestApp/HandyUI.TestApp.csproj" />
+  <Properties Name="AutomaticVersions" Scope="PostLoad">
+    <Property Name="AssemblyInfoVersionType" Value="SettingsVersion" />
+    <Property Name="AssemblyVersionSettings" Value="IncrementOnDemandWithResetOnIncrease.IncrementOnDemandWithResetOnIncrease.IncrementOnDemandWithResetOnIncrease.None" />
+    <Property Name="InheritWinAppVersionFrom" Value="None" />
+    <Property Name="UpdateAssemblyFileVersion" Value="False" />
+    <Property Name="UpdateAssemblyInfoVersion" Value="False" />
+    <Property Name="UpdateAssemblyVersion" Value="True" />
+    <Property Name="UpdatePackageVersion" Value="False" />
+  </Properties>
 </Solution>

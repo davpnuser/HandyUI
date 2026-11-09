@@ -1,5 +1,5 @@
 ﻿namespace HandyUI.Core.Helpers;
 
-public class Tweener
+public class TweenManager
 {
 }
