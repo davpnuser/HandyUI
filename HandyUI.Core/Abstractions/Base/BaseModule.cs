@@ -1,4 +1,5 @@
 ﻿using HandyUI.Core.Abstractions.Interface;
+using HandyUI.Core.Components;
 using HandyUI.Core.Data;
 
 namespace HandyUI.Core.Abstractions.Base;
@@ -19,12 +20,27 @@ public abstract class BaseModule : IModule
 
     public abstract void OnUpdate(UpdateContext updateContext);
 
+    protected virtual void OnStart() { }
+    protected virtual void OnStop() { }
+
     protected virtual bool OnMouse(MouseEventContext eventContext) => false;
     protected virtual bool OnKey(KeyEventContext eventContext) => false;
 
     #endregion
 
     #region Methods
+
+    public void Start()
+    {
+        Enabled = true;
+        OnStart();
+    }
+
+    public void Stop()
+    {
+        Enabled = false;
+        OnStop();
+    }
 
     public bool ProcessMouseEvent(MouseEventContext eventContext) => Enabled && OnMouse(eventContext);
     public bool ProcessKeyEvent(KeyEventContext eventContext) => Enabled && OnKey(eventContext);
@@ -74,10 +90,8 @@ public abstract class BaseModule<TSelf> : BaseModule where TSelf : BaseModule<TS
     public TSelf WithEnabled(bool enabled)
         => DoAndReturn(c => c.Enabled = enabled);
 
-    // TODO: Uncomment this once the UI Renderer is done.
-
-    //public TSelf WithAddToRenderer(UIRenderer renderer)
-    //    => DoAndReturn(c => renderer.AddRootControl(this));
+    public TSelf WithAddToRenderer(UIRenderer renderer)
+        => DoAndReturn(c => renderer.AddModule(this));
 }
 
 #endregion

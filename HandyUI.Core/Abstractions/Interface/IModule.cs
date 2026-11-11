@@ -20,6 +20,9 @@ public interface IModule : IDisposable
 
     #region Methods
 
+    void Start();
+    void Stop();
+
     bool ProcessMouseEvent(MouseEventContext eventContext);
     bool ProcessKeyEvent(KeyEventContext eventContext);
 
