@@ -1,4 +1,4 @@
-﻿using HandyUI.Core.v1.Data;
+﻿using HandyUI.Core.Data;
 using SkiaSharp;
 
 namespace HandyUI.Core.Abstractions.Interface;
@@ -21,7 +21,7 @@ public interface IControl : IDisposable
 
     bool IsDisposed { get; }
     bool IsHovered { get; }
-    bool IsFocused { get; }
+    bool IsFocused { get; internal set; }
     bool IsMouseDown { get; }
 
     float Opacity { get; set; }
@@ -38,7 +38,7 @@ public interface IControl : IDisposable
 
     #region Overrideables
 
-    abstract void DoesIntersect(SKPoint point);
+    abstract bool DoesIntersect(SKPoint point);
     abstract void OnDraw(SKCanvas canvas);
     abstract void OnUpdate(UpdateContext updateContext);
 
@@ -53,6 +53,7 @@ public interface IControl : IDisposable
     bool ProcessKeyEvent(KeyEventContext eventContext);
 
     SKPoint GetGlobalLocation();
+    SKPoint GetLocalPosition(SKPoint point);
 
     protected void AddChildInternal(IControl child);
     protected void RemoveChildInternal(IControl child);

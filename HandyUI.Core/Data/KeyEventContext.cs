@@ -3,7 +3,7 @@ using HandyUI.Core.Helpers;
 
 namespace HandyUI.Core.Data;
 
-public record KeyEventContext(
+public readonly record struct KeyEventContext(
     TweenManager Tweener,
     KeyEventType Type = KeyEventType.None,
     int? KeyCode = null,

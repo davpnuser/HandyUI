@@ -13,16 +13,6 @@ public static class SKRectExtensions
 
     #endregion
 
-    #region Convert from SKRect
-
-    public static SKPoint ToSKPoint(this SKRect rect)
-        => new(rect.Right, rect.Bottom);
-
-    public static SKSize ToSKSize(this SKRect rect)
-        => new(rect.Width, rect.Height);
-
-    #endregion
-
     #region Division functions
 
     #region Halfs

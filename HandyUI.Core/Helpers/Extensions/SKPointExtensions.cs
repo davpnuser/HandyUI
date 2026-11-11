@@ -12,14 +12,4 @@ public static class SKPointExtensions
         => new(size.Width, size.Height);
 
     #endregion
-
-    #region Convert from SKPoint
-
-    public static SKRect ToSKRect(this SKPoint point)
-        => new(0, 0, point.X, point.Y);
-
-    public static SKSize ToSKSize(this SKPoint point)
-        => new(point.X, point.Y);
-
-    #endregion
 }

@@ -1,7 +1,8 @@
 ﻿using HandyUI.Core.Abstractions.Interface;
-using HandyUI.Core.v1.Data;
-using HandyUI.Core.v1.Enums;
-using HandyUI.Core.v1.Helper;
+using HandyUI.Core.Components;
+using HandyUI.Core.Data;
+using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers.Extensions;
 using SkiaSharp;
 
 namespace HandyUI.Core.Abstractions.Base;
@@ -187,13 +188,13 @@ public abstract class BaseControl : IControl
         if (!Visible || !Enabled)
             return false;
 
-        IsHovered = Bounds.Contains(eventContext.Position);
+        IsHovered = Bounds.Contains(eventContext.MousePosition);
 
-        if (eventContext.Type == MouseEventType.MouseDown && IsHovered)
+        if (eventContext.Type == MouseEventType.MouseDownEvent && IsHovered)
         {
             IsMouseDown = true;
         }
-        else if (eventContext.Type == MouseEventType.MouseUp)
+        else if (eventContext.Type == MouseEventType.MouseUpEvent)
         {
             IsMouseDown = false;
         }
@@ -209,6 +210,12 @@ public abstract class BaseControl : IControl
             currentOffset += Parent.GetGlobalLocation();
 
         return currentOffset;
+    }
+
+    public SKPoint GetLocalPosition(SKPoint point)
+    {
+        var globalPosition = GetGlobalLocation();
+        return point - globalPosition;
     }
 
     public void InvalidateChildrenOrder()
@@ -345,10 +352,8 @@ public abstract class BaseControl<TSelf> : BaseControl where TSelf : BaseControl
     public TSelf WithZIndex(int zIndex)
         => DoAndReturn(c => c.ZIndex = zIndex);
 
-    // TODO: Uncomment this once the UI Renderer is done.
-
-    //public TSelf WithAddToRenderer(UIRenderer renderer)
-    //    => DoAndReturn(c => renderer.AddRootControl(this));
+    public TSelf WithAddToRenderer(UIRenderer renderer)
+        => DoAndReturn(c => renderer.AddControl(this));
 }
 
 #endregion

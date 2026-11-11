@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
-namespace HandyUI.Core.Components;
+namespace HandyUI.Core.Helpers;
 
 public static class ResourceManager
 {
