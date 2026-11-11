@@ -166,6 +166,7 @@ public abstract class BaseControl : IControl
 
     #region Overrideables
 
+    public abstract void DoesIntersect(SKPoint point);
     public abstract void OnDraw(SKCanvas canvas);
     public abstract void OnUpdate(UpdateContext updateContext);
 

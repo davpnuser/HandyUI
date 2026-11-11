@@ -38,6 +38,7 @@ public interface IControl : IDisposable
 
     #region Overrideables
 
+    abstract void DoesIntersect(SKPoint point);
     abstract void OnDraw(SKCanvas canvas);
     abstract void OnUpdate(UpdateContext updateContext);
 

@@ -1,4 +1,4 @@
-﻿using HandyUI.Core.v1.Data;
+﻿using HandyUI.Core.Data;
 
 namespace HandyUI.Core.Abstractions.Interface;
 

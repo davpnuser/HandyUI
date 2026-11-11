@@ -1,4 +1,5 @@
 ﻿using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
 using SkiaSharp;
 
 namespace HandyUI.Core.Abstractions.Interface;
@@ -21,23 +22,24 @@ public interface IHostWindow
     float DpiScale { get; }
     float DisplayDist { get; }
 
+    GRContext DrawingContext { get; }
+
+    TweenManager TweenManager { get; internal set; }
+    ThemeManager ThemeManager { get; internal set; }
+
     #endregion
 
     #region Events
 
-    event Action<bool>? WhenFocusChanged;
     event Action<DisplayOrientation>? WhenOrientationChanged;
     event Action? WhenInvalidated;
-    event Action? WhenHidden;
-    event Action? WhenShown;
 
     #endregion
 
     #region Methods
 
     void Invalidate();
-    bool TryShow();
-    bool TryHide();
+    void ThemeManagerReady();
 
     #endregion
 }

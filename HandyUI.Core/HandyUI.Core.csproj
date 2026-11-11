@@ -23,6 +23,34 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="v1\Base\BaseControl.cs" />
+    <Compile Remove="v1\Base\BaseModule.cs" />
+    <Compile Remove="v1\Components\FontManager.cs" />
+    <Compile Remove="v1\Components\ResourceManager.cs" />
+    <Compile Remove="v1\Components\Tweener.cs" />
+    <Compile Remove="v1\Components\UIRenderer.cs" />
+    <Compile Remove="v1\Data\KeyEventContext.cs" />
+    <Compile Remove="v1\Data\MouseEventContext.cs" />
+    <Compile Remove="v1\Data\TweenHandle.cs" />
+    <Compile Remove="v1\Data\UpdateContext.cs" />
+    <Compile Remove="v1\Enums\BorderDirection.cs" />
+    <Compile Remove="v1\Enums\DeviceType.cs" />
+    <Compile Remove="v1\Enums\DisplayOrientation.cs" />
+    <Compile Remove="v1\Enums\EaseType.cs" />
+    <Compile Remove="v1\Enums\KeyEventType.cs" />
+    <Compile Remove="v1\Enums\MouseButton.cs" />
+    <Compile Remove="v1\Enums\MouseEventType.cs" />
+    <Compile Remove="v1\Enums\ThemeMode.cs" />
+    <Compile Remove="v1\Helper\SKColorHelper.cs" />
+    <Compile Remove="v1\Helper\SKRectHelper.cs" />
+    <Compile Remove="v1\Interface\IControl.cs" />
+    <Compile Remove="v1\Interface\IModule.cs" />
+    <Compile Remove="v1\Interface\IWindowHost.cs" />
+    <Compile Remove="v1\Theming\ColorEngine.cs" />
+    <Compile Remove="v1\Theming\ThemeManager.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="v1\Resources\Roboto.ttf" />
   </ItemGroup>
 
@@ -30,6 +58,31 @@
 		<None Include="..\THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="\" />
 		<None Include="..\HandyUI-Logo.png" Pack="true" PackagePath="" Link="HandyUI-Logo.png" />
 		<None Include="..\NuGet-README.md" Pack="true" PackagePath="" Link="NuGet-README.md" />
+		<None Include="v1\Base\BaseControl.cs" />
+		<None Include="v1\Base\BaseModule.cs" />
+		<None Include="v1\Components\FontManager.cs" />
+		<None Include="v1\Components\ResourceManager.cs" />
+		<None Include="v1\Components\Tweener.cs" />
+		<None Include="v1\Components\UIRenderer.cs" />
+		<None Include="v1\Data\KeyEventContext.cs" />
+		<None Include="v1\Data\MouseEventContext.cs" />
+		<None Include="v1\Data\TweenHandle.cs" />
+		<None Include="v1\Data\UpdateContext.cs" />
+		<None Include="v1\Enums\BorderDirection.cs" />
+		<None Include="v1\Enums\DeviceType.cs" />
+		<None Include="v1\Enums\DisplayOrientation.cs" />
+		<None Include="v1\Enums\EaseType.cs" />
+		<None Include="v1\Enums\KeyEventType.cs" />
+		<None Include="v1\Enums\MouseButton.cs" />
+		<None Include="v1\Enums\MouseEventType.cs" />
+		<None Include="v1\Enums\ThemeMode.cs" />
+		<None Include="v1\Helper\SKColorHelper.cs" />
+		<None Include="v1\Helper\SKRectHelper.cs" />
+		<None Include="v1\Interface\IControl.cs" />
+		<None Include="v1\Interface\IModule.cs" />
+		<None Include="v1\Interface\IWindowHost.cs" />
+		<None Include="v1\Theming\ColorEngine.cs" />
+		<None Include="v1\Theming\ThemeManager.cs" />
 	</ItemGroup>
 
   <ItemGroup>
@@ -40,7 +93,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SkiaSharp" Version="4.152.0" />
+    <PackageReference Include="SkiaSharp" Version="4.155.0" />
   </ItemGroup>
 
 </Project>

@@ -21,6 +21,8 @@ public interface IWindowHost
     int DisplayDist { get; }
     DisplayOrientation Orientation { get; }
 
+    GRContext DrawingContext { get; }
+
     #endregion
 
     #region Events
