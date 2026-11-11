@@ -84,15 +84,9 @@ public sealed class TrayIcon : IDisposable
 
     #region Public Methods
 
-    public void Show()
-    {
-        Visible = true;
-    }
+    public void Show() => Visible = true;
 
-    public void Hide()
-    {
-        Visible = false;
-    }
+    public void Hide() => Visible = false;
 
     public void ShowContextMenu()
     {

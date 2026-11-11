@@ -339,7 +339,7 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
     {
         _currentMousePos = new SKPoint(position.X, position.Y);
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            Tweener: TweenManager,
+            TweenManager: TweenManager,
             MousePosition: _currentMousePos,
             Type: MouseEventType.None));
 
@@ -361,7 +361,7 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
     private void OnMouseDown(IMouse mouse, Silk.NET.Input.MouseButton button)
     {
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            Tweener: TweenManager,
+            TweenManager: TweenManager,
             MousePosition: _currentMousePos,
             Type: MouseEventType.MouseDownEvent,
             Button: MapButton(button)));
@@ -371,7 +371,7 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
     private void OnMouseUp(IMouse mouse, Silk.NET.Input.MouseButton button)
     {
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            Tweener: TweenManager,
+            TweenManager: TweenManager,
             MousePosition: _currentMousePos,
             Type: MouseEventType.MouseUpEvent,
             Button: MapButton(button)));
@@ -381,7 +381,7 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
     private void OnMouseScroll(IMouse mouse, ScrollWheel scroll)
     {
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            Tweener: TweenManager,
+            TweenManager: TweenManager,
             MousePosition: _currentMousePos,
             Type: MouseEventType.ScrollEvent,
             Button: MouseButton.Wheel,

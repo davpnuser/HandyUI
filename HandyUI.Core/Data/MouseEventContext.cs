@@ -5,7 +5,7 @@ using SkiaSharp;
 namespace HandyUI.Core.Data;
 
 public readonly record struct MouseEventContext(
-    TweenManager Tweener,
+    TweenManager TweenManager,
     SKPoint? MousePosition,
     MouseEventType Type = MouseEventType.None,
     MouseButton Button = MouseButton.None,

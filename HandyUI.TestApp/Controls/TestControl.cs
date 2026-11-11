@@ -1,5 +1,4 @@
-﻿using HandyUI.Core.v1.Base;
-using SkiaSharp;
+﻿using SkiaSharp;
 
 namespace HandyUI.TestApp.Controls;
 
@@ -67,10 +66,7 @@ public class TestControl : BaseControl
         canvas.DrawText(_formattedText, textX, textY, SKTextAlign.Left, _font, _textPaint);
     }
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
-    {
-        return clientPoint != null && Bounds.Contains(clientPoint.Value.X, clientPoint.Value.Y);
-    }
+    public override bool DoesIntersect(SKPoint? clientPoint) => clientPoint != null && Bounds.Contains(clientPoint.Value.X, clientPoint.Value.Y);
 
     protected override void OnDispose()
     {

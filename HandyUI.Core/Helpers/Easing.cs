@@ -1,6 +1,4 @@
-﻿using HandyUI.Core.Data;
-
-namespace HandyUI.Core.Helpers;
+﻿namespace HandyUI.Core.Helpers;
 
 public static class Easing
 {

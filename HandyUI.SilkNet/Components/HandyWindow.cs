@@ -1074,9 +1074,11 @@ public class HandyWindow : IDisposable
         var top = y >= rect.Top && y < rect.Top + border;
         var bottom = y < rect.Bottom && y >= rect.Bottom - border;
 
-        if (top && left) return Win32Helper.HTTOPLEFT;
-        if (top && right) return Win32Helper.HTTOPRIGHT;
-        return bottom && left
+        return top && left
+            ? Win32Helper.HTTOPLEFT
+            : top && right
+            ? Win32Helper.HTTOPRIGHT
+            : bottom && left
             ? Win32Helper.HTBOTTOMLEFT
             : bottom && right
             ? Win32Helper.HTBOTTOMRIGHT

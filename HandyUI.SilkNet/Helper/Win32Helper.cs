@@ -357,10 +357,7 @@ public static class Win32Helper
                             SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
     }
 
-    public static bool IsMaximized(nint hWnd)
-    {
-        return hWnd != nint.Zero && IsZoomed(hWnd);
-    }
+    public static bool IsMaximized(nint hWnd) => hWnd != nint.Zero && IsZoomed(hWnd);
 
     public static void ApplyMaximizedBounds(nint hWnd, nint lParam)
     {
@@ -426,15 +423,9 @@ public static class Win32Helper
         SetWindowLongPtr(hWnd, GWL_EXSTYLE, exStyle);
     }
 
-    public static void ApplyMinimizeBox(nint hWnd, bool enabled)
-    {
-        ApplyStyleBit(hWnd, WS_MINIMIZEBOX, enabled);
-    }
+    public static void ApplyMinimizeBox(nint hWnd, bool enabled) => ApplyStyleBit(hWnd, WS_MINIMIZEBOX, enabled);
 
-    public static void ApplyMaximizeBox(nint hWnd, bool enabled)
-    {
-        ApplyStyleBit(hWnd, WS_MAXIMIZEBOX, enabled);
-    }
+    public static void ApplyMaximizeBox(nint hWnd, bool enabled) => ApplyStyleBit(hWnd, WS_MAXIMIZEBOX, enabled);
 
     public static void ApplyTitleBarVisibility(
         nint hWnd,

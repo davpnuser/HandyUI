@@ -1,4 +1,4 @@
-﻿namespace HandyUI.Core.Data;
+﻿namespace HandyUI.Core.Data.Enums;
 
 public enum EaseType
 {

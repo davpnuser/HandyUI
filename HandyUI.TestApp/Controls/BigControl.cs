@@ -1,7 +1,4 @@
-﻿using HandyUI.Core.v1.Base;
-using HandyUI.Core.v1.Helper;
-using HandyUI.Core.v1.Theming;
-using SkiaSharp;
+﻿using SkiaSharp;
 
 namespace HandyUI.TestApp.Controls;
 
@@ -45,10 +42,7 @@ public class BigControl : BaseControl<BigControl>
         "Shadow Color"
     ];
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
-    {
-        return true;
-    }
+    public override bool DoesIntersect(SKPoint? clientPoint) => true;
 
     public override void OnDraw(SKCanvas canvas)
     {
