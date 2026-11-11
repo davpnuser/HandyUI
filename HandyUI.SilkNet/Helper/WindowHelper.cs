@@ -1,4 +1,4 @@
-﻿using HandyUI.Core.v1.Components;
+﻿using HandyUI.Core.Components;
 using HandyUI.SilkNet.Components;
 using HandyUI.SilkNet.Data;
 using HandyUI.SilkNet.Tool;
@@ -37,7 +37,7 @@ public static class WindowHelper
     public static void TryCancelClose(IWindow window)
     {
         try { window.IsClosing = false; }
-        catch { /* do not crash */ }
+        catch { }
 
         if (window.Native?.Glfw is nint rawHandle && rawHandle != nint.Zero)
         {
@@ -50,7 +50,7 @@ public static class WindowHelper
                     glfw.SetWindowShouldClose(windowPtr, false);
                 }
             }
-            catch { /* do not crash */ }
+            catch { }
         }
     }
 
@@ -67,7 +67,7 @@ public static class WindowHelper
                     glfw.SetWindowOpacity(windowPtr, opacity);
                 }
             }
-            catch { /* do not crash */ }
+            catch { }
         }
     }
 
@@ -84,7 +84,7 @@ public static class WindowHelper
                     return glfw.GetWindowOpacity(windowPtr);
                 }
             }
-            catch { /* do not crash */ }
+            catch { }
         }
 
         return null;

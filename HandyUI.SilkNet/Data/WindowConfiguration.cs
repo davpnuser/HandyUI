@@ -1,6 +1,4 @@
-﻿using HandyUI.SilkNet.Components;
-using Silk.NET.Core.Contexts;
-using Silk.NET.Windowing;
+﻿using Silk.NET.Windowing;
 using SkiaSharp;
 
 namespace HandyUI.SilkNet.Data;
@@ -25,17 +23,12 @@ public record WindowConfiguration
     public bool IsTitleBarVisible { get; init; } = true;
     public SKImage? Icon { get; init; } = null;
 
-    public HandyWindow? SubwindowParent { get; init; } = null;
-    public HandyWindow? ModalParent { get; init; } = null;
-
     public bool TopMost { get; init; } = false;
     public bool VSync { get; init; } = true;
     public int FramesPerSecond { get; init; } = 60;
     public bool UseDirtyRendering { get; init; } = true;
-    public bool InvalidateParentOnMove { get; init; } = true;
     public bool TransparentFrameBuffer { get; init; } = false;
 
-    public IGLContext? SharedContext { get; init; } = null;
     public bool AutoInitWindow { get; init; } = false;
     public bool AutoInitGlfw { get; init; } = true;
 

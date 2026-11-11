@@ -5,6 +5,7 @@ public enum MouseButton
     None = 0,
     Left = 1,
     Right = 2,
-    Wheel = 3,
-    Generic = 4,
+    Middle = 3,
+    Wheel = 4,
+    Generic = 5,
 }

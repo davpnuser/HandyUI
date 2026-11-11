@@ -1,25 +1,29 @@
-﻿using HandyUI.Core.v1.Components;
-using HandyUI.Core.v1.Data;
-using HandyUI.Core.v1.Enums;
+﻿using HandyUI.Core.Abstractions.Interface;
+using HandyUI.Core.Components;
+using HandyUI.Core.Data;
+using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
 using Silk.NET.Input;
+using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using SkiaSharp;
 using System.Diagnostics;
 using System.Numerics;
+using MouseButton = HandyUI.Core.Data.Enums.MouseButton;
 
-internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : IDisposable
+internal sealed class RendererAdapter : IHostWindow, IDisposable
 {
     #region Internal Fields
 
-    private readonly IWindow _window = window;
-    private readonly UIRenderer _renderer = new(useDirtyRendering);
-
+    private readonly IWindow _window;
+    private readonly UIRenderer _renderer;
     private readonly Stopwatch _frameStopwatch = Stopwatch.StartNew();
-    private double _lastFrameTime;
 
+    private double _lastFrameTime;
     private SKPoint _currentMousePos = new(-1, -1);
     private int _dirtyFramesRemaining = 2;
+    private int _invalidateGuard;
     private bool _isDisposed;
 
     private GL? _gl;
@@ -30,20 +34,91 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
     private IInputContext? _inputContext;
 
     private long _lastMouseMoveInvalidateTick = 0;
-    private const long targetMouseTicksPerInvalidate = 60;
-
-    internal bool UseDirtyRendering { get; } = useDirtyRendering;
-    internal bool IsInvalidated => _dirtyFramesRemaining > 0;
+    private const long TargetMouseTicksPerInvalidate = 60;
+    private TweenManager? _tweenManager;
 
     #endregion
 
-    #region Methods
+    #region Constructor
+
+    public RendererAdapter(IWindow window, bool useDirtyRendering)
+    {
+        _window = window;
+        UseDirtyRendering = useDirtyRendering;
+
+        _renderer = new UIRenderer(this)
+        {
+            BackgroundColor = ThemeManager.Instance.BackgroundPrimary
+        };
+    }
+
+    #endregion
+
+    #region IHostWindow Properties
+
+    public string Title
+    {
+        get => _window.Title;
+        set => _window.Title = value;
+    }
+
+    public SKImage? Icon { get; set; }
+
+    public SKSize Size
+    {
+        get => new(_window.Size.X, _window.Size.Y);
+        set => _window.Size = new Vector2D<int>((int)value.Width, (int)value.Height);
+    }
+
+    public bool UseDirtyRendering { get; set; }
+
+    public bool VSync
+    {
+        get => _window.VSync;
+        set => _window.VSync = value;
+    }
+
+    public int FramesPerSecond { get; set; } = 60;
+
+    public bool IsForeground { get; private set; }
+
+    public DeviceType DeviceType => DeviceType.Desktop;
+
+    public DisplayOrientation Orientation { get; private set; } = DisplayOrientation.Unknown;
+
+    public float DpiScale => 1.0f;
+
+    public float DisplayDist => 50.0f;
+
+    public GRContext DrawingContext => _grContext!;
+
+    public TweenManager TweenManager => _tweenManager!;
+
+    TweenManager IHostWindow.TweenManager
+    {
+        get => _tweenManager!;
+        set => _tweenManager = value;
+    }
+
+    public event Action<DisplayOrientation>? WhenOrientationChanged;
+    public event Action? WhenInvalidated;
+
+    #endregion
+
+    #region Internal Properties
+
+    internal bool IsInvalidated => Volatile.Read(ref _dirtyFramesRemaining) > 0;
+
+    #endregion
+
+    #region Initialization
 
     public UIRenderer InitializeAndGetRenderer()
     {
-        _renderer.WhenInvalidated += OnRendererInvalidated;
         _window.Load += OnWindowLoad;
         _window.FramebufferResize += OnFramebufferResize;
+        _window.Resize += OnWindowResize;
+        _window.FocusChanged += OnFocusChanged;
 
         if (_window.IsInitialized && _gl is null)
             OnWindowLoad();
@@ -51,19 +126,42 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
         return _renderer;
     }
 
+    public void ThemeManagerReady() => ThemeManager.Instance.ThemeChanged += OnThemeChanged;
+
+    private void OnThemeChanged()
+    {
+        _renderer.BackgroundColor = ThemeManager.Instance.BackgroundPrimary;
+        Invalidate();
+    }
+
     #endregion
 
-    #region Internal Functions
+    #region Invalidate
+
+    public void Invalidate()
+    {
+        Volatile.Write(ref _dirtyFramesRemaining, 2);
+
+        if (Interlocked.Exchange(ref _invalidateGuard, 1) == 1)
+            return;
+
+        try
+        {
+            _renderer.Invalidate();
+            WhenInvalidated?.Invoke();
+
+            try { Silk.NET.GLFW.Glfw.GetApi().PostEmptyEvent(); }
+            catch { }
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _invalidateGuard, 0);
+        }
+    }
+
+    #endregion
 
     #region Rendering/Context Functions
-
-    private void OnRendererInvalidated()
-    {
-        _dirtyFramesRemaining = 2;
-
-        try { Silk.NET.GLFW.Glfw.GetApi().PostEmptyEvent(); }
-        catch { /* do not crash */ }
-    }
 
     internal void RenderFrame()
     {
@@ -77,13 +175,7 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
             _window.GLContext.MakeCurrent();
     }
 
-    internal void Invalidate()
-    {
-        _dirtyFramesRemaining = 2;
-        _renderer.Invalidate();
-    }
-
-    private void OnFramebufferResize(Silk.NET.Maths.Vector2D<int> size)
+    private void OnFramebufferResize(Vector2D<int> size)
     {
         if (_gl == null) return;
 
@@ -91,6 +183,24 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
         _gl.Viewport(0, 0, (uint)size.X, (uint)size.Y);
         CreateRenderTarget(size.X, size.Y);
     }
+
+    private void OnWindowResize(Vector2D<int> size)
+    {
+        var newOrientation = ComputeOrientation(size.X, size.Y);
+        if (newOrientation == Orientation) return;
+
+        Orientation = newOrientation;
+        WhenOrientationChanged?.Invoke(newOrientation);
+    }
+
+    private static DisplayOrientation ComputeOrientation(int width, int height)
+    {
+        return width <= 0 || height <= 0
+            ? DisplayOrientation.Unknown
+            : width >= height ? DisplayOrientation.Landscape : DisplayOrientation.Portrait;
+    }
+
+    private void OnFocusChanged(bool focused) => IsForeground = focused;
 
     private void CreateRenderTarget(int pixelWidth, int pixelHeight)
     {
@@ -134,16 +244,15 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
 
         _renderer.UpdateModules(deltaTime);
 
-        var mustRenderUI = !UseDirtyRendering || _dirtyFramesRemaining > 0;
+        var mustRenderUI = !UseDirtyRendering || Volatile.Read(ref _dirtyFramesRemaining) > 0;
 
         if (mustRenderUI)
         {
-            _offscreenSurface.Canvas.Clear(_renderer.BackgroundColor);
             _renderer.RenderControls(_offscreenSurface.Canvas, _currentMousePos, deltaTime);
             _offscreenSurface.Canvas.Flush();
 
-            if (_dirtyFramesRemaining > 0)
-                _dirtyFramesRemaining--;
+            if (Interlocked.Decrement(ref _dirtyFramesRemaining) < 0)
+                Interlocked.Exchange(ref _dirtyFramesRemaining, 0);
         }
 
         _skSurface.Canvas.Clear(_renderer.BackgroundColor);
@@ -162,6 +271,8 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
 
     private void OnWindowLoad()
     {
+        if (_gl is not null) return;
+
         MakeContextCurrent();
 
         _gl = GL.GetApi(_window);
@@ -173,6 +284,9 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
 
         _inputContext = _window.CreateInput();
         BindInputEvents();
+
+        Orientation = ComputeOrientation(_window.Size.X, _window.Size.Y);
+        IsForeground = _window.IsVisible;
 
         CreateRenderTarget(_window.FramebufferSize.X, _window.FramebufferSize.Y);
     }
@@ -217,17 +331,22 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
         }
     }
 
+    #endregion
+
+    #region Input Handlers
+
     private void OnMouseMove(IMouse mouse, Vector2 position)
     {
         _currentMousePos = new SKPoint(position.X, position.Y);
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            Position: _currentMousePos,
-            Type: MouseEventType.Move));
+            Tweener: TweenManager,
+            MousePosition: _currentMousePos,
+            Type: MouseEventType.None));
 
         if (UseDirtyRendering)
         {
             var currentTick = Environment.TickCount64;
-            if (currentTick - _lastMouseMoveInvalidateTick >= targetMouseTicksPerInvalidate)
+            if (currentTick - _lastMouseMoveInvalidateTick >= TargetMouseTicksPerInvalidate)
             {
                 _lastMouseMoveInvalidateTick = currentTick;
                 Invalidate();
@@ -242,8 +361,9 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
     private void OnMouseDown(IMouse mouse, Silk.NET.Input.MouseButton button)
     {
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            Position: _currentMousePos,
-            Type: MouseEventType.MouseDown,
+            Tweener: TweenManager,
+            MousePosition: _currentMousePos,
+            Type: MouseEventType.MouseDownEvent,
             Button: MapButton(button)));
         Invalidate();
     }
@@ -251,8 +371,9 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
     private void OnMouseUp(IMouse mouse, Silk.NET.Input.MouseButton button)
     {
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            Position: _currentMousePos,
-            Type: MouseEventType.MouseUp,
+            Tweener: TweenManager,
+            MousePosition: _currentMousePos,
+            Type: MouseEventType.MouseUpEvent,
             Button: MapButton(button)));
         Invalidate();
     }
@@ -260,9 +381,10 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
     private void OnMouseScroll(IMouse mouse, ScrollWheel scroll)
     {
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            Position: _currentMousePos,
-            Type: MouseEventType.Wheel,
-            Button: HandyUI.Core.v1.Enums.MouseButton.Middle,
+            Tweener: TweenManager,
+            MousePosition: _currentMousePos,
+            Type: MouseEventType.ScrollEvent,
+            Button: MouseButton.Wheel,
             WheelDelta: (int)(scroll.Y * 120)));
         Invalidate();
     }
@@ -275,6 +397,7 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
         var isAlt = keyboard.IsKeyPressed(Key.AltLeft) || keyboard.IsKeyPressed(Key.AltRight);
 
         _renderer.ProcessKeyEvent(new KeyEventContext(
+            Tweener: TweenManager,
             Type: KeyEventType.KeyDown,
             KeyCode: mappedKey,
             Character: '\0',
@@ -293,6 +416,7 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
         if (synthesizedChar.HasValue)
         {
             _renderer.ProcessKeyEvent(new KeyEventContext(
+                Tweener: TweenManager,
                 Type: KeyEventType.CharInput,
                 KeyCode: (byte)synthesizedChar.Value,
                 Character: synthesizedChar.Value,
@@ -307,6 +431,7 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
     private void OnKeyUp(IKeyboard keyboard, Key key, int keyCode)
     {
         _renderer.ProcessKeyEvent(new KeyEventContext(
+            Tweener: TweenManager,
             Type: KeyEventType.KeyUp,
             KeyCode: MapKey(key),
             Character: '\0',
@@ -320,6 +445,7 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
     private void OnKeyChar(IKeyboard keyboard, char character)
     {
         _renderer.ProcessKeyEvent(new KeyEventContext(
+            Tweener: TweenManager,
             Type: KeyEventType.CharInput,
             KeyCode: (byte)character,
             Character: character,
@@ -329,8 +455,6 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
 
         Invalidate();
     }
-
-    #endregion
 
     #endregion
 
@@ -356,14 +480,14 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
         };
     }
 
-    private static HandyUI.Core.v1.Enums.MouseButton MapButton(Silk.NET.Input.MouseButton button)
+    private static MouseButton MapButton(Silk.NET.Input.MouseButton button)
     {
         return button switch
         {
-            Silk.NET.Input.MouseButton.Left => HandyUI.Core.v1.Enums.MouseButton.Left,
-            Silk.NET.Input.MouseButton.Right => HandyUI.Core.v1.Enums.MouseButton.Right,
-            Silk.NET.Input.MouseButton.Middle => HandyUI.Core.v1.Enums.MouseButton.Middle,
-            _ => HandyUI.Core.v1.Enums.MouseButton.None
+            Silk.NET.Input.MouseButton.Left => MouseButton.Left,
+            Silk.NET.Input.MouseButton.Right => MouseButton.Right,
+            Silk.NET.Input.MouseButton.Middle => MouseButton.Middle,
+            _ => MouseButton.Generic
         };
     }
 
@@ -376,9 +500,12 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
         if (_isDisposed) return;
         _isDisposed = true;
 
-        _renderer.WhenInvalidated -= OnRendererInvalidated;
+        ThemeManager.Instance.ThemeChanged -= OnThemeChanged;
+
         _window.Load -= OnWindowLoad;
         _window.FramebufferResize -= OnFramebufferResize;
+        _window.Resize -= OnWindowResize;
+        _window.FocusChanged -= OnFocusChanged;
 
         UnbindInputEvents();
 
