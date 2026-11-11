@@ -25,7 +25,6 @@ public interface IHostWindow
     GRContext DrawingContext { get; }
 
     TweenManager TweenManager { get; internal set; }
-    ThemeManager ThemeManager { get; internal set; }
 
     #endregion
 

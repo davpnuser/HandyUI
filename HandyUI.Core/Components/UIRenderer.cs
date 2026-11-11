@@ -21,12 +21,11 @@ public class UIRenderer : IDisposable
 
             field = value;
 
-            //_backgroundColorCustom = value != ThemeManager.Instance.BackgroundPrimary;
+            _backgroundColorCustom = value != ThemeManager.Instance.BackgroundPrimary;
         }
     } = SKColors.White;
 
-    public TweenManager TweenManager { get; }
-    public ThemeManager ThemeManager { get; }
+    public TweenManager TweenManager { get; private set; }
 
     #endregion
 
@@ -60,12 +59,6 @@ public class UIRenderer : IDisposable
 
     #endregion
 
-    #region Events
-
-    public event Action? WhenInvalidated;
-
-    #endregion
-
     #region Constructor
 
     public UIRenderer(IHostWindow host)
@@ -75,12 +68,8 @@ public class UIRenderer : IDisposable
 
         TweenManager = new TweenManager();
         _modules.Add(TweenManager);
-        TweenManager.Start();
-
-        ThemeManager = new ThemeManager();
 
         host.TweenManager = TweenManager;
-        host.ThemeManager = ThemeManager;
 
         host.ThemeManagerReady();
     }
@@ -92,7 +81,15 @@ public class UIRenderer : IDisposable
     public void Invalidate()
     {
         _framesToRender = 2;
-        WhenInvalidated?.Invoke();
+        _hostWindow.Invalidate();
+    }
+
+    private void OnThemeChanged()
+    {
+        if (!_backgroundColorCustom)
+        {
+            BackgroundColor = ThemeManager.Instance.BackgroundPrimary;
+        }
     }
 
     #region Event Processing
@@ -272,7 +269,7 @@ public class UIRenderer : IDisposable
         _focusedControl?.IsFocused = true;
     }
 
-    private IControl? HitTestRecursive(IControl control, SKPoint cursorPosition, bool isMouseClipped = false)
+    private static IControl? HitTestRecursive(IControl control, SKPoint cursorPosition, bool isMouseClipped = false)
     {
         if (!control.Visible || !control.Enabled)
             return null;
@@ -506,7 +503,7 @@ public class UIRenderer : IDisposable
             lock (_pendingModulesRemove)
                 _pendingModulesRemove.Clear();
 
-            //ThemeManager.Instance.ThemeChanged -= OnThemeChanged;
+            ThemeManager.Instance.ThemeChanged -= OnThemeChanged;
         }
 
         _isDisposed = true;

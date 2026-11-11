@@ -167,7 +167,7 @@ public abstract class BaseControl : IControl
 
     #region Overrideables
 
-    public abstract void DoesIntersect(SKPoint point);
+    public abstract bool DoesIntersect(SKPoint point);
     public abstract void OnDraw(SKCanvas canvas);
     public abstract void OnUpdate(UpdateContext updateContext);
 
@@ -188,7 +188,9 @@ public abstract class BaseControl : IControl
         if (!Visible || !Enabled)
             return false;
 
-        IsHovered = Bounds.Contains(eventContext.MousePosition);
+        IsHovered = eventContext.MousePosition
+            != null
+            && Bounds.Contains((SKPoint)eventContext.MousePosition);
 
         if (eventContext.Type == MouseEventType.MouseDownEvent && IsHovered)
         {
