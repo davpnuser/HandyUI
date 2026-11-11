@@ -22,8 +22,6 @@ public interface IHostWindow
     float DpiScale { get; }
     float DisplayDist { get; }
 
-    GRContext DrawingContext { get; }
-
     TweenManager TweenManager { get; set; }
 
     #endregion
@@ -38,7 +36,6 @@ public interface IHostWindow
     #region Methods
 
     void Invalidate();
-    void ThemeManagerReady();
 
     #endregion
 }

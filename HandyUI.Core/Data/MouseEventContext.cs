@@ -9,5 +9,9 @@ public readonly record struct MouseEventContext(
     SKPoint? MousePosition,
     MouseEventType Type = MouseEventType.None,
     MouseButton Button = MouseButton.None,
-    int WheelDelta = 0
+    int WheelDelta = 0,
+    int ClickCount = 1,
+    bool IsControlPressed = false,
+    bool IsShiftPressed = false,
+    bool IsAltPressed = false
 );

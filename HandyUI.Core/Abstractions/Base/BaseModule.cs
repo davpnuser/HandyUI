@@ -11,7 +11,6 @@ public abstract class BaseModule : IModule
     public string? Name { get; set; }
     public bool Enabled { get; set; } = true;
     public bool AcceptsInput { get; set; } = true;
-
     public bool IsDisposed { get; private set; }
 
     #endregion

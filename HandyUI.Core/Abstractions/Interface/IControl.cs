@@ -32,7 +32,7 @@ public interface IControl : IDisposable
     #region Events
 
     event Action? WhenInvalidated;
-    event Action<IControl?>? WhenFocusRequested;
+    event Action<IControl?, bool>? WhenFocusRequested;
 
     #endregion
 

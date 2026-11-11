@@ -7,6 +7,7 @@ public interface IModule : IDisposable
     #region Properties
 
     string? Name { get; set; }
+    bool AcceptsInput { get; set; }
     bool Enabled { get; set; }
     bool IsDisposed { get; }
 

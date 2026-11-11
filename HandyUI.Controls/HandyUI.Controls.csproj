@@ -23,9 +23,40 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controls\Button.cs" />
+    <Compile Remove="Controls\CheckBox.cs" />
+    <Compile Remove="Controls\Frame.cs" />
+    <Compile Remove="Controls\ItemBox.cs" />
+    <Compile Remove="Controls\Label.cs" />
+    <Compile Remove="Controls\ListBox.cs" />
+    <Compile Remove="Controls\MultilineTextInput.cs" />
+    <Compile Remove="Controls\Picture.cs" />
+    <Compile Remove="Controls\PictureButton.cs" />
+    <Compile Remove="Controls\ProgressBar.cs" />
+    <Compile Remove="Controls\ScrollFrame.cs" />
+    <Compile Remove="Controls\Slider.cs" />
+    <Compile Remove="Controls\TextInput.cs" />
+    <Compile Remove="Controls\Toggle.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
 		<None Include="..\THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="\" />
 		<None Include="..\HandyUI-Logo.png" Pack="true" PackagePath="" Link="HandyUI-Logo.png" />
 		<None Include="..\NuGet-README.md" Pack="true" PackagePath="" Link="NuGet-README.md" />
+		<None Include="Controls\Button.cs" />
+		<None Include="Controls\CheckBox.cs" />
+		<None Include="Controls\Frame.cs" />
+		<None Include="Controls\ItemBox.cs" />
+		<None Include="Controls\Label.cs" />
+		<None Include="Controls\ListBox.cs" />
+		<None Include="Controls\MultilineTextInput.cs" />
+		<None Include="Controls\Picture.cs" />
+		<None Include="Controls\PictureButton.cs" />
+		<None Include="Controls\ProgressBar.cs" />
+		<None Include="Controls\ScrollFrame.cs" />
+		<None Include="Controls\Slider.cs" />
+		<None Include="Controls\TextInput.cs" />
+		<None Include="Controls\Toggle.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,6 +2,7 @@
 using HandyUI.Core.Components;
 using HandyUI.Core.Data;
 using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
 using HandyUI.Core.Helpers.Extensions;
 using SkiaSharp;
 
@@ -12,6 +13,7 @@ public abstract class BaseControl : IControl
     #region Properties
 
     public string? Name { get; set; }
+
     public IControl? Parent
     {
         get;
@@ -20,16 +22,12 @@ public abstract class BaseControl : IControl
             if (field == value) return;
 
             if (field is BaseControl oldBase)
-            {
                 oldBase.RemoveChildInternal(this);
-            }
 
             field = value;
 
             if (field is BaseControl newBase)
-            {
                 newBase.AddChildInternal(this);
-            }
 
             Invalidate();
         }
@@ -156,12 +154,19 @@ public abstract class BaseControl : IControl
     private readonly List<IControl> _children = [];
     private bool _childrenDirty = false;
 
+    private readonly SKPaint _focusRectPaint = new()
+    {
+        IsAntialias = false,
+        Style = SKPaintStyle.Stroke,
+        StrokeWidth = 1.5f,
+    };
+
     #endregion
 
     #region Events
 
     public event Action? WhenInvalidated;
-    public event Action<IControl?>? WhenFocusRequested;
+    public event Action<IControl?, bool>? WhenFocusRequested;
 
     #endregion
 
@@ -177,29 +182,33 @@ public abstract class BaseControl : IControl
     protected virtual void OnChildAdded(IControl child) { }
     protected virtual void OnChildRemoved(IControl child) { }
 
+    protected virtual void OnDrawFocusRect(SKCanvas canvas)
+    {
+        var rect = Bounds;
+        rect.Inflate(-1.5f, -1.5f);
+        _focusRectPaint.Color = ThemeManager.Instance.Accent;
+        canvas.DrawRect(rect, _focusRectPaint);
+    }
+
     #endregion
 
     #region Methods
 
-    public bool ProcessKeyEvent(KeyEventContext eventContext) => Visible && Enabled && IsFocused && OnKey(eventContext);
+    public bool ProcessKeyEvent(KeyEventContext eventContext)
+        => Visible && Enabled && IsFocused && OnKey(eventContext);
 
     public bool ProcessMouseEvent(MouseEventContext eventContext)
     {
         if (!Visible || !Enabled)
             return false;
 
-        IsHovered = eventContext.MousePosition
-            != null
+        IsHovered = eventContext.MousePosition != null
             && Bounds.Contains((SKPoint)eventContext.MousePosition);
 
         if (eventContext.Type == MouseEventType.MouseDownEvent && IsHovered)
-        {
             IsMouseDown = true;
-        }
         else if (eventContext.Type == MouseEventType.MouseUpEvent)
-        {
             IsMouseDown = false;
-        }
 
         return OnMouse(eventContext);
     }
@@ -246,16 +255,15 @@ public abstract class BaseControl : IControl
 
     public void RequestFocus()
     {
-        if (IsDisposed || !Enabled || !Visible)
+        if (IsDisposed || !Enabled || !Visible || !Focusable)
             return;
 
-        WhenFocusRequested?.Invoke(this);
+        WhenFocusRequested?.Invoke(this, false);
     }
 
     public void AddChildInternal(IControl child)
     {
-        if (child.IsDisposed)
-            return;
+        if (child.IsDisposed) return;
 
         if (!Children.Contains(child))
         {
@@ -268,8 +276,7 @@ public abstract class BaseControl : IControl
 
     public void RemoveChildInternal(IControl child)
     {
-        if (child.IsDisposed)
-            return;
+        if (child.IsDisposed) return;
 
         if (_children.Remove(child))
         {
@@ -277,6 +284,12 @@ public abstract class BaseControl : IControl
             OnChildRemoved(child);
             Invalidate();
         }
+    }
+
+    public void DrawFocusRect(SKCanvas canvas)
+    {
+        if (!IsFocused) return;
+        OnDrawFocusRect(canvas);
     }
 
     #endregion
@@ -296,6 +309,7 @@ public abstract class BaseControl : IControl
         if (disposing)
         {
             OnDispose();
+            _focusRectPaint.Dispose();
         }
 
         IsDisposed = true;
@@ -353,6 +367,9 @@ public abstract class BaseControl<TSelf> : BaseControl where TSelf : BaseControl
 
     public TSelf WithZIndex(int zIndex)
         => DoAndReturn(c => c.ZIndex = zIndex);
+
+    public TSelf WithFocusable(bool focusable)
+        => DoAndReturn(c => c.Focusable = focusable);
 
     public TSelf WithAddToRenderer(UIRenderer renderer)
         => DoAndReturn(c => renderer.AddControl(this));

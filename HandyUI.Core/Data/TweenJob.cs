@@ -1,4 +1,6 @@
-﻿namespace HandyUI.Core.Data;
+﻿using HandyUI.Core.Data.Enums;
+
+namespace HandyUI.Core.Data;
 
 internal class TweenJob
 {

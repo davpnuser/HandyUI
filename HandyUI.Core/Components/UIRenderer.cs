@@ -16,16 +16,15 @@ public class UIRenderer : IDisposable
         get;
         set
         {
-            if (field == value)
-                return;
-
+            if (field == value) return;
             field = value;
-
             _backgroundColorCustom = value != ThemeManager.Instance.BackgroundPrimary;
         }
     } = SKColors.White;
 
     public TweenManager TweenManager { get; private set; }
+
+    public IControl? FocusedControl { get; private set; }
 
     #endregion
 
@@ -43,10 +42,10 @@ public class UIRenderer : IDisposable
     private int _framesToRender = 2;
     private bool _isDisposed;
 
-    private readonly double _totalTime;
+    public double TotalTime { get; private set; }
 
     private IControl? _pressedControl;
-    private IControl? _focusedControl;
+    private bool _focusFromKeyboard;
 
     private readonly List<IModule> _modules = [];
     private readonly List<IModule> _pendingModulesAdd = [];
@@ -55,7 +54,6 @@ public class UIRenderer : IDisposable
     private readonly Lock _modulesLock = new();
 
     private readonly IHostWindow _hostWindow;
-    private readonly GRContext _drawingContext;
 
     #endregion
 
@@ -64,14 +62,11 @@ public class UIRenderer : IDisposable
     public UIRenderer(IHostWindow host)
     {
         _hostWindow = host;
-        _drawingContext = host.DrawingContext;
 
         TweenManager = new TweenManager();
         _modules.Add(TweenManager);
 
         host.TweenManager = TweenManager;
-
-        host.ThemeManagerReady();
     }
 
     #endregion
@@ -80,17 +75,91 @@ public class UIRenderer : IDisposable
 
     public void Invalidate()
     {
-        _framesToRender = 2;
+        Volatile.Write(ref _framesToRender, 2);
         _hostWindow.Invalidate();
     }
 
     private void OnThemeChanged()
     {
         if (!_backgroundColorCustom)
-        {
             BackgroundColor = ThemeManager.Instance.BackgroundPrimary;
+
+        Invalidate();
+    }
+
+    #region Focus
+
+    public void FocusNext() => MoveFocus(+1);
+
+    public void FocusPrevious() => MoveFocus(-1);
+
+    private void MoveFocus(int direction)
+    {
+        List<IControl> focusables;
+
+        lock (_controlsLock)
+        {
+            if (_isControlsOrderDirty)
+            {
+                _controls.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
+                _isControlsOrderDirty = false;
+            }
+
+            focusables = [];
+            CollectFocusables(_controls, focusables);
+        }
+
+        if (focusables.Count == 0)
+        {
+            SetFocus(null, fromKeyboard: true);
+            return;
+        }
+
+        if (focusables.Count == 1 && focusables[0] == FocusedControl)
+            return;
+
+        var currentIndex = FocusedControl != null ? focusables.IndexOf(FocusedControl) : -1;
+        var nextIndex = (((currentIndex + direction) % focusables.Count) + focusables.Count) % focusables.Count;
+
+        SetFocus(focusables[nextIndex], fromKeyboard: true);
+    }
+
+    private static void CollectFocusables(IEnumerable<IControl> controls, List<IControl> result)
+    {
+        foreach (var control in controls)
+        {
+            if (!control.Visible || !control.Enabled) continue;
+
+            if (control is BaseControl baseControl)
+                baseControl.EnsureChildrenSorted();
+
+            if (control.Focusable)
+                result.Add(control);
+
+            CollectFocusables(control.Children, result);
         }
     }
+
+    private void SetFocus(IControl? control, bool fromKeyboard = false)
+    {
+        if (FocusedControl == control)
+        {
+            if (_focusFromKeyboard != fromKeyboard)
+            {
+                _focusFromKeyboard = fromKeyboard;
+                Invalidate();
+            }
+            return;
+        }
+
+        FocusedControl?.IsFocused = false;
+        FocusedControl = control;
+        FocusedControl?.IsFocused = true;
+        _focusFromKeyboard = fromKeyboard;
+        Invalidate();
+    }
+
+    #endregion
 
     #region Event Processing
 
@@ -98,6 +167,20 @@ public class UIRenderer : IDisposable
     {
         if (context.MousePosition is not { } clientPosition)
             return;
+
+        ProcessPendingControls();
+
+        IModule[] moduleSnapshot;
+        lock (_modulesLock)
+        {
+            moduleSnapshot = [.. _modules];
+        }
+
+        foreach (var module in moduleSnapshot)
+        {
+            if (!module.Enabled || !module.AcceptsInput) continue;
+            if (module.ProcessMouseEvent(context)) return;
+        }
 
         IControl[] rootSnapshot;
         lock (_controlsLock)
@@ -120,18 +203,33 @@ public class UIRenderer : IDisposable
 
         if (context.Type == MouseEventType.MouseDownEvent)
         {
+            if (_focusFromKeyboard)
+            {
+                _focusFromKeyboard = false;
+                Invalidate();
+            }
+
             _pressedControl = hitControl;
-            SetFocus(hitControl);
+
+            if (hitControl is null)
+                SetFocus(null);
+            else if (hitControl.Focusable && hitControl != FocusedControl)
+                SetFocus(hitControl);
         }
 
-        foreach (var root in rootSnapshot) DispatchMouseEventRecursive(root, context);
+        foreach (var root in rootSnapshot)
+            DispatchMouseEventRecursive(root, context);
 
         if (context.Type == MouseEventType.MouseUpEvent)
         {
             if (_pressedControl != null && _pressedControl == hitControl)
             {
                 var localPos = _pressedControl.GetLocalPosition(clientPosition);
-                _pressedControl.ProcessMouseEvent(context with { Type = MouseEventType.ClickEvent, MousePosition = localPos });
+                _pressedControl.ProcessMouseEvent(context with
+                {
+                    Type = MouseEventType.ClickEvent,
+                    MousePosition = localPos,
+                });
             }
 
             _pressedControl = null;
@@ -139,7 +237,38 @@ public class UIRenderer : IDisposable
     }
 
     public bool ProcessKeyEvent(KeyEventContext context)
-        => _focusedControl?.Visible == true && _focusedControl.Enabled && _focusedControl.ProcessKeyEvent(context);
+    {
+        IModule[] moduleSnapshot;
+        lock (_modulesLock)
+        {
+            moduleSnapshot = [.. _modules];
+        }
+
+        foreach (var module in moduleSnapshot)
+        {
+            if (!module.Enabled || !module.AcceptsInput) continue;
+            if (module.ProcessKeyEvent(context)) return true;
+        }
+
+        if (FocusedControl is not null
+            && FocusedControl.Visible
+            && FocusedControl.Enabled
+            && FocusedControl.ProcessKeyEvent(context))
+        {
+            return true;
+        }
+
+        if (context.Type == KeyEventType.KeyDown && context.KeyCode == 9)
+        {
+            if (context.IsShiftPressed)
+                FocusPrevious();
+            else
+                FocusNext();
+            return true;
+        }
+
+        return false;
+    }
 
     #endregion
 
@@ -165,7 +294,7 @@ public class UIRenderer : IDisposable
 
         lock (_controlsLock)
         {
-            if (_hostWindow.UseDirtyRendering && _framesToRender <= 0)
+            if (_hostWindow.UseDirtyRendering && Volatile.Read(ref _framesToRender) <= 0)
                 return false;
 
             if (_isControlsOrderDirty)
@@ -180,13 +309,16 @@ public class UIRenderer : IDisposable
                 RenderRecursive(canvas, control, cursorPosition, deltaTime);
 
             if (_hostWindow.UseDirtyRendering)
-                _framesToRender--;
+            {
+                if (Interlocked.Decrement(ref _framesToRender) < 0)
+                    Interlocked.Exchange(ref _framesToRender, 0);
+            }
 
             return true;
         }
     }
 
-    public bool IsPointOverAnyControl(SKPoint clientPosition)
+    public IControl? GetControlAt(SKPoint clientPosition)
     {
         lock (_controlsLock)
         {
@@ -198,13 +330,16 @@ public class UIRenderer : IDisposable
 
             for (var i = _controls.Count - 1; i >= 0; i--)
             {
-                if (HitTestRecursive(_controls[i], clientPosition) != null)
-                    return true;
+                var hit = HitTestRecursive(_controls[i], clientPosition);
+                if (hit != null) return hit;
             }
         }
 
-        return false;
+        return null;
     }
+
+    public bool IsPointOverAnyControl(SKPoint clientPosition)
+        => GetControlAt(clientPosition) != null;
 
     #endregion
 
@@ -246,8 +381,11 @@ public class UIRenderer : IDisposable
 
                 control.WhenInvalidated -= Invalidate;
 
-                if (_focusedControl == control)
-                    _focusedControl = null;
+                if (FocusedControl == control)
+                {
+                    FocusedControl = null;
+                    _focusFromKeyboard = false;
+                }
 
                 if (_pressedControl == control)
                     _pressedControl = null;
@@ -257,16 +395,6 @@ public class UIRenderer : IDisposable
         }
 
         Invalidate();
-    }
-
-    private void SetFocus(IControl? control)
-    {
-        if (_focusedControl == control)
-            return;
-
-        _focusedControl?.IsFocused = false;
-        _focusedControl = control;
-        _focusedControl?.IsFocused = true;
     }
 
     private static IControl? HitTestRecursive(IControl control, SKPoint cursorPosition, bool isMouseClipped = false)
@@ -286,9 +414,7 @@ public class UIRenderer : IDisposable
         for (var i = control.Children.Count - 1; i >= 0; i--)
         {
             var hit = HitTestRecursive(control.Children[i], cursorPosition, isMouseClipped);
-
-            if (hit != null)
-                return hit;
+            if (hit != null) return hit;
         }
 
         return control.DoesIntersect(localCursorPosition) ? control : null;
@@ -346,6 +472,12 @@ public class UIRenderer : IDisposable
         for (var i = 0; i < control.Children.Count; i++)
             RenderRecursive(canvas, control.Children[i], cursorPosition, deltaTime, shouldClip);
 
+        if (control.ClipChildren)
+            canvas.Restore();
+
+        if (control.IsFocused && _focusFromKeyboard && control is BaseControl focusedCtrl)
+            focusedCtrl.DrawFocusRect(canvas);
+
         canvas.RestoreToCount(saveCount);
     }
 
@@ -394,12 +526,16 @@ public class UIRenderer : IDisposable
         lock (_modulesLock)
         {
             foreach (var module in toAdd)
+            {
                 _modules.Add(module);
+                module.Start();
+            }
 
             foreach (var module in toRemove)
             {
-                if (_modules.Remove(module) && module is IDisposable disposable)
-                    disposable.Dispose();
+                if (!_modules.Remove(module)) continue;
+                module.Stop();
+                module.Dispose();
             }
         }
     }
@@ -408,9 +544,11 @@ public class UIRenderer : IDisposable
     {
         ProcessPendingModules();
 
+        TotalTime += deltaTime;
+
         lock (_modulesLock)
         {
-            if (_hostWindow.UseDirtyRendering && _framesToRender <= 0) return false;
+            if (_hostWindow.UseDirtyRendering && Volatile.Read(ref _framesToRender) <= 0) return false;
 
             foreach (var module in _modules)
             {
@@ -440,9 +578,7 @@ public class UIRenderer : IDisposable
     private static void DisposeRecursively(IControl control)
     {
         foreach (var childControl in control.Children)
-        {
             DisposeRecursively(childControl);
-        }
 
         control.Dispose();
     }
@@ -453,6 +589,8 @@ public class UIRenderer : IDisposable
 
         if (disposing)
         {
+            ThemeManager.Instance.ThemeChanged -= OnThemeChanged;
+
             lock (_controlsLock)
             {
                 foreach (var control in _controls)
@@ -463,28 +601,34 @@ public class UIRenderer : IDisposable
 
                 _controls.Clear();
             }
+
             lock (_pendingControlsAdd)
             {
                 foreach (var control in _pendingControlsAdd)
                     control.Dispose();
+
                 _pendingControlsAdd.Clear();
             }
 
             lock (_pendingControlsRemove)
                 _pendingControlsRemove.Clear();
 
-            _focusedControl = null;
+            FocusedControl = null;
             _pressedControl = null;
+            _focusFromKeyboard = false;
+            TotalTime = 0;
 
             lock (_modulesLock)
             {
                 foreach (var module in _modules)
                 {
-                    if (module is IDisposable disposable) disposable.Dispose();
+                    module.Stop();
+                    module.Dispose();
                 }
 
                 _modules.Clear();
             }
+
             lock (_pendingModulesAdd)
             {
                 foreach (var module in _pendingModulesAdd)
@@ -495,8 +639,6 @@ public class UIRenderer : IDisposable
 
             lock (_pendingModulesRemove)
                 _pendingModulesRemove.Clear();
-
-            ThemeManager.Instance.ThemeChanged -= OnThemeChanged;
         }
 
         _isDisposed = true;

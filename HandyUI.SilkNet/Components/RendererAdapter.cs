@@ -32,10 +32,16 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
     private SKSurface? _skSurface;
     private SKSurface? _offscreenSurface;
     private IInputContext? _inputContext;
+    private IKeyboard? _primaryKeyboard;
 
     private long _lastMouseMoveInvalidateTick = 0;
     private const long TargetMouseTicksPerInvalidate = 60;
-    private TweenManager? _tweenManager;
+
+    private const long DoubleClickTimeMs = 500;
+    private const float DoubleClickDistanceSq = 16f;
+    private long _lastClickTick;
+    private SKPoint _lastClickPos;
+    private int _currentClickCount = 1;
 
     #endregion
 
@@ -50,6 +56,8 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
         {
             BackgroundColor = ThemeManager.Instance.BackgroundPrimary
         };
+
+        ThemeManager.Instance.ThemeChanged += Invalidate;
     }
 
     #endregion
@@ -92,13 +100,7 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
 
     public GRContext DrawingContext => _grContext!;
 
-    public TweenManager TweenManager => _tweenManager!;
-
-    TweenManager IHostWindow.TweenManager
-    {
-        get => _tweenManager!;
-        set => _tweenManager = value;
-    }
+    public TweenManager TweenManager { get; set; } = null!;
 
     public event Action<DisplayOrientation>? WhenOrientationChanged;
     public event Action? WhenInvalidated;
@@ -126,14 +128,6 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
         return _renderer;
     }
 
-    public void ThemeManagerReady() => ThemeManager.Instance.ThemeChanged += OnThemeChanged;
-
-    private void OnThemeChanged()
-    {
-        _renderer.BackgroundColor = ThemeManager.Instance.BackgroundPrimary;
-        Invalidate();
-    }
-
     #endregion
 
     #region Invalidate
@@ -147,7 +141,6 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
 
         try
         {
-            _renderer.Invalidate();
             WhenInvalidated?.Invoke();
 
             try { Silk.NET.GLFW.Glfw.GetApi().PostEmptyEvent(); }
@@ -283,6 +276,7 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
         _grContext = GRContext.CreateGl(skiaGlInterface);
 
         _inputContext = _window.CreateInput();
+        _primaryKeyboard = _inputContext.Keyboards.Count > 0 ? _inputContext.Keyboards[0] : null;
         BindInputEvents();
 
         Orientation = ComputeOrientation(_window.Size.X, _window.Size.Y);
@@ -333,15 +327,51 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
 
     #endregion
 
+    #region Input Helpers
+
+    private (bool IsControl, bool IsShift, bool IsAlt) GetModifierState()
+    {
+        if (_primaryKeyboard is null)
+            return (false, false, false);
+
+        return (
+            _primaryKeyboard.IsKeyPressed(Key.ControlLeft) || _primaryKeyboard.IsKeyPressed(Key.ControlRight),
+            _primaryKeyboard.IsKeyPressed(Key.ShiftLeft) || _primaryKeyboard.IsKeyPressed(Key.ShiftRight),
+            _primaryKeyboard.IsKeyPressed(Key.AltLeft) || _primaryKeyboard.IsKeyPressed(Key.AltRight));
+    }
+
+    private int ComputeClickCount(SKPoint position)
+    {
+        var now = Environment.TickCount64;
+        var elapsed = now - _lastClickTick;
+        var dx = position.X - _lastClickPos.X;
+        var dy = position.Y - _lastClickPos.Y;
+        var distSq = (dx * dx) + (dy * dy);
+
+        _currentClickCount = elapsed <= DoubleClickTimeMs && distSq <= DoubleClickDistanceSq ? Math.Min(_currentClickCount + 1, 3) : 1;
+
+        _lastClickTick = now;
+        _lastClickPos = position;
+        return _currentClickCount;
+    }
+
+    #endregion
+
     #region Input Handlers
 
     private void OnMouseMove(IMouse mouse, Vector2 position)
     {
         _currentMousePos = new SKPoint(position.X, position.Y);
+        var (isCtrl, isShift, isAlt) = GetModifierState();
+
         _renderer.ProcessMouseEvent(new MouseEventContext(
             TweenManager: TweenManager,
             MousePosition: _currentMousePos,
-            Type: MouseEventType.None));
+            Type: MouseEventType.None,
+            ClickCount: _currentClickCount,
+            IsControlPressed: isCtrl,
+            IsShiftPressed: isShift,
+            IsAltPressed: isAlt));
 
         if (UseDirtyRendering)
         {
@@ -360,70 +390,64 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
 
     private void OnMouseDown(IMouse mouse, Silk.NET.Input.MouseButton button)
     {
+        var (isCtrl, isShift, isAlt) = GetModifierState();
+        var clickCount = ComputeClickCount(_currentMousePos);
+
         _renderer.ProcessMouseEvent(new MouseEventContext(
             TweenManager: TweenManager,
             MousePosition: _currentMousePos,
             Type: MouseEventType.MouseDownEvent,
-            Button: MapButton(button)));
+            Button: MapButton(button),
+            ClickCount: clickCount,
+            IsControlPressed: isCtrl,
+            IsShiftPressed: isShift,
+            IsAltPressed: isAlt));
         Invalidate();
     }
 
     private void OnMouseUp(IMouse mouse, Silk.NET.Input.MouseButton button)
     {
+        var (isCtrl, isShift, isAlt) = GetModifierState();
+
         _renderer.ProcessMouseEvent(new MouseEventContext(
             TweenManager: TweenManager,
             MousePosition: _currentMousePos,
             Type: MouseEventType.MouseUpEvent,
-            Button: MapButton(button)));
+            Button: MapButton(button),
+            ClickCount: _currentClickCount,
+            IsControlPressed: isCtrl,
+            IsShiftPressed: isShift,
+            IsAltPressed: isAlt));
         Invalidate();
     }
 
     private void OnMouseScroll(IMouse mouse, ScrollWheel scroll)
     {
+        var (isCtrl, isShift, isAlt) = GetModifierState();
+
         _renderer.ProcessMouseEvent(new MouseEventContext(
             TweenManager: TweenManager,
             MousePosition: _currentMousePos,
             Type: MouseEventType.ScrollEvent,
             Button: MouseButton.Wheel,
-            WheelDelta: (int)(scroll.Y * 120)));
+            WheelDelta: (int)(scroll.Y * 120),
+            ClickCount: _currentClickCount,
+            IsControlPressed: isCtrl,
+            IsShiftPressed: isShift,
+            IsAltPressed: isAlt));
         Invalidate();
     }
 
     private void OnKeyDown(IKeyboard keyboard, Key key, int keyCode)
     {
-        var mappedKey = MapKey(key);
-        var isControl = keyboard.IsKeyPressed(Key.ControlLeft) || keyboard.IsKeyPressed(Key.ControlRight);
-        var isShift = keyboard.IsKeyPressed(Key.ShiftLeft) || keyboard.IsKeyPressed(Key.ShiftRight);
-        var isAlt = keyboard.IsKeyPressed(Key.AltLeft) || keyboard.IsKeyPressed(Key.AltRight);
-
         _renderer.ProcessKeyEvent(new KeyEventContext(
             Tweener: TweenManager,
             Type: KeyEventType.KeyDown,
-            KeyCode: mappedKey,
+            KeyCode: MapKey(key),
             Character: '\0',
-            IsControlPressed: isControl,
-            IsShiftPressed: isShift,
-            IsAltPressed: isAlt));
-
-        char? synthesizedChar = key switch
-        {
-            Key.Tab => '\t',
-            Key.Enter => '\r',
-            Key.Backspace => '\b',
-            _ => null
-        };
-
-        if (synthesizedChar.HasValue)
-        {
-            _renderer.ProcessKeyEvent(new KeyEventContext(
-                Tweener: TweenManager,
-                Type: KeyEventType.CharInput,
-                KeyCode: (byte)synthesizedChar.Value,
-                Character: synthesizedChar.Value,
-                IsControlPressed: isControl,
-                IsShiftPressed: isShift,
-                IsAltPressed: isAlt));
-        }
+            IsControlPressed: keyboard.IsKeyPressed(Key.ControlLeft) || keyboard.IsKeyPressed(Key.ControlRight),
+            IsShiftPressed: keyboard.IsKeyPressed(Key.ShiftLeft) || keyboard.IsKeyPressed(Key.ShiftRight),
+            IsAltPressed: keyboard.IsKeyPressed(Key.AltLeft) || keyboard.IsKeyPressed(Key.AltRight)));
 
         Invalidate();
     }
@@ -500,7 +524,7 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
         if (_isDisposed) return;
         _isDisposed = true;
 
-        ThemeManager.Instance.ThemeChanged -= OnThemeChanged;
+        ThemeManager.Instance.ThemeChanged -= Invalidate;
 
         _window.Load -= OnWindowLoad;
         _window.FramebufferResize -= OnFramebufferResize;
