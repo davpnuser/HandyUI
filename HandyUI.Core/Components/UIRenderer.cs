@@ -324,14 +324,7 @@ public class UIRenderer : IDisposable
         var saveCount = canvas.SaveCount;
 
         if (control.Opacity < 0.999f)
-        {
-            using var layerPaint = new SKPaint
-            {
-                Color = SKColors.White.WithAlpha((byte)(Math.Clamp(control.Opacity, 0f, 1f) * 255))
-            };
-
-            canvas.SaveLayer(layerPaint);
-        }
+            canvas.SaveLayer(control.AlphaPaint);
 
         canvas.Save();
         canvas.Translate(control.Location.X, control.Location.Y);
