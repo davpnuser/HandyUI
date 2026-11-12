@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>False</UseWindowsForms>
 	<NoWarn>SYSLIB1054</NoWarn>
-	<AssemblyVersion>1.0.819</AssemblyVersion>
+	<AssemblyVersion>1.0.864</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -39,7 +39,6 @@
     <Compile Remove="Controls\ConstantInvalidationControl.cs" />
     <Compile Remove="Controls\FpsLabelControl.cs" />
     <Compile Remove="Controls\HueShiftingControl.cs" />
-    <Compile Remove="Controls\RegressionTestingControl.cs" />
     <Compile Remove="Controls\TestControl.cs" />
   </ItemGroup>
 
@@ -52,7 +51,6 @@
     <None Include="Controls\ConstantInvalidationControl.cs" />
     <None Include="Controls\FpsLabelControl.cs" />
     <None Include="Controls\HueShiftingControl.cs" />
-    <None Include="Controls\RegressionTestingControl.cs" />
     <None Include="Controls\TestControl.cs" />
   </ItemGroup>
 

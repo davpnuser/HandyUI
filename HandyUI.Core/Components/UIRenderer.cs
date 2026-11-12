@@ -3,7 +3,10 @@ using HandyUI.Core.Abstractions.Interface;
 using HandyUI.Core.Data;
 using HandyUI.Core.Data.Enums;
 using HandyUI.Core.Helpers;
+using HandyUI.Core.Helpers.Controls;
 using SkiaSharp;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace HandyUI.Core.Components;
 
@@ -26,6 +29,22 @@ public class UIRenderer : IDisposable
 
     public IControl? FocusedControl { get; private set; }
 
+    public bool UseProfiler
+    {
+        get => _isDebuggable;
+        set
+        {
+            _isDebuggable = value;
+
+            if (value && _profilerControl is null)
+                CreateProfiler();
+            else if (!value && _profilerControl is not null)
+                DestroyProfiler();
+        }
+    }
+
+    public double TotalTime { get; private set; }
+
     #endregion
 
     #region Internal Fields
@@ -42,8 +61,6 @@ public class UIRenderer : IDisposable
     private int _framesToRender = 2;
     private bool _isDisposed;
 
-    public double TotalTime { get; private set; }
-
     private IControl? _pressedControl;
     private bool _focusFromKeyboard;
 
@@ -54,6 +71,9 @@ public class UIRenderer : IDisposable
     private readonly Lock _modulesLock = new();
 
     private readonly IHostWindow _hostWindow;
+
+    private ProfilerControl? _profilerControl = null;
+    private bool _isDebuggable;
 
     #endregion
 
@@ -67,6 +87,19 @@ public class UIRenderer : IDisposable
         _modules.Add(TweenManager);
 
         host.TweenManager = TweenManager;
+
+        BackgroundColor = ThemeManager.Instance.BackgroundPrimary;
+        ThemeManager.Instance.ThemeChanged += OnThemeChanged;
+
+        var assembly = Assembly.GetEntryAssembly();
+
+        if (assembly is null)
+            _isDebuggable = false;
+
+        var debugAttribute = assembly?.GetCustomAttribute<DebuggableAttribute>();
+        _isDebuggable = debugAttribute?.IsJITOptimizerDisabled ?? false;
+
+        UseProfiler = _isDebuggable;
     }
 
     #endregion
@@ -85,6 +118,46 @@ public class UIRenderer : IDisposable
             BackgroundColor = ThemeManager.Instance.BackgroundPrimary;
 
         Invalidate();
+    }
+
+    private void CreateProfiler()
+    {
+        if (_profilerControl is not null)
+            return;
+
+        var profilerControl = new ProfilerControl()
+                .WithAnchor(ProfilerAnchor.TopLeft, 12)
+                .WithShowGcCounts(true)
+                .WithShowGraph(true)
+                .WithContinuousUpdate(true)
+                .WithWhenDestroyRequested(DestroyProfiler)
+                .WithWhenRestartRequested(async () => await RestartProfiler())
+                .WithAddToRenderer(this);
+
+        profilerControl.Enabled = false;
+        profilerControl.Visible = false;
+
+        _profilerControl = profilerControl;
+    }
+
+    private void DestroyProfiler()
+    {
+        if (_profilerControl is null)
+            return;
+
+        _profilerControl.Dispose();
+        RemoveControl(_profilerControl);
+
+        _profilerControl = null;
+    }
+
+    private async Task RestartProfiler()
+    {
+        DestroyProfiler();
+        await Task.Delay(100);
+        CreateProfiler();
+        _profilerControl?.Enabled = true;
+        _profilerControl?.Visible = true;
     }
 
     #region Focus
@@ -238,6 +311,16 @@ public class UIRenderer : IDisposable
 
     public bool ProcessKeyEvent(KeyEventContext context)
     {
+        if (_isDebuggable)
+        {
+            if (_profilerControl is not null && context.Type == KeyEventType.KeyDown && context.IsControlPressed && context.IsShiftPressed && context.KeyCode == 71)
+            {
+                var profilerState = _profilerControl.Enabled;
+                _profilerControl.Enabled = !profilerState;
+                _profilerControl.Visible = !profilerState;
+            }
+        }
+
         IModule[] moduleSnapshot;
         lock (_modulesLock)
         {
@@ -548,7 +631,8 @@ public class UIRenderer : IDisposable
 
         lock (_modulesLock)
         {
-            if (_hostWindow.UseDirtyRendering && Volatile.Read(ref _framesToRender) <= 0) return false;
+            // Uncomment this to make modules only update on actual drawn frames (on dirty rendering mode)
+            //if (_hostWindow.UseDirtyRendering && Volatile.Read(ref _framesToRender) <= 0) return false;
 
             foreach (var module in _modules)
             {
@@ -562,6 +646,8 @@ public class UIRenderer : IDisposable
             return true;
         }
     }
+
+    #endregion
 
     #endregion
 
@@ -643,8 +729,6 @@ public class UIRenderer : IDisposable
 
         _isDisposed = true;
     }
-
-    #endregion
 
     #endregion
 }

@@ -55,8 +55,5 @@ public interface IControl : IDisposable
     SKPoint GetGlobalLocation();
     SKPoint GetLocalPosition(SKPoint point);
 
-    protected void AddChildInternal(IControl child);
-    protected void RemoveChildInternal(IControl child);
-
     #endregion
 }

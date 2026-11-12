@@ -1,8 +1,7 @@
-﻿using HandyUI.Core.Abstractions.Interface;
-using HandyUI.Core.Components;
+﻿using HandyUI.Core.Components;
 using HandyUI.Core.Data;
 using HandyUI.Core.Data.Enums;
-using HandyUI.Core.Helpers;
+using HandyUI.SilkNet.Components;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -12,22 +11,21 @@ using System.Diagnostics;
 using System.Numerics;
 using MouseButton = HandyUI.Core.Data.Enums.MouseButton;
 
-internal sealed class RendererAdapter : IHostWindow, IDisposable
+internal sealed class RendererAdapter(HandyWindow window) : IDisposable
 {
     #region Internal Fields
 
-    private readonly IWindow _window;
-    private readonly UIRenderer _renderer;
+    private readonly HandyWindow _window = window;
+    private readonly IWindow _silkWindow = window.InternalWindow!;
+    private readonly UIRenderer _renderer = new(window);
     private readonly Stopwatch _frameStopwatch = Stopwatch.StartNew();
 
     private double _lastFrameTime;
     private SKPoint _currentMousePos = new(-1, -1);
     private int _dirtyFramesRemaining = 2;
-    private int _invalidateGuard;
     private bool _isDisposed;
 
     private GL? _gl;
-    private GRContext? _grContext;
     private GRBackendRenderTarget? _backendRenderTarget;
     private SKSurface? _skSurface;
     private SKSurface? _offscreenSurface;
@@ -45,70 +43,10 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
 
     #endregion
 
-    #region Constructor
-
-    public RendererAdapter(IWindow window, bool useDirtyRendering)
-    {
-        _window = window;
-        UseDirtyRendering = useDirtyRendering;
-
-        _renderer = new UIRenderer(this)
-        {
-            BackgroundColor = ThemeManager.Instance.BackgroundPrimary
-        };
-
-        ThemeManager.Instance.ThemeChanged += Invalidate;
-    }
-
-    #endregion
-
-    #region IHostWindow Properties
-
-    public string Title
-    {
-        get => _window.Title;
-        set => _window.Title = value;
-    }
-
-    public SKImage? Icon { get; set; }
-
-    public SKSize Size
-    {
-        get => new(_window.Size.X, _window.Size.Y);
-        set => _window.Size = new Vector2D<int>((int)value.Width, (int)value.Height);
-    }
-
-    public bool UseDirtyRendering { get; set; }
-
-    public bool VSync
-    {
-        get => _window.VSync;
-        set => _window.VSync = value;
-    }
-
-    public int FramesPerSecond { get; set; } = 60;
-
-    public bool IsForeground { get; private set; }
-
-    public DeviceType DeviceType => DeviceType.Desktop;
-
-    public DisplayOrientation Orientation { get; private set; } = DisplayOrientation.Unknown;
-
-    public float DpiScale => 1.0f;
-
-    public float DisplayDist => 50.0f;
-
-    public GRContext DrawingContext => _grContext!;
-
-    public TweenManager TweenManager { get; set; } = null!;
-
-    public event Action<DisplayOrientation>? WhenOrientationChanged;
-    public event Action? WhenInvalidated;
-
-    #endregion
-
     #region Internal Properties
 
+    internal GRContext? DrawingContext { get; private set; }
+    internal bool UseDirtyRendering => _window.UseDirtyRendering;
     internal bool IsInvalidated => Volatile.Read(ref _dirtyFramesRemaining) > 0;
 
     #endregion
@@ -117,12 +55,10 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
 
     public UIRenderer InitializeAndGetRenderer()
     {
-        _window.Load += OnWindowLoad;
-        _window.FramebufferResize += OnFramebufferResize;
-        _window.Resize += OnWindowResize;
-        _window.FocusChanged += OnFocusChanged;
+        _silkWindow.Load += OnWindowLoad;
+        _silkWindow.FramebufferResize += OnFramebufferResize;
 
-        if (_window.IsInitialized && _gl is null)
+        if (_silkWindow.IsInitialized && _gl is null)
             OnWindowLoad();
 
         return _renderer;
@@ -132,24 +68,12 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
 
     #region Invalidate
 
-    public void Invalidate()
+    internal void Invalidate()
     {
         Volatile.Write(ref _dirtyFramesRemaining, 2);
 
-        if (Interlocked.Exchange(ref _invalidateGuard, 1) == 1)
-            return;
-
-        try
-        {
-            WhenInvalidated?.Invoke();
-
-            try { Silk.NET.GLFW.Glfw.GetApi().PostEmptyEvent(); }
-            catch { }
-        }
-        finally
-        {
-            Interlocked.Exchange(ref _invalidateGuard, 0);
-        }
+        try { Silk.NET.GLFW.Glfw.GetApi().PostEmptyEvent(); }
+        catch { }
     }
 
     #endregion
@@ -164,8 +88,8 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
 
     private void MakeContextCurrent()
     {
-        if (_window.GLContext is { IsCurrent: false })
-            _window.GLContext.MakeCurrent();
+        if (_silkWindow.GLContext is { IsCurrent: false })
+            _silkWindow.GLContext.MakeCurrent();
     }
 
     private void OnFramebufferResize(Vector2D<int> size)
@@ -177,27 +101,9 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
         CreateRenderTarget(size.X, size.Y);
     }
 
-    private void OnWindowResize(Vector2D<int> size)
-    {
-        var newOrientation = ComputeOrientation(size.X, size.Y);
-        if (newOrientation == Orientation) return;
-
-        Orientation = newOrientation;
-        WhenOrientationChanged?.Invoke(newOrientation);
-    }
-
-    private static DisplayOrientation ComputeOrientation(int width, int height)
-    {
-        return width <= 0 || height <= 0
-            ? DisplayOrientation.Unknown
-            : width >= height ? DisplayOrientation.Landscape : DisplayOrientation.Portrait;
-    }
-
-    private void OnFocusChanged(bool focused) => IsForeground = focused;
-
     private void CreateRenderTarget(int pixelWidth, int pixelHeight)
     {
-        if (_gl == null || _grContext == null || pixelWidth <= 0 || pixelHeight <= 0) return;
+        if (_gl == null || DrawingContext == null || pixelWidth <= 0 || pixelHeight <= 0) return;
 
         MakeContextCurrent();
 
@@ -211,15 +117,15 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
 
         if (stencilBits == 0) stencilBits = 8;
 
-        var maxSamples = _grContext.GetMaxSurfaceSampleCount(SKColorType.Rgba8888);
+        var maxSamples = DrawingContext.GetMaxSurfaceSampleCount(SKColorType.Rgba8888);
         var sampleCount = Math.Min(samples, maxSamples);
         var fbInfo = new GRGlFramebufferInfo((uint)framebuffer, 0x8058);
 
         _backendRenderTarget = new GRBackendRenderTarget(pixelWidth, pixelHeight, sampleCount, stencilBits, fbInfo);
-        _skSurface = SKSurface.Create(_grContext, _backendRenderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
+        _skSurface = SKSurface.Create(DrawingContext, _backendRenderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
 
         var imageInfo = new SKImageInfo(pixelWidth, pixelHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
-        _offscreenSurface = SKSurface.Create(_grContext, false, imageInfo);
+        _offscreenSurface = SKSurface.Create(DrawingContext, false, imageInfo);
 
         Invalidate();
     }
@@ -249,13 +155,9 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
         }
 
         _skSurface.Canvas.Clear(_renderer.BackgroundColor);
-        using (var snapshot = _offscreenSurface.Snapshot())
-        {
-            _skSurface.Canvas.DrawImage(snapshot, 0, 0, SKSamplingOptions.Default);
-        }
-
+        _offscreenSurface.Draw(_skSurface.Canvas, 0, 0, null);
         _skSurface.Canvas.Flush();
-        _grContext?.Flush();
+        DrawingContext?.Flush();
     }
 
     #endregion
@@ -268,21 +170,18 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
 
         MakeContextCurrent();
 
-        _gl = GL.GetApi(_window);
+        _gl = GL.GetApi(_silkWindow);
 
         var skiaGlInterface = GRGlInterface.Create(proc =>
-            _window.GLContext!.TryGetProcAddress(proc, out var addr) ? addr : IntPtr.Zero);
+            _silkWindow.GLContext!.TryGetProcAddress(proc, out var addr) ? addr : IntPtr.Zero);
 
-        _grContext = GRContext.CreateGl(skiaGlInterface);
+        DrawingContext = GRContext.CreateGl(skiaGlInterface);
 
-        _inputContext = _window.CreateInput();
+        _inputContext = _silkWindow.CreateInput();
         _primaryKeyboard = _inputContext.Keyboards.Count > 0 ? _inputContext.Keyboards[0] : null;
         BindInputEvents();
 
-        Orientation = ComputeOrientation(_window.Size.X, _window.Size.Y);
-        IsForeground = _window.IsVisible;
-
-        CreateRenderTarget(_window.FramebufferSize.X, _window.FramebufferSize.Y);
+        CreateRenderTarget(_silkWindow.FramebufferSize.X, _silkWindow.FramebufferSize.Y);
     }
 
     private void BindInputEvents()
@@ -365,9 +264,9 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
         var (isCtrl, isShift, isAlt) = GetModifierState();
 
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            TweenManager: TweenManager,
+            TweenManager: _window.TweenManager,
             MousePosition: _currentMousePos,
-            Type: MouseEventType.None,
+            Type: MouseEventType.MoveEvent,
             ClickCount: _currentClickCount,
             IsControlPressed: isCtrl,
             IsShiftPressed: isShift,
@@ -394,7 +293,7 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
         var clickCount = ComputeClickCount(_currentMousePos);
 
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            TweenManager: TweenManager,
+            TweenManager: _window.TweenManager,
             MousePosition: _currentMousePos,
             Type: MouseEventType.MouseDownEvent,
             Button: MapButton(button),
@@ -410,7 +309,7 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
         var (isCtrl, isShift, isAlt) = GetModifierState();
 
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            TweenManager: TweenManager,
+            TweenManager: _window.TweenManager,
             MousePosition: _currentMousePos,
             Type: MouseEventType.MouseUpEvent,
             Button: MapButton(button),
@@ -426,7 +325,7 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
         var (isCtrl, isShift, isAlt) = GetModifierState();
 
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            TweenManager: TweenManager,
+            TweenManager: _window.TweenManager,
             MousePosition: _currentMousePos,
             Type: MouseEventType.ScrollEvent,
             Button: MouseButton.Wheel,
@@ -441,7 +340,7 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
     private void OnKeyDown(IKeyboard keyboard, Key key, int keyCode)
     {
         _renderer.ProcessKeyEvent(new KeyEventContext(
-            Tweener: TweenManager,
+            Tweener: _window.TweenManager,
             Type: KeyEventType.KeyDown,
             KeyCode: MapKey(key),
             Character: '\0',
@@ -455,7 +354,7 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
     private void OnKeyUp(IKeyboard keyboard, Key key, int keyCode)
     {
         _renderer.ProcessKeyEvent(new KeyEventContext(
-            Tweener: TweenManager,
+            Tweener: _window.TweenManager,
             Type: KeyEventType.KeyUp,
             KeyCode: MapKey(key),
             Character: '\0',
@@ -469,7 +368,7 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
     private void OnKeyChar(IKeyboard keyboard, char character)
     {
         _renderer.ProcessKeyEvent(new KeyEventContext(
-            Tweener: TweenManager,
+            Tweener: _window.TweenManager,
             Type: KeyEventType.CharInput,
             KeyCode: (byte)character,
             Character: character,
@@ -524,12 +423,8 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
         if (_isDisposed) return;
         _isDisposed = true;
 
-        ThemeManager.Instance.ThemeChanged -= Invalidate;
-
-        _window.Load -= OnWindowLoad;
-        _window.FramebufferResize -= OnFramebufferResize;
-        _window.Resize -= OnWindowResize;
-        _window.FocusChanged -= OnFocusChanged;
+        _silkWindow.Load -= OnWindowLoad;
+        _silkWindow.FramebufferResize -= OnFramebufferResize;
 
         UnbindInputEvents();
 
@@ -538,7 +433,7 @@ internal sealed class RendererAdapter : IHostWindow, IDisposable
         _offscreenSurface?.Dispose();
         _skSurface?.Dispose();
         _backendRenderTarget?.Dispose();
-        _grContext?.Dispose();
+        DrawingContext?.Dispose();
         _renderer.Dispose();
         _inputContext?.Dispose();
         _gl?.Dispose();

@@ -7,4 +7,5 @@ public enum MouseEventType
     MouseDownEvent = 2,
     MouseUpEvent = 3,
     ScrollEvent = 4,
+    MoveEvent = 5
 }

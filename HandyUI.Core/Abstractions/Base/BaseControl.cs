@@ -108,7 +108,7 @@ public abstract class BaseControl : IControl
 
     #region Managed Properties
 
-    public IReadOnlyList<IControl> Children => _children.AsReadOnly();
+    public IReadOnlyList<IControl> Children => _children;
 
     public bool IsDisposed { get; private set; }
 
@@ -261,7 +261,7 @@ public abstract class BaseControl : IControl
         WhenFocusRequested?.Invoke(this, false);
     }
 
-    public void AddChildInternal(IControl child)
+    private void AddChildInternal(BaseControl child)
     {
         if (child.IsDisposed) return;
 
@@ -274,7 +274,7 @@ public abstract class BaseControl : IControl
         }
     }
 
-    public void RemoveChildInternal(IControl child)
+    private void RemoveChildInternal(BaseControl child)
     {
         if (child.IsDisposed) return;
 

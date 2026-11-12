@@ -1,4 +1,5 @@
-﻿using HandyUI.Core.Data.Enums;
+﻿using HandyUI.Core.Components;
+using HandyUI.Core.Data.Enums;
 using HandyUI.Core.Helpers;
 using SkiaSharp;
 
@@ -23,13 +24,15 @@ public interface IHostWindow
     float DisplayDist { get; }
 
     TweenManager TweenManager { get; set; }
+    UIRenderer? Renderer { get; }
+
+    double TotalTime { get; }
 
     #endregion
 
     #region Events
 
     event Action<DisplayOrientation>? WhenOrientationChanged;
-    event Action? WhenInvalidated;
 
     #endregion
 
