@@ -132,6 +132,7 @@ public class UIRenderer : IDisposable
 
         profilerControl.Enabled = false;
         profilerControl.Visible = false;
+        profilerControl.ZIndex = 10000;
 
         _profilerControl = profilerControl;
     }
