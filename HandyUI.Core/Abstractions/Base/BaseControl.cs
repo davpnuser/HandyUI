@@ -89,7 +89,7 @@ public abstract class BaseControl : IControl
     } = true;
 
     public bool ClipChildren { get; set; }
-    public bool Focusable { get; set; }
+    public bool Focusable { get; set; } = true;
 
     public float Opacity
     {
@@ -176,8 +176,15 @@ public abstract class BaseControl : IControl
     public abstract void OnDraw(SKCanvas canvas);
     public abstract void OnUpdate(UpdateContext updateContext);
 
-    protected virtual bool OnMouse(MouseEventContext eventContext) => false;
-    protected virtual bool OnKey(KeyEventContext eventContext) => false;
+    protected virtual bool OnMouse(MouseEventContext eventContext)
+    {
+        return false;
+    }
+
+    protected virtual bool OnKey(KeyEventContext eventContext)
+    {
+        return false;
+    }
 
     protected virtual void OnChildAdded(IControl child) { }
     protected virtual void OnChildRemoved(IControl child) { }
@@ -195,7 +202,9 @@ public abstract class BaseControl : IControl
     #region Methods
 
     public bool ProcessKeyEvent(KeyEventContext eventContext)
-        => Visible && Enabled && IsFocused && OnKey(eventContext);
+    {
+        return Visible && Enabled && IsFocused && OnKey(eventContext);
+    }
 
     public bool ProcessMouseEvent(MouseEventContext eventContext)
     {
@@ -333,46 +342,74 @@ public abstract class BaseControl<TSelf> : BaseControl where TSelf : BaseControl
     }
 
     public TSelf WithName(string name)
-        => DoAndReturn(c => c.Name = name);
+    {
+        return DoAndReturn(c => c.Name = name);
+    }
 
     public TSelf WithParent(IControl parent)
-        => DoAndReturn(c => c.Parent = parent);
+    {
+        return DoAndReturn(c => c.Parent = parent);
+    }
 
     public TSelf WithParent(BaseControl parent)
-        => DoAndReturn(c => c.Parent = parent);
+    {
+        return DoAndReturn(c => c.Parent = parent);
+    }
 
     public TSelf WithLocation(SKPoint location)
-        => DoAndReturn(c => c.Location = location);
+    {
+        return DoAndReturn(c => c.Location = location);
+    }
 
     public TSelf WithLocation(float x, float y)
-        => DoAndReturn(c => c.Location = new(x, y));
+    {
+        return DoAndReturn(c => c.Location = new(x, y));
+    }
 
     public TSelf WithBounds(SKRect bounds)
-        => DoAndReturn(c => c.Bounds = bounds);
+    {
+        return DoAndReturn(c => c.Bounds = bounds);
+    }
 
     public TSelf WithBounds(SKSize boundsSize)
-        => DoAndReturn(c => c.Bounds = boundsSize.ToSKRect());
+    {
+        return DoAndReturn(c => c.Bounds = boundsSize.ToSKRect());
+    }
 
     public TSelf WithBounds(float x, float y, float w, float h)
-        => DoAndReturn(c => c.Bounds = new(x, y, w, h));
+    {
+        return DoAndReturn(c => c.Bounds = new(x, y, w, h));
+    }
 
     public TSelf WithOpacity(float opacity)
-        => DoAndReturn(c => c.Opacity = opacity);
+    {
+        return DoAndReturn(c => c.Opacity = opacity);
+    }
 
     public TSelf WithVisible(bool visibility)
-        => DoAndReturn(c => c.Visible = visibility);
+    {
+        return DoAndReturn(c => c.Visible = visibility);
+    }
 
     public TSelf WithEnabled(bool enabled)
-        => DoAndReturn(c => c.Enabled = enabled);
+    {
+        return DoAndReturn(c => c.Enabled = enabled);
+    }
 
     public TSelf WithZIndex(int zIndex)
-        => DoAndReturn(c => c.ZIndex = zIndex);
+    {
+        return DoAndReturn(c => c.ZIndex = zIndex);
+    }
 
     public TSelf WithFocusable(bool focusable)
-        => DoAndReturn(c => c.Focusable = focusable);
+    {
+        return DoAndReturn(c => c.Focusable = focusable);
+    }
 
     public TSelf WithAddToRenderer(UIRenderer renderer)
-        => DoAndReturn(c => renderer.AddControl(this));
+    {
+        return DoAndReturn(c => renderer.AddControl(this));
+    }
 }
 
 #endregion

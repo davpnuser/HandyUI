@@ -13,18 +13,24 @@ var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(
         : null
     });
 
-var a = new Label()
+new Label()
     .WithText("Hello, World!")
     .WithFontSize(24)
     .WithLocation(15, 15)
     .WithAddToRenderer(renderer);
 
-var b = new Button()
+new Button()
     .WithText("Hello, World!")
     .WithLocation(15, 45)
     .WithAddToRenderer(renderer);
-a.Focusable = true;
-b.Focusable = true;
+
+new Button()
+    .WithText("Hello, World!")
+    .WithLocation(15, 75)
+    .WithAddToRenderer(renderer);
+
+//a.Focusable = true;
+//b.Focusable = true;
 
 renderer.UseProfiler = true;
 

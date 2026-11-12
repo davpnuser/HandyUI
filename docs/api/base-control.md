@@ -18,11 +18,6 @@ All of `IControl.Name`, `Parent`, `Children`, `Location`, `Bounds`,
 `Opacity`, `AlphaPaint`, `IsHovered`, `IsMouseDown`, `IsFocused`,
 `IsDisposed` are implemented.
 
-!!! info "Changed from previous versions"
-    `Enabled` replaces `IsEnabled`; `Visible` replaces `IsVisible`;
-    `ClipChildren` replaces `ScissoringEnabled`. `Parent` is typed as
-    `IControl?`.
-
 ### `Children`
 
 ```csharp

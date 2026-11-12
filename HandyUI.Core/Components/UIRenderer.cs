@@ -43,11 +43,13 @@ public class UIRenderer : IDisposable
         }
     }
 
-    public double TotalTime { get; private set; }
+    public double TotalTime => _totalTimeStopwatch.Elapsed.TotalSeconds;
 
     #endregion
 
     #region Internal Fields
+
+    private readonly Stopwatch _totalTimeStopwatch = Stopwatch.StartNew();
 
     private bool _backgroundColorCustom = false;
 
@@ -620,7 +622,7 @@ public class UIRenderer : IDisposable
     {
         ProcessPendingModules();
 
-        TotalTime += deltaTime;
+        // TotalTime += deltaTime;
 
         lock (_modulesLock)
         {
@@ -695,7 +697,7 @@ public class UIRenderer : IDisposable
             FocusedControl = null;
             _pressedControl = null;
             _focusFromKeyboard = false;
-            TotalTime = 0;
+            _totalTimeStopwatch.Stop();
 
             lock (_modulesLock)
             {
