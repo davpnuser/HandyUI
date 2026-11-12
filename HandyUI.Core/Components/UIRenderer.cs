@@ -126,12 +126,6 @@ public class UIRenderer : IDisposable
             return;
 
         var profilerControl = new ProfilerControl()
-                .WithAnchor(ProfilerAnchor.TopLeft, 12)
-                .WithShowGcCounts(true)
-                .WithShowGraph(true)
-                .WithContinuousUpdate(true)
-                .WithWhenDestroyRequested(DestroyProfiler)
-                .WithWhenRestartRequested(async () => await RestartProfiler())
                 .WithAddToRenderer(this);
 
         profilerControl.Enabled = false;
@@ -151,20 +145,17 @@ public class UIRenderer : IDisposable
         _profilerControl = null;
     }
 
-    private async Task RestartProfiler()
-    {
-        DestroyProfiler();
-        await Task.Delay(100);
-        CreateProfiler();
-        _profilerControl?.Enabled = true;
-        _profilerControl?.Visible = true;
-    }
-
     #region Focus
 
-    public void FocusNext() => MoveFocus(+1);
+    public void FocusNext()
+    {
+        MoveFocus(+1);
+    }
 
-    public void FocusPrevious() => MoveFocus(-1);
+    public void FocusPrevious()
+    {
+        MoveFocus(-1);
+    }
 
     private void MoveFocus(int direction)
     {
@@ -422,7 +413,9 @@ public class UIRenderer : IDisposable
     }
 
     public bool IsPointOverAnyControl(SKPoint clientPosition)
-        => GetControlAt(clientPosition) != null;
+    {
+        return GetControlAt(clientPosition) != null;
+    }
 
     #endregion
 

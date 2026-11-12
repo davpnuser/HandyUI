@@ -13,6 +13,7 @@ using SkiaSharp;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using CursorType = HandyUI.Core.Data.Enums.CursorType;
 
 namespace HandyUI.SilkNet.Components;
 
@@ -61,7 +62,9 @@ public class HandyWindow : IDisposable, IHostWindow
             : SKSize.Empty;
         set
         {
-            if (InternalWindow is null) return;
+            if (InternalWindow is null)
+                return;
+
             InternalWindow.Size = new Vector2D<int>((int)value.Width, (int)value.Height);
         }
     }
@@ -72,7 +75,9 @@ public class HandyWindow : IDisposable, IHostWindow
         get => _useDirtyRendering;
         set
         {
-            if (_useDirtyRendering == value) return;
+            if (_useDirtyRendering == value)
+                return;
+
             _useDirtyRendering = value;
 
             var window = InternalWindow;
@@ -97,6 +102,18 @@ public class HandyWindow : IDisposable, IHostWindow
     }
 
     public int FramesPerSecond { get; set; } = 60;
+    public CursorType Cursor
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            _cursorNeedsApply = true;
+            field = value;
+        }
+    }
 
     public bool IsForeground => _isForeground;
 
@@ -104,9 +121,71 @@ public class HandyWindow : IDisposable, IHostWindow
 
     public DisplayOrientation Orientation { get; private set; } = DisplayOrientation.Unknown;
 
-    public float DpiScale => 1f;
+    public float DpiScale
+    {
+        get
+        {
+            if (!OperatingSystem.IsWindows())
+                return 1f;
 
-    public float DisplayDist => 50f;
+            if (InternalWindow?.Native?.Win32?.Hwnd is not nint hwnd || hwnd == nint.Zero)
+                return 1f;
+
+            var hdc = Win32Helper.GetDC(hwnd);
+            if (hdc == nint.Zero)
+                return 1f;
+
+            try
+            {
+                var dpi = Win32Helper.GetDeviceCaps(hdc, Win32Helper.LOGPIXELSX);
+                return dpi <= 0 ? 1f : dpi / Win32Helper.USER_DEFAULT_SCREEN_DPI;
+            }
+            catch
+            {
+                return 1f;
+            }
+            finally
+            {
+                _ = Win32Helper.ReleaseDC(hwnd, hdc);
+            }
+        }
+    }
+
+    public float DisplayDist
+    {
+        get
+        {
+            if (!OperatingSystem.IsWindows())
+                return 0f;
+
+            if (InternalWindow?.Native?.Win32?.Hwnd is not nint hwnd || hwnd == nint.Zero)
+                return 0f;
+
+            var hdc = Win32Helper.GetDC(hwnd);
+            if (hdc == nint.Zero)
+                return 0f;
+
+            try
+            {
+                var widthMm = Win32Helper.GetDeviceCaps(hdc, Win32Helper.HORZSIZE);
+                var heightMm = Win32Helper.GetDeviceCaps(hdc, Win32Helper.VERTSIZE);
+
+                if (widthMm <= 0 || heightMm <= 0)
+                    return 0f;
+
+                var diagonalMm = Math.Sqrt(((double)widthMm * widthMm) + ((double)heightMm * heightMm));
+                return (float)(diagonalMm / 25.4);
+            }
+            catch
+            {
+                return 0f;
+            }
+            finally
+            {
+                _ = Win32Helper.ReleaseDC(hwnd, hdc);
+            }
+        }
+    }
 
     public GRContext DrawingContext => RendererAdapter?.DrawingContext!;
 
@@ -299,23 +378,13 @@ public class HandyWindow : IDisposable, IHostWindow
         }
     }
 
-    public event Action<DisplayOrientation>? WhenOrientationChanged;
-    public event Action? WhenInvalidated;
-
-    public event Action? WhenLoaded;
-    public event Action? WhenClosing;
-    public event Action<SKPoint>? WhenMoved;
-    public event Action<SKSize>? WhenResized;
-    public event Action<WindowState>? WhenStateChanged;
-    public event Action<bool>? WhenFocusChanged;
-
     #endregion
 
     #region Internal Fields
 
     private volatile bool _isDragging;
     private volatile bool _isHidden;
-    private volatile bool _isForeground;
+    private volatile bool _isForeground = true;
     private SKPoint? _dragOffset;
     private bool _visibleInTaskbarBeforeHide;
     private TrayIcon? _trayIcon;
@@ -346,6 +415,7 @@ public class HandyWindow : IDisposable, IHostWindow
     private volatile bool _visibleInTaskbarNeedsApply;
     private volatile bool _windowButtonsNeedApply;
     private volatile bool _titleBarNeedsApply;
+    private volatile bool _cursorNeedsApply;
     private volatile bool _closingHandled;
     private volatile bool _invalidateRequested;
     private readonly bool _autoInit;
@@ -357,6 +427,20 @@ public class HandyWindow : IDisposable, IHostWindow
     private bool _resizeInProgress;
 
     private readonly bool _centerOnStartup = false;
+
+    #endregion
+
+    #region Events
+
+    public event Action<DisplayOrientation>? WhenOrientationChanged;
+    public event Action? WhenInvalidated;
+
+    public event Action? WhenLoaded;
+    public event Action? WhenClosing;
+    public event Action<SKPoint>? WhenMoved;
+    public event Action<SKSize>? WhenResized;
+    public event Action<WindowState>? WhenStateChanged;
+    public event Action<bool>? WhenFocusChanged;
 
     #endregion
 
@@ -556,15 +640,14 @@ public class HandyWindow : IDisposable, IHostWindow
             WhenFocusChanged?.Invoke(f);
         };
 
-        var vsync = windowOptions.VSync;
-        var targetFps = windowOptions.FramesPerSecond;
-
         var glfw = Silk.NET.GLFW.Glfw.GetApi();
 
         const double IdleRefreshSeconds = 1.0 / 5.0;
 
         _pumpStopwatch.Restart();
         _lastFrameTime = 0;
+
+        _ = Win32Helper.TimeBeginPeriod(1);
 
         try
         {
@@ -620,6 +703,9 @@ public class HandyWindow : IDisposable, IHostWindow
                 if (IsInitialized && _titleBarNeedsApply)
                     ApplyTitleBarVisibility();
 
+                if (IsInitialized && _cursorNeedsApply)
+                    RendererAdapter?.SetCursor(Cursor);
+
                 if (_invalidateRequested)
                 {
                     _invalidateRequested = false;
@@ -652,14 +738,24 @@ public class HandyWindow : IDisposable, IHostWindow
                 }
                 else if (!useDirty)
                 {
+                    var vsync = VSync;
+                    var targetFps = FramesPerSecond;
+
                     if (!vsync && targetFps > 0)
                     {
                         var target = 1.0 / targetFps;
                         var elapsed = _pumpStopwatch.Elapsed.TotalSeconds - frameStart;
                         var wait = target - elapsed;
 
-                        if (wait > 0.0005)
-                            Thread.Sleep(TimeSpan.FromSeconds(wait));
+                        if (wait > 0.001)
+                        {
+                            var sleepMs = (int)(wait * 1000.0) - 1;
+                            if (sleepMs >= 1)
+                                Thread.Sleep(sleepMs);
+                        }
+
+                        while (_pumpStopwatch.Elapsed.TotalSeconds - frameStart < target)
+                            Thread.SpinWait(100);
                     }
                 }
                 else
@@ -678,6 +774,8 @@ public class HandyWindow : IDisposable, IHostWindow
         }
         finally
         {
+            _ = Win32Helper.TimeEndPeriod(1);
+
             _programmaticClose = true;
 
             try { RendererAdapter?.Dispose(); }

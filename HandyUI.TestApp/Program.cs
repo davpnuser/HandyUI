@@ -1,7 +1,6 @@
 ﻿using HandyUI.Core.Helpers;
 using HandyUI.SilkNet.Data;
 using HandyUI.SilkNet.Helper;
-using HandyUI.TestApp.Controls;
 using SkiaSharp;
 
 var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(
@@ -14,8 +13,7 @@ var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(
         : null
     });
 
-new MouseDisplayControl()
-    .WithAddToRenderer(renderer);
+//ThemeManager.Instance.SetTheme(50, 50, 50, ThemeMode.Dark);
 
 renderer.UseProfiler = true;
 

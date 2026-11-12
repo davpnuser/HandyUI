@@ -9,6 +9,7 @@ using Silk.NET.Windowing;
 using SkiaSharp;
 using System.Diagnostics;
 using System.Numerics;
+using CursorType = HandyUI.Core.Data.Enums.CursorType;
 using MouseButton = HandyUI.Core.Data.Enums.MouseButton;
 
 internal sealed class RendererAdapter(HandyWindow window) : IDisposable
@@ -254,6 +255,28 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
         return _currentClickCount;
     }
 
+    internal void SetCursor(CursorType newCursor)
+    {
+        var mice = _inputContext?.Mice;
+
+        if (mice is null || mice.Count == 0)
+            return;
+
+        var mouse = mice[0];
+        mouse.Cursor.StandardCursor = MapCursor(newCursor);
+    }
+
+    internal CursorType GetCursor()
+    {
+        var mice = _inputContext?.Mice;
+
+        if (mice is null || mice.Count == 0)
+            return CursorType.Default;
+
+        var mouse = mice[0];
+        return MapCursor(mouse.Cursor.StandardCursor);
+    }
+
     #endregion
 
     #region Input Handlers
@@ -377,6 +400,50 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
             IsAltPressed: false));
 
         Invalidate();
+    }
+
+    #endregion
+
+    #region Cursor Mapping
+
+    private static StandardCursor MapCursor(CursorType cursorType)
+    {
+        return cursorType switch
+        {
+            CursorType.Default => StandardCursor.Default,
+            CursorType.Arrow => StandardCursor.Arrow,
+            CursorType.Hand => StandardCursor.Hand,
+            CursorType.IBeam => StandardCursor.IBeam,
+            CursorType.BusyArrow => StandardCursor.WaitArrow,
+            CursorType.Busy => StandardCursor.Wait,
+            CursorType.HResize => StandardCursor.HResize,
+            CursorType.VResize => StandardCursor.VResize,
+            CursorType.NwseResize => StandardCursor.NwseResize,
+            CursorType.NeswResize => StandardCursor.NeswResize,
+            CursorType.ResizeAll => StandardCursor.ResizeAll,
+            CursorType.NotAllowed => StandardCursor.NotAllowed,
+            _ => StandardCursor.Default
+        };
+    }
+
+    private static CursorType MapCursor(StandardCursor standardCursor)
+    {
+        return standardCursor switch
+        {
+            StandardCursor.Default => CursorType.Default,
+            StandardCursor.Arrow => CursorType.Arrow,
+            StandardCursor.Hand => CursorType.Hand,
+            StandardCursor.IBeam => CursorType.IBeam,
+            StandardCursor.WaitArrow => CursorType.BusyArrow,
+            StandardCursor.Wait => CursorType.Busy,
+            StandardCursor.HResize => CursorType.HResize,
+            StandardCursor.VResize => CursorType.VResize,
+            StandardCursor.NwseResize => CursorType.NwseResize,
+            StandardCursor.NeswResize => CursorType.NeswResize,
+            StandardCursor.ResizeAll => CursorType.ResizeAll,
+            StandardCursor.NotAllowed => CursorType.NotAllowed,
+            _ => CursorType.Default
+        };
     }
 
     #endregion

@@ -16,6 +16,7 @@ public interface IHostWindow
     bool UseDirtyRendering { get; set; }
     bool VSync { get; set; }
     int FramesPerSecond { get; set; }
+    CursorType Cursor { get; set; }
 
     bool IsForeground { get; }
     DeviceType DeviceType { get; }

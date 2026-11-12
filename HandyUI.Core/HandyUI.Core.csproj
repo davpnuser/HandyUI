@@ -22,15 +22,10 @@
 	<PackageProjectUrl>https://davpnuser.github.io/HandyUI/</PackageProjectUrl>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Helpers\Controls\ProfilerV2Control.cs" />
-  </ItemGroup>
-
 	<ItemGroup>
 		<None Include="..\THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="\" />
 		<None Include="..\HandyUI-Logo.png" Pack="true" PackagePath="" Link="HandyUI-Logo.png" />
 		<None Include="..\NuGet-README.md" Pack="true" PackagePath="" Link="NuGet-README.md" />
-		<None Include="Helpers\Controls\ProfilerV2Control.cs" />
 	</ItemGroup>
 
   <ItemGroup>

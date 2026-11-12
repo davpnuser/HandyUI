@@ -54,6 +54,11 @@ public static class Win32Helper
 
     private const uint MONITOR_DEFAULTTONEAREST = 2;
 
+    public const int LOGPIXELSX = 88;
+    public const int HORZSIZE = 4;
+    public const int VERTSIZE = 6;
+    public const float USER_DEFAULT_SCREEN_DPI = 96f;
+
     public static readonly nint HWND_MESSAGE = new(-3);
 
     public const uint NIM_ADD = 0x00000000;
@@ -214,6 +219,15 @@ public static class Win32Helper
                                             int X, int Y, int cx, int cy, uint uFlags);
 
     [DllImport("user32.dll", SetLastError = true)]
+    public static extern nint GetDC(nint hWnd);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern int ReleaseDC(nint hWnd, nint hDC);
+
+    [DllImport("gdi32.dll", SetLastError = true)]
+    public static extern int GetDeviceCaps(nint hdc, int index);
+
+    [DllImport("user32.dll", SetLastError = true)]
     private static extern bool ReleaseCapture();
 
     [DllImport("user32.dll", SetLastError = true)]
@@ -224,6 +238,12 @@ public static class Win32Helper
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool IsZoomed(nint hWnd);
+
+    [DllImport("winmm.dll", EntryPoint = "timeBeginPeriod", SetLastError = true)]
+    public static extern uint TimeBeginPeriod(uint uPeriod);
+
+    [DllImport("winmm.dll", EntryPoint = "timeEndPeriod", SetLastError = true)]
+    public static extern uint TimeEndPeriod(uint uPeriod);
 
     [DllImport("user32.dll", EntryPoint = "CreateWindowExW", CharSet = CharSet.Unicode, SetLastError = true)]
     public static extern nint CreateWindowEx(
@@ -357,7 +377,10 @@ public static class Win32Helper
                             SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
     }
 
-    public static bool IsMaximized(nint hWnd) => hWnd != nint.Zero && IsZoomed(hWnd);
+    public static bool IsMaximized(nint hWnd)
+    {
+        return hWnd != nint.Zero && IsZoomed(hWnd);
+    }
 
     public static void ApplyMaximizedBounds(nint hWnd, nint lParam)
     {
@@ -423,9 +446,15 @@ public static class Win32Helper
         SetWindowLongPtr(hWnd, GWL_EXSTYLE, exStyle);
     }
 
-    public static void ApplyMinimizeBox(nint hWnd, bool enabled) => ApplyStyleBit(hWnd, WS_MINIMIZEBOX, enabled);
+    public static void ApplyMinimizeBox(nint hWnd, bool enabled)
+    {
+        ApplyStyleBit(hWnd, WS_MINIMIZEBOX, enabled);
+    }
 
-    public static void ApplyMaximizeBox(nint hWnd, bool enabled) => ApplyStyleBit(hWnd, WS_MAXIMIZEBOX, enabled);
+    public static void ApplyMaximizeBox(nint hWnd, bool enabled)
+    {
+        ApplyStyleBit(hWnd, WS_MAXIMIZEBOX, enabled);
+    }
 
     public static void ApplyTitleBarVisibility(
         nint hWnd,
