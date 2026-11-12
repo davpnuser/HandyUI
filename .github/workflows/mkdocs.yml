@@ -4,6 +4,8 @@ on:
     branches:
       - master 
       - main
+    tags:
+      - 'v*'
 permissions:
   contents: write
 jobs:
@@ -11,13 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
       - name: Configure Git Credentials
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
+          
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV 
       - uses: actions/cache@v4
         with:
@@ -25,5 +32,18 @@ jobs:
           path: ~/.cache 
           restore-keys: |
             mkdocs-material-
-      - run: pip install mkdocs-material 
-      - run: mkdocs gh-deploy --force
+            
+      - run: pip install mkdocs-material mike
+      
+      - name: Deploy docs with mike
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            # If triggered by a tag, deploy that specific version and update 'latest'
+            VERSION=${GITHUB_REF#refs/tags/}
+            mike deploy --push --update-aliases $VERSION latest
+            mike set-default --push latest
+          else
+            # If pushed to master/main directly, deploy as 'latest' (or 'dev')
+            mike deploy --push --update-aliases latest dev
+            mike set-default --push latest
+          fi
