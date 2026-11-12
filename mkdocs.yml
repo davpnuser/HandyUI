@@ -1,5 +1,5 @@
 site_name: HandyUI Documentation
-site_url: https://github.com/davpnuser/HandyUI
+site_url: https://davpnuser.github.io/HandyUI/
 site_author: davpnuser
 site_description: The documentation for HandyUI, Powered by Material for MkDocs.
 
@@ -135,4 +135,9 @@ nav:
       - VectorExtensions: api/vector-extensions.md
   - Extras:
     - Branding: extras/branding.md
+
+extra:
+  version:
+    provider: mike
+
 copyright: ©2026 davpnuser
