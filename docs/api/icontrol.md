@@ -1,9 +1,8 @@
 # `IControl`
 
-`HandyUI.Core.Interface.IControl`
+`HandyUI.Core.Abstractions.Interface.IControl`
 
-The minimal contract for anything the `UIRenderer` can draw and route input
-to.
+Contract for every drawable / interactive control.
 
 ```csharp
 public interface IControl : IDisposable
@@ -11,51 +10,86 @@ public interface IControl : IDisposable
 
 ## Properties
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `Children` | `IReadOnlyList<IControl>` | Child controls. |
-| `Parent` | `BaseControl?` | Parent control. |
-| `Location` | `SKPoint` | Offset relative to the parent. |
-| `Bounds` | `SKRect` | Rectangle in local space. |
-| `ZIndex` | `int` | Draw/hit order. |
-| `ParentChildPositioningEnabled` | `bool` | Whether `Location` is applied. |
-| `ScissoringEnabled` | `bool` | Whether the subtree is clipped to `Bounds`. |
-| `AlphaPaint` | `SKPaint` | Pre-built `White * Opacity` paint. |
-| `Opacity` | `float` | `[0, 1]`. |
-| `IsHovered` | `bool` | Set by the renderer. |
-| `IsMouseDown` | `bool` | Set by the renderer. |
-| `IsFocused` | `bool` | Managed by the renderer. |
-| `IsVisible` | `bool` | Draw/hit gate. |
-| `IsEnabled` | `bool` | Interaction gate. |
+### Identity
+
+```csharp
+string?   Name   { get; set; }
+IControl? Parent { get; set; }
+IReadOnlyList<IControl> Children { get; }
+```
+
+`Name` is purely for debugging - the renderer never reads it. `Parent` is set
+through the fluent builder or by assigning directly; assigning reassigns
+child lists on both sides.
+
+### Layout
+
+```csharp
+SKPoint Location { get; set; }   // offset from parent
+SKRect  Bounds   { get; set; }   // local rectangle
+int     ZIndex   { get; set; }   // higher = later + hit first
+```
+
+### Behaviour flags
+
+```csharp
+bool Enabled   { get; set; }   // default: true
+bool Visible   { get; set; }   // default: true
+bool ClipChildren { get; set; } // clips subtree + blocks input outside Bounds
+bool Focusable { get; set; }    // default: false - needed for keyboard focus
+```
+
+!!! tip "Focusable"
+    Setting `Focusable = true` is required before `RequestFocus()` or Tab
+    navigation will target the control. Clicking a `Focusable` control sets
+    focus automatically; clicking a non-focusable one clears it.
+
+### State (managed by the renderer)
+
+```csharp
+bool IsDisposed { get; }
+bool IsHovered  { get; }
+bool IsMouseDown { get; }
+bool IsFocused  { get; internal set; }
+```
+
+`IsHovered` / `IsMouseDown` are updated in `ProcessMouseEvent`. `IsFocused`
+is set by `UIRenderer` when the control gains or loses focus.
+
+### Rendering
+
+```csharp
+float   Opacity   { get; set; }   // clamped to [0, 1]
+SKPaint AlphaPaint { get; }        // pre-built White * Opacity paint
+```
 
 ## Events
 
-| Event | Description |
-| --- | --- |
-| `WhenFocusRequested` | Raised by `RequestFocus()`. |
-| `WhenInvalidated` | Raised when state changes. |
+```csharp
+event Action? WhenInvalidated;
+event Action<IControl?, bool>? WhenFocusRequested;
+```
+
+`WhenFocusRequested` fires with `(target, fromKeyboard)`. `fromKeyboard`
+is `true` when the change was driven by `FocusNext()` / `FocusPrevious()`
+(Tab navigation) and `false` when driven by mouse / `RequestFocus()`. The
+renderer uses it to draw a focus rectangle only for keyboard focus.
+
+## Overrideable members
+
+```csharp
+abstract bool DoesIntersect(SKPoint point);   // hit test in local coords
+abstract void OnDraw(SKCanvas canvas);         // canvas already translated
+abstract void OnUpdate(UpdateContext updateContext);
+```
 
 ## Methods
 
 | Method | Description |
 | --- | --- |
-| `Invalidate()` | Notify the renderer to redraw. |
-| `RequestFocus()` | Ask the renderer to focus this control. |
-| `ProcessMouseEvent(MouseEventContext)` | Route a mouse event. |
-| `ProcessKeyEvent(KeyEventContext)` | Route a key event. |
-| `DoesIntersect(SKPoint?)` | Hit-test in local space (`null` → clipped). |
-| `OnUpdate(float, SKPoint?)` | Per-frame update. |
-| `OnDraw(SKCanvas)` | Per-frame draw. |
-
-## Fluent API: `IControl<TSelf>`
-
-```csharp
-public interface IControl<TSelf> : IControl where TSelf : IControl<TSelf>
-{
-    TSelf WithLocation(SKPoint location);
-    TSelf WithLocation(float x, float y);
-    TSelf WithBounds(SKRect bounds);
-    TSelf WithBounds(float x, float y, float w, float h);
-    TSelf WithAddToRenderer(UIRenderer renderer);
-}
-```
+| `Invalidate()` | Bubble `WhenInvalidated` up the tree. No-op when hidden / disposed. |
+| `RequestFocus()` | Raises `WhenFocusRequested(this, false)`. Guarded by `Enabled`, `Visible`, `Focusable`. |
+| `ProcessMouseEvent(MouseEventContext)` | Updates `IsHovered`/`IsMouseDown`; calls `OnMouse`. |
+| `ProcessKeyEvent(KeyEventContext)` | Calls `OnKey` if `Visible && Enabled && IsFocused`. |
+| `GetGlobalLocation()` | Absolute `SKPoint` by summing ancestors' `Location`. |
+| `GetLocalPosition(SKPoint)` | Converts a global point into this control's local space. |

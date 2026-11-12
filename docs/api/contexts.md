@@ -1,79 +1,81 @@
 # Input Contexts
 
-Records describing mouse and keyboard events passed to controls.
+`HandyUI.Core.Data.MouseEventContext` and `KeyEventContext`.
 
-## Mouse
-
-### `MouseEventContext`
-
-`HandyUI.Core.Data.MouseEventContext`
+Both are `readonly record struct` and carry a reference to the current
+[`TweenManager`](tween-manager.md). Controls that need to start a tween from
+inside `OnMouse` / `OnKey` can use `eventContext.TweenManager` directly:
 
 ```csharp
-public record MouseEventContext(
-    SKPoint? ClientPosition,
-    MouseEventType Type,
-    MouseButton Button = MouseButton.None,
-    int WheelDelta = 0);
+protected override bool OnMouse(MouseEventContext eventContext)
+{
+    if (eventContext.Type != MouseEventType.MouseDownEvent) return false;
+    eventContext.TweenManager.To(0f, 1f, 0.3f, v => Animate(v));
+    return true;
+}
 ```
 
-| Field | Description |
+## `MouseEventContext`
+
+```csharp
+public readonly record struct MouseEventContext(
+    TweenManager TweenManager,
+    SKPoint? MousePosition,
+    MouseEventType Type = MouseEventType.None,
+    MouseButton Button = MouseButton.None,
+    int WheelDelta = 0,
+    int ClickCount = 1,
+    bool IsControlPressed = false,
+    bool IsShiftPressed = false,
+    bool IsAltPressed = false
+);
+```
+
+| Field | Meaning |
 | --- | --- |
-| `ClientPosition` | Cursor position in the receiving control's local space, or **`null`** when clipped out of this subtree. |
-| `Type` | Event kind (`Move`, `MouseDown`, `MouseUp`, `Click`, `Wheel`). |
-| `Button` | Which mouse button triggered the event. |
-| `WheelDelta` | Wheel delta in "clicks" (±120 per notch). |
+| `TweenManager` | Current animation engine. |
+| `MousePosition` | Local cursor position, or `null` when the subtree is clipped. |
+| `Type` | See [`MouseEventType`](enums.md#mouseeventtype). |
+| `Button` | Which button triggered the event. |
+| `WheelDelta` | Wheel delta in clicks (±120 per notch). |
+| `ClickCount` | 1, 2 (double), or 3 (triple) - computed by the adapter from timing + distance. |
+| Modifiers | State at event time. |
 
 !!! info "Null means clipped"
-    `ClientPosition` is `null` - not a sentinel - when the control is
-    outside its parent's clip region. Treat null as *"not hovered"* and
-    return `false` from `DoesIntersect`.
+    `MousePosition` is `null` - not a sentinel coordinate - when the control
+    is outside its clip region. `BaseControl.IsHovered` uses
+    `MousePosition != null && Bounds.Contains(pos)`.
 
-### Enums
+!!! tip "Synthesized clicks"
+    `MouseEventType.ClickEvent` is **never sent by the adapter**. It is
+    synthesized by `UIRenderer.ProcessMouseEvent` after a `MouseUpEvent`
+    that occurs on the currently pressed control. Custom controls should
+    listen for `ClickEvent` (not `MouseUpEvent`) when they want
+    click-detection.
 
-`HandyUI.Core.Enums.MouseEventType`
-
-```csharp
-public enum MouseEventType { Move, MouseDown, MouseUp, Click, Wheel }
-```
-
-`HandyUI.Core.Enums.MouseButton`
-
-```csharp
-public enum MouseButton { None, Left, Right, Middle }
-```
-
-## Keyboard
-
-### `KeyEventContext`
-
-`HandyUI.Core.Data.KeyEventContext`
+## `KeyEventContext`
 
 ```csharp
-public record KeyEventContext(
-    KeyEventType Type,
-    int KeyCode,
+public readonly record struct KeyEventContext(
+    TweenManager Tweener,
+    KeyEventType Type = KeyEventType.None,
+    int? KeyCode = null,
     char Character = '\0',
     bool IsControlPressed = false,
     bool IsShiftPressed = false,
-    bool IsAltPressed = false);
+    bool IsAltPressed = false
+);
 ```
 
-| Field | Description |
+| Field | Meaning |
 | --- | --- |
+| `Tweener` | Current animation engine. |
 | `Type` | `KeyDown`, `KeyUp`, or `CharInput`. |
-| `KeyCode` | Virtual key code (Win32-style). |
-| `Character` | Printable char for `CharInput`; `'\0'` otherwise. |
-| Modifiers | Current modifier state. |
+| `KeyCode` | Virtual key code. `null` for `CharInput`. |
+| `Character` | Printable character for `CharInput`. |
 
-!!! tip "Insert text on `CharInput`"
-    Text editors should insert characters on `CharInput`, and use `KeyDown`
-    for navigation (arrows, tab, enter, …). This separates layout behavior
-    from OS-specific key codes.
-
-### Enum
-
-`HandyUI.Core.Enums.KeyEventType`
-
-```csharp
-public enum KeyEventType { KeyDown, KeyUp, CharInput }
-```
+!!! warning "`KeyCode` is nullable"
+    `KeyCode` is `int?` so `CharInput` events can skip it. When working with
+    `KeyEventType.KeyDown` / `KeyUp`, cast or pattern-match before comparing:
+    `if (ctx.KeyCode == 8) { ... }` still works because `int?` compares to
+    `int` implicitly.

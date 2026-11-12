@@ -1,8 +1,7 @@
-﻿using HandyUI.Core.v1.Base;
-using HandyUI.Core.v1.Components;
-using HandyUI.Core.v1.Data;
-using HandyUI.Core.v1.Enums;
-using HandyUI.Core.v1.Theming;
+﻿using HandyUI.Core.Abstractions.Base;
+using HandyUI.Core.Data;
+using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;
@@ -66,10 +65,10 @@ public class Label : BaseControl<Label>
 
     public SKTypeface Typeface
     {
-        get => _font.Typeface ?? FontManager.DefaultFont!;
+        get => _font.Typeface ?? FontManager.DefaultFont;
         set
         {
-            var v = value ?? FontManager.DefaultFont!;
+            var v = value ?? FontManager.DefaultFont;
             if (ReferenceEquals(_font.Typeface, v)) return;
             _font.Typeface = v;
             ResizeToContent();
@@ -136,12 +135,12 @@ public class Label : BaseControl<Label>
 
     #region Overrides
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint point)
     {
-        return clientPoint is { } p && Bounds.Contains(p);
+        return Bounds.Contains(point);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(UpdateContext updateContext)
     {
         if (_lastHovered == IsHovered) return;
         _lastHovered = IsHovered;
@@ -153,7 +152,7 @@ public class Label : BaseControl<Label>
     {
         if (string.IsNullOrEmpty(Text)) return;
 
-        _textPaint.Color = IsEnabled
+        _textPaint.Color = Enabled
             ? ThemeManager.Instance.TextPrimary
             : ThemeManager.Instance.TextDisabled;
 
@@ -175,14 +174,11 @@ public class Label : BaseControl<Label>
             canvas.DrawText(lines[i], x, baseline + (i * lineHeight), TextAlign, _font, _textPaint);
     }
 
-    protected override bool OnMouse(MouseEventContext ctx)
+    protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (ctx.Type == MouseEventType.Click && IsHovered)
-        {
-            WhenClicked?.Invoke();
-            return true;
-        }
-        return false;
+        if (eventContext.Type != MouseEventType.ClickEvent || !IsHovered) return false;
+        WhenClicked?.Invoke();
+        return true;
     }
 
     #endregion
@@ -220,7 +216,6 @@ public class Label : BaseControl<Label>
     public Label WithTypeface(SKTypeface? typeface) { Typeface = typeface!; return Self; }
     public Label WithIsBold(bool bold) { IsBold = bold; return Self; }
     public Label WithTextAlign(SKTextAlign align) { TextAlign = align; return Self; }
-
     public Label WithWhenClicked(Action handler) { WhenClicked += handler; return Self; }
     public Label WithWhenHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
     public Label WithWhenHoverExited(Action handler) { WhenHoverExited += handler; return Self; }

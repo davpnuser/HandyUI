@@ -1,9 +1,8 @@
-﻿using HandyUI.Core.v1.Base;
-using HandyUI.Core.v1.Components;
-using HandyUI.Core.v1.Data;
-using HandyUI.Core.v1.Enums;
-using HandyUI.Core.v1.Helper;
-using HandyUI.Core.v1.Theming;
+﻿using HandyUI.Core.Abstractions.Base;
+using HandyUI.Core.Data;
+using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
+using HandyUI.Core.Helpers.Extensions;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;
@@ -91,10 +90,10 @@ public class Button : BaseControl<Button>
 
     public SKTypeface Typeface
     {
-        get => _font.Typeface ?? FontManager.DefaultFont!;
+        get => _font.Typeface ?? FontManager.DefaultFont;
         set
         {
-            var v = value ?? FontManager.DefaultFont!;
+            var v = value ?? FontManager.DefaultFont;
             if (ReferenceEquals(_font.Typeface, v)) return;
             _font.Typeface = v;
             ResizeToContent();
@@ -161,8 +160,8 @@ public class Button : BaseControl<Button>
     private SKPoint _rippleOrigin = SKPoint.Empty;
     private bool _isRippleActive;
     private bool _lastHovered;
-    private TweenHandle _hoverTween;
-    private TweenHandle _rippleTween;
+    private Tween? _hoverTween;
+    private Tween? _rippleTween;
 
     #endregion
 
@@ -188,16 +187,16 @@ public class Button : BaseControl<Button>
 
     #region Overrides
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint point)
     {
-        return clientPoint is { } p && Bounds.Contains(p);
+        return Bounds.Contains(point);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(UpdateContext updateContext)
     {
         if (_lastHovered == IsHovered) return;
         _lastHovered = IsHovered;
-        StartHoverAnimation(IsHovered ? 1f : 0f);
+        StartHoverAnimation(updateContext.TweenManager, IsHovered ? 1f : 0f);
     }
 
     public override void OnDraw(SKCanvas canvas)
@@ -217,10 +216,11 @@ public class Button : BaseControl<Button>
         }
 
         var accent = ThemeManager.Instance.Accent;
+
         if (_hoverAmount > 0.001f)
             accent = accent.Lerp(ThemeManager.Instance.AccentHover, _hoverAmount);
 
-        _fillPaint.Color = accent;
+        _fillPaint.Color = Enabled ? accent : ThemeManager.Instance.DisabledSurface;
         canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _fillPaint);
 
         if (_isRippleActive && _rippleProgress is > 0f and < 1f)
@@ -229,62 +229,48 @@ public class Button : BaseControl<Button>
             var radius = maxRadius * _rippleProgress;
             _ripplePaint.Color = SKColors.White.WithAlpha((byte)(70 * (1f - _rippleProgress)));
 
-            if (CornerRadius > 0.01f)
-            {
-                var path = GetClipPath();
-                canvas.Save();
-                canvas.ClipPath(path, antialias: true);
-                canvas.DrawCircle(_rippleOrigin.X, _rippleOrigin.Y, radius, _ripplePaint);
-                canvas.Restore();
-            }
-            else
-            {
-                canvas.Save();
-                canvas.ClipRect(rect);
-                canvas.DrawCircle(_rippleOrigin.X, _rippleOrigin.Y, radius, _ripplePaint);
-                canvas.Restore();
-            }
+            canvas.Save();
+            if (CornerRadius > 0.01f) canvas.ClipPath(GetClipPath(), antialias: true);
+            else canvas.ClipRect(rect);
+            canvas.DrawCircle(_rippleOrigin.X, _rippleOrigin.Y, radius, _ripplePaint);
+            canvas.Restore();
         }
 
-        if (!string.IsNullOrEmpty(Text))
-        {
-            _textPaint.Color = IsEnabled
-                ? ThemeManager.Instance.GetTone(50)
-                : ThemeManager.Instance.GetTone(400);
+        if (string.IsNullOrEmpty(Text)) return;
 
-            var fm = _font.Metrics;
-            var lineHeight = fm.Descent - fm.Ascent;
-            var lines = Text.Split('\n');
-            var totalH = lines.Length * lineHeight;
-            var topY = (h - totalH) * 0.5f;
-            var baseline = topY - fm.Ascent;
+        _textPaint.Color = Enabled
+            ? ThemeManager.Instance.GetTone(50)
+            : ThemeManager.Instance.GetTone(400);
 
-            for (var i = 0; i < lines.Length; i++)
-                canvas.DrawText(lines[i], w * 0.5f, baseline + (i * lineHeight), SKTextAlign.Center, _font, _textPaint);
-        }
+        var fm = _font.Metrics;
+        var lineHeight = fm.Descent - fm.Ascent;
+        var lines = Text.Split('\n');
+        var totalH = lines.Length * lineHeight;
+        var topY = (h - totalH) * 0.5f;
+        var baseline = topY - fm.Ascent;
+
+        for (var i = 0; i < lines.Length; i++)
+            canvas.DrawText(lines[i], w * 0.5f, baseline + (i * lineHeight), SKTextAlign.Center, _font, _textPaint);
     }
 
-    protected override bool OnMouse(MouseEventContext ctx)
+    protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (ctx.Type == MouseEventType.Click)
+        if (eventContext.Type == MouseEventType.ClickEvent)
         {
             WhenClicked?.Invoke();
             return true;
         }
 
-        if (ctx.Type == MouseEventType.MouseDown && IsHovered && ctx.ClientPosition is { } p)
+        if (eventContext.Type == MouseEventType.MouseDownEvent && IsHovered && eventContext.MousePosition is { } p)
         {
             _rippleOrigin = p;
             _isRippleActive = true;
             _rippleProgress = 0f;
-            _rippleTween.Cancel();
-            if (Tweener.Current is { } tweener)
-            {
-                _rippleTween = tweener.To(0f, 1f, 0.4f,
-                    v => { _rippleProgress = v; Invalidate(); },
-                    EaseType.SineOut,
-                    () => { _isRippleActive = false; Invalidate(); });
-            }
+            if (_rippleTween is { IsValid: true }) _rippleTween.Cancel();
+            _rippleTween = eventContext.TweenManager.To(0f, 1f, 0.4f,
+                v => { _rippleProgress = v; Invalidate(); },
+                EaseType.SineOut,
+                () => { _isRippleActive = false; Invalidate(); });
             return true;
         }
 
@@ -315,11 +301,10 @@ public class Button : BaseControl<Button>
         Bounds = new SKRect(0, 0, w, h);
     }
 
-    private void StartHoverAnimation(float target)
+    private void StartHoverAnimation(TweenManager tweener, float target)
     {
-        if (Tweener.Current is not { } tweener) return;
         var current = _hoverAmount;
-        _hoverTween.Cancel();
+        if (_hoverTween is { IsValid: true }) _hoverTween.Cancel();
         _hoverAmount = current;
         if (Math.Abs(current - target) < 0.001f) return;
         _hoverTween = tweener.To(current, target, 0.15f,
@@ -355,7 +340,6 @@ public class Button : BaseControl<Button>
     public Button WithTypeface(SKTypeface? typeface) { Typeface = typeface!; return Self; }
     public Button WithIsBold(bool bold) { IsBold = bold; return Self; }
     public Button WithPadding(float horizontal, float vertical) { HorizontalPadding = horizontal; VerticalPadding = vertical; return Self; }
-
     public Button WithWhenClicked(Action handler) { WhenClicked += handler; return Self; }
 
     #endregion
@@ -364,8 +348,8 @@ public class Button : BaseControl<Button>
 
     protected override void OnDispose()
     {
-        _hoverTween.Cancel();
-        _rippleTween.Cancel();
+        if (_hoverTween is { IsValid: true }) _hoverTween.Cancel();
+        if (_rippleTween is { IsValid: true }) _rippleTween.Cancel();
         _font.Dispose();
         _fillPaint.Dispose();
         _textPaint.Dispose();

@@ -2,8 +2,7 @@
 
 `HandyUI.Controls.Controls.Toggle`
 
-An on/off switch with an animated thumb, optional text label, and a subtle
-thumb shadow. Text can be multi-line.
+On/off switch with animated thumb, optional label, and thumb shadow.
 
 ```csharp
 public class Toggle : BaseControl<Toggle>
@@ -11,16 +10,16 @@ public class Toggle : BaseControl<Toggle>
 
 ## Properties
 
-| Property | Type | Default | Description |
-| --- | --- | --- | --- |
-| `Width` / `Height` | `float` | `0` | Auto-sized when `0`. |
-| `Text` | `string` | `""` | Multi-line. |
-| `FontSize` | `float` | `14f` | |
-| `Typeface` | `SKTypeface` | `FontManager.DefaultFont` | |
-| `IsOn` | `bool` | `false` | Animates the thumb. |
-| `TrackWidth` / `TrackHeight` | `float` | `36f` / `14f` | |
-| `ThumbSize` | `float` | `20f` | |
-| `TextGap` | `float` | `8f` | |
+| Property | Type | Default |
+| --- | --- | --- |
+| `Width` / `Height` | `float` | `0` (auto) |
+| `Text` | `string` | `""` (multi-line) |
+| `FontSize` | `float` | `14f` |
+| `Typeface` | `SKTypeface` | `FontManager.DefaultFont` |
+| `IsOn` | `bool` | `false` |
+| `TrackWidth` / `TrackHeight` | `float` | `36f` / `14f` |
+| `ThumbSize` | `float` | `20f` |
+| `TextGap` | `float` | `8f` |
 
 ## Events
 
@@ -28,44 +27,27 @@ public class Toggle : BaseControl<Toggle>
 public event Action<bool>? WhenToggled;
 ```
 
-Raised on user click. Programmatic `IsOn` changes do **not** raise it.
+Fires only on user click.
 
 ## Methods
 
-`DoesIntersect`, `OnUpdate`, `OnDraw`, `OnMouse` - standard overrides.
+`OnMouse` toggles on `ClickEvent`.
 
 ## Fluent API
 
 ```csharp
-public Toggle WithWidth(float width);
-public Toggle WithHeight(float height);
-public Toggle WithText(string text);
-public Toggle WithFontSize(float size);
-public Toggle WithTypeface(SKTypeface? typeface);
-public Toggle WithIsOn(bool isOn);
-public Toggle WithTrackWidth(float width);
-public Toggle WithTrackHeight(float height);
-public Toggle WithThumbSize(float size);
-public Toggle WithTextGap(float gap);
-
-public Toggle WithWhenToggled(Action<bool> handler);
+WithWidth, WithHeight, WithText, WithFontSize, WithTypeface,
+WithIsOn, WithTrackWidth, WithTrackHeight, WithThumbSize, WithTextGap,
+WithWhenToggled
 ```
 
 ## Example
 
 ```csharp
-var darkMode = new Toggle()
+new Toggle()
     .WithText("Enable dark mode\n(requires restart)")
     .WithIsOn(false)
     .WithWhenToggled(on => ApplyTheme(on ? ThemeMode.Dark : ThemeMode.Light))
     .WithLocation(24, 24)
     .WithAddToRenderer(renderer);
 ```
-
-!!! tip "Custom typefaces"
-    Load one through [`FontManager`](../font-manager.md) and pass it in:
-
-    ```csharp
-    var inter = FontManager.GetTypeface("Fonts/Inter-SemiBold.ttf");
-    control.WithTypeface(inter);
-    ```

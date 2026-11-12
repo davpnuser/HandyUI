@@ -2,7 +2,7 @@
 
 `HandyUI.Controls.Controls.TextInput`
 
-A single-line text editor. Line breaks and tabs are sanitized to spaces on
+Single-line text editor. Line breaks and tabs are sanitized to spaces on
 assignment.
 
 ```csharp
@@ -11,15 +11,15 @@ public class TextInput : BaseControl<TextInput>
 
 ## Properties
 
-| Property | Type | Default | Description |
-| --- | --- | --- | --- |
-| `Width` / `Height` | `float` | `0` | Auto-sized when `0`. |
-| `Text` | `string` | `""` | **Sanitized**: `\r\n`/`\r`/`\n` → space, `\t` → 4 spaces. |
-| `Placeholder` | `string` | `""` | |
-| `FontSize` | `float` | `14f` | |
-| `Typeface` | `SKTypeface` | `FontManager.DefaultFont` | |
-| `CornerRadius` | `float` | `4f` | |
-| `HorizontalPadding` / `VerticalPadding` | `float` | `12f` / `8f` | |
+| Property | Type | Default |
+| --- | --- | --- |
+| `Width` / `Height` | `float` | `0` (auto) |
+| `Text` | `string` | `""` - sanitized: `\r\n`/`\r`/`\n` → space, `\t` → 4 spaces |
+| `Placeholder` | `string` | `""` |
+| `FontSize` | `float` | `14f` |
+| `Typeface` | `SKTypeface` | `FontManager.DefaultFont` |
+| `CornerRadius` | `float` | `4f` |
+| `HorizontalPadding` / `VerticalPadding` | `float` | `12f` / `8f` |
 
 ## Events
 
@@ -27,32 +27,28 @@ public class TextInput : BaseControl<TextInput>
 public event Action<string>? WhenTextChanged;
 ```
 
-Fires on every mutation (after sanitization for programmatic assignment).
+## Keyboard
 
-## Methods
-
-`DoesIntersect`, `OnUpdate`, `OnDraw`, `OnMouse`, `OnKey` - standard
-overrides.
+| Key | Behavior |
+| --- | --- |
+| Printable character | Insert at cursor. |
+| Backspace | Delete previous (Ctrl = word). |
+| Delete | Delete next (Ctrl = word). |
+| ← / → | Move cursor (Shift extends). |
+| Home / End | Jump to start / end. |
+| Ctrl+A | Select all. |
 
 ## Fluent API
 
 ```csharp
-public TextInput WithWidth(float width);
-public TextInput WithHeight(float height);
-public TextInput WithText(string text);
-public TextInput WithPlaceholder(string placeholder);
-public TextInput WithFontSize(float size);
-public TextInput WithTypeface(SKTypeface? typeface);
-public TextInput WithCornerRadius(float radius);
-public TextInput WithPadding(float horizontal, float vertical);
-
-public TextInput WithWhenTextChanged(Action<string> handler);
+WithWidth, WithHeight, WithText, WithPlaceholder, WithFontSize,
+WithTypeface, WithCornerRadius, WithPadding, WithWhenTextChanged
 ```
 
 ## Example
 
 ```csharp
-var search = new TextInput()
+new TextInput()
     .WithWidth(260)
     .WithPlaceholder("Search…")
     .WithCornerRadius(8)
@@ -60,11 +56,3 @@ var search = new TextInput()
     .WithLocation(24, 24)
     .WithAddToRenderer(renderer);
 ```
-
-!!! tip "Custom typefaces"
-    Load one through [`FontManager`](../font-manager.md) and pass it in:
-
-    ```csharp
-    var inter = FontManager.GetTypeface("Fonts/Inter-SemiBold.ttf");
-    control.WithTypeface(inter);
-    ```

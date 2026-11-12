@@ -1,8 +1,7 @@
-﻿using HandyUI.Core.v1.Base;
-using HandyUI.Core.v1.Components;
-using HandyUI.Core.v1.Data;
-using HandyUI.Core.v1.Enums;
-using HandyUI.Core.v1.Theming;
+﻿using HandyUI.Core.Abstractions.Base;
+using HandyUI.Core.Data;
+using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;
@@ -81,7 +80,7 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         get => _font.Typeface ?? FontManager.DefaultFont;
         set
         {
-            var v = value ?? FontManager.DefaultFont!;
+            var v = value ?? FontManager.DefaultFont;
             if (ReferenceEquals(_font.Typeface, v)) return;
             _font.Typeface = v;
             ResizeToContent();
@@ -146,8 +145,8 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
     private float _focusAmount;
     private float _cursorBlink;
     private bool _lastFocused;
-    private TweenHandle _focusTween;
-    private TweenHandle _cursorTween;
+    private Tween? _focusTween;
+    private Tween? _cursorTween;
 
     #endregion
 
@@ -175,19 +174,25 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
 
     #region Overrides
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint point)
     {
-        return clientPoint is { } p && Bounds.Contains(p);
+        return Bounds.Contains(point);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(UpdateContext updateContext)
     {
-        if (_lastFocused != IsFocused)
+        if (_lastFocused == IsFocused) return;
+        _lastFocused = IsFocused;
+        StartFocusAnimation(updateContext.TweenManager, IsFocused ? 1f : 0f);
+        if (IsFocused)
         {
-            _lastFocused = IsFocused;
-            StartFocusAnimation(IsFocused ? 1f : 0f);
-            if (IsFocused) { StartCursorBlink(); WhenFocusGained?.Invoke(); }
-            else { StopCursorBlink(); WhenFocusLost?.Invoke(); }
+            StartCursorBlink(updateContext.TweenManager);
+            WhenFocusGained?.Invoke();
+        }
+        else
+        {
+            StopCursorBlink();
+            WhenFocusLost?.Invoke();
         }
     }
 
@@ -199,7 +204,7 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
 
         var rect = new SKRect(0, 0, w, h);
 
-        _bgPaint.Color = IsEnabled
+        _bgPaint.Color = Enabled
             ? ThemeManager.Instance.SurfaceSecondary
             : ThemeManager.Instance.DisabledSurface;
         canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _bgPaint);
@@ -216,7 +221,7 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
             canvas.DrawRoundRect(borderRect, CornerRadius, CornerRadius, _borderPaint);
         }
 
-        _textPaint.Color = IsEnabled
+        _textPaint.Color = Enabled
             ? ThemeManager.Instance.TextPrimary
             : ThemeManager.Instance.TextDisabled;
 
@@ -231,41 +236,41 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         {
             _placeholderPaint.Color = ThemeManager.Instance.TextTertiary;
             canvas.DrawText(Placeholder, Padding, firstBaseline, SKTextAlign.Left, _font, _placeholderPaint);
+            canvas.Restore();
+            return;
         }
-        else
+
+        var lines = Text.Split('\n');
+
+        if (HasSelection)
+            DrawSelection(canvas, lines, firstBaseline, lineHeight);
+
+        var y = firstBaseline;
+        for (var i = 0; i < lines.Length; i++)
         {
-            var lines = Text.Split('\n');
+            canvas.DrawText(lines[i], Padding, y, SKTextAlign.Left, _font, _textPaint);
+            y += lineHeight;
+        }
 
-            if (HasSelection)
-                DrawSelection(canvas, lines, firstBaseline, lineHeight);
+        if (IsFocused && _cursorBlink > 0.5f)
+        {
+            var (line, col) = GetLineCol(_cursorIndex, lines);
+            var safeLine = Math.Min(line, lines.Length - 1);
+            var beforeText = lines[safeLine][..Math.Min(col, lines[safeLine].Length)];
+            var cursorX = Padding + _font.MeasureText(beforeText);
+            var cursorY = firstBaseline + (safeLine * lineHeight);
 
-            var y = firstBaseline;
-            for (var i = 0; i < lines.Length; i++)
-            {
-                canvas.DrawText(lines[i], Padding, y, SKTextAlign.Left, _font, _textPaint);
-                y += lineHeight;
-            }
-
-            if (IsFocused && _cursorBlink > 0.5f)
-            {
-                var (line, col) = GetLineCol(_cursorIndex, lines);
-                var safeLine = Math.Min(line, lines.Length - 1);
-                var beforeText = lines[safeLine][..Math.Min(col, lines[safeLine].Length)];
-                var cursorX = Padding + _font.MeasureText(beforeText);
-                var cursorY = firstBaseline + (safeLine * lineHeight);
-
-                _cursorPaint.Color = ThemeManager.Instance.Accent;
-                _cursorPaint.StrokeWidth = 1.5f;
-                canvas.DrawLine(cursorX, cursorY - FontSize, cursorX, cursorY, _cursorPaint);
-            }
+            _cursorPaint.Color = ThemeManager.Instance.Accent;
+            _cursorPaint.StrokeWidth = 1.5f;
+            canvas.DrawLine(cursorX, cursorY - FontSize, cursorX, cursorY, _cursorPaint);
         }
 
         canvas.Restore();
     }
 
-    protected override bool OnMouse(MouseEventContext ctx)
+    protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (ctx.Type == MouseEventType.MouseDown && IsHovered && ctx.ClientPosition is { } p)
+        if (eventContext.Type == MouseEventType.MouseDownEvent && IsHovered && eventContext.MousePosition is { } p)
         {
             RequestFocus();
             _isMouseSelecting = true;
@@ -274,20 +279,20 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
             return true;
         }
 
-        if (ctx.Type == MouseEventType.Move && _isMouseSelecting && ctx.ClientPosition is { } mp)
+        if (eventContext.Type == MouseEventType.MoveEvent && _isMouseSelecting && eventContext.MousePosition is { } mp)
         {
             _cursorIndex = IndexFromPoint(mp);
             Invalidate();
             return true;
         }
 
-        if (ctx.Type == MouseEventType.MouseUp && _isMouseSelecting)
+        if (eventContext.Type == MouseEventType.MouseUpEvent && _isMouseSelecting)
         {
             _isMouseSelecting = false;
             return true;
         }
 
-        if (ctx.Type == MouseEventType.Click && IsHovered)
+        if (eventContext.Type == MouseEventType.ClickEvent && IsHovered)
         {
             RequestFocus();
             return true;
@@ -296,46 +301,45 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         return false;
     }
 
-    protected override bool OnKey(KeyEventContext ctx)
+    protected override bool OnKey(KeyEventContext eventContext)
     {
-        if (ctx.Type == KeyEventType.CharInput && ctx.Character != '\0' && !char.IsControl(ctx.Character))
+        if (eventContext.Type == KeyEventType.CharInput && eventContext.Character != '\0' && !char.IsControl(eventContext.Character))
         {
             if (HasSelection) DeleteSelection();
-            Text = Text.Insert(_cursorIndex, ctx.Character.ToString());
+            Text = Text.Insert(_cursorIndex, eventContext.Character.ToString());
             _cursorIndex++;
             _selectionAnchor = _cursorIndex;
             WhenTextChanged?.Invoke(Text);
             return true;
         }
 
-        if (ctx.Type == KeyEventType.KeyDown)
+        if (eventContext.Type != KeyEventType.KeyDown) return false;
+
+        switch (eventContext.KeyCode)
         {
-            switch (ctx.KeyCode)
-            {
-                case 13:
-                    if (HasSelection) DeleteSelection();
-                    Text = Text.Insert(_cursorIndex, "\n");
-                    _cursorIndex++;
-                    _selectionAnchor = _cursorIndex;
-                    WhenTextChanged?.Invoke(Text);
+            case 13:
+                if (HasSelection) DeleteSelection();
+                Text = Text.Insert(_cursorIndex, "\n");
+                _cursorIndex++;
+                _selectionAnchor = _cursorIndex;
+                WhenTextChanged?.Invoke(Text);
+                return true;
+            case 8: HandleBackspace(eventContext); return true;
+            case 46: HandleDelete(eventContext); return true;
+            case 37: HandleLeft(eventContext); return true;
+            case 39: HandleRight(eventContext); return true;
+            case 38: HandleUp(eventContext); return true;
+            case 40: HandleDown(eventContext); return true;
+            case 36: HandleHome(eventContext); return true;
+            case 35: HandleEnd(eventContext); return true;
+            case 65:
+                if (eventContext.IsControlPressed)
+                {
+                    _selectionAnchor = 0;
+                    _cursorIndex = Text.Length;
                     return true;
-                case 8: HandleBackspace(ctx); return true;
-                case 46: HandleDelete(ctx); return true;
-                case 37: HandleLeft(ctx); return true;
-                case 39: HandleRight(ctx); return true;
-                case 38: HandleUp(ctx); return true;
-                case 40: HandleDown(ctx); return true;
-                case 36: HandleHome(ctx); return true;
-                case 35: HandleEnd(ctx); return true;
-                case 65:
-                    if (ctx.IsControlPressed)
-                    {
-                        _selectionAnchor = 0;
-                        _cursorIndex = Text.Length;
-                        return true;
-                    }
-                    break;
-            }
+                }
+                break;
         }
 
         return false;
@@ -442,7 +446,11 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         {
             _cursorIndex = newPos;
         }
-        else { _cursorIndex = HasSelection ? SelectionStart : newPos; _selectionAnchor = _cursorIndex; }
+        else
+        {
+            _cursorIndex = HasSelection ? SelectionStart : newPos;
+            _selectionAnchor = _cursorIndex;
+        }
         Invalidate();
     }
 
@@ -453,7 +461,11 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         {
             _cursorIndex = newPos;
         }
-        else { _cursorIndex = HasSelection ? SelectionEnd : newPos; _selectionAnchor = _cursorIndex; }
+        else
+        {
+            _cursorIndex = HasSelection ? SelectionEnd : newPos;
+            _selectionAnchor = _cursorIndex;
+        }
         Invalidate();
     }
 
@@ -599,37 +611,32 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         Bounds = new SKRect(0, 0, w, h);
     }
 
-    private void StartFocusAnimation(float target)
+    private void StartFocusAnimation(TweenManager tweener, float target)
     {
-        if (Tweener.Current is not { } tweener) return;
         var current = _focusAmount;
-        _focusTween.Cancel();
+        if (_focusTween is { IsValid: true }) _focusTween.Cancel();
         _focusAmount = current;
         if (Math.Abs(current - target) < 0.001f) return;
         _focusTween = tweener.To(current, target, 0.15f,
             v => { _focusAmount = v; Invalidate(); }, EaseType.SineOut);
     }
 
-    private void StartCursorBlink()
+    private void StartCursorBlink(TweenManager tweener)
     {
-        if (Tweener.Current is not { } tweener) return;
-        _cursorTween.Cancel();
+        if (_cursorTween is { IsValid: true }) _cursorTween.Cancel();
         _cursorBlink = 1f;
         _cursorTween = tweener.To(1f, 0f, 0.5f,
             v => { _cursorBlink = v; Invalidate(); },
             EaseType.Linear,
-            RestartCursorBlink);
-    }
-
-    private void RestartCursorBlink()
-    {
-        if (!IsFocused) return;
-        StartCursorBlink();
+            () =>
+            {
+                if (IsFocused) StartCursorBlink(tweener);
+            });
     }
 
     private void StopCursorBlink()
     {
-        _cursorTween.Cancel();
+        if (_cursorTween is { IsValid: true }) _cursorTween.Cancel();
         _cursorBlink = 0f;
         Invalidate();
     }
@@ -647,7 +654,6 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
     public MultilineTextInput WithLineSpacing(float spacing) { LineSpacing = spacing; return Self; }
     public MultilineTextInput WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
     public MultilineTextInput WithPadding(float padding) { Padding = padding; return Self; }
-
     public MultilineTextInput WithWhenTextChanged(Action<string> handler) { WhenTextChanged += handler; return Self; }
     public MultilineTextInput WithWhenFocusGained(Action handler) { WhenFocusGained += handler; return Self; }
     public MultilineTextInput WithWhenFocusLost(Action handler) { WhenFocusLost += handler; return Self; }
@@ -658,8 +664,8 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
 
     protected override void OnDispose()
     {
-        _focusTween.Cancel();
-        _cursorTween.Cancel();
+        if (_focusTween is { IsValid: true }) _focusTween.Cancel();
+        if (_cursorTween is { IsValid: true }) _cursorTween.Cancel();
         _font.Dispose();
         _bgPaint.Dispose();
         _textPaint.Dispose();

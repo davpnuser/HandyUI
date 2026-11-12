@@ -1,9 +1,8 @@
-﻿using HandyUI.Core.v1.Base;
-using HandyUI.Core.v1.Components;
-using HandyUI.Core.v1.Data;
-using HandyUI.Core.v1.Enums;
-using HandyUI.Core.v1.Helper;
-using HandyUI.Core.v1.Theming;
+﻿using HandyUI.Core.Abstractions.Base;
+using HandyUI.Core.Data;
+using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
+using HandyUI.Core.Helpers.Extensions;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;
@@ -66,10 +65,10 @@ public class Toggle : BaseControl<Toggle>
 
     public SKTypeface Typeface
     {
-        get => _font.Typeface ?? FontManager.DefaultFont!;
+        get => _font.Typeface ?? FontManager.DefaultFont;
         set
         {
-            var v = value ?? FontManager.DefaultFont!;
+            var v = value ?? FontManager.DefaultFont;
             if (ReferenceEquals(_font.Typeface, v)) return;
             _font.Typeface = v;
             ResizeToContent();
@@ -84,7 +83,7 @@ public class Toggle : BaseControl<Toggle>
         {
             if (field == value) return;
             field = value;
-            StartToggleAnimation(value ? 1f : 0f);
+            _pendingToggleTarget = value ? 1f : 0f;
             Invalidate();
         }
     }
@@ -154,8 +153,9 @@ public class Toggle : BaseControl<Toggle>
     private float _toggleAmount;
     private float _hoverAmount;
     private bool _lastHovered;
-    private TweenHandle _toggleTween;
-    private TweenHandle _hoverTween;
+    private float? _pendingToggleTarget;
+    private Tween? _toggleTween;
+    private Tween? _hoverTween;
 
     #endregion
 
@@ -181,16 +181,31 @@ public class Toggle : BaseControl<Toggle>
 
     #region Overrides
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint point)
     {
-        return clientPoint is { } p && Bounds.Contains(p);
+        return Bounds.Contains(point);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(UpdateContext updateContext)
     {
-        if (_lastHovered == IsHovered) return;
-        _lastHovered = IsHovered;
-        StartHoverAnimation(IsHovered ? 1f : 0f);
+        if (_lastHovered != IsHovered)
+        {
+            _lastHovered = IsHovered;
+            StartHoverAnimation(updateContext.TweenManager, IsHovered ? 1f : 0f);
+        }
+
+        if (_pendingToggleTarget is { } target)
+        {
+            _pendingToggleTarget = null;
+            var current = _toggleAmount;
+            if (_toggleTween is { IsValid: true }) _toggleTween.Cancel();
+            _toggleAmount = current;
+            if (Math.Abs(current - target) > 0.001f)
+            {
+                _toggleTween = updateContext.TweenManager.To(current, target, 0.2f,
+                    v => { _toggleAmount = v; Invalidate(); }, EaseType.CubicOut);
+            }
+        }
     }
 
     public override void OnDraw(SKCanvas canvas)
@@ -206,7 +221,8 @@ public class Toggle : BaseControl<Toggle>
         var trackColor = ThemeManager.Instance.TextTertiary;
         if (_toggleAmount > 0.001f)
             trackColor = trackColor.Lerp(ThemeManager.Instance.Accent.WithAlpha(140), _toggleAmount);
-        if (!IsEnabled) trackColor = ThemeManager.Instance.DisabledSurface;
+
+        if (!Enabled) trackColor = ThemeManager.Instance.DisabledSurface;
 
         _trackPaint.Color = trackColor;
         canvas.DrawRoundRect(trackRect, trackH * 0.5f, trackH * 0.5f, _trackPaint);
@@ -223,37 +239,33 @@ public class Toggle : BaseControl<Toggle>
         _thumbPaint.Color = _toggleAmount < 0.5f
             ? ThemeManager.Instance.GetTone(200)
             : ThemeManager.Instance.Accent;
-        if (!IsEnabled) _thumbPaint.Color = ThemeManager.Instance.GetTone(400);
+        if (!Enabled) _thumbPaint.Color = ThemeManager.Instance.GetTone(400);
 
         canvas.DrawCircle(thumbCX, thumbCY, thumbR, _thumbPaint);
 
-        if (!string.IsNullOrEmpty(Text))
-        {
-            _textPaint.Color = IsEnabled
-                ? ThemeManager.Instance.TextPrimary
-                : ThemeManager.Instance.TextDisabled;
+        if (string.IsNullOrEmpty(Text)) return;
 
-            var fm = _font.Metrics;
-            var lineHeight = fm.Descent - fm.Ascent;
-            var lines = Text.Split('\n');
-            var totalH = lines.Length * lineHeight;
-            var topY = (Bounds.Height - totalH) * 0.5f;
-            var baseline = topY - fm.Ascent;
+        _textPaint.Color = Enabled
+            ? ThemeManager.Instance.TextPrimary
+            : ThemeManager.Instance.TextDisabled;
 
-            for (var i = 0; i < lines.Length; i++)
-                canvas.DrawText(lines[i], trackW + TextGap, baseline + (i * lineHeight), SKTextAlign.Left, _font, _textPaint);
-        }
+        var fm = _font.Metrics;
+        var lineHeight = fm.Descent - fm.Ascent;
+        var lines = Text.Split('\n');
+        var totalH = lines.Length * lineHeight;
+        var topY = (Bounds.Height - totalH) * 0.5f;
+        var baseline = topY - fm.Ascent;
+
+        for (var i = 0; i < lines.Length; i++)
+            canvas.DrawText(lines[i], trackW + TextGap, baseline + (i * lineHeight), SKTextAlign.Left, _font, _textPaint);
     }
 
-    protected override bool OnMouse(MouseEventContext ctx)
+    protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (ctx.Type == MouseEventType.Click && IsHovered)
-        {
-            IsOn = !IsOn;
-            WhenToggled?.Invoke(IsOn);
-            return true;
-        }
-        return false;
+        if (eventContext.Type != MouseEventType.ClickEvent || !IsHovered) return false;
+        IsOn = !IsOn;
+        WhenToggled?.Invoke(IsOn);
+        return true;
     }
 
     #endregion
@@ -275,36 +287,16 @@ public class Toggle : BaseControl<Toggle>
         }
 
         var contentH = Math.Max(ThumbSize, Math.Max(TrackHeight, textHeight));
-        var contentW = string.IsNullOrEmpty(Text)
-            ? TrackWidth
-            : TrackWidth + TextGap + maxTextWidth;
+        var contentW = string.IsNullOrEmpty(Text) ? TrackWidth : TrackWidth + TextGap + maxTextWidth;
         var w = Width > 0f ? Width : contentW;
         var h = Height > 0f ? Height : contentH;
         Bounds = new SKRect(0, 0, w, h);
     }
 
-    private void StartToggleAnimation(float target)
+    private void StartHoverAnimation(TweenManager tweener, float target)
     {
-        if (Tweener.Current is not { } tweener)
-        {
-            _toggleAmount = target;
-            Invalidate();
-            return;
-        }
-
-        var current = _toggleAmount;
-        _toggleTween.Cancel();
-        _toggleAmount = current;
-        if (Math.Abs(current - target) < 0.001f) return;
-        _toggleTween = tweener.To(current, target, 0.2f,
-            v => { _toggleAmount = v; Invalidate(); }, EaseType.CubicOut);
-    }
-
-    private void StartHoverAnimation(float target)
-    {
-        if (Tweener.Current is not { } tweener) return;
         var current = _hoverAmount;
-        _hoverTween.Cancel();
+        if (_hoverTween is { IsValid: true }) _hoverTween.Cancel();
         _hoverAmount = current;
         if (Math.Abs(current - target) < 0.001f) return;
         _hoverTween = tweener.To(current, target, 0.15f,
@@ -325,7 +317,6 @@ public class Toggle : BaseControl<Toggle>
     public Toggle WithTrackHeight(float height) { TrackHeight = height; return Self; }
     public Toggle WithThumbSize(float size) { ThumbSize = size; return Self; }
     public Toggle WithTextGap(float gap) { TextGap = gap; return Self; }
-
     public Toggle WithWhenToggled(Action<bool> handler) { WhenToggled += handler; return Self; }
 
     #endregion
@@ -334,8 +325,8 @@ public class Toggle : BaseControl<Toggle>
 
     protected override void OnDispose()
     {
-        _toggleTween.Cancel();
-        _hoverTween.Cancel();
+        if (_toggleTween is { IsValid: true }) _toggleTween.Cancel();
+        if (_hoverTween is { IsValid: true }) _hoverTween.Cancel();
         _font.Dispose();
         _trackPaint.Dispose();
         _thumbPaint.Dispose();

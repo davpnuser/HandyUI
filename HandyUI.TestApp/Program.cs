@@ -1,4 +1,5 @@
-﻿using HandyUI.Core.Helpers;
+﻿using HandyUI.Controls.Controls;
+using HandyUI.Core.Helpers;
 using HandyUI.SilkNet.Data;
 using HandyUI.SilkNet.Helper;
 using SkiaSharp;
@@ -6,14 +7,24 @@ using SkiaSharp;
 var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(
     WindowConfiguration.Default with
     {
-        Title = "Profiler Demo",
-        UseDirtyRendering = false,
+        Title = "Demo",
         Icon = ResourceManager.GetResourceByPath("Resources/HandyUI-SmallLogo.png", out var iconStream)
         ? SKImage.FromEncodedData(iconStream)
         : null
     });
 
-//ThemeManager.Instance.SetTheme(50, 50, 50, ThemeMode.Dark);
+var a = new Label()
+    .WithText("Hello, World!")
+    .WithFontSize(24)
+    .WithLocation(15, 15)
+    .WithAddToRenderer(renderer);
+
+var b = new Button()
+    .WithText("Hello, World!")
+    .WithLocation(15, 45)
+    .WithAddToRenderer(renderer);
+a.Focusable = true;
+b.Focusable = true;
 
 renderer.UseProfiler = true;
 

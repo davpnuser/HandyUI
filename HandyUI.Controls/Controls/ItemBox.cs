@@ -1,8 +1,7 @@
-﻿using HandyUI.Core.v1.Base;
-using HandyUI.Core.v1.Components;
-using HandyUI.Core.v1.Data;
-using HandyUI.Core.v1.Enums;
-using HandyUI.Core.v1.Theming;
+﻿using HandyUI.Core.Abstractions.Base;
+using HandyUI.Core.Data;
+using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;
@@ -65,10 +64,10 @@ public class ItemBox : BaseControl<ItemBox>
 
     public SKTypeface Typeface
     {
-        get => _font.Typeface ?? FontManager.DefaultFont!;
+        get => _font.Typeface ?? FontManager.DefaultFont;
         set
         {
-            var v = value ?? FontManager.DefaultFont!;
+            var v = value ?? FontManager.DefaultFont;
             if (ReferenceEquals(_font.Typeface, v)) return;
             _font.Typeface = v;
             ResizeToContent();
@@ -83,7 +82,7 @@ public class ItemBox : BaseControl<ItemBox>
         {
             if (field == value) return;
             field = value;
-            StartSelectAnimation(value ? 1f : 0f);
+            _pendingSelectTarget = value ? 1f : 0f;
             WhenSelectionChanged?.Invoke(value);
             Invalidate();
         }
@@ -126,8 +125,9 @@ public class ItemBox : BaseControl<ItemBox>
     private float _hoverAmount;
     private float _selectAmount;
     private bool _lastHovered;
-    private TweenHandle _hoverTween;
-    private TweenHandle _selectTween;
+    private float? _pendingSelectTarget;
+    private Tween? _hoverTween;
+    private Tween? _selectTween;
 
     #endregion
 
@@ -156,19 +156,32 @@ public class ItemBox : BaseControl<ItemBox>
 
     #region Overrides
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint point)
     {
-        return clientPoint is { } p && Bounds.Contains(p);
+        return Bounds.Contains(point);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(UpdateContext updateContext)
     {
         if (_lastHovered != IsHovered)
         {
             _lastHovered = IsHovered;
-            StartHoverAnimation(IsHovered ? 1f : 0f);
+            StartHoverAnimation(updateContext.TweenManager, IsHovered ? 1f : 0f);
             if (IsHovered) WhenHoverEntered?.Invoke();
             else WhenHoverExited?.Invoke();
+        }
+
+        if (_pendingSelectTarget is { } target)
+        {
+            _pendingSelectTarget = null;
+            var current = _selectAmount;
+            if (_selectTween is { IsValid: true }) _selectTween.Cancel();
+            _selectAmount = current;
+            if (Math.Abs(current - target) > 0.001f)
+            {
+                _selectTween = updateContext.TweenManager.To(current, target, 0.15f,
+                    v => { _selectAmount = v; Invalidate(); }, EaseType.SineOut);
+            }
         }
     }
 
@@ -195,44 +208,40 @@ public class ItemBox : BaseControl<ItemBox>
             canvas.DrawRect(rect, _bgPaint);
         }
 
-        if (!string.IsNullOrEmpty(Text))
-        {
-            _textPaint.Color = IsEnabled
-                ? ThemeManager.Instance.TextPrimary
-                : ThemeManager.Instance.TextDisabled;
+        if (string.IsNullOrEmpty(Text)) return;
 
-            var fm = _font.Metrics;
-            var lineHeight = fm.Descent - fm.Ascent;
-            var lines = Text.Split('\n');
-            var totalH = lines.Length * lineHeight;
-            var topY = (h - totalH) * 0.5f;
-            var baseline = topY - fm.Ascent;
+        _textPaint.Color = Enabled
+            ? ThemeManager.Instance.TextPrimary
+            : ThemeManager.Instance.TextDisabled;
 
-            for (var i = 0; i < lines.Length; i++)
-                canvas.DrawText(lines[i], HorizontalPadding, baseline + (i * lineHeight), SKTextAlign.Left, _font, _textPaint);
-        }
+        var fm = _font.Metrics;
+        var lineHeight = fm.Descent - fm.Ascent;
+        var lines = Text.Split('\n');
+        var totalH = lines.Length * lineHeight;
+        var topY = (h - totalH) * 0.5f;
+        var baseline = topY - fm.Ascent;
+
+        for (var i = 0; i < lines.Length; i++)
+            canvas.DrawText(lines[i], HorizontalPadding, baseline + (i * lineHeight), SKTextAlign.Left, _font, _textPaint);
     }
 
-    protected override bool OnMouse(MouseEventContext ctx)
+    protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (ctx.Type == MouseEventType.MouseDown && IsHovered)
+        if (eventContext.Type != MouseEventType.MouseDownEvent || !IsHovered) return false;
+
+        var newState = !IsSelected;
+        if (newState)
         {
-            var newState = !IsSelected;
-
-            if (newState)
-            {
-                DeselectSiblings();
-                IsSelected = true;
-            }
-            else
-            {
-                IsSelected = false;
-            }
-
-            WhenClicked?.Invoke(this);
-            return true;
+            DeselectSiblings();
+            IsSelected = true;
         }
-        return false;
+        else
+        {
+            IsSelected = false;
+        }
+
+        WhenClicked?.Invoke(this);
+        return true;
     }
 
     #endregion
@@ -270,31 +279,14 @@ public class ItemBox : BaseControl<ItemBox>
         Bounds = new SKRect(0, 0, w, h);
     }
 
-    private void StartHoverAnimation(float target)
+    private void StartHoverAnimation(TweenManager tweener, float target)
     {
-        if (Tweener.Current is not { } tweener) return;
         var current = _hoverAmount;
-        _hoverTween.Cancel();
+        if (_hoverTween is { IsValid: true }) _hoverTween.Cancel();
         _hoverAmount = current;
         if (Math.Abs(current - target) < 0.001f) return;
         _hoverTween = tweener.To(current, target, 0.12f,
             v => { _hoverAmount = v; Invalidate(); }, EaseType.SineOut);
-    }
-
-    private void StartSelectAnimation(float target)
-    {
-        if (Tweener.Current is not { } tweener)
-        {
-            _selectAmount = target;
-            return;
-        }
-
-        var current = _selectAmount;
-        _selectTween.Cancel();
-        _selectAmount = current;
-        if (Math.Abs(current - target) < 0.001f) return;
-        _selectTween = tweener.To(current, target, 0.15f,
-            v => { _selectAmount = v; Invalidate(); }, EaseType.SineOut);
     }
 
     #endregion
@@ -308,7 +300,6 @@ public class ItemBox : BaseControl<ItemBox>
     public ItemBox WithTypeface(SKTypeface? typeface) { Typeface = typeface!; return Self; }
     public ItemBox WithIsSelected(bool selected) { IsSelected = selected; return Self; }
     public ItemBox WithPadding(float horizontal, float vertical) { HorizontalPadding = horizontal; VerticalPadding = vertical; return Self; }
-
     public ItemBox WithWhenClicked(Action<ItemBox> handler) { WhenClicked += handler; return Self; }
     public ItemBox WithWhenSelectionChanged(Action<bool> handler) { WhenSelectionChanged += handler; return Self; }
     public ItemBox WithWhenHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
@@ -320,8 +311,8 @@ public class ItemBox : BaseControl<ItemBox>
 
     protected override void OnDispose()
     {
-        _hoverTween.Cancel();
-        _selectTween.Cancel();
+        if (_hoverTween is { IsValid: true }) _hoverTween.Cancel();
+        if (_selectTween is { IsValid: true }) _selectTween.Cancel();
         _font.Dispose();
         _bgPaint.Dispose();
         _textPaint.Dispose();

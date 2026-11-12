@@ -2,7 +2,7 @@
 
 `HandyUI.Controls.Controls.ItemBox`
 
-A selectable list-style item. Selection is **exclusive among siblings**.
+Selectable list item with sibling-exclusive selection.
 
 ```csharp
 public class ItemBox : BaseControl<ItemBox>
@@ -10,14 +10,17 @@ public class ItemBox : BaseControl<ItemBox>
 
 ## Properties
 
-| Property | Type | Default | Description |
-| --- | --- | --- | --- |
-| `Width` / `Height` | `float` | `0` | Auto-sized when `0`. |
-| `Text` | `string` | `""` | Multi-line. |
-| `FontSize` | `float` | `14f` | |
-| `Typeface` | `SKTypeface` | `FontManager.DefaultFont` | |
-| `IsSelected` | `bool` | `false` | Animates a highlight + 3-pixel accent bar. Auto-deselects siblings. |
-| `HorizontalPadding` / `VerticalPadding` | `float` | `16f` / `8f` | |
+| Property | Type | Default |
+| --- | --- | --- |
+| `Width` / `Height` | `float` | `0` (auto) |
+| `Text` | `string` | `""` (multi-line) |
+| `FontSize` | `float` | `14f` |
+| `Typeface` | `SKTypeface` | `FontManager.DefaultFont` |
+| `IsSelected` | `bool` | `false` |
+| `HorizontalPadding` / `VerticalPadding` | `float` | `16f` / `8f` |
+
+`IsSelected = true` animates an accent background and 3-pixel accent bar,
+and clears `IsSelected` on any sibling `ItemBox` under the same parent.
 
 ## Events
 
@@ -30,23 +33,16 @@ public event Action? WhenHoverExited;
 
 ## Methods
 
-`DoesIntersect`, `OnUpdate`, `OnDraw`, `OnMouse` - standard overrides.
+`OnMouse` toggles selection on `MouseDownEvent` (not `ClickEvent`) so
+selection happens immediately on press.
 
 ## Fluent API
 
 ```csharp
-public ItemBox WithWidth(float width);
-public ItemBox WithHeight(float height);
-public ItemBox WithText(string text);
-public ItemBox WithFontSize(float size);
-public ItemBox WithTypeface(SKTypeface? typeface);
-public ItemBox WithIsSelected(bool selected);
-public ItemBox WithPadding(float horizontal, float vertical);
-
-public ItemBox WithWhenClicked(Action<ItemBox> handler);
-public ItemBox WithWhenSelectionChanged(Action<bool> handler);
-public ItemBox WithWhenHoverEntered(Action handler);
-public ItemBox WithWhenHoverExited(Action handler);
+WithWidth, WithHeight, WithText, WithFontSize, WithTypeface,
+WithIsSelected, WithPadding,
+WithWhenClicked(Action<ItemBox>), WithWhenSelectionChanged(Action<bool>),
+WithWhenHoverEntered, WithWhenHoverExited
 ```
 
 ## Example
@@ -55,18 +51,5 @@ public ItemBox WithWhenHoverExited(Action handler);
 var list = new Frame().WithSize(240, 200).WithAddToRenderer(renderer);
 
 foreach (var name in new[] { "Inbox", "Sent", "Drafts" })
-{
-    new ItemBox()
-        .WithText(name)
-        .WithWidth(240)
-        .WithParent(list);
-}
+    new ItemBox().WithText(name).WithWidth(240).WithParent(list);
 ```
-
-!!! tip "Custom typefaces"
-    Load one through [`FontManager`](../font-manager.md) and pass it in:
-
-    ```csharp
-    var inter = FontManager.GetTypeface("Fonts/Inter-SemiBold.ttf");
-    control.WithTypeface(inter);
-    ```

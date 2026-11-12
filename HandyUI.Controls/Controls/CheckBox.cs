@@ -1,9 +1,8 @@
-﻿using HandyUI.Core.v1.Base;
-using HandyUI.Core.v1.Components;
-using HandyUI.Core.v1.Data;
-using HandyUI.Core.v1.Enums;
-using HandyUI.Core.v1.Helper;
-using HandyUI.Core.v1.Theming;
+﻿using HandyUI.Core.Abstractions.Base;
+using HandyUI.Core.Data;
+using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
+using HandyUI.Core.Helpers.Extensions;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;
@@ -66,10 +65,10 @@ public class CheckBox : BaseControl<CheckBox>
 
     public SKTypeface Typeface
     {
-        get => _font.Typeface ?? FontManager.DefaultFont!;
+        get => _font.Typeface ?? FontManager.DefaultFont;
         set
         {
-            var v = value ?? FontManager.DefaultFont!;
+            var v = value ?? FontManager.DefaultFont;
             if (ReferenceEquals(_font.Typeface, v)) return;
             _font.Typeface = v;
             ResizeToContent();
@@ -140,8 +139,8 @@ public class CheckBox : BaseControl<CheckBox>
     private float _checkAmount;
     private float _hoverAmount;
     private bool _lastHovered;
-    private TweenHandle _checkTween;
-    private TweenHandle _hoverTween;
+    private Tween? _checkTween;
+    private Tween? _hoverTween;
 
     #endregion
 
@@ -167,16 +166,16 @@ public class CheckBox : BaseControl<CheckBox>
 
     #region Overrides
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint point)
     {
-        return clientPoint is { } p && Bounds.Contains(p);
+        return Bounds.Contains(point);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(UpdateContext updateContext)
     {
         if (_lastHovered == IsHovered) return;
         _lastHovered = IsHovered;
-        StartHoverAnimation(IsHovered ? 1f : 0f);
+        StartHoverAnimation(updateContext.TweenManager, IsHovered ? 1f : 0f);
     }
 
     public override void OnDraw(SKCanvas canvas)
@@ -197,7 +196,7 @@ public class CheckBox : BaseControl<CheckBox>
         if (_checkAmount > 0.001f)
             borderColor = borderColor.Lerp(ThemeManager.Instance.Accent, _checkAmount);
 
-        _borderPaint.Color = IsEnabled ? borderColor : ThemeManager.Instance.TextDisabled;
+        _borderPaint.Color = Enabled ? borderColor : ThemeManager.Instance.TextDisabled;
         _borderPaint.StrokeWidth = BorderWidth;
         canvas.DrawRect(rect, _borderPaint);
 
@@ -231,33 +230,29 @@ public class CheckBox : BaseControl<CheckBox>
             }
         }
 
-        if (!string.IsNullOrEmpty(Text))
-        {
-            _textPaint.Color = IsEnabled
-                ? ThemeManager.Instance.TextPrimary
-                : ThemeManager.Instance.TextDisabled;
+        if (string.IsNullOrEmpty(Text)) return;
 
-            var fm = _font.Metrics;
-            var lineHeight = fm.Descent - fm.Ascent;
-            var lines = Text.Split('\n');
-            var totalH = lines.Length * lineHeight;
-            var topY = (Bounds.Height - totalH) * 0.5f;
-            var baseline = topY - fm.Ascent;
+        _textPaint.Color = Enabled
+            ? ThemeManager.Instance.TextPrimary
+            : ThemeManager.Instance.TextDisabled;
 
-            for (var i = 0; i < lines.Length; i++)
-                canvas.DrawText(lines[i], size + TextGap, baseline + (i * lineHeight), SKTextAlign.Left, _font, _textPaint);
-        }
+        var fm = _font.Metrics;
+        var lineHeight = fm.Descent - fm.Ascent;
+        var lines = Text.Split('\n');
+        var totalH = lines.Length * lineHeight;
+        var topY = (Bounds.Height - totalH) * 0.5f;
+        var baseline = topY - fm.Ascent;
+
+        for (var i = 0; i < lines.Length; i++)
+            canvas.DrawText(lines[i], size + TextGap, baseline + (i * lineHeight), SKTextAlign.Left, _font, _textPaint);
     }
 
-    protected override bool OnMouse(MouseEventContext ctx)
+    protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (ctx.Type == MouseEventType.Click && IsHovered)
-        {
-            IsChecked = !IsChecked;
-            WhenToggled?.Invoke(IsChecked);
-            return true;
-        }
-        return false;
+        if (eventContext.Type != MouseEventType.ClickEvent || !IsHovered) return false;
+        IsChecked = !IsChecked;
+        WhenToggled?.Invoke(IsChecked);
+        return true;
     }
 
     #endregion
@@ -279,9 +274,7 @@ public class CheckBox : BaseControl<CheckBox>
         }
 
         var contentH = Math.Max(BoxSize, textHeight);
-        var contentW = string.IsNullOrEmpty(Text)
-            ? BoxSize
-            : BoxSize + TextGap + maxTextWidth;
+        var contentW = string.IsNullOrEmpty(Text) ? BoxSize : BoxSize + TextGap + maxTextWidth;
         var w = Width > 0f ? Width : contentW;
         var h = Height > 0f ? Height : contentH;
         Bounds = new SKRect(0, 0, w, h);
@@ -289,26 +282,20 @@ public class CheckBox : BaseControl<CheckBox>
 
     private void StartCheckAnimation(float target)
     {
-        if (Tweener.Current is not { } tweener)
-        {
-            _checkAmount = target;
-            Invalidate();
-            return;
-        }
-
         var current = _checkAmount;
-        _checkTween.Cancel();
+        if (_checkTween is { IsValid: true }) _checkTween.Cancel();
         _checkAmount = current;
         if (Math.Abs(current - target) < 0.001f) return;
-        _checkTween = tweener.To(current, target, 0.2f,
-            v => { _checkAmount = v; Invalidate(); }, EaseType.CubicOut);
+        _checkTween = null;
+        _pendingCheckTarget = target;
     }
 
-    private void StartHoverAnimation(float target)
+    private float? _pendingCheckTarget;
+
+    private void StartHoverAnimation(TweenManager tweener, float target)
     {
-        if (Tweener.Current is not { } tweener) return;
         var current = _hoverAmount;
-        _hoverTween.Cancel();
+        if (_hoverTween is { IsValid: true }) _hoverTween.Cancel();
         _hoverAmount = current;
         if (Math.Abs(current - target) < 0.001f) return;
         _hoverTween = tweener.To(current, target, 0.12f,
@@ -328,7 +315,6 @@ public class CheckBox : BaseControl<CheckBox>
     public CheckBox WithBoxSize(float size) { BoxSize = size; return Self; }
     public CheckBox WithBorderWidth(float width) { BorderWidth = width; return Self; }
     public CheckBox WithTextGap(float gap) { TextGap = gap; return Self; }
-
     public CheckBox WithWhenToggled(Action<bool> handler) { WhenToggled += handler; return Self; }
 
     #endregion
@@ -337,8 +323,8 @@ public class CheckBox : BaseControl<CheckBox>
 
     protected override void OnDispose()
     {
-        _checkTween.Cancel();
-        _hoverTween.Cancel();
+        if (_checkTween is { IsValid: true }) _checkTween.Cancel();
+        if (_hoverTween is { IsValid: true }) _hoverTween.Cancel();
         _font.Dispose();
         _borderPaint.Dispose();
         _fillPaint.Dispose();
