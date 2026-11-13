@@ -2,9 +2,8 @@
 
 `HandyUI.Core.Components.UIRenderer`
 
-The render loop, input dispatcher, focus manager, and module host. It
-targets [`IHostWindow`](ihostwindow.md) rather than a concrete window - the
-Silk.NET package wires it up via [`RendererHelper.Attach`](silknet-helpers.md#rendererhelper).
+The render loop, input dispatcher, focus manager, and module host. Targets
+[`IHostWindow`](ihostwindow.md) instead of a concrete window.
 
 ```csharp
 public class UIRenderer : IDisposable
@@ -16,9 +15,10 @@ public class UIRenderer : IDisposable
 public UIRenderer(IHostWindow host);
 ```
 
-The constructor creates the shared [`TweenManager`](tween-manager.md), assigns
-it to `host.TweenManager`, and subscribes to `ThemeManager.ThemeChanged` so
-`BackgroundColor` follows the active theme.
+Creates the shared [`TweenManager`](tween-manager.md), assigns it to
+`host.TweenManager`, subscribes to `ThemeManager.ThemeChanged`, starts the
+internal `TotalTime` stopwatch, and detects debug builds to enable the
+profiler by default.
 
 ## Properties
 
@@ -28,8 +28,8 @@ it to `host.TweenManager`, and subscribes to `ThemeManager.ThemeChanged` so
 public SKColor BackgroundColor { get; set; }
 ```
 
-Defaults to `ThemeManager.Instance.BackgroundPrimary`. Assigning a color that
-differs from the theme marks the value as *custom* - subsequent theme
+Defaults to `ThemeManager.Instance.BackgroundPrimary`. Assigning a color
+different from the theme marks the value as *custom* - subsequent theme
 changes will no longer overwrite it.
 
 ### `TweenManager`
@@ -54,9 +54,8 @@ The currently focused control, or `null`.
 public bool UseProfiler { get; set; }
 ```
 
-Enables the built-in debug overlay (see [`ProfilerControl`](profiler-control.md)).
-Defaults to `true` in Debug builds, `false` in Release. Can be toggled at
-runtime with `Ctrl+Shift+G`.
+Toggles the built-in debug overlay. Defaults to `true` in Debug builds and
+`false` in Release. Can be toggled at runtime with **`Ctrl+Shift+G`**.
 
 ### `TotalTime`
 
@@ -64,7 +63,15 @@ runtime with `Ctrl+Shift+G`.
 public double TotalTime { get; }
 ```
 
-Total accumulated seconds of `UpdateModules` time.
+Total elapsed seconds since the `UIRenderer` was constructed. Backed by a
+`Stopwatch` that starts immediately and is **not** reset - it advances even
+while dirty rendering skips paint frames. This makes it suitable for
+long-running animations or session timers.
+
+!!! info "Wall-clock time, not tick time"
+    Earlier versions accumulated `TotalTime` only inside `UpdateModules`.
+    The current implementation uses a monotonic `Stopwatch`, so
+    `TotalTime` keeps ticking during idle frames of the dirty renderer.
 
 ## Events
 
@@ -72,8 +79,8 @@ Total accumulated seconds of `UpdateModules` time.
 public event Action? WhenInvalidated;
 ```
 
-Raised on every `Invalidate()` call. The Silk.NET adapter subscribes to
-this to wake the pump thread.
+Raised on every `Invalidate()`. The Silk.NET adapter subscribes to this to
+wake the pump thread.
 
 ## Methods
 
@@ -83,8 +90,8 @@ this to wake the pump thread.
 public void Invalidate();
 ```
 
-Marks the renderer dirty for two frames and raises `WhenInvalidated`.
-Also calls `_hostWindow.Invalidate()`.
+Marks the renderer dirty for two frames and raises `WhenInvalidated`. Also
+calls `_hostWindow.Invalidate()`.
 
 ### `AddControl(IControl)` / `RemoveControl(IControl)`
 
@@ -94,8 +101,8 @@ public void RemoveControl(IControl control);
 ```
 
 Queue a control for attach/detach. Attachment wires `WhenInvalidated` and
-`WhenFocusRequested`. Removal disposes the control and clears focus / press
-state.
+`WhenFocusRequested`. Removal clears focus / press state and disposes the
+control.
 
 ### `RenderControls(SKCanvas, SKPoint, float)`
 
@@ -103,8 +110,8 @@ state.
 public bool RenderControls(SKCanvas canvas, SKPoint cursorPosition, float deltaTime);
 ```
 
-Processes pending controls and draws the tree. Returns `false` if the dirty
-renderer skipped the pass (based on `host.UseDirtyRendering`).
+Processes pending controls and draws the tree. Returns `false` if the
+dirty renderer skipped the pass (`host.UseDirtyRendering && frames ≤ 0`).
 
 ### `UpdateModules(float)`
 
@@ -112,9 +119,8 @@ renderer skipped the pass (based on `host.UseDirtyRendering`).
 public bool UpdateModules(float deltaTime);
 ```
 
-Ticks every enabled module with a fresh `UpdateContext`. Runs regardless
-of dirty-rendering state (the dirty-skip line is commented out) so
-animations and logic always tick.
+Ticks every enabled module with a fresh `UpdateContext`. Modules always run
+regardless of dirty-rendering state - animations and logic tick every frame.
 
 ### `GetControlAt(SKPoint)`
 
@@ -122,8 +128,8 @@ animations and logic always tick.
 public IControl? GetControlAt(SKPoint clientPosition);
 ```
 
-Hit-tests the tree without dispatching an event. Respects `Visible`,
-`Enabled`, and `ClipChildren`.
+Hit-tests without dispatching. Respects `Visible`, `Enabled`, and
+`ClipChildren`.
 
 ### `IsPointOverAnyControl(SKPoint)`
 
@@ -140,8 +146,8 @@ public void FocusNext();
 public void FocusPrevious();
 ```
 
-Cycles through `Focusable` controls in `ZIndex` order. Called automatically
-by `ProcessKeyEvent` on **Tab** (Shift+Tab = previous).
+Cycles focus through `Focusable` controls in `ZIndex` order. Called
+automatically by `ProcessKeyEvent` on **Tab** (Shift+Tab = previous).
 
 ### `ProcessMouseEvent(MouseEventContext)`
 
@@ -149,16 +155,14 @@ by `ProcessKeyEvent` on **Tab** (Shift+Tab = previous).
 public void ProcessMouseEvent(MouseEventContext context);
 ```
 
-Order of processing:
-
 1. Returns early if `context.MousePosition == null`.
-2. Calls `ProcessPendingControls()`.
-3. Runs module input pipeline (stops on first module that returns `true`).
+2. Processes pending controls.
+3. Runs the module input pipeline (first module returning `true` consumes).
 4. Hit-tests controls (highest `ZIndex` first).
-5. On `MouseDownEvent`: sets `_pressedControl`, sets focus (or clears it).
+5. On `MouseDownEvent`: tracks `_pressedControl` and sets or clears focus.
 6. Dispatches recursively into the tree.
-7. On `MouseUpEvent`: if the pressed control is still under the cursor,
-   synthesizes a `ClickEvent` with the local position.
+7. On `MouseUpEvent`: synthesizes a `ClickEvent` to `_pressedControl` if it's
+   still under the cursor.
 
 ### `ProcessKeyEvent(KeyEventContext)`
 
@@ -166,41 +170,57 @@ Order of processing:
 public bool ProcessKeyEvent(KeyEventContext context);
 ```
 
-Order of processing:
-
-1. If `UseProfiler && Ctrl+Shift+G` toggles the profiler.
+1. **Ctrl+Shift+G** toggles the profiler (Debug builds).
 2. Runs module input pipeline.
-3. If a control is focused and it handles the key, returns `true`.
-4. **Tab** → `FocusNext()` / `FocusPrevious()`.
+3. Forwards to focused control.
+4. **Tab** → `FocusNext()` / **Shift+Tab** → `FocusPrevious()`.
 5. Returns `false`.
 
-### `Dispose()`
-
-```csharp
-public void Dispose();
-```
-
-Disposes every control recursively, every module, drains pending queues, and
-unsubscribes from theme changes.
-
-## Behavior
+## Focus behavior
 
 ### Focus rectangles
 
-When a control is focused **via keyboard** (`FocusNext`/Tab), `UIRenderer`
-calls `DrawFocusRect()` on it after drawing its subtree. Clicking a control
+When focus was set by keyboard (`FocusNext` / Tab), the renderer draws a
+focus rectangle on the focused control after its subtree. Clicking a control
 switches to non-keyboard focus and the rectangle disappears.
+
+### Synthetic events on focus change
+
+When the focused control changes, `SetFocus` dispatches two synthetic
+`MoveEvent`s to keep `IsHovered` responsive:
+
+| Target | `MousePosition` | Effect |
+| --- | --- | --- |
+| Old focused control | `null` | `IsHovered` → `false` (blur) |
+| New focused control | `SKPoint.Empty` | `IsHovered` → `Bounds.Contains(0, 0)` |
+
+The events are typed `MoveEvent` purely as a state-ping - no press or click
+logic fires. Controls can override `OnMouse` to react to focus state changes
+if they need to.
+
+!!! tip "Why this exists"
+    Without it, a control losing focus could keep rendering its hover
+    highlight if the cursor happened to still be over it. Sending a `null`
+    move clears that state deterministically.
+
+## Behavior
 
 ### Dirty rendering
 
-Two-frame invalidation. `RenderControls` early-outs when `host.UseDirtyRendering`
-is `true` and the frame counter is `≤ 0`.
+Two-frame invalidation. `RenderControls` early-outs when
+`host.UseDirtyRendering` is `true` and the frame counter is `≤ 0`.
 
 ### Module pipeline
 
 Modules **do not** get automatic focus. To participate in input, they must
-`AcceptsInput = true` (default) and return `true` from
-`ProcessMouseEvent`/`ProcessKeyEvent` to consume the event.
+have `AcceptsInput = true` (default) and return `true` from
+`ProcessMouseEvent` / `ProcessKeyEvent` to consume the event.
+
+### Profiler overlay
+
+When `UseProfiler = true`, a [`ProfilerControl`](profiler-control.md) is
+created on the first render and assigned `ZIndex = 10000` so it renders on
+top of every other control.
 
 ## Example
 
@@ -215,3 +235,12 @@ renderer.AddControl(
 
 window.Run();
 ```
+
+## Dispose
+
+```csharp
+public void Dispose();
+```
+
+Disposes every control recursively, every module, drains the pending queues,
+and unsubscribes from `ThemeManager.ThemeChanged`.

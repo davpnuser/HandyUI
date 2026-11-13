@@ -25,6 +25,10 @@ The profiler overlay displays:
 | **Inc. Target FPS** | `Host.FramesPerSecond += 5`. |
 | **Dec. Target FPS** | `Host.FramesPerSecond -= 5`. |
 
+The profiler control is registered with `ZIndex = 10000`, so it always
+renders above every other control on the renderer. Its top-left position
+is `(0, 0)` in the client area.
+
 ## Enabling programmatically
 
 ```csharp
