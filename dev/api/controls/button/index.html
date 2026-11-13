@@ -892,7 +892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tweener/" class="md-nav__link">
+      <a href="../../tweener.md" class="md-nav__link">
         
   
   
@@ -983,7 +983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../theme/" class="md-nav__link">
+      <a href="../../theme.md" class="md-nav__link">
         
   
   
@@ -1191,7 +1191,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../border-direction/" class="md-nav__link">
+      <a href="../../border-direction.md" class="md-nav__link">
         
   
   
@@ -1219,7 +1219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../stretch-mode/" class="md-nav__link">
+      <a href="../../stretch-mode.md" class="md-nav__link">
         
   
   
@@ -1310,7 +1310,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sk-color-helper/" class="md-nav__link">
+      <a href="../../sk-color-helper.md" class="md-nav__link">
         
   
   
@@ -1338,7 +1338,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sk-rect-helper/" class="md-nav__link">
+      <a href="../../sk-rect-helper.md" class="md-nav__link">
         
   
   
@@ -1547,23 +1547,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Events">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#whenclicked" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WhenClicked
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1574,34 +1557,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Methods">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#doesintersectskpoint-onupdatefloat-skpoint-ondrawskcanvas" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        DoesIntersect(SKPoint?) / OnUpdate(float, SKPoint?) / OnDraw(SKCanvas)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#onmousemouseeventcontext-override-hook" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        OnMouse(MouseEventContext) - override hook
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2421,23 +2376,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Events">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#whenclicked" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WhenClicked
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -2448,34 +2386,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Methods">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#doesintersectskpoint-onupdatefloat-skpoint-ondrawskcanvas" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        DoesIntersect(SKPoint?) / OnUpdate(float, SKPoint?) / OnDraw(SKCanvas)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#onmousemouseeventcontext-override-hook" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        OnMouse(MouseEventContext) - override hook
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2523,8 +2433,8 @@
 
 <h1 id="button"><code>Button</code><a class="headerlink" href="#button" title="Permanent link">&para;</a></h1>
 <p><code>HandyUI.Controls.Controls.Button</code></p>
-<p>A filled text button with rounded corners, elevation shadow, hover color
-blending, and a click ripple. Text can be multi-line.</p>
+<p>Filled text button with rounded corners, elevation shadow, hover color
+blending, and a click ripple. Multi-line text is centered.</p>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Button</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BaseControl</span><span class="o">&lt;</span><span class="n">Button</span><span class="o">&gt;</span>
 </span></code></pre></div>
 <h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
@@ -2534,18 +2444,12 @@ blending, and a click ripple. Text can be multi-line.</p>
 <th>Property</th>
 <th>Type</th>
 <th>Default</th>
-<th>Description</th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>Width</code></td>
-<td><code>float</code></td>
-<td><code>0</code></td>
-<td>Auto-sized when <code>0</code>.</td>
-</tr>
-<tr>
-<td><code>Height</code></td>
+<td><code>Width</code> / <code>Height</code></td>
 <td><code>float</code></td>
 <td><code>0</code></td>
 <td>Auto-sized when <code>0</code>.</td>
@@ -2554,19 +2458,19 @@ blending, and a click ripple. Text can be multi-line.</p>
 <td><code>Text</code></td>
 <td><code>string</code></td>
 <td><code>""</code></td>
-<td>Split on <code>'\n'</code> - each newline starts a new centered line.</td>
+<td>Split on <code>'\n'</code>; each line centered.</td>
 </tr>
 <tr>
 <td><code>CornerRadius</code></td>
 <td><code>float</code></td>
 <td><code>2f</code></td>
-<td>Rounds the fill and clipping path.</td>
+<td></td>
 </tr>
 <tr>
 <td><code>Elevation</code></td>
 <td><code>int</code></td>
 <td><code>2</code></td>
-<td>Shadow offset in pixels. Grows by <code>2</code> while hovered.</td>
+<td>Shadow offset. Grows on hover.</td>
 </tr>
 <tr>
 <td><code>FontSize</code></td>
@@ -2578,72 +2482,51 @@ blending, and a click ripple. Text can be multi-line.</p>
 <td><code>Typeface</code></td>
 <td><code>SKTypeface</code></td>
 <td><code>FontManager.DefaultFont</code></td>
-<td>Assigning <code>null</code> restores the default.</td>
+<td>Assigning <code>null</code> restores default.</td>
 </tr>
 <tr>
 <td><code>IsBold</code></td>
 <td><code>bool</code></td>
 <td><code>false</code></td>
-<td>Embolds the font.</td>
+<td></td>
 </tr>
 <tr>
-<td><code>HorizontalPadding</code></td>
+<td><code>HorizontalPadding</code> / <code>VerticalPadding</code></td>
 <td><code>float</code></td>
-<td><code>16f</code></td>
-<td>Content width padding.</td>
-</tr>
-<tr>
-<td><code>VerticalPadding</code></td>
-<td><code>float</code></td>
-<td><code>8f</code></td>
-<td>Content height padding.</td>
+<td><code>16f</code> / <code>8f</code></td>
+<td></td>
 </tr>
 </tbody>
 </table>
+<p><code>Enabled = false</code> renders with <code>DisabledSurface</code>.</p>
 <h2 id="events">Events<a class="headerlink" href="#events" title="Permanent link">&para;</a></h2>
-<h3 id="whenclicked"><code>WhenClicked</code><a class="headerlink" href="#whenclicked" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">public</span><span class="w"> </span><span class="k">event</span><span class="w"> </span><span class="n">Action</span><span class="o">?</span><span class="w"> </span><span class="n">WhenClicked</span><span class="p">;</span>
 </span></code></pre></div>
-<p>Raised on the renderer-synthesized <code>Click</code> event.</p>
 <h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
-<h3 id="doesintersectskpoint-onupdatefloat-skpoint-ondrawskcanvas"><code>DoesIntersect(SKPoint?)</code> / <code>OnUpdate(float, SKPoint?)</code> / <code>OnDraw(SKCanvas)</code><a class="headerlink" href="#doesintersectskpoint-onupdatefloat-skpoint-ondrawskcanvas" title="Permanent link">&para;</a></h3>
-<p>Standard <code>BaseControl</code> overrides. <code>OnUpdate</code> drives the hover color blend.</p>
-<h3 id="onmousemouseeventcontext-override-hook"><code>OnMouse(MouseEventContext)</code> - override hook<a class="headerlink" href="#onmousemouseeventcontext-override-hook" title="Permanent link">&para;</a></h3>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">OnMouse</span><span class="p">(</span><span class="n">MouseEventContext</span><span class="w"> </span><span class="n">ctx</span><span class="p">);</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">DoesIntersect</span><span class="p">(</span><span class="n">SKPoint</span><span class="w"> </span><span class="n">point</span><span class="p">);</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnUpdate</span><span class="p">(</span><span class="n">UpdateContext</span><span class="w"> </span><span class="n">updateContext</span><span class="p">);</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnDraw</span><span class="p">(</span><span class="n">SKCanvas</span><span class="w"> </span><span class="n">canvas</span><span class="p">);</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">OnMouse</span><span class="p">(</span><span class="n">MouseEventContext</span><span class="w"> </span><span class="n">eventContext</span><span class="p">);</span>
 </span></code></pre></div>
-<p>Starts the ripple on <code>MouseDown</code> and raises <code>WhenClicked</code> on <code>Click</code>.</p>
+<p><code>OnMouse</code> starts the ripple on <code>MouseDownEvent</code> and raises <code>WhenClicked</code> on
+<code>ClickEvent</code>.</p>
 <h2 id="fluent-api">Fluent API<a class="headerlink" href="#fluent-api" title="Permanent link">&para;</a></h2>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">public</span><span class="w"> </span><span class="n">Button</span><span class="w"> </span><span class="nf">WithWidth</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">width</span><span class="p">);</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">public</span><span class="w"> </span><span class="n">Button</span><span class="w"> </span><span class="nf">WithHeight</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">height</span><span class="p">);</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">public</span><span class="w"> </span><span class="n">Button</span><span class="w"> </span><span class="nf">WithText</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">text</span><span class="p">);</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">public</span><span class="w"> </span><span class="n">Button</span><span class="w"> </span><span class="nf">WithCornerRadius</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">radius</span><span class="p">);</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">public</span><span class="w"> </span><span class="n">Button</span><span class="w"> </span><span class="nf">WithElevation</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">elevation</span><span class="p">);</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">public</span><span class="w"> </span><span class="n">Button</span><span class="w"> </span><span class="nf">WithFontSize</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">public</span><span class="w"> </span><span class="n">Button</span><span class="w"> </span><span class="nf">WithTypeface</span><span class="p">(</span><span class="n">SKTypeface</span><span class="o">?</span><span class="w"> </span><span class="n">typeface</span><span class="p">);</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="k">public</span><span class="w"> </span><span class="n">Button</span><span class="w"> </span><span class="nf">WithIsBold</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">bold</span><span class="p">);</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">public</span><span class="w"> </span><span class="n">Button</span><span class="w"> </span><span class="nf">WithPadding</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">horizontal</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">vertical</span><span class="p">);</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="k">public</span><span class="w"> </span><span class="n">Button</span><span class="w"> </span><span class="nf">WithWhenClicked</span><span class="p">(</span><span class="n">Action</span><span class="w"> </span><span class="n">handler</span><span class="p">);</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">WithWidth</span><span class="p">,</span><span class="w"> </span><span class="n">WithHeight</span><span class="p">,</span><span class="w"> </span><span class="n">WithText</span><span class="p">,</span><span class="w"> </span><span class="n">WithCornerRadius</span><span class="p">,</span><span class="w"> </span><span class="n">WithElevation</span><span class="p">,</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">WithFontSize</span><span class="p">,</span><span class="w"> </span><span class="n">WithTypeface</span><span class="p">,</span><span class="w"> </span><span class="n">WithIsBold</span><span class="p">,</span><span class="w"> </span><span class="n">WithPadding</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">WithWhenClicked</span><span class="p">(</span><span class="n">Action</span><span class="p">)</span>
 </span></code></pre></div>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">var</span><span class="w"> </span><span class="n">save</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Button</span><span class="p">()</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="p">.</span><span class="n">WithText</span><span class="p">(</span><span class="s">"Save\nchanges"</span><span class="p">)</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="p">.</span><span class="n">WithCornerRadius</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="p">.</span><span class="n">WithElevation</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="p">.</span><span class="n">WithFontSize</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="p">.</span><span class="n">WithIsBold</span><span class="p">(</span><span class="k">true</span><span class="p">)</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="p">.</span><span class="n">WithPadding</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="p">.</span><span class="n">WithWhenClicked</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Save</span><span class="p">())</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="p">.</span><span class="n">WithLocation</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span><span class="w"> </span><span class="mi">80</span><span class="p">)</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="p">.</span><span class="n">WithAddToRenderer</span><span class="p">(</span><span class="n">renderer</span><span class="p">);</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="p">.</span><span class="n">WithIsBold</span><span class="p">(</span><span class="k">true</span><span class="p">)</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="p">.</span><span class="n">WithPadding</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="p">.</span><span class="n">WithWhenClicked</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Save</span><span class="p">())</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="p">.</span><span class="n">WithLocation</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span><span class="w"> </span><span class="mi">80</span><span class="p">)</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="p">.</span><span class="n">WithAddToRenderer</span><span class="p">(</span><span class="n">renderer</span><span class="p">);</span>
 </span></code></pre></div>
-<div class="admonition tip">
-<p class="admonition-title">Custom typefaces</p>
-<p>Load one through <a href="../../font-manager/"><code>FontManager</code></a> and pass it in:</p>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kt">var</span><span class="w"> </span><span class="n">inter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FontManager</span><span class="p">.</span><span class="n">GetTypeface</span><span class="p">(</span><span class="s">"Fonts/Inter-SemiBold.ttf"</span><span class="p">);</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">control</span><span class="p">.</span><span class="n">WithTypeface</span><span class="p">(</span><span class="n">inter</span><span class="p">);</span>
-</span></code></pre></div>
-</div>
 
 
 

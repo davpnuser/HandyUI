@@ -892,7 +892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="tweener/" class="md-nav__link">
+      <a href="tweener.md" class="md-nav__link">
         
   
   
@@ -983,7 +983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="theme/" class="md-nav__link">
+      <a href="theme.md" class="md-nav__link">
         
   
   
@@ -1191,7 +1191,7 @@
   
   
     <li class="md-nav__item">
-      <a href="border-direction/" class="md-nav__link">
+      <a href="border-direction.md" class="md-nav__link">
         
   
   
@@ -1219,7 +1219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="stretch-mode/" class="md-nav__link">
+      <a href="stretch-mode.md" class="md-nav__link">
         
   
   
@@ -1310,7 +1310,7 @@
   
   
     <li class="md-nav__item">
-      <a href="sk-color-helper/" class="md-nav__link">
+      <a href="sk-color-helper.md" class="md-nav__link">
         
   
   
@@ -1338,7 +1338,7 @@
   
   
     <li class="md-nav__item">
-      <a href="sk-rect-helper/" class="md-nav__link">
+      <a href="sk-rect-helper.md" class="md-nav__link">
         
   
   
@@ -2264,72 +2264,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#interfaces" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Interfaces
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#animation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Animation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#theming" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Theming
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#data" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#enums" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Enums
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#helpers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Helpers
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#controls" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2372,15 +2306,33 @@
 
 
 <h1 id="api-reference">API Reference<a class="headerlink" href="#api-reference" title="Permanent link">&para;</a></h1>
-<p>The public API of HandyUI is split across three packages:</p>
-<ul>
-<li><strong><code>HandyUI.Core</code></strong> - renderer, controls base class, modules, helpers,
-  theming, animation.</li>
-<li><strong><code>HandyUI.Controls</code></strong> - a set of ready-to-use controls built on
-  <code>HandyUI.Core</code>.</li>
-<li><strong><code>HandyUI.SilkNet</code></strong> - a windowing adapter that hosts a <code>UIRenderer</code>
-  inside a GLFW-backed window.</li>
-</ul>
+<p>HandyUI is split across three packages. Each layer builds on the one below.</p>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>HandyUI.Core</code></strong></td>
+<td>Renderer, controls base, modules, theming, animation, helpers.</td>
+</tr>
+<tr>
+<td><strong><code>HandyUI.Controls</code></strong></td>
+<td>Ready-made controls built on Core.</td>
+</tr>
+<tr>
+<td><strong><code>HandyUI.SilkNet</code></strong></td>
+<td>GLFW-backed host window and Win32 integrations.</td>
+</tr>
+</tbody>
+</table>
+<p>The renderer no longer talks to GLFW directly - it targets the abstract
+<a href="ihostwindow/"><code>IHostWindow</code></a> interface. <code>HandyUI.SilkNet.HandyWindow</code> is the
+reference implementation; any host that implements <code>IHostWindow</code> can drive a
+<code>UIRenderer</code>.</p>
 <h2 id="core">Core<a class="headerlink" href="#core" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2391,161 +2343,83 @@
 </thead>
 <tbody>
 <tr>
-<td><a href="ui-renderer/"><code>UIRenderer</code></a></td>
-<td>Render loop, input dispatcher, control/module registry, animation host.</td>
-</tr>
-<tr>
-<td><a href="resource-manager/"><code>ResourceManager</code></a></td>
-<td>Loads resources from disk or embedded assembly resources.</td>
-</tr>
-<tr>
-<td><a href="font-manager/"><code>FontManager</code></a></td>
-<td>Loads, caches, and exposes <code>SKTypeface</code> fonts.</td>
-</tr>
-<tr>
-<td><a href="base-control/"><code>BaseControl</code></a></td>
-<td>Base class for all drawable controls.</td>
-</tr>
-<tr>
-<td><a href="base-module/"><code>BaseModule</code></a></td>
-<td>Base class for logic-only modules.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="interfaces">Interfaces<a class="headerlink" href="#interfaces" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Summary</th>
-</tr>
-</thead>
-<tbody>
-<tr>
 <td><a href="icontrol/"><code>IControl</code></a></td>
-<td>Contract implemented by every control.</td>
+<td>Drawable / focusable interface implemented by every control.</td>
 </tr>
 <tr>
 <td><a href="imodule/"><code>IModule</code></a></td>
-<td>Contract implemented by every module.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="animation">Animation<a class="headerlink" href="#animation" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Summary</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="tweener/"><code>Tweener</code></a></td>
-<td>Frame-driven float interpolation with easing.</td>
+<td>Logic-only interface (can process input before controls).</td>
 </tr>
 <tr>
-<td><a href="tweener/#tweenhandle"><code>TweenHandle</code></a></td>
-<td>Handle for pausing, reversing, and cancelling a tween.</td>
+<td><a href="ihostwindow/"><code>IHostWindow</code></a></td>
+<td>Hosting contract that a <code>UIRenderer</code> targets.</td>
 </tr>
 <tr>
-<td><a href="tweener/#easetype"><code>EaseType</code></a></td>
-<td>Built-in easing curves.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="theming">Theming<a class="headerlink" href="#theming" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Summary</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="theme/"><code>Theme</code></a></td>
-<td>Plain palette record with public <code>SKColor</code> fields.</td>
+<td><a href="base-control/"><code>BaseControl</code></a></td>
+<td>Base class for controls (fluent builder in <code>BaseControl&lt;TSelf&gt;</code>).</td>
 </tr>
 <tr>
-<td><a href="theme-manager/"><code>ThemeManager</code></a></td>
-<td>Singleton theme manager and OKLCH tone generator.</td>
+<td><a href="base-module/"><code>BaseModule</code></a></td>
+<td>Base class for modules.</td>
 </tr>
 <tr>
-<td><a href="theme-manager/#thememode"><code>ThemeMode</code></a></td>
-<td><code>Dark</code>, <code>Light</code>, or <code>Unknown</code>.</td>
+<td><a href="ui-renderer/"><code>UIRenderer</code></a></td>
+<td>Render loop, input dispatcher, focus manager.</td>
 </tr>
 <tr>
-<td><a href="theme-helper/#appearance"><code>Appearance</code></a></td>
-<td>OS accent color + theme mode.</td>
+<td><a href="update-context/"><code>UpdateContext</code></a></td>
+<td>Per-frame context (tweener, host, delta time).</td>
 </tr>
-</tbody>
-</table>
-<h2 id="data">Data<a class="headerlink" href="#data" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Summary</th>
-</tr>
-</thead>
-<tbody>
 <tr>
 <td><a href="contexts/#mouseeventcontext"><code>MouseEventContext</code></a></td>
-<td>Describes a mouse input event.</td>
+<td>Mouse event with modifiers, click count, and the shared tweener.</td>
 </tr>
 <tr>
 <td><a href="contexts/#keyeventcontext"><code>KeyEventContext</code></a></td>
-<td>Describes a keyboard input event.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="enums">Enums<a class="headerlink" href="#enums" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Summary</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="border-direction/"><code>BorderDirection</code></a></td>
-<td>Where a stroke is drawn relative to its shape.</td>
+<td>Key event with modifiers.</td>
 </tr>
 <tr>
-<td><a href="stretch-mode/"><code>StretchMode</code></a></td>
-<td>How <code>Picture</code> and <code>PictureButton</code> fit their image.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="helpers">Helpers<a class="headerlink" href="#helpers" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Summary</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="sk-color-helper/"><code>SKColorHelper</code></a></td>
-<td>Hue/brightness/transparency/lerp helpers for <code>SKColor</code>.</td>
+<td><a href="tween/"><code>Tween</code></a></td>
+<td>Handle for pausing / reversing / cancelling an animation.</td>
 </tr>
 <tr>
-<td><a href="sk-rect-helper/"><code>SKRectHelper</code></a></td>
-<td>Conversions and division helpers for SkiaSharp geometry.</td>
+<td><a href="tween-manager/"><code>TweenManager</code></a></td>
+<td>Host for <code>Tween</code> jobs and <code>Easing</code> helpers.</td>
+</tr>
+<tr>
+<td><a href="theme-manager/"><code>ThemeManager</code></a></td>
+<td>OKLCH palette generator for every built-in control.</td>
+</tr>
+<tr>
+<td><a href="font-manager/"><code>FontManager</code></a></td>
+<td>Font loading + caching + default font.</td>
+</tr>
+<tr>
+<td><a href="resource-manager/"><code>ResourceManager</code></a></td>
+<td>Disk / embedded resource loader.</td>
+</tr>
+<tr>
+<td><a href="sk-extensions/"><code>SkiaSharp Extensions</code></a></td>
+<td><code>SKColor</code>, <code>SKPoint</code>, <code>SKRect</code>, <code>SKSize</code> helpers.</td>
+</tr>
+<tr>
+<td><a href="enums/"><code>Enums</code></a></td>
+<td>Shared enums (<code>EaseType</code>, <code>MouseButton</code>, <code>CursorType</code>, …).</td>
+</tr>
+<tr>
+<td><a href="profiler-control/"><code>ProfilerControl</code></a></td>
+<td>Built-in debug overlay (<code>Ctrl+Shift+G</code>).</td>
 </tr>
 </tbody>
 </table>
 <h2 id="controls">Controls<a class="headerlink" href="#controls" title="Permanent link">&para;</a></h2>
-<p><code>HandyUI.Controls</code> - ready-made controls, all deriving from
+<p>All live in <code>HandyUI.Controls.Controls</code> and derive from
 <a href="base-control/"><code>BaseControl&lt;TSelf&gt;</code></a>.</p>
 <table>
 <thead>
 <tr>
-<th>Type</th>
-<th>Summary</th>
+<th>Control</th>
+<th>Purpose</th>
 </tr>
 </thead>
 <tbody>
@@ -2555,43 +2429,43 @@
 </tr>
 <tr>
 <td><a href="controls/check-box/"><code>CheckBox</code></a></td>
-<td>Checkbox with text and animated checkmark.</td>
+<td>Box + label with animated checkmark.</td>
 </tr>
 <tr>
 <td><a href="controls/frame/"><code>Frame</code></a></td>
-<td>Rounded rectangle with elevation, border, shadow.</td>
+<td>Rounded rectangle with border, elevation, shadow.</td>
 </tr>
 <tr>
 <td><a href="controls/item-box/"><code>ItemBox</code></a></td>
-<td>Selectable list item with exclusive selection.</td>
+<td>Selectable list item with sibling exclusivity.</td>
 </tr>
 <tr>
 <td><a href="controls/label/"><code>Label</code></a></td>
-<td>Non-interactive text label.</td>
+<td>Static multi-line text.</td>
 </tr>
 <tr>
 <td><a href="controls/list-box/"><code>ListBox</code></a></td>
-<td>Scrollable stack of child controls.</td>
+<td>Auto-laid-out scrolling stack.</td>
 </tr>
 <tr>
 <td><a href="controls/multiline-text-input/"><code>MultilineTextInput</code></a></td>
-<td>Multi-line text editor with selection.</td>
+<td>Multi-line text editor.</td>
 </tr>
 <tr>
 <td><a href="controls/picture/"><code>Picture</code></a></td>
-<td>Non-interactive image with stretch modes.</td>
+<td>Image with four stretch modes.</td>
 </tr>
 <tr>
 <td><a href="controls/picture-button/"><code>PictureButton</code></a></td>
-<td>Clickable image with hover and ripple.</td>
+<td>Clickable image with ripple.</td>
 </tr>
 <tr>
 <td><a href="controls/progress-bar/"><code>ProgressBar</code></a></td>
-<td>Determinate or indeterminate progress.</td>
+<td>Determinate / indeterminate progress.</td>
 </tr>
 <tr>
 <td><a href="controls/scroll-frame/"><code>ScrollFrame</code></a></td>
-<td>Scrollable viewport with auto-hiding scrollbar.</td>
+<td>Scroll viewport with fade-out scrollbar.</td>
 </tr>
 <tr>
 <td><a href="controls/slider/"><code>Slider</code></a></td>
@@ -2599,16 +2473,15 @@
 </tr>
 <tr>
 <td><a href="controls/text-input/"><code>TextInput</code></a></td>
-<td>Single-line text editor with selection.</td>
+<td>Single-line text editor.</td>
 </tr>
 <tr>
 <td><a href="controls/toggle/"><code>Toggle</code></a></td>
-<td>On/off switch with animated thumb.</td>
+<td>On / off switch.</td>
 </tr>
 </tbody>
 </table>
 <h2 id="silknet-adapter">Silk.NET Adapter<a class="headerlink" href="#silknet-adapter" title="Permanent link">&para;</a></h2>
-<p><code>HandyUI.SilkNet</code> - the windowing/hosting layer.</p>
 <table>
 <thead>
 <tr>
@@ -2619,7 +2492,7 @@
 <tbody>
 <tr>
 <td><a href="handy-window/"><code>HandyWindow</code></a></td>
-<td>GLFW-backed window with a pump thread.</td>
+<td>GLFW-backed <code>IHostWindow</code> implementation.</td>
 </tr>
 <tr>
 <td><a href="window-configuration/"><code>WindowConfiguration</code></a></td>
@@ -2627,7 +2500,7 @@
 </tr>
 <tr>
 <td><a href="tray-icon/"><code>TrayIcon</code></a></td>
-<td>Notification-area icon with events and context menu.</td>
+<td>Windows notification-area icon.</td>
 </tr>
 <tr>
 <td><a href="tray-menu-item/"><code>TrayMenuItem</code></a></td>
@@ -2635,7 +2508,7 @@
 </tr>
 <tr>
 <td><a href="theme-helper/"><code>ThemeHelper</code></a></td>
-<td>Reads OS accent color and dark/light mode.</td>
+<td>OS accent + dark/light detection.</td>
 </tr>
 <tr>
 <td><a href="silknet-helpers/#rendererhelper"><code>RendererHelper</code></a></td>
@@ -2643,11 +2516,11 @@
 </tr>
 <tr>
 <td><a href="silknet-helpers/#windowhelper"><code>WindowHelper</code></a></td>
-<td>Window/renderer factories and platform tweaks.</td>
+<td>Window/renderer factories.</td>
 </tr>
 <tr>
 <td><a href="silknet-helpers/#win32helper"><code>Win32Helper</code></a></td>
-<td>Native Win32 window tweaks.</td>
+<td>Native Win32 access (styles, tray, DPI, drag, icons).</td>
 </tr>
 <tr>
 <td><a href="vector-extensions/"><code>VectorExtensions</code></a></td>

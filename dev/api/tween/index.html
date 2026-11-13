@@ -12,13 +12,9 @@
         <meta name="author" content="davpnuser">
       
       
-        <link rel="canonical" href="https://davpnuser.github.io/HandyUI/dev/api/stretch-mode/">
+        <link rel="canonical" href="https://davpnuser.github.io/HandyUI/dev/api/tween/">
       
       
-        <link rel="prev" href="../border-direction/">
-      
-      
-        <link rel="next" href="../sk-color-helper/">
       
       
         
@@ -29,7 +25,7 @@
     
     
       
-        <title>StretchMode - HandyUI Documentation</title>
+        <title>Tween - HandyUI Documentation</title>
       
     
     
@@ -80,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#stretchmode" class="md-skip">
+        <a href="#tween" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              StretchMode
+              Tween
             
           </span>
         </div>
@@ -421,8 +417,6 @@
       
   
   
-    
-  
   
   
     
@@ -459,11 +453,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -491,7 +485,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -892,7 +886,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tweener/" class="md-nav__link">
+      <a href="../tweener.md" class="md-nav__link">
         
   
   
@@ -983,7 +977,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../theme/" class="md-nav__link">
+      <a href="../theme.md" class="md-nav__link">
         
   
   
@@ -1133,10 +1127,8 @@
                 
   
   
-    
   
   
-  
     
     
       
@@ -1150,11 +1142,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" >
         
           
           <label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
@@ -1175,7 +1167,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1193,7 +1185,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../border-direction/" class="md-nav__link">
+      <a href="../border-direction.md" class="md-nav__link">
         
   
   
@@ -1218,19 +1210,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../stretch-mode.md" class="md-nav__link">
         
   
   
@@ -1246,7 +1229,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -1322,7 +1304,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sk-color-helper/" class="md-nav__link">
+      <a href="../sk-color-helper.md" class="md-nav__link">
         
   
   
@@ -1350,7 +1332,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sk-rect-helper/" class="md-nav__link">
+      <a href="../sk-rect-helper.md" class="md-nav__link">
         
   
   
@@ -2258,6 +2240,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tweenstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TweenStatus
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2276,45 +2277,69 @@
   
 
 
-<h1 id="stretchmode"><code>StretchMode</code><a class="headerlink" href="#stretchmode" title="Permanent link">&para;</a></h1>
-<p><code>HandyUI.Controls.Enums.StretchMode</code></p>
-<p>Controls how <a href="../controls/picture/"><code>Picture</code></a> and
-<a href="../controls/picture-button/"><code>PictureButton</code></a> fit their image into the
-control's bounds.</p>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">public</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">StretchMode</span>
+<h1 id="tween"><code>Tween</code><a class="headerlink" href="#tween" title="Permanent link">&para;</a></h1>
+<p><code>HandyUI.Core.Data.Tween</code></p>
+<p>Handle returned by <code>TweenManager.To(...)</code>. Wraps an internal <code>TweenJob</code>.</p>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Tween</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="p">{</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">None</span><span class="p">,</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">Fill</span><span class="p">,</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">Uniform</span><span class="p">,</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">UniformToFill</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">}</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">IsValid</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Pause</span><span class="p">();</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Play</span><span class="p">();</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Cancel</span><span class="p">();</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Reverse</span><span class="p">();</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">}</span>
 </span></code></pre></div>
 <table>
 <thead>
 <tr>
-<th>Value</th>
-<th>Behavior</th>
+<th>Member</th>
+<th>Effect</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>None</code></td>
-<td>Draw at natural size, anchored top-left.</td>
+<td><code>IsValid</code></td>
+<td><code>true</code> until the tween completes or is cancelled.</td>
 </tr>
 <tr>
-<td><code>Fill</code></td>
-<td>Stretch to fill <code>Bounds</code> exactly (aspect ratio <strong>not</strong> preserved).</td>
+<td><code>Pause()</code></td>
+<td>Freezes progress at the current value.</td>
 </tr>
 <tr>
-<td><code>Uniform</code></td>
-<td>Scale to fit inside <code>Bounds</code>, preserving aspect ratio. Letterboxed. <strong>Default.</strong></td>
+<td><code>Play()</code></td>
+<td>Resumes a paused tween.</td>
 </tr>
 <tr>
-<td><code>UniformToFill</code></td>
-<td>Scale to fill <code>Bounds</code>, preserving aspect ratio. Cropped as needed.</td>
+<td><code>Cancel()</code></td>
+<td>Stops the tween and resets the value to its start (or end when reversed).</td>
+</tr>
+<tr>
+<td><code>Reverse()</code></td>
+<td>Reverses the direction of the tween.</td>
 </tr>
 </tbody>
 </table>
+<div class="admonition tip">
+<p class="admonition-title">Store handles, not booleans</p>
+<p>A common pattern is to store <code>Tween?</code> and use <code>is { IsValid: true }</code> to
+check whether it's still running before cancelling:</p>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_hoverTween</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">IsValid</span><span class="p">:</span><span class="w"> </span><span class="k">true</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="n">_hoverTween</span><span class="p">.</span><span class="n">Cancel</span><span class="p">();</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">_hoverTween</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">updateContext</span><span class="p">.</span><span class="n">TweenManager</span><span class="p">.</span><span class="n">To</span><span class="p">(</span><span class="mf">0f</span><span class="p">,</span><span class="w"> </span><span class="mf">1f</span><span class="p">,</span><span class="w"> </span><span class="mf">0.15f</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+</span></code></pre></div>
+</div>
+<h2 id="tweenstatus"><code>TweenStatus</code><a class="headerlink" href="#tweenstatus" title="Permanent link">&para;</a></h2>
+<p><code>HandyUI.Core.Data.Enums.TweenStatus</code></p>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">public</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">TweenStatus</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="p">{</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">None</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="n">Playing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="n">Stopped</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="n">Paused</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Currently informational; the manager exposes it in its internal <code>TweenJob</code>
+for external tooling.</p>
 
 
 
@@ -2347,44 +2372,6 @@ control's bounds.</p>
       
         <footer class="md-footer">
   
-    
-      
-      <nav class="md-footer__inner md-grid" aria-label="Footer" >
-        
-          
-          <a href="../border-direction/" class="md-footer__link md-footer__link--prev" aria-label="Previous: BorderDirection">
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-            </div>
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              <div class="md-ellipsis">
-                BorderDirection
-              </div>
-            </div>
-          </a>
-        
-        
-          
-          <a href="../sk-color-helper/" class="md-footer__link md-footer__link--next" aria-label="Next: SKColorHelper">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              <div class="md-ellipsis">
-                SKColorHelper
-              </div>
-            </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
-            </div>
-          </a>
-        
-      </nav>
     
   
   <div class="md-footer-meta md-typeset">

@@ -662,6 +662,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#lookup-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lookup order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#properties" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1008,7 +1019,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tweener/" class="md-nav__link">
+      <a href="../tweener.md" class="md-nav__link">
         
   
   
@@ -1099,7 +1110,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../theme/" class="md-nav__link">
+      <a href="../theme.md" class="md-nav__link">
         
   
   
@@ -1307,7 +1318,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../border-direction/" class="md-nav__link">
+      <a href="../border-direction.md" class="md-nav__link">
         
   
   
@@ -1335,7 +1346,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../stretch-mode/" class="md-nav__link">
+      <a href="../stretch-mode.md" class="md-nav__link">
         
   
   
@@ -1426,7 +1437,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sk-color-helper/" class="md-nav__link">
+      <a href="../sk-color-helper.md" class="md-nav__link">
         
   
   
@@ -1454,7 +1465,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sk-rect-helper/" class="md-nav__link">
+      <a href="../sk-rect-helper.md" class="md-nav__link">
         
   
   
@@ -2369,6 +2380,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#lookup-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lookup order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#properties" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2456,80 +2478,43 @@
 
 
 <h1 id="resourcemanager"><code>ResourceManager</code><a class="headerlink" href="#resourcemanager" title="Permanent link">&para;</a></h1>
-<p><code>HandyUI.Core.Components.ResourceManager</code></p>
-<p>Loads resources from disk <strong>or</strong> from embedded assembly resources.</p>
+<p><code>HandyUI.Core.Helpers.ResourceManager</code></p>
+<p>Loads resources from disk <strong>or</strong> embedded assembly resources.</p>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ResourceManager</span>
 </span></code></pre></div>
-<div class="admonition info">
-<p class="admonition-title">Lookup order</p>
-<p>For a path like <code>Assets/logo.png</code>, the manager tries:</p>
+<h2 id="lookup-order">Lookup order<a class="headerlink" href="#lookup-order" title="Permanent link">&para;</a></h2>
 <ol>
-<li><code>AppDomain.CurrentDomain.BaseDirectory/Assets/logo.png</code> on disk.</li>
-<li>The <strong>entry assembly</strong>, the <strong>executing assembly</strong> (<code>HandyUI.Core</code>),
-   and any registered assemblies - matching a manifest resource whose
-   name ends with <code>Assets.logo.png</code>.</li>
+<li><code>AppDomain.CurrentDomain.BaseDirectory/&lt;relativePath&gt;</code> on disk.</li>
+<li>The <strong>entry assembly</strong>, the <strong>executing assembly</strong> (<code>HandyUI.Core</code>), and
+   any registered assemblies - matching a manifest resource whose name ends
+   with <code>Assets.logo.png</code>.</li>
 </ol>
 <p>First hit wins.</p>
-</div>
 <h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
 <h3 id="whenerrored"><code>WhenErrored</code><a class="headerlink" href="#whenerrored" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">Action</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="o">&gt;?</span><span class="w"> </span><span class="n">WhenErrored</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
-<p>Optional callback invoked when a lookup fails and <code>ignoreErrors</code> was <code>false</code>.
-Receives <code>(detail, path)</code>. If <code>null</code>, the manager throws
-<code>FileNotFoundException</code>.</p>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">ResourceManager</span><span class="p">.</span><span class="n">WhenErrored</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">detail</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Error</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"Couldn't load '{path}': {detail}"</span><span class="p">);</span>
-</span></code></pre></div>
+<p>Called when <code>ignoreErrors = false</code> and a lookup fails, with <code>(detail, path)</code>.
+If <code>null</code>, throws <code>FileNotFoundException</code>.</p>
 <h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
 <h3 id="registerassemblyassembly"><code>RegisterAssembly(Assembly)</code><a class="headerlink" href="#registerassemblyassembly" title="Permanent link">&para;</a></h3>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">RegisterAssembly</span><span class="p">(</span><span class="n">Assembly</span><span class="w"> </span><span class="n">assembly</span><span class="p">);</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">RegisterAssembly</span><span class="p">(</span><span class="n">Assembly</span><span class="w"> </span><span class="n">assembly</span><span class="p">);</span>
 </span></code></pre></div>
 <p>Adds an assembly to the search list. Idempotent.</p>
 <h3 id="getresourcebypath"><code>GetResourceByPath(...)</code><a class="headerlink" href="#getresourcebypath" title="Permanent link">&para;</a></h3>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">GetResourceByPath</span><span class="p">(</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">relativePath</span><span class="p">,</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="k">out</span><span class="w"> </span><span class="n">Stream</span><span class="o">?</span><span class="w"> </span><span class="n">resourceStream</span><span class="p">,</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">ignoreErrors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">,</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">Assembly</span><span class="o">&gt;?</span><span class="w"> </span><span class="n">additionalAssemblies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">);</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">GetResourceByPath</span><span class="p">(</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">relativePath</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="k">out</span><span class="w"> </span><span class="n">Stream</span><span class="o">?</span><span class="w"> </span><span class="n">resourceStream</span><span class="p">,</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">ignoreErrors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">Assembly</span><span class="o">&gt;?</span><span class="w"> </span><span class="n">additionalAssemblies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">);</span>
 </span></code></pre></div>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>relativePath</code></td>
-<td><code>Assets/icon.png</code> or a manifest resource name.</td>
-</tr>
-<tr>
-<td><code>resourceStream</code></td>
-<td>On success, a <strong>seekable</strong> <code>MemoryStream</code> at position <code>0</code>.</td>
-</tr>
-<tr>
-<td><code>ignoreErrors</code></td>
-<td>If <code>false</code>, failures go through <code>WhenErrored</code> (or throw).</td>
-</tr>
-<tr>
-<td><code>additionalAssemblies</code></td>
-<td>Extra assemblies checked <strong>in addition to</strong> the global registry.</td>
-</tr>
-</tbody>
-</table>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ResourceManager</span><span class="p">.</span><span class="n">GetResourceByPath</span><span class="p">(</span><span class="s">"Assets/logo.png"</span><span class="p">,</span><span class="w"> </span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">stream</span><span class="p">))</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="p">{</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="nn">var</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SKData</span><span class="p">.</span><span class="n">Create</span><span class="p">(</span><span class="n">stream</span><span class="o">!</span><span class="p">);</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="nn">var</span><span class="w"> </span><span class="n">image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SKImage</span><span class="p">.</span><span class="n">FromEncodedData</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">}</span>
+<p>Returns a <strong>seekable</strong> <code>MemoryStream</code> on success - safe to hand to SkiaSharp.</p>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ResourceManager</span><span class="p">.</span><span class="n">GetResourceByPath</span><span class="p">(</span><span class="s">"Assets/logo.png"</span><span class="p">,</span><span class="w"> </span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">stream</span><span class="p">))</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="p">{</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="nn">var</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SKData</span><span class="p">.</span><span class="n">Create</span><span class="p">(</span><span class="n">stream</span><span class="o">!</span><span class="p">);</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="nn">var</span><span class="w"> </span><span class="n">image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SKImage</span><span class="p">.</span><span class="n">FromEncodedData</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">}</span>
 </span></code></pre></div>
-<div class="admonition tip">
-<p class="admonition-title">Stream is a snapshot</p>
-<p>Embedded resources are copied into a <code>MemoryStream</code> before being
-returned - safe to hand to SkiaSharp regardless of the source.</p>
-</div>
 
 
 

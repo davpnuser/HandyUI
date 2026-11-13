@@ -892,7 +892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tweener/" class="md-nav__link">
+      <a href="../../tweener.md" class="md-nav__link">
         
   
   
@@ -983,7 +983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../theme/" class="md-nav__link">
+      <a href="../../theme.md" class="md-nav__link">
         
   
   
@@ -1191,7 +1191,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../border-direction/" class="md-nav__link">
+      <a href="../../border-direction.md" class="md-nav__link">
         
   
   
@@ -1219,7 +1219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../stretch-mode/" class="md-nav__link">
+      <a href="../../stretch-mode.md" class="md-nav__link">
         
   
   
@@ -1310,7 +1310,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sk-color-helper/" class="md-nav__link">
+      <a href="../../sk-color-helper.md" class="md-nav__link">
         
   
   
@@ -1338,7 +1338,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sk-rect-helper/" class="md-nav__link">
+      <a href="../../sk-rect-helper.md" class="md-nav__link">
         
   
   
@@ -2433,8 +2433,7 @@
 
 <h1 id="label"><code>Label</code><a class="headerlink" href="#label" title="Permanent link">&para;</a></h1>
 <p><code>HandyUI.Controls.Controls.Label</code></p>
-<p>A non-interactive text label with alignment and bold support. Multi-line
-aware.</p>
+<p>Non-interactive text label with alignment, bold, and multi-line support.</p>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Label</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BaseControl</span><span class="o">&lt;</span><span class="n">Label</span><span class="o">&gt;</span>
 </span></code></pre></div>
 <h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
@@ -2444,45 +2443,38 @@ aware.</p>
 <th>Property</th>
 <th>Type</th>
 <th>Default</th>
-<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>Width</code> / <code>Height</code></td>
 <td><code>float</code></td>
-<td><code>0</code></td>
-<td>Auto-sized when <code>0</code>.</td>
+<td><code>0</code> (auto)</td>
 </tr>
 <tr>
 <td><code>Text</code></td>
 <td><code>string</code></td>
 <td><code>""</code></td>
-<td>Split on <code>'\n'</code>; each line honors <code>TextAlign</code>.</td>
 </tr>
 <tr>
 <td><code>FontSize</code></td>
 <td><code>float</code></td>
 <td><code>14f</code></td>
-<td></td>
 </tr>
 <tr>
 <td><code>Typeface</code></td>
 <td><code>SKTypeface</code></td>
 <td><code>FontManager.DefaultFont</code></td>
-<td></td>
 </tr>
 <tr>
 <td><code>IsBold</code></td>
 <td><code>bool</code></td>
 <td><code>false</code></td>
-<td></td>
 </tr>
 <tr>
 <td><code>TextAlign</code></td>
 <td><code>SKTextAlign</code></td>
 <td><code>Left</code></td>
-<td><code>Left</code> / <code>Center</code> / <code>Right</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -2493,23 +2485,15 @@ aware.</p>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">public</span><span class="w"> </span><span class="k">event</span><span class="w"> </span><span class="n">Action</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;?</span><span class="w"> </span><span class="n">WhenTextChanged</span><span class="p">;</span>
 </span></code></pre></div>
 <h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
-<p><code>DoesIntersect</code>, <code>OnUpdate</code>, <code>OnDraw</code>, <code>OnMouse</code> - standard overrides.</p>
+<p>Standard overrides. <code>OnMouse</code> fires <code>WhenClicked</code> on <code>ClickEvent</code>.</p>
 <h2 id="fluent-api">Fluent API<a class="headerlink" href="#fluent-api" title="Permanent link">&para;</a></h2>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">public</span><span class="w"> </span><span class="n">Label</span><span class="w"> </span><span class="nf">WithWidth</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">width</span><span class="p">);</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">public</span><span class="w"> </span><span class="n">Label</span><span class="w"> </span><span class="nf">WithHeight</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">height</span><span class="p">);</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">public</span><span class="w"> </span><span class="n">Label</span><span class="w"> </span><span class="nf">WithText</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">text</span><span class="p">);</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">public</span><span class="w"> </span><span class="n">Label</span><span class="w"> </span><span class="nf">WithFontSize</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">public</span><span class="w"> </span><span class="n">Label</span><span class="w"> </span><span class="nf">WithTypeface</span><span class="p">(</span><span class="n">SKTypeface</span><span class="o">?</span><span class="w"> </span><span class="n">typeface</span><span class="p">);</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">public</span><span class="w"> </span><span class="n">Label</span><span class="w"> </span><span class="nf">WithIsBold</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">bold</span><span class="p">);</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">public</span><span class="w"> </span><span class="n">Label</span><span class="w"> </span><span class="nf">WithTextAlign</span><span class="p">(</span><span class="n">SKTextAlign</span><span class="w"> </span><span class="n">align</span><span class="p">);</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="k">public</span><span class="w"> </span><span class="n">Label</span><span class="w"> </span><span class="nf">WithWhenClicked</span><span class="p">(</span><span class="n">Action</span><span class="w"> </span><span class="n">handler</span><span class="p">);</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="k">public</span><span class="w"> </span><span class="n">Label</span><span class="w"> </span><span class="nf">WithWhenHoverEntered</span><span class="p">(</span><span class="n">Action</span><span class="w"> </span><span class="n">handler</span><span class="p">);</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="k">public</span><span class="w"> </span><span class="n">Label</span><span class="w"> </span><span class="nf">WithWhenHoverExited</span><span class="p">(</span><span class="n">Action</span><span class="w"> </span><span class="n">handler</span><span class="p">);</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="k">public</span><span class="w"> </span><span class="n">Label</span><span class="w"> </span><span class="nf">WithWhenTextChanged</span><span class="p">(</span><span class="n">Action</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">handler</span><span class="p">);</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">WithWidth</span><span class="p">,</span><span class="w"> </span><span class="n">WithHeight</span><span class="p">,</span><span class="w"> </span><span class="n">WithText</span><span class="p">,</span><span class="w"> </span><span class="n">WithFontSize</span><span class="p">,</span><span class="w"> </span><span class="n">WithTypeface</span><span class="p">,</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">WithIsBold</span><span class="p">,</span><span class="w"> </span><span class="n">WithTextAlign</span><span class="p">,</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">WithWhenClicked</span><span class="p">,</span><span class="w"> </span><span class="n">WithWhenHoverEntered</span><span class="p">,</span><span class="w"> </span><span class="n">WithWhenHoverExited</span><span class="p">,</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">WithWhenTextChanged</span>
 </span></code></pre></div>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">var</span><span class="w"> </span><span class="n">header</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Label</span><span class="p">()</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">new</span><span class="w"> </span><span class="nf">Label</span><span class="p">()</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="p">.</span><span class="n">WithText</span><span class="p">(</span><span class="s">"Settings\nAppearance"</span><span class="p">)</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="p">.</span><span class="n">WithFontSize</span><span class="p">(</span><span class="mi">22</span><span class="p">)</span>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="p">.</span><span class="n">WithIsBold</span><span class="p">(</span><span class="k">true</span><span class="p">)</span>
@@ -2518,13 +2502,6 @@ aware.</p>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="p">.</span><span class="n">WithLocation</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span><span class="w"> </span><span class="mi">24</span><span class="p">)</span>
 </span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="p">.</span><span class="n">WithAddToRenderer</span><span class="p">(</span><span class="n">renderer</span><span class="p">);</span>
 </span></code></pre></div>
-<div class="admonition tip">
-<p class="admonition-title">Custom typefaces</p>
-<p>Load one through <a href="../../font-manager/"><code>FontManager</code></a> and pass it in:</p>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">var</span><span class="w"> </span><span class="n">inter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FontManager</span><span class="p">.</span><span class="n">GetTypeface</span><span class="p">(</span><span class="s">"Fonts/Inter-SemiBold.ttf"</span><span class="p">);</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">control</span><span class="p">.</span><span class="n">WithTypeface</span><span class="p">(</span><span class="n">inter</span><span class="p">);</span>
-</span></code></pre></div>
-</div>
 
 
 

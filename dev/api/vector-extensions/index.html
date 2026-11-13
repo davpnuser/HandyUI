@@ -892,7 +892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tweener/" class="md-nav__link">
+      <a href="../tweener.md" class="md-nav__link">
         
   
   
@@ -983,7 +983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../theme/" class="md-nav__link">
+      <a href="../theme.md" class="md-nav__link">
         
   
   
@@ -1191,7 +1191,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../border-direction/" class="md-nav__link">
+      <a href="../border-direction.md" class="md-nav__link">
         
   
   
@@ -1219,7 +1219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../stretch-mode/" class="md-nav__link">
+      <a href="../stretch-mode.md" class="md-nav__link">
         
   
   
@@ -1310,7 +1310,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sk-color-helper/" class="md-nav__link">
+      <a href="../sk-color-helper.md" class="md-nav__link">
         
   
   
@@ -1338,7 +1338,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sk-rect-helper/" class="md-nav__link">
+      <a href="../sk-rect-helper.md" class="md-nav__link">
         
   
   
@@ -2110,24 +2110,6 @@
         
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    VectorExtensions
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -2144,58 +2126,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#skpoint" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        SKPoint
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sksize" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        SKSize
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -2328,47 +2258,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#skpoint" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        SKPoint
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sksize" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        SKSize
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -2391,27 +2280,18 @@
 <p><code>HandyUI.SilkNet.Extensions.VectorExtensions</code></p>
 <p>Conversions between SkiaSharp geometry and Silk.NET's <code>Vector2D&lt;int&gt;</code>.</p>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">VectorExtensions</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="p">{</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">Vector2D</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ToVector2D</span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">SKPoint</span><span class="o">?</span><span class="w"> </span><span class="n">point</span><span class="p">);</span><span class="w">   </span><span class="c1">// null → (0, 0)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">Vector2D</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ToVector2D</span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">SKPoint</span><span class="w">  </span><span class="n">point</span><span class="p">);</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">SKPoint</span><span class="w">       </span><span class="nf">ToSKPoint</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">Vector2D</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">vector</span><span class="p">);</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">Vector2D</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ToVector2D</span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">SKSize</span><span class="o">?</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w">     </span><span class="c1">// null → (0, 0)</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">Vector2D</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ToVector2D</span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">SKSize</span><span class="w">  </span><span class="n">size</span><span class="p">);</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">SKSize</span><span class="w">        </span><span class="nf">ToSKSize</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">Vector2D</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">vector</span><span class="p">);</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">}</span>
 </span></code></pre></div>
-<h2 id="skpoint"><code>SKPoint</code><a class="headerlink" href="#skpoint" title="Permanent link">&para;</a></h2>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">Vector2D</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ToVector2D</span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">SKPoint</span><span class="o">?</span><span class="w"> </span><span class="n">point</span><span class="p">);</span><span class="w">   </span><span class="c1">// null → (0, 0)</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">Vector2D</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ToVector2D</span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">SKPoint</span><span class="w">  </span><span class="n">point</span><span class="p">);</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">SKPoint</span><span class="w">       </span><span class="nf">ToSKPoint</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">Vector2D</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">vector</span><span class="p">);</span>
-</span></code></pre></div>
-<h2 id="sksize"><code>SKSize</code><a class="headerlink" href="#sksize" title="Permanent link">&para;</a></h2>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">Vector2D</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ToVector2D</span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">SKSize</span><span class="o">?</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w">    </span><span class="c1">// null → (0, 0)</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">Vector2D</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ToVector2D</span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">SKSize</span><span class="w">  </span><span class="n">size</span><span class="p">);</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">SKSize</span><span class="w">        </span><span class="nf">ToSKSize</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">Vector2D</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">vector</span><span class="p">);</span>
-</span></code></pre></div>
-<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">SKPoint</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="mi">120</span><span class="p">,</span><span class="w"> </span><span class="mi">80</span><span class="p">);</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">Vector2D</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">ToVector2D</span><span class="p">();</span><span class="w">   </span><span class="c1">// (120, 80)</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">SKPoint</span><span class="w"> </span><span class="n">back</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">ToSKPoint</span><span class="p">();</span>
-</span></code></pre></div>
-<div class="admonition info">
-<p class="admonition-title">Integral precision</p>
-<p><code>Vector2D&lt;int&gt;</code> truncates fractional coordinates. Keep <code>SKPoint</code>/<code>SKSize</code>
-for sub-pixel work; convert only at the Silk.NET boundary.</p>
-</div>
+<p><code>Vector2D&lt;int&gt;</code> truncates fractional coordinates - keep <code>SKPoint</code>/<code>SKSize</code>
+for sub-pixel work and convert only at the Silk.NET boundary.</p>
 
 
 

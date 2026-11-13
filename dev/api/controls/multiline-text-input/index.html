@@ -892,7 +892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tweener/" class="md-nav__link">
+      <a href="../../tweener.md" class="md-nav__link">
         
   
   
@@ -983,7 +983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../theme/" class="md-nav__link">
+      <a href="../../theme.md" class="md-nav__link">
         
   
   
@@ -1191,7 +1191,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../border-direction/" class="md-nav__link">
+      <a href="../../border-direction.md" class="md-nav__link">
         
   
   
@@ -1219,7 +1219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../stretch-mode/" class="md-nav__link">
+      <a href="../../stretch-mode.md" class="md-nav__link">
         
   
   
@@ -1310,7 +1310,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sk-color-helper/" class="md-nav__link">
+      <a href="../../sk-color-helper.md" class="md-nav__link">
         
   
   
@@ -1338,7 +1338,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sk-rect-helper/" class="md-nav__link">
+      <a href="../../sk-rect-helper.md" class="md-nav__link">
         
   
   
@@ -1718,10 +1718,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#methods" class="md-nav__link">
+  <a href="#keyboard" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Methods
+        Keyboard
       
     </span>
   </a>
@@ -2379,10 +2379,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#methods" class="md-nav__link">
+  <a href="#keyboard" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Methods
+        Keyboard
       
     </span>
   </a>
@@ -2433,7 +2433,7 @@
 
 <h1 id="multilinetextinput"><code>MultilineTextInput</code><a class="headerlink" href="#multilinetextinput" title="Permanent link">&para;</a></h1>
 <p><code>HandyUI.Controls.Controls.MultilineTextInput</code></p>
-<p>A multi-line text editor with cursor blink, drag selection, and word-wise
+<p>Multi-line text editor with blinking cursor, drag selection, and word-wise
 navigation.</p>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">MultilineTextInput</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BaseControl</span><span class="o">&lt;</span><span class="n">MultilineTextInput</span><span class="o">&gt;</span>
 </span></code></pre></div>
@@ -2444,57 +2444,48 @@ navigation.</p>
 <th>Property</th>
 <th>Type</th>
 <th>Default</th>
-<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>Width</code> / <code>Height</code></td>
 <td><code>float</code></td>
-<td><code>0</code></td>
-<td>Auto-sized when <code>0</code>.</td>
+<td><code>0</code> (auto)</td>
 </tr>
 <tr>
 <td><code>Text</code></td>
 <td><code>string</code></td>
 <td><code>""</code></td>
-<td>Newlines preserved. Clamps cursor + selection.</td>
 </tr>
 <tr>
 <td><code>Placeholder</code></td>
 <td><code>string</code></td>
 <td><code>""</code></td>
-<td>Shown when empty.</td>
 </tr>
 <tr>
 <td><code>FontSize</code></td>
 <td><code>float</code></td>
 <td><code>14f</code></td>
-<td></td>
 </tr>
 <tr>
 <td><code>Typeface</code></td>
 <td><code>SKTypeface</code></td>
 <td><code>FontManager.DefaultFont</code></td>
-<td></td>
 </tr>
 <tr>
 <td><code>LineSpacing</code></td>
 <td><code>float</code></td>
 <td><code>4f</code></td>
-<td>Extra pixels between lines.</td>
 </tr>
 <tr>
 <td><code>CornerRadius</code></td>
 <td><code>float</code></td>
 <td><code>4f</code></td>
-<td></td>
 </tr>
 <tr>
 <td><code>Padding</code></td>
 <td><code>float</code></td>
 <td><code>12f</code></td>
-<td>All-sides inner padding.</td>
 </tr>
 </tbody>
 </table>
@@ -2503,28 +2494,56 @@ navigation.</p>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">public</span><span class="w"> </span><span class="k">event</span><span class="w"> </span><span class="n">Action</span><span class="o">?</span><span class="w"> </span><span class="n">WhenFocusGained</span><span class="p">;</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">public</span><span class="w"> </span><span class="k">event</span><span class="w"> </span><span class="n">Action</span><span class="o">?</span><span class="w"> </span><span class="n">WhenFocusLost</span><span class="p">;</span>
 </span></code></pre></div>
-<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
-<p><code>DoesIntersect</code>, <code>OnUpdate</code>, <code>OnDraw</code>, <code>OnMouse</code>, <code>OnKey</code> - standard
-overrides. <code>OnKey</code> supports printable chars, Enter, Backspace/Delete
-(Ctrl = word), arrows (Shift = extend), Home/End (Ctrl = start/end of
-document), and Ctrl+A.</p>
+<h2 id="keyboard">Keyboard<a class="headerlink" href="#keyboard" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Printable character (<code>CharInput</code>)</td>
+<td>Insert at cursor (replaces selection).</td>
+</tr>
+<tr>
+<td>Enter</td>
+<td>Newline.</td>
+</tr>
+<tr>
+<td>Backspace</td>
+<td>Delete previous char; Ctrl = previous word.</td>
+</tr>
+<tr>
+<td>Delete</td>
+<td>Delete next char; Ctrl = next word.</td>
+</tr>
+<tr>
+<td>← / →</td>
+<td>Move cursor; Shift extends.</td>
+</tr>
+<tr>
+<td>↑ / ↓</td>
+<td>Move between lines; Shift extends.</td>
+</tr>
+<tr>
+<td>Home / End</td>
+<td>Line start / end; Ctrl = document start / end.</td>
+</tr>
+<tr>
+<td>Ctrl+A</td>
+<td>Select all.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="fluent-api">Fluent API<a class="headerlink" href="#fluent-api" title="Permanent link">&para;</a></h2>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">public</span><span class="w"> </span><span class="n">MultilineTextInput</span><span class="w"> </span><span class="nf">WithWidth</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">width</span><span class="p">);</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">public</span><span class="w"> </span><span class="n">MultilineTextInput</span><span class="w"> </span><span class="nf">WithHeight</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">height</span><span class="p">);</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">public</span><span class="w"> </span><span class="n">MultilineTextInput</span><span class="w"> </span><span class="nf">WithText</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">text</span><span class="p">);</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">public</span><span class="w"> </span><span class="n">MultilineTextInput</span><span class="w"> </span><span class="nf">WithPlaceholder</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">placeholder</span><span class="p">);</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">public</span><span class="w"> </span><span class="n">MultilineTextInput</span><span class="w"> </span><span class="nf">WithFontSize</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">public</span><span class="w"> </span><span class="n">MultilineTextInput</span><span class="w"> </span><span class="nf">WithTypeface</span><span class="p">(</span><span class="n">SKTypeface</span><span class="o">?</span><span class="w"> </span><span class="n">typeface</span><span class="p">);</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">public</span><span class="w"> </span><span class="n">MultilineTextInput</span><span class="w"> </span><span class="nf">WithLineSpacing</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">spacing</span><span class="p">);</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="k">public</span><span class="w"> </span><span class="n">MultilineTextInput</span><span class="w"> </span><span class="nf">WithCornerRadius</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">radius</span><span class="p">);</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="k">public</span><span class="w"> </span><span class="n">MultilineTextInput</span><span class="w"> </span><span class="nf">WithPadding</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">padding</span><span class="p">);</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="k">public</span><span class="w"> </span><span class="n">MultilineTextInput</span><span class="w"> </span><span class="nf">WithWhenTextChanged</span><span class="p">(</span><span class="n">Action</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">handler</span><span class="p">);</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="k">public</span><span class="w"> </span><span class="n">MultilineTextInput</span><span class="w"> </span><span class="nf">WithWhenFocusGained</span><span class="p">(</span><span class="n">Action</span><span class="w"> </span><span class="n">handler</span><span class="p">);</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="k">public</span><span class="w"> </span><span class="n">MultilineTextInput</span><span class="w"> </span><span class="nf">WithWhenFocusLost</span><span class="p">(</span><span class="n">Action</span><span class="w"> </span><span class="n">handler</span><span class="p">);</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">WithWidth</span><span class="p">,</span><span class="w"> </span><span class="n">WithHeight</span><span class="p">,</span><span class="w"> </span><span class="n">WithText</span><span class="p">,</span><span class="w"> </span><span class="n">WithPlaceholder</span><span class="p">,</span><span class="w"> </span><span class="n">WithFontSize</span><span class="p">,</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">WithTypeface</span><span class="p">,</span><span class="w"> </span><span class="n">WithLineSpacing</span><span class="p">,</span><span class="w"> </span><span class="n">WithCornerRadius</span><span class="p">,</span><span class="w"> </span><span class="n">WithPadding</span><span class="p">,</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">WithWhenTextChanged</span><span class="p">,</span><span class="w"> </span><span class="n">WithWhenFocusGained</span><span class="p">,</span><span class="w"> </span><span class="n">WithWhenFocusLost</span>
 </span></code></pre></div>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">var</span><span class="w"> </span><span class="n">notes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MultilineTextInput</span><span class="p">()</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">new</span><span class="w"> </span><span class="nf">MultilineTextInput</span><span class="p">()</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="p">.</span><span class="n">WithWidth</span><span class="p">(</span><span class="mi">400</span><span class="p">)</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="p">.</span><span class="n">WithHeight</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="p">.</span><span class="n">WithPlaceholder</span><span class="p">(</span><span class="s">"Write your notes here…"</span><span class="p">)</span>
@@ -2533,13 +2552,6 @@ document), and Ctrl+A.</p>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="p">.</span><span class="n">WithLocation</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span><span class="w"> </span><span class="mi">40</span><span class="p">)</span>
 </span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="p">.</span><span class="n">WithAddToRenderer</span><span class="p">(</span><span class="n">renderer</span><span class="p">);</span>
 </span></code></pre></div>
-<div class="admonition tip">
-<p class="admonition-title">Custom typefaces</p>
-<p>Load one through <a href="../../font-manager/"><code>FontManager</code></a> and pass it in:</p>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">var</span><span class="w"> </span><span class="n">inter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FontManager</span><span class="p">.</span><span class="n">GetTypeface</span><span class="p">(</span><span class="s">"Fonts/Inter-SemiBold.ttf"</span><span class="p">);</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">control</span><span class="p">.</span><span class="n">WithTypeface</span><span class="p">(</span><span class="n">inter</span><span class="p">);</span>
-</span></code></pre></div>
-</div>
 
 
 

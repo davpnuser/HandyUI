@@ -17,11 +17,11 @@
          <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>https://davpnuser.github.io/HandyUI/dev/api/border-direction/</loc>
+         <loc>https://davpnuser.github.io/HandyUI/dev/api/contexts/</loc>
          <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>https://davpnuser.github.io/HandyUI/dev/api/contexts/</loc>
+         <loc>https://davpnuser.github.io/HandyUI/dev/api/enums/</loc>
          <lastmod>2026-11-13</lastmod>
     </url>
     <url>
@@ -37,11 +37,19 @@
          <lastmod>2026-11-13</lastmod>
     </url>
     <url>
+         <loc>https://davpnuser.github.io/HandyUI/dev/api/ihostwindow/</loc>
+         <lastmod>2026-11-13</lastmod>
+    </url>
+    <url>
          <loc>https://davpnuser.github.io/HandyUI/dev/api/imodule/</loc>
          <lastmod>2026-11-13</lastmod>
     </url>
     <url>
          <loc>https://davpnuser.github.io/HandyUI/dev/api/joe/</loc>
+         <lastmod>2026-11-13</lastmod>
+    </url>
+    <url>
+         <loc>https://davpnuser.github.io/HandyUI/dev/api/profiler-control/</loc>
          <lastmod>2026-11-13</lastmod>
     </url>
     <url>
@@ -53,15 +61,7 @@
          <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>https://davpnuser.github.io/HandyUI/dev/api/sk-color-helper/</loc>
-         <lastmod>2026-11-13</lastmod>
-    </url>
-    <url>
-         <loc>https://davpnuser.github.io/HandyUI/dev/api/sk-rect-helper/</loc>
-         <lastmod>2026-11-13</lastmod>
-    </url>
-    <url>
-         <loc>https://davpnuser.github.io/HandyUI/dev/api/stretch-mode/</loc>
+         <loc>https://davpnuser.github.io/HandyUI/dev/api/sk-extensions/</loc>
          <lastmod>2026-11-13</lastmod>
     </url>
     <url>
@@ -73,10 +73,6 @@
          <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>https://davpnuser.github.io/HandyUI/dev/api/theme/</loc>
-         <lastmod>2026-11-13</lastmod>
-    </url>
-    <url>
          <loc>https://davpnuser.github.io/HandyUI/dev/api/tray-icon/</loc>
          <lastmod>2026-11-13</lastmod>
     </url>
@@ -85,11 +81,19 @@
          <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>https://davpnuser.github.io/HandyUI/dev/api/tweener/</loc>
+         <loc>https://davpnuser.github.io/HandyUI/dev/api/tween-manager/</loc>
+         <lastmod>2026-11-13</lastmod>
+    </url>
+    <url>
+         <loc>https://davpnuser.github.io/HandyUI/dev/api/tween/</loc>
          <lastmod>2026-11-13</lastmod>
     </url>
     <url>
          <loc>https://davpnuser.github.io/HandyUI/dev/api/ui-renderer/</loc>
+         <lastmod>2026-11-13</lastmod>
+    </url>
+    <url>
+         <loc>https://davpnuser.github.io/HandyUI/dev/api/update-context/</loc>
          <lastmod>2026-11-13</lastmod>
     </url>
     <url>
@@ -110,6 +114,10 @@
     </url>
     <url>
          <loc>https://davpnuser.github.io/HandyUI/dev/api/controls/check-box/</loc>
+         <lastmod>2026-11-13</lastmod>
+    </url>
+    <url>
+         <loc>https://davpnuser.github.io/HandyUI/dev/api/controls/enums/</loc>
          <lastmod>2026-11-13</lastmod>
     </url>
     <url>

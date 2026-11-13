@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://davpnuser.github.io/HandyUI/dev/api/theme-manager/">
       
       
-        <link rel="prev" href="../theme/">
+        <link rel="prev" href="../imodule/">
       
       
         <link rel="next" href="../contexts/">
@@ -892,7 +892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tweener/" class="md-nav__link">
+      <a href="../tweener.md" class="md-nav__link">
         
   
   
@@ -985,7 +985,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../theme/" class="md-nav__link">
+      <a href="../theme.md" class="md-nav__link">
         
   
   
@@ -1081,23 +1081,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Singleton">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#instance" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Instance
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1179,21 +1162,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#derived-color-properties" class="md-nav__link">
+  <a href="#derived-colors" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Derived color properties
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#thememode" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ThemeMode
+        Derived colors
       
     </span>
   </a>
@@ -1379,7 +1351,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../border-direction/" class="md-nav__link">
+      <a href="../border-direction.md" class="md-nav__link">
         
   
   
@@ -1407,7 +1379,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../stretch-mode/" class="md-nav__link">
+      <a href="../stretch-mode.md" class="md-nav__link">
         
   
   
@@ -1498,7 +1470,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sk-color-helper/" class="md-nav__link">
+      <a href="../sk-color-helper.md" class="md-nav__link">
         
   
   
@@ -1526,7 +1498,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sk-rect-helper/" class="md-nav__link">
+      <a href="../sk-rect-helper.md" class="md-nav__link">
         
   
   
@@ -2449,23 +2421,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Singleton">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#instance" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Instance
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -2547,21 +2502,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#derived-color-properties" class="md-nav__link">
+  <a href="#derived-colors" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Derived color properties
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#thememode" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ThemeMode
+        Derived colors
       
     </span>
   </a>
@@ -2600,82 +2544,51 @@
 
 
 <h1 id="thememanager"><code>ThemeManager</code><a class="headerlink" href="#thememanager" title="Permanent link">&para;</a></h1>
-<p><code>HandyUI.Core.Theming.ThemeManager</code></p>
-<p>A process-wide singleton that generates a full color system from a single
-base color (usually the OS accent) and a light/dark mode, using <strong>OKLCH</strong>
-tonal mapping. Every built-in control reads its colors from here at draw
-time, so changing the theme updates all controls live.</p>
+<p><code>HandyUI.Core.Helpers.ThemeManager</code></p>
+<p>Singleton that generates a complete color system from a base color (usually
+the OS accent) and a light/dark mode. Uses <strong>OKLCH</strong> tonal mapping via
+<a href="#colorengine"><code>ColorEngine</code></a>.</p>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">public</span><span class="w"> </span><span class="k">sealed</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ThemeManager</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="p">{</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">ThemeManager</span><span class="w"> </span><span class="n">Instance</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">ThemeMode</span><span class="w"> </span><span class="n">Mode</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">event</span><span class="w"> </span><span class="n">Action</span><span class="o">?</span><span class="w"> </span><span class="n">ThemeChanged</span><span class="p">;</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">SetTheme</span><span class="p">(</span><span class="kt">byte</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">g</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">ThemeMode</span><span class="w"> </span><span class="n">mode</span><span class="p">);</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">SKColor</span><span class="w"> </span><span class="nf">GetTone</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">tone</span><span class="p">);</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="c1">// Derived properties …</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="p">}</span>
 </span></code></pre></div>
-<div class="admonition tip">
-<p class="admonition-title"><code>ThemeManager</code> vs <code>Theme</code></p>
-<p><code>ThemeManager</code> is <em>live</em> - it holds a base color + mode and generates
-tones on demand. <a href="../theme/"><code>Theme</code></a> is a <em>static palette</em>. Built-in
-controls use <code>ThemeManager</code> by default; <code>Theme</code> is available when you
-want to freeze a specific palette per-control.</p>
+<div class="admonition info">
+<p class="admonition-title">No <code>Theme</code> record anymore</p>
+<p>In v4, there is no per-control <code>Theme</code> property. Controls read colors
+from <code>ThemeManager.Instance</code> at draw time, so a theme change immediately
+recolors everything. The old <code>Theme.Default</code> / <code>DefaultTheme.GetTheme()</code>
+palette is gone - use <code>ThemeManager.Instance</code> directly.</p>
 </div>
 <h2 id="singleton">Singleton<a class="headerlink" href="#singleton" title="Permanent link">&para;</a></h2>
-<h3 id="instance"><code>Instance</code><a class="headerlink" href="#instance" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">ThemeManager</span><span class="w"> </span><span class="n">Instance</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
-<p>The one and only instance. Thread-safe to access.</p>
 <h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
 <h3 id="mode"><code>Mode</code><a class="headerlink" href="#mode" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">public</span><span class="w"> </span><span class="n">ThemeMode</span><span class="w"> </span><span class="n">Mode</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
-<p>The current light/dark mode. Read-only; set via <code>SetTheme</code>.</p>
+<p>The active mode. Set via <code>SetTheme</code>.</p>
 <h3 id="themechanged"><code>ThemeChanged</code><a class="headerlink" href="#themechanged" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">public</span><span class="w"> </span><span class="k">event</span><span class="w"> </span><span class="n">Action</span><span class="o">?</span><span class="w"> </span><span class="n">ThemeChanged</span><span class="p">;</span>
 </span></code></pre></div>
-<p>Fires after <code>SetTheme</code> completes. <code>UIRenderer</code> subscribes to this to
-auto-update its <code>BackgroundColor</code>, and <code>ThemeHelper</code> uses it to push OS
-appearance changes.</p>
+<p>Raised after <code>SetTheme</code> completes. <code>UIRenderer</code> subscribes to it so
+<code>BackgroundColor</code> tracks the theme (until you override it).</p>
 <h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
 <h3 id="setthemebyte-r-byte-g-byte-b-thememode-mode"><code>SetTheme(byte r, byte g, byte b, ThemeMode mode)</code><a class="headerlink" href="#setthemebyte-r-byte-g-byte-b-thememode-mode" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">SetTheme</span><span class="p">(</span><span class="kt">byte</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">g</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">ThemeMode</span><span class="w"> </span><span class="n">mode</span><span class="p">);</span>
 </span></code></pre></div>
-<p>Replaces the base color and mode. Clears the tone and derived caches, then
-raises <code>ThemeChanged</code>.</p>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">ThemeManager</span><span class="p">.</span><span class="n">Instance</span><span class="p">.</span><span class="n">SetTheme</span><span class="p">(</span><span class="mh">0x25</span><span class="p">,</span><span class="w"> </span><span class="mh">0x63</span><span class="p">,</span><span class="w"> </span><span class="mh">0xEB</span><span class="p">,</span><span class="w"> </span><span class="n">ThemeMode</span><span class="p">.</span><span class="n">Light</span><span class="p">);</span>
-</span></code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">You usually don't call this</p>
-<p>The recommended path is <a href="../theme-helper/#ensureinitialized"><code>ThemeHelper.EnsureInitialized()</code></a>,
-which reads the OS appearance and calls <code>SetTheme</code> for you. Call
-<code>SetTheme</code> directly only when you want a custom accent independent of
-the OS.</p>
-</div>
+<p>Replaces the base color + mode, clears caches, raises <code>ThemeChanged</code>. You
+usually don't call this yourself - <a href="../theme-helper/"><code>ThemeHelper</code></a> does it
+from the OS appearance.</p>
 <h3 id="gettoneint-tone"><code>GetTone(int tone)</code><a class="headerlink" href="#gettoneint-tone" title="Permanent link">&para;</a></h3>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">public</span><span class="w"> </span><span class="n">SKColor</span><span class="w"> </span><span class="nf">GetTone</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">tone</span><span class="p">);</span><span class="w">   </span><span class="c1">// tone in [0, 900]</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">public</span><span class="w"> </span><span class="n">SKColor</span><span class="w"> </span><span class="nf">GetTone</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">tone</span><span class="p">);</span><span class="w">   </span><span class="c1">// tone in [0, 900]</span>
 </span></code></pre></div>
-<p>Generates (and caches) a color from the current base at the given OKLCH
-tone. <code>0</code> is nearly white, <code>900</code> is nearly black; <code>500</code> is the accent.
-Internally calls <a href="#colorengine"><code>ColorEngine.GetToneRgb</code></a>.</p>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kt">var</span><span class="w"> </span><span class="n">accent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ThemeManager</span><span class="p">.</span><span class="n">Instance</span><span class="p">.</span><span class="n">GetTone</span><span class="p">(</span><span class="mi">500</span><span class="p">);</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kt">var</span><span class="w"> </span><span class="n">surface</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ThemeManager</span><span class="p">.</span><span class="n">Instance</span><span class="p">.</span><span class="n">GetTone</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
-</span></code></pre></div>
-<h2 id="derived-color-properties">Derived color properties<a class="headerlink" href="#derived-color-properties" title="Permanent link">&para;</a></h2>
-<p>All of these are computed from <code>Mode</code> + <code>GetTone(...)</code> and are cheap to
-read (they hit the tone cache).</p>
+<p>Cached OKLCH tone generation. <code>0</code> ≈ white, <code>900</code> ≈ black, <code>500</code> = accent.</p>
+<h2 id="derived-colors">Derived colors<a class="headerlink" href="#derived-colors" title="Permanent link">&para;</a></h2>
+<p>All cached and cheap to read. Tone selection flips with <code>Mode</code>.</p>
 <table>
 <thead>
 <tr>
 <th>Property</th>
-<th>Light mode tone</th>
-<th>Dark mode tone</th>
-<th>Use</th>
+<th>Light tone</th>
+<th>Dark tone</th>
 </tr>
 </thead>
 <tbody>
@@ -2683,83 +2596,70 @@ read (they hit the tone cache).</p>
 <td><code>BackgroundPrimary</code></td>
 <td>50</td>
 <td>900</td>
-<td>Window / app background.</td>
 </tr>
 <tr>
 <td><code>BackgroundSecondary</code></td>
 <td>100</td>
 <td>800</td>
-<td>Panel background.</td>
 </tr>
 <tr>
 <td><code>BackgroundTertiary</code></td>
 <td>200</td>
 <td>700</td>
-<td>Deeper surface.</td>
 </tr>
 <tr>
 <td><code>SurfacePrimary</code></td>
 <td>0</td>
 <td>800</td>
-<td>Card / input surface.</td>
 </tr>
 <tr>
 <td><code>SurfaceSecondary</code></td>
 <td>50</td>
 <td>700</td>
-<td>Alternate surface.</td>
 </tr>
 <tr>
 <td><code>SurfaceTertiary</code></td>
 <td>100</td>
 <td>600</td>
-<td>Alternate surface, deeper.</td>
 </tr>
 <tr>
 <td><code>TextPrimary</code></td>
 <td>900</td>
 <td>50</td>
-<td>Main text.</td>
 </tr>
 <tr>
 <td><code>TextSecondary</code></td>
 <td>800</td>
 <td>100</td>
-<td>Secondary text.</td>
 </tr>
 <tr>
 <td><code>TextTertiary</code></td>
 <td>750</td>
 <td>150</td>
-<td>Hint / placeholder text.</td>
 </tr>
 <tr>
 <td><code>Accent</code></td>
 <td>500</td>
 <td>500</td>
-<td>Brand / interactive.</td>
 </tr>
 <tr>
 <td><code>AccentHover</code></td>
 <td>600</td>
 <td>400</td>
-<td>Hovered accent.</td>
 </tr>
 <tr>
 <td><code>Border</code></td>
 <td>200</td>
 <td>700</td>
-<td>Strokes and separators.</td>
 </tr>
 <tr>
 <td><code>DisabledSurface</code></td>
 <td>100</td>
 <td>800</td>
-<td>Fill for disabled controls.</td>
 </tr>
 </tbody>
 </table>
-<p>Two more derived properties compute from cached colors:</p>
+<p>Two additional derived colors:</p>
 <table>
 <thead>
 <tr>
@@ -2778,56 +2678,15 @@ read (they hit the tone cache).</p>
 </tr>
 </tbody>
 </table>
-<h2 id="thememode"><code>ThemeMode</code><a class="headerlink" href="#thememode" title="Permanent link">&para;</a></h2>
-<p><code>HandyUI.Core.Enums.ThemeMode</code></p>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">public</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">ThemeMode</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="p">{</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="n">Dark</span><span class="p">,</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="n">Light</span><span class="p">,</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="n">Unknown</span>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="p">}</span>
-</span></code></pre></div>
-<p><code>Unknown</code> is used when the OS appearance can't be detected (unsupported
-platform, or the D-Bus/registry read failed). <code>ThemeManager</code> treats
-<code>Unknown</code> the same as <code>Light</code> for tone selection.</p>
 <h2 id="colorengine"><code>ColorEngine</code><a class="headerlink" href="#colorengine" title="Permanent link">&para;</a></h2>
-<p><code>HandyUI.Core.Theming.ColorEngine</code></p>
-<p>Static OKLCH-based tone generator used internally by <code>ThemeManager</code>.</p>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ColorEngine</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="p">{</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">static</span><span class="w"> </span><span class="p">(</span><span class="kt">byte</span><span class="w"> </span><span class="n">R</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">G</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">B</span><span class="p">)</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">        </span><span class="n">GetToneRgb</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">baseR</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">baseG</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">baseB</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">requestedTone</span><span class="p">);</span>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="p">}</span>
+<p><code>HandyUI.Core.Helpers.ColorEngine</code></p>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">public</span><span class="w"> </span><span class="nf">static</span><span class="w"> </span><span class="p">(</span><span class="kt">byte</span><span class="w"> </span><span class="n">R</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">G</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="w"> </span><span class="n">B</span><span class="p">)</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="n">GetToneRgb</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">baseR</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">baseG</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">baseB</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">requestedTone</span><span class="p">);</span>
 </span></code></pre></div>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Range</th>
-<th>Meaning</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>baseR/G/B</code></td>
-<td>0-255</td>
-<td>Source color (usually the accent).</td>
-</tr>
-<tr>
-<td><code>requestedTone</code></td>
-<td>0-900</td>
-<td>Tone. <code>0</code> ≈ white, <code>900</code> ≈ black, <code>500</code> = accent.</td>
-</tr>
-</tbody>
-</table>
-<p><code>GetToneRgb</code> converts the base to OKLCH, keeps its hue, maps lightness to
-the requested tone, and reduces chroma near the extremes so pure
-white/black anchors look clean.</p>
-<div class="admonition info">
-<p class="admonition-title">You rarely call this</p>
-<p><code>ThemeManager.GetTone</code> already caches results. Use <code>ColorEngine</code> only if
-you need a tone from a <em>different</em> base color than the current theme.</p>
-</div>
+<p>OKLCH-based tone generator. Internally used by <code>ThemeManager.GetTone</code>; you
+can call it directly for ad-hoc tone generation from a different base color.</p>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kt">var</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">g</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ColorEngine</span><span class="p">.</span><span class="n">GetToneRgb</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">700</span><span class="p">);</span>
+</span></code></pre></div>
 
 
 
@@ -2865,7 +2724,7 @@ you need a tone from a <em>different</em> base color than the current theme.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../theme/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Theme">
+          <a href="../imodule/" class="md-footer__link md-footer__link--prev" aria-label="Previous: IModule">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2875,7 +2734,7 @@ you need a tone from a <em>different</em> base color than the current theme.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Theme
+                IModule
               </div>
             </div>
           </a>

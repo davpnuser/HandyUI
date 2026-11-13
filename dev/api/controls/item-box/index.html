@@ -892,7 +892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tweener/" class="md-nav__link">
+      <a href="../../tweener.md" class="md-nav__link">
         
   
   
@@ -983,7 +983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../theme/" class="md-nav__link">
+      <a href="../../theme.md" class="md-nav__link">
         
   
   
@@ -1191,7 +1191,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../border-direction/" class="md-nav__link">
+      <a href="../../border-direction.md" class="md-nav__link">
         
   
   
@@ -1219,7 +1219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../stretch-mode/" class="md-nav__link">
+      <a href="../../stretch-mode.md" class="md-nav__link">
         
   
   
@@ -1310,7 +1310,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sk-color-helper/" class="md-nav__link">
+      <a href="../../sk-color-helper.md" class="md-nav__link">
         
   
   
@@ -1338,7 +1338,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sk-rect-helper/" class="md-nav__link">
+      <a href="../../sk-rect-helper.md" class="md-nav__link">
         
   
   
@@ -2433,7 +2433,7 @@
 
 <h1 id="itembox"><code>ItemBox</code><a class="headerlink" href="#itembox" title="Permanent link">&para;</a></h1>
 <p><code>HandyUI.Controls.Controls.ItemBox</code></p>
-<p>A selectable list-style item. Selection is <strong>exclusive among siblings</strong>.</p>
+<p>Selectable list item with sibling-exclusive selection.</p>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ItemBox</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BaseControl</span><span class="o">&lt;</span><span class="n">ItemBox</span><span class="o">&gt;</span>
 </span></code></pre></div>
 <h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
@@ -2443,48 +2443,43 @@
 <th>Property</th>
 <th>Type</th>
 <th>Default</th>
-<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>Width</code> / <code>Height</code></td>
 <td><code>float</code></td>
-<td><code>0</code></td>
-<td>Auto-sized when <code>0</code>.</td>
+<td><code>0</code> (auto)</td>
 </tr>
 <tr>
 <td><code>Text</code></td>
 <td><code>string</code></td>
-<td><code>""</code></td>
-<td>Multi-line.</td>
+<td><code>""</code> (multi-line)</td>
 </tr>
 <tr>
 <td><code>FontSize</code></td>
 <td><code>float</code></td>
 <td><code>14f</code></td>
-<td></td>
 </tr>
 <tr>
 <td><code>Typeface</code></td>
 <td><code>SKTypeface</code></td>
 <td><code>FontManager.DefaultFont</code></td>
-<td></td>
 </tr>
 <tr>
 <td><code>IsSelected</code></td>
 <td><code>bool</code></td>
 <td><code>false</code></td>
-<td>Animates a highlight + 3-pixel accent bar. Auto-deselects siblings.</td>
 </tr>
 <tr>
 <td><code>HorizontalPadding</code> / <code>VerticalPadding</code></td>
 <td><code>float</code></td>
 <td><code>16f</code> / <code>8f</code></td>
-<td></td>
 </tr>
 </tbody>
 </table>
+<p><code>IsSelected = true</code> animates an accent background and 3-pixel accent bar,
+and clears <code>IsSelected</code> on any sibling <code>ItemBox</code> under the same parent.</p>
 <h2 id="events">Events<a class="headerlink" href="#events" title="Permanent link">&para;</a></h2>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">public</span><span class="w"> </span><span class="k">event</span><span class="w"> </span><span class="n">Action</span><span class="o">&lt;</span><span class="n">ItemBox</span><span class="o">&gt;?</span><span class="w"> </span><span class="n">WhenClicked</span><span class="p">;</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">public</span><span class="w"> </span><span class="k">event</span><span class="w"> </span><span class="n">Action</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;?</span><span class="w"> </span><span class="n">WhenSelectionChanged</span><span class="p">;</span>
@@ -2492,39 +2487,20 @@
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">public</span><span class="w"> </span><span class="k">event</span><span class="w"> </span><span class="n">Action</span><span class="o">?</span><span class="w"> </span><span class="n">WhenHoverExited</span><span class="p">;</span>
 </span></code></pre></div>
 <h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
-<p><code>DoesIntersect</code>, <code>OnUpdate</code>, <code>OnDraw</code>, <code>OnMouse</code> - standard overrides.</p>
+<p><code>OnMouse</code> toggles selection on <code>MouseDownEvent</code> (not <code>ClickEvent</code>) so
+selection happens immediately on press.</p>
 <h2 id="fluent-api">Fluent API<a class="headerlink" href="#fluent-api" title="Permanent link">&para;</a></h2>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">public</span><span class="w"> </span><span class="n">ItemBox</span><span class="w"> </span><span class="nf">WithWidth</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">width</span><span class="p">);</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">public</span><span class="w"> </span><span class="n">ItemBox</span><span class="w"> </span><span class="nf">WithHeight</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">height</span><span class="p">);</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">public</span><span class="w"> </span><span class="n">ItemBox</span><span class="w"> </span><span class="nf">WithText</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">text</span><span class="p">);</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">public</span><span class="w"> </span><span class="n">ItemBox</span><span class="w"> </span><span class="nf">WithFontSize</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">public</span><span class="w"> </span><span class="n">ItemBox</span><span class="w"> </span><span class="nf">WithTypeface</span><span class="p">(</span><span class="n">SKTypeface</span><span class="o">?</span><span class="w"> </span><span class="n">typeface</span><span class="p">);</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">public</span><span class="w"> </span><span class="n">ItemBox</span><span class="w"> </span><span class="nf">WithIsSelected</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">selected</span><span class="p">);</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">public</span><span class="w"> </span><span class="n">ItemBox</span><span class="w"> </span><span class="nf">WithPadding</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">horizontal</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">vertical</span><span class="p">);</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="k">public</span><span class="w"> </span><span class="n">ItemBox</span><span class="w"> </span><span class="nf">WithWhenClicked</span><span class="p">(</span><span class="n">Action</span><span class="o">&lt;</span><span class="n">ItemBox</span><span class="o">&gt;</span><span class="w"> </span><span class="n">handler</span><span class="p">);</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="k">public</span><span class="w"> </span><span class="n">ItemBox</span><span class="w"> </span><span class="nf">WithWhenSelectionChanged</span><span class="p">(</span><span class="n">Action</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">handler</span><span class="p">);</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="k">public</span><span class="w"> </span><span class="n">ItemBox</span><span class="w"> </span><span class="nf">WithWhenHoverEntered</span><span class="p">(</span><span class="n">Action</span><span class="w"> </span><span class="n">handler</span><span class="p">);</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="k">public</span><span class="w"> </span><span class="n">ItemBox</span><span class="w"> </span><span class="nf">WithWhenHoverExited</span><span class="p">(</span><span class="n">Action</span><span class="w"> </span><span class="n">handler</span><span class="p">);</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">WithWidth</span><span class="p">,</span><span class="w"> </span><span class="n">WithHeight</span><span class="p">,</span><span class="w"> </span><span class="n">WithText</span><span class="p">,</span><span class="w"> </span><span class="n">WithFontSize</span><span class="p">,</span><span class="w"> </span><span class="n">WithTypeface</span><span class="p">,</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">WithIsSelected</span><span class="p">,</span><span class="w"> </span><span class="n">WithPadding</span><span class="p">,</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">WithWhenClicked</span><span class="p">(</span><span class="n">Action</span><span class="o">&lt;</span><span class="n">ItemBox</span><span class="o">&gt;</span><span class="p">),</span><span class="w"> </span><span class="n">WithWhenSelectionChanged</span><span class="p">(</span><span class="n">Action</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="p">),</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">WithWhenHoverEntered</span><span class="p">,</span><span class="w"> </span><span class="n">WithWhenHoverExited</span>
 </span></code></pre></div>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">var</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Frame</span><span class="p">().</span><span class="n">WithSize</span><span class="p">(</span><span class="mi">240</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">).</span><span class="n">WithAddToRenderer</span><span class="p">(</span><span class="n">renderer</span><span class="p">);</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">new</span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"Inbox"</span><span class="p">,</span><span class="w"> </span><span class="s">"Sent"</span><span class="p">,</span><span class="w"> </span><span class="s">"Drafts"</span><span class="w"> </span><span class="p">})</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">{</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">ItemBox</span><span class="p">()</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">        </span><span class="p">.</span><span class="n">WithText</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">        </span><span class="p">.</span><span class="n">WithWidth</span><span class="p">(</span><span class="mi">240</span><span class="p">)</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">        </span><span class="p">.</span><span class="n">WithParent</span><span class="p">(</span><span class="n">list</span><span class="p">);</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">}</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">ItemBox</span><span class="p">().</span><span class="n">WithText</span><span class="p">(</span><span class="n">name</span><span class="p">).</span><span class="n">WithWidth</span><span class="p">(</span><span class="mi">240</span><span class="p">).</span><span class="n">WithParent</span><span class="p">(</span><span class="n">list</span><span class="p">);</span>
 </span></code></pre></div>
-<div class="admonition tip">
-<p class="admonition-title">Custom typefaces</p>
-<p>Load one through <a href="../../font-manager/"><code>FontManager</code></a> and pass it in:</p>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">var</span><span class="w"> </span><span class="n">inter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FontManager</span><span class="p">.</span><span class="n">GetTypeface</span><span class="p">(</span><span class="s">"Fonts/Inter-SemiBold.ttf"</span><span class="p">);</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">control</span><span class="p">.</span><span class="n">WithTypeface</span><span class="p">(</span><span class="n">inter</span><span class="p">);</span>
-</span></code></pre></div>
-</div>
 
 
 

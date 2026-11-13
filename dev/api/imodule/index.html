@@ -18,7 +18,7 @@
         <link rel="prev" href="../icontrol/">
       
       
-        <link rel="next" href="../tweener/">
+        <link rel="next" href="../theme-manager/">
       
       
         
@@ -865,21 +865,38 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#members" class="md-nav__link">
+  <a href="#properties" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Members
+        Properties
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Properties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#acceptsinput" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AcceptsInput
       
     </span>
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#fluent-api-imoduletself" class="md-nav__link">
+  <a href="#methods" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Fluent API: IModule&lt;TSelf&gt;
+        Methods
       
     </span>
   </a>
@@ -963,7 +980,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tweener/" class="md-nav__link">
+      <a href="../tweener.md" class="md-nav__link">
         
   
   
@@ -1054,7 +1071,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../theme/" class="md-nav__link">
+      <a href="../theme.md" class="md-nav__link">
         
   
   
@@ -1262,7 +1279,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../border-direction/" class="md-nav__link">
+      <a href="../border-direction.md" class="md-nav__link">
         
   
   
@@ -1290,7 +1307,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../stretch-mode/" class="md-nav__link">
+      <a href="../stretch-mode.md" class="md-nav__link">
         
   
   
@@ -1381,7 +1398,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sk-color-helper/" class="md-nav__link">
+      <a href="../sk-color-helper.md" class="md-nav__link">
         
   
   
@@ -1409,7 +1426,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sk-rect-helper/" class="md-nav__link">
+      <a href="../sk-rect-helper.md" class="md-nav__link">
         
   
   
@@ -2324,21 +2341,38 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#members" class="md-nav__link">
+  <a href="#properties" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Members
+        Properties
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Properties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#acceptsinput" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AcceptsInput
       
     </span>
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#fluent-api-imoduletself" class="md-nav__link">
+  <a href="#methods" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Fluent API: IModule&lt;TSelf&gt;
+        Methods
       
     </span>
   </a>
@@ -2366,57 +2400,33 @@
 
 
 <h1 id="imodule"><code>IModule</code><a class="headerlink" href="#imodule" title="Permanent link">&para;</a></h1>
-<p><code>HandyUI.Core.Interface.IModule</code></p>
-<p>The contract for logic-only components ticked by the <code>UIRenderer</code>.</p>
+<p><code>HandyUI.Core.Abstractions.Interface.IModule</code></p>
+<p>Contract for logic-only components. Modules run <strong>before</strong> controls in the
+input pipeline, so a module can consume an event by returning <code>true</code> from
+<code>ProcessMouseEvent</code> / <code>ProcessKeyEvent</code>.</p>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">IModule</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">IDisposable</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="p">{</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">IsEnabled</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="k">void</span><span class="w"> </span><span class="nf">Start</span><span class="p">();</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="k">void</span><span class="w"> </span><span class="nf">Stop</span><span class="p">();</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="k">void</span><span class="w"> </span><span class="nf">OnUpdate</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">deltaTime</span><span class="p">);</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">}</span>
 </span></code></pre></div>
-<h2 id="members">Members<a class="headerlink" href="#members" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Member</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>IsEnabled</code></td>
-<td><code>bool</code></td>
-<td>Read-only. When <code>false</code>, <code>OnUpdate</code> is skipped.</td>
-</tr>
-<tr>
-<td><code>Start()</code></td>
-<td><code>void</code></td>
-<td>Turns the module on.</td>
-</tr>
-<tr>
-<td><code>Stop()</code></td>
-<td><code>void</code></td>
-<td>Turns the module off.</td>
-</tr>
-<tr>
-<td><code>OnUpdate(float)</code></td>
-<td><code>void</code></td>
-<td>Per-frame update while enabled.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="fluent-api-imoduletself">Fluent API: <code>IModule&lt;TSelf&gt;</code><a class="headerlink" href="#fluent-api-imoduletself" title="Permanent link">&para;</a></h2>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">IModule</span><span class="o">&lt;</span><span class="n">TSelf</span><span class="o">&gt;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">IModule</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">TSelf</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">IModule</span><span class="o">&lt;</span><span class="n">TSelf</span><span class="o">&gt;</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="p">{</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">TSelf</span><span class="w"> </span><span class="nf">WithIsEnabled</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">enabled</span><span class="p">);</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">TSelf</span><span class="w"> </span><span class="nf">WithAddToRenderer</span><span class="p">(</span><span class="n">UIRenderer</span><span class="w"> </span><span class="n">renderer</span><span class="p">);</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">}</span>
+<h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kt">string?</span><span class="w"> </span><span class="n">Name</span><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kt">bool</span><span class="w">    </span><span class="n">AcceptsInput</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// default: true</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kt">bool</span><span class="w">    </span><span class="n">Enabled</span><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// default: true</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kt">bool</span><span class="w">    </span><span class="n">IsDisposed</span><span class="w">   </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
+<h3 id="acceptsinput"><code>AcceptsInput</code><a class="headerlink" href="#acceptsinput" title="Permanent link">&para;</a></h3>
+<p>When <code>false</code>, <code>UIRenderer</code> skips the module during the input pipeline (the
+module still ticks in <code>UpdateModules</code>). Set this on modules that only need
+to animate.</p>
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">abstract</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnUpdate</span><span class="p">(</span><span class="n">UpdateContext</span><span class="w"> </span><span class="n">updateContext</span><span class="p">);</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">void</span><span class="w"> </span><span class="nf">Start</span><span class="p">();</span><span class="w">   </span><span class="c1">// sets Enabled = true, calls OnStart()</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">void</span><span class="w"> </span><span class="nf">Stop</span><span class="p">();</span><span class="w">    </span><span class="c1">// sets Enabled = false, calls OnStop()</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="kt">bool</span><span class="w"> </span><span class="nf">ProcessMouseEvent</span><span class="p">(</span><span class="n">MouseEventContext</span><span class="w"> </span><span class="n">eventContext</span><span class="p">);</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="kt">bool</span><span class="w"> </span><span class="nf">ProcessKeyEvent</span><span class="p">(</span><span class="n">KeyEventContext</span><span class="w"> </span><span class="n">eventContext</span><span class="p">);</span>
+</span></code></pre></div>
+<p><code>ProcessMouseEvent</code> / <code>ProcessKeyEvent</code> short-circuit to <code>false</code> when
+<code>Enabled</code> is <code>false</code> or <code>AcceptsInput</code> is <code>false</code>.</p>
 
 
 
@@ -2471,13 +2481,13 @@
         
         
           
-          <a href="../tweener/" class="md-footer__link md-footer__link--next" aria-label="Next: Tweener">
+          <a href="../theme-manager/" class="md-footer__link md-footer__link--next" aria-label="Next: ThemeManager">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Tweener
+                ThemeManager
               </div>
             </div>
             <div class="md-footer__button md-icon">

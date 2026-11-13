@@ -892,7 +892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tweener/" class="md-nav__link">
+      <a href="../tweener.md" class="md-nav__link">
         
   
   
@@ -983,7 +983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../theme/" class="md-nav__link">
+      <a href="../theme.md" class="md-nav__link">
         
   
   
@@ -1191,7 +1191,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../border-direction/" class="md-nav__link">
+      <a href="../border-direction.md" class="md-nav__link">
         
   
   
@@ -1219,7 +1219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../stretch-mode/" class="md-nav__link">
+      <a href="../stretch-mode.md" class="md-nav__link">
         
   
   
@@ -1310,7 +1310,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sk-color-helper/" class="md-nav__link">
+      <a href="../sk-color-helper.md" class="md-nav__link">
         
   
   
@@ -1338,7 +1338,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sk-rect-helper/" class="md-nav__link">
+      <a href="../sk-rect-helper.md" class="md-nav__link">
         
   
   
@@ -2096,23 +2096,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Properties">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#setting-flags" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Setting flags
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -2123,23 +2106,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Static helpers">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#separator" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Separator()
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2399,23 +2365,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Properties">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#setting-flags" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Setting flags
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -2426,23 +2375,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Static helpers">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#separator" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Separator()
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2479,15 +2411,12 @@
 
 <h1 id="traymenuitem"><code>TrayMenuItem</code><a class="headerlink" href="#traymenuitem" title="Permanent link">&para;</a></h1>
 <p><code>HandyUI.SilkNet.Components.TrayMenuItem</code></p>
-<p>A single entry in a <a href="../tray-icon/"><code>TrayIcon</code></a> context menu. Also
-represents separators.</p>
+<p>One entry in a <a href="../tray-icon/"><code>TrayIcon</code></a> context menu.</p>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">public</span><span class="w"> </span><span class="k">sealed</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TrayMenuItem</span>
 </span></code></pre></div>
 <h2 id="constructors">Constructors<a class="headerlink" href="#constructors" title="Permanent link">&para;</a></h2>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">public</span><span class="w"> </span><span class="nf">TrayMenuItem</span><span class="p">();</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">public</span><span class="w"> </span><span class="nf">TrayMenuItem</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">Action</span><span class="o">?</span><span class="w"> </span><span class="n">onClick</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">);</span>
-</span></code></pre></div>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kt">var</span><span class="w"> </span><span class="n">exit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TrayMenuItem</span><span class="p">(</span><span class="s">"Quit"</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">window</span><span class="p">.</span><span class="n">Close</span><span class="p">());</span>
 </span></code></pre></div>
 <h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
 <table>
@@ -2504,60 +2433,50 @@ represents separators.</p>
 <td><code>Text</code></td>
 <td><code>string</code></td>
 <td><code>""</code></td>
-<td>Display text. Ignored when <code>IsSeparator</code> is <code>true</code>.</td>
+<td>Display text.</td>
 </tr>
 <tr>
 <td><code>IsSeparator</code></td>
 <td><code>bool</code></td>
 <td><code>false</code></td>
-<td>Renders a horizontal separator line. <code>init</code>-only.</td>
+<td>Renders a horizontal separator (<code>init</code>-only).</td>
 </tr>
 <tr>
 <td><code>IsDefault</code></td>
 <td><code>bool</code></td>
 <td><code>false</code></td>
-<td>Marks the menu's default item (activated by Enter / double-click of the tray icon).</td>
+<td>Marks the default item.</td>
 </tr>
 <tr>
 <td><code>IsEnabled</code></td>
 <td><code>bool</code></td>
 <td><code>true</code></td>
-<td>When <code>false</code>, the item appears greyed and cannot be clicked.</td>
+<td>When <code>false</code> → greyed out.</td>
 </tr>
 <tr>
 <td><code>IsChecked</code></td>
 <td><code>bool</code></td>
 <td><code>false</code></td>
-<td>Draws a checkmark next to the item.</td>
+<td>Draws a checkmark.</td>
 </tr>
 <tr>
 <td><code>OnClick</code></td>
 <td><code>Action?</code></td>
 <td><code>null</code></td>
-<td>Invoked when the user picks the item.</td>
+<td>Invoked when picked.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="setting-flags">Setting flags<a class="headerlink" href="#setting-flags" title="Permanent link">&para;</a></h3>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">var</span><span class="w"> </span><span class="n">autostart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TrayMenuItem</span><span class="p">(</span><span class="s">"Launch at startup"</span><span class="p">,</span><span class="w"> </span><span class="n">ToggleAutostart</span><span class="p">)</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="p">{</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="n">IsChecked</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">LaunchAtStartup</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">};</span>
-</span></code></pre></div>
 <h2 id="static-helpers">Static helpers<a class="headerlink" href="#static-helpers" title="Permanent link">&para;</a></h2>
-<h3 id="separator"><code>Separator()</code><a class="headerlink" href="#separator" title="Permanent link">&para;</a></h3>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">TrayMenuItem</span><span class="w"> </span><span class="nf">Separator</span><span class="p">();</span>
-</span></code></pre></div>
-<p>Returns a new <code>TrayMenuItem</code> with <code>IsSeparator = true</code>.</p>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">tray</span><span class="p">.</span><span class="n">MenuItems</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">TrayMenuItem</span><span class="p">.</span><span class="n">Separator</span><span class="p">());</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">TrayMenuItem</span><span class="w"> </span><span class="nf">Separator</span><span class="p">();</span>
 </span></code></pre></div>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">window</span><span class="p">.</span><span class="n">TrayIcon</span><span class="p">.</span><span class="n">MenuItems</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">TrayMenuItem</span><span class="p">(</span><span class="s">"Show"</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">window</span><span class="p">.</span><span class="n">Show</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">IsDefault</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="w"> </span><span class="p">});</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">window</span><span class="p">.</span><span class="n">TrayIcon</span><span class="p">.</span><span class="n">MenuItems</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">TrayMenuItem</span><span class="p">(</span><span class="s">"Mute"</span><span class="p">,</span><span class="w"> </span><span class="n">ToggleMute</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">IsChecked</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">Muted</span><span class="w"> </span><span class="p">});</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">window</span><span class="p">.</span><span class="n">TrayIcon</span><span class="p">.</span><span class="n">MenuItems</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">TrayMenuItem</span><span class="p">.</span><span class="n">Separator</span><span class="p">());</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">window</span><span class="p">.</span><span class="n">TrayIcon</span><span class="p">.</span><span class="n">MenuItems</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">TrayMenuItem</span><span class="p">(</span><span class="s">"Disabled item"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">IsEnabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">false</span><span class="w"> </span><span class="p">});</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">window</span><span class="p">.</span><span class="n">TrayIcon</span><span class="p">.</span><span class="n">MenuItems</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">TrayMenuItem</span><span class="p">.</span><span class="n">Separator</span><span class="p">());</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">window</span><span class="p">.</span><span class="n">TrayIcon</span><span class="p">.</span><span class="n">MenuItems</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">TrayMenuItem</span><span class="p">(</span><span class="s">"Quit"</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">window</span><span class="p">.</span><span class="n">Close</span><span class="p">()));</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">var</span><span class="w"> </span><span class="n">mute</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TrayMenuItem</span><span class="p">(</span><span class="s">"Mute"</span><span class="p">,</span><span class="w"> </span><span class="n">ToggleMute</span><span class="p">)</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="p">{</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="n">IsChecked</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">Muted</span><span class="p">,</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="n">IsEnabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">audioDeviceAvailable</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">};</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">window</span><span class="p">.</span><span class="n">TrayIcon</span><span class="p">.</span><span class="n">MenuItems</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">mute</span><span class="p">);</span>
 </span></code></pre></div>
 
 

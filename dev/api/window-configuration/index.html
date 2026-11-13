@@ -892,7 +892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tweener/" class="md-nav__link">
+      <a href="../tweener.md" class="md-nav__link">
         
   
   
@@ -983,7 +983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../theme/" class="md-nav__link">
+      <a href="../theme.md" class="md-nav__link">
         
   
   
@@ -1191,7 +1191,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../border-direction/" class="md-nav__link">
+      <a href="../border-direction.md" class="md-nav__link">
         
   
   
@@ -1219,7 +1219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../stretch-mode/" class="md-nav__link">
+      <a href="../stretch-mode.md" class="md-nav__link">
         
   
   
@@ -1310,7 +1310,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sk-color-helper/" class="md-nav__link">
+      <a href="../sk-color-helper.md" class="md-nav__link">
         
   
   
@@ -1338,7 +1338,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sk-rect-helper/" class="md-nav__link">
+      <a href="../sk-rect-helper.md" class="md-nav__link">
         
   
   
@@ -2055,17 +2055,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#parent-child" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Parent-child
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#rendering" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2077,21 +2066,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#opengl" class="md-nav__link">
+  <a href="#glfw" class="md-nav__link">
     <span class="md-ellipsis">
       
-        OpenGL
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#advanced" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Advanced
+        GLFW
       
     </span>
   </a>
@@ -2112,22 +2090,16 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Static members">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#default" class="md-nav__link">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Default
+        Example
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2447,17 +2419,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#parent-child" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Parent-child
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#rendering" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2469,21 +2430,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#opengl" class="md-nav__link">
+  <a href="#glfw" class="md-nav__link">
     <span class="md-ellipsis">
       
-        OpenGL
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#advanced" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Advanced
+        GLFW
       
     </span>
   </a>
@@ -2504,22 +2454,16 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Static members">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#default" class="md-nav__link">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Default
+        Example
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2545,7 +2489,7 @@
 
 <h1 id="windowconfiguration"><code>WindowConfiguration</code><a class="headerlink" href="#windowconfiguration" title="Permanent link">&para;</a></h1>
 <p><code>HandyUI.SilkNet.Data.WindowConfiguration</code></p>
-<p>An immutable options record for <a href="../handy-window/"><code>HandyWindow</code></a>.</p>
+<p>Options record for <a href="../handy-window/"><code>HandyWindow</code></a>.</p>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="n">WindowConfiguration</span>
 </span></code></pre></div>
 <h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
@@ -2589,7 +2533,7 @@
 <tr>
 <td><code>WindowState</code></td>
 <td><code>Normal</code></td>
-<td>Initial window state.</td>
+<td>Initial state.</td>
 </tr>
 <tr>
 <td><code>WindowBorder</code></td>
@@ -2604,12 +2548,12 @@
 <tr>
 <td><code>IsCenteredOnStartup</code></td>
 <td><code>false</code></td>
-<td>Center on the monitor.</td>
+<td>Center on monitor.</td>
 </tr>
 <tr>
 <td><code>IsVisibleInTaskbar</code></td>
 <td><code>true</code></td>
-<td>Win32 taskbar visibility.</td>
+<td></td>
 </tr>
 <tr>
 <td><code>IsResizable</code></td>
@@ -2639,42 +2583,15 @@
 <tr>
 <td><code>IsTitleBarVisible</code></td>
 <td><code>true</code></td>
-<td>Whether the OS title bar is shown.</td>
+<td></td>
 </tr>
 <tr>
 <td><code>Icon</code></td>
 <td><code>null</code></td>
-<td>Window icon as an <code>SKImage</code>.</td>
+<td><code>SKImage?</code> icon.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="parent-child">Parent-child<a class="headerlink" href="#parent-child" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Property</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>SubwindowParent</code></td>
-<td><code>null</code></td>
-<td>Native parent window.</td>
-</tr>
-<tr>
-<td><code>ModalParent</code></td>
-<td><code>null</code></td>
-<td>Modal parent; disables it.</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition warning">
-<p class="admonition-title">Mutually exclusive</p>
-<p>A window cannot have the same window as both <code>SubwindowParent</code> and
-<code>ModalParent</code>. Throws at construction.</p>
-</div>
 <h3 id="rendering">Rendering<a class="headerlink" href="#rendering" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -2706,18 +2623,13 @@
 <td></td>
 </tr>
 <tr>
-<td><code>InvalidateParentOnMove</code></td>
-<td><code>true</code></td>
-<td></td>
-</tr>
-<tr>
 <td><code>TransparentFrameBuffer</code></td>
 <td><code>false</code></td>
 <td></td>
 </tr>
 </tbody>
 </table>
-<h3 id="opengl">OpenGL<a class="headerlink" href="#opengl" title="Permanent link">&para;</a></h3>
+<h3 id="glfw">GLFW<a class="headerlink" href="#glfw" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -2727,11 +2639,6 @@
 </tr>
 </thead>
 <tbody>
-<tr>
-<td><code>SharedContext</code></td>
-<td><code>null</code></td>
-<td>Share GL resources across windows.</td>
-</tr>
 <tr>
 <td><code>AutoInitWindow</code></td>
 <td><code>false</code></td>
@@ -2742,45 +2649,35 @@
 <td><code>true</code></td>
 <td></td>
 </tr>
-</tbody>
-</table>
-<h3 id="advanced">Advanced<a class="headerlink" href="#advanced" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Property</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
 <tr>
 <td><code>PumpThreadName</code></td>
 <td><code>null</code> → <code>HandyWindow-&lt;Title&gt;</code></td>
-<td>Name of the pump thread.</td>
+<td></td>
 </tr>
 <tr>
 <td><code>CustomWindowOptions</code></td>
 <td><code>null</code></td>
-<td>Overrides the whole <code>WindowOptions</code>.</td>
+<td>Overrides whole <code>WindowOptions</code>.</td>
 </tr>
 </tbody>
 </table>
-<div class="admonition tip">
-<p class="admonition-title">Custom chrome</p>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kt">var</span><span class="w"> </span><span class="n">cfg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WindowConfiguration</span><span class="p">.</span><span class="n">Default</span><span class="w"> </span><span class="k">with</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="p">{</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">Title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Chat"</span><span class="p">,</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">Size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SKSize</span><span class="p">(</span><span class="mi">420</span><span class="p">,</span><span class="w"> </span><span class="mi">700</span><span class="p">),</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">IsResizable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">,</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">IsTitleBarVisible</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">false</span><span class="p">,</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="n">Icon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SKImage</span><span class="p">.</span><span class="n">FromEncodedData</span><span class="p">(</span><span class="s">"Assets/chat.png"</span><span class="p">)</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">};</span>
-</span></code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Removed in v4</p>
+<p><code>SharedContext</code>, <code>SubwindowParent</code>, <code>ModalParent</code>, and
+<code>InvalidateParentOnMove</code> were removed. Use direct Win32 parent/child
+management if you need modal or sub-windows.</p>
 </div>
 <h2 id="static-members">Static members<a class="headerlink" href="#static-members" title="Permanent link">&para;</a></h2>
-<h3 id="default"><code>Default</code><a class="headerlink" href="#default" title="Permanent link">&para;</a></h3>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">WindowConfiguration</span><span class="w"> </span><span class="n">Default</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="p">();</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">WindowConfiguration</span><span class="w"> </span><span class="n">Default</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="p">();</span>
+</span></code></pre></div>
+<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kt">var</span><span class="w"> </span><span class="n">cfg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WindowConfiguration</span><span class="p">.</span><span class="n">Default</span><span class="w"> </span><span class="k">with</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="p">{</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">Title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Custom chrome"</span><span class="p">,</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="n">Size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SKSize</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span><span class="w"> </span><span class="mi">600</span><span class="p">),</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="n">IsTitleBarVisible</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">false</span><span class="p">,</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="n">IsResizable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">};</span>
 </span></code></pre></div>
 
 
