@@ -3,9 +3,11 @@
 `HandyUI.Core.Abstractions.Interface.IHostWindow`
 
 Hosting contract for a `UIRenderer`. `HandyUI.Core` only knows about this
-interface; the Silk.NET package ships a reference implementation
-([`HandyWindow`](handy-window.md)). Custom hosts (Avalonia, WPF, MAUI, SDL,
-…) implement `IHostWindow` and drive `UIRenderer` themselves.
+interface — it does not depend on any particular windowing system.
+`HandyUI.SilkNet` ships the reference implementation
+([`HandyWindow`](handy-window.md)), but the contract is intentionally
+minimal so any host that owns a rendering surface and an input loop can
+implement it and drive `UIRenderer` itself.
 
 ```csharp
 public interface IHostWindow

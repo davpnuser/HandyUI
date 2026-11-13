@@ -8,10 +8,10 @@ HandyUI is split across three packages. Each layer builds on the one below.
 | **`HandyUI.Controls`** | Ready-made controls built on Core. |
 | **`HandyUI.SilkNet`** | GLFW-backed host window and Win32 integrations. |
 
-The renderer no longer talks to GLFW directly - it targets the abstract
+<!-- The renderer no longer talks to GLFW directly - it targets the abstract
 [`IHostWindow`](ihostwindow.md) interface. `HandyUI.SilkNet.HandyWindow` is the
 reference implementation; any host that implements `IHostWindow` can drive a
-`UIRenderer`.
+`UIRenderer`. -->
 
 ## Core
 

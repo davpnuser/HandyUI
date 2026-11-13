@@ -45,6 +45,8 @@ public class UIRenderer : IDisposable
 
     public double TotalTime => _totalTimeStopwatch.Elapsed.TotalSeconds;
 
+    public bool KeyboardFocus { get; set; } = false;
+
     #endregion
 
     #region Internal Fields
@@ -253,8 +255,10 @@ public class UIRenderer : IDisposable
 
         foreach (var module in moduleSnapshot)
         {
-            if (!module.Enabled || !module.AcceptsInput) continue;
-            if (module.ProcessMouseEvent(context)) return;
+            if (!module.Enabled || !module.AcceptsInput)
+                continue;
+
+            module.ProcessMouseEvent(context);
         }
 
         IControl[] rootSnapshot;
@@ -331,8 +335,10 @@ public class UIRenderer : IDisposable
 
         foreach (var module in moduleSnapshot)
         {
-            if (!module.Enabled || !module.AcceptsInput) continue;
-            if (module.ProcessKeyEvent(context)) return true;
+            if (!module.Enabled || !module.AcceptsInput)
+                continue;
+
+            module.ProcessKeyEvent(context);
         }
 
         if (FocusedControl is not null
@@ -343,7 +349,7 @@ public class UIRenderer : IDisposable
             return true;
         }
 
-        if (context.Type == KeyEventType.KeyDown && context.KeyCode == 9)
+        if (KeyboardFocus && context.Type == KeyEventType.KeyDown && context.KeyCode == 9)
         {
             if (context.IsShiftPressed)
                 FocusPrevious();

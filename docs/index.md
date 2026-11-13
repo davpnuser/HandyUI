@@ -9,7 +9,7 @@ You will get introduced to HandyUI and the reason to it's existence here.
 ## Features
 - **Code-only** *(like WinForms)*
 - Uses **[SkiaSharp](https://github.com/mono/skiasharp "SkiaSharp GitHub Repository")** for rendering
-- **Open Source** and **free to modify**
+- **Open Source** and **free to modify** *(MIT license)*
 
 ## Why it exists
 

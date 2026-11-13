@@ -73,14 +73,14 @@ For the prebuilt HandyUI controls, you will also have to install the **HandyUI.C
     5. Next, select the version you want *(if you don't want a specific version, ignore this step)*
     6. Click **"Install"**.
 
-=== "HandyUI.WinForms"
+<!-- === "HandyUI.WinForms"
 
     ## Installing the HandyUI adapter for WinForms
 
     !!! danger "Important Heads-up"
         This package is deprecated and is no longer being updated.
 
-    <!-- This is **not recommended** for making apps with HandyUI as the HandyUI adapter for WinForms is **deprecated** and is **not being updated**. -->
+    This is **not recommended** for making apps with HandyUI as the HandyUI adapter for WinForms is **deprecated** and is **not being updated**.
 
     ### NuGet PMC
 
@@ -101,12 +101,12 @@ For the prebuilt HandyUI controls, you will also have to install the **HandyUI.C
     3. Click **"Manage NuGet packages..."**.
     4. Go to the **"Browse"** tab and search for **"HandyUI.WinForms"**.
     5. Next, select the version you want *(if you don't want a specific version, ignore this step)*
-    6. Click **"Install"**.
+    6. Click **"Install"**. -->
 
 ## Installing prebuilt controls
 
-!!! tip "Important Tip"
-    You will most likely want to download this package as... you do not want to manually create a ton of controls.
+<!-- !!! tip "Important Tip"
+    You will most likely want to download this package as... you do not want to manually create a ton of controls. -->
 
 <!-- This is **not recommended** for making apps with HandyUI as the HandyUI adapter for WinForms is **deprecated** and is **not being updated**. -->
 

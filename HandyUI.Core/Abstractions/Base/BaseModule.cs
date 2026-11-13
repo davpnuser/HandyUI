@@ -22,8 +22,8 @@ public abstract class BaseModule : IModule
     protected virtual void OnStart() { }
     protected virtual void OnStop() { }
 
-    protected virtual bool OnMouse(MouseEventContext eventContext) => false;
-    protected virtual bool OnKey(KeyEventContext eventContext) => false;
+    protected virtual void OnMouse(MouseEventContext eventContext) { }
+    protected virtual void OnKey(KeyEventContext eventContext) { }
 
     #endregion
 
@@ -41,8 +41,17 @@ public abstract class BaseModule : IModule
         OnStop();
     }
 
-    public bool ProcessMouseEvent(MouseEventContext eventContext) => Enabled && OnMouse(eventContext);
-    public bool ProcessKeyEvent(KeyEventContext eventContext) => Enabled && OnKey(eventContext);
+    public void ProcessMouseEvent(MouseEventContext eventContext)
+    {
+        if (Enabled)
+            OnMouse(eventContext);
+    }
+
+    public void ProcessKeyEvent(KeyEventContext eventContext)
+    {
+        if (Enabled)
+            OnKey(eventContext);
+    }
 
     #endregion
 
@@ -84,13 +93,19 @@ public abstract class BaseModule<TSelf> : BaseModule where TSelf : BaseModule<TS
     }
 
     public TSelf WithName(string name)
-        => DoAndReturn(c => c.Name = name);
+    {
+        return DoAndReturn(c => c.Name = name);
+    }
 
     public TSelf WithEnabled(bool enabled)
-        => DoAndReturn(c => c.Enabled = enabled);
+    {
+        return DoAndReturn(c => c.Enabled = enabled);
+    }
 
     public TSelf WithAddToRenderer(UIRenderer renderer)
-        => DoAndReturn(c => renderer.AddModule(this));
+    {
+        return DoAndReturn(c => renderer.AddModule(this));
+    }
 }
 
 #endregion

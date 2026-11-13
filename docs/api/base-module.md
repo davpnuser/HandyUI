@@ -17,28 +17,40 @@ public bool    AcceptsInput { get; set; } = true;
 public bool    IsDisposed   { get; private set; }
 ```
 
-## Methods
+## Overridable members
 
 ```csharp
 public abstract void OnUpdate(UpdateContext updateContext);
 
 protected virtual void OnStart() { }
 protected virtual void OnStop()  { }
-protected virtual void OnDispose() { }
 
-protected virtual bool OnMouse(MouseEventContext eventContext) => false;
-protected virtual bool OnKey(KeyEventContext eventContext) => false;
+protected virtual void OnMouse(MouseEventContext eventContext) { }
+protected virtual void OnKey(KeyEventContext eventContext) { }
+```
 
+!!! warning "Input handlers return `void`"
+    `OnMouse` and `OnKey` return `void` in v4. Modules observe input but
+    cannot consume it - the event always continues down to the controls.
+    If you need consuming behavior, use a control instead.
+
+## Methods
+
+```csharp
 public void Start();   // Enabled = true, OnStart()
 public void Stop();    // Enabled = false, OnStop()
 
-public bool ProcessMouseEvent(MouseEventContext eventContext);
-public bool ProcessKeyEvent(KeyEventContext eventContext);
+public void ProcessMouseEvent(MouseEventContext eventContext);
+public void ProcessKeyEvent(KeyEventContext eventContext);
 
 public void Dispose();   // idempotent
 ```
 
 ## Fluent builder: `BaseModule<TSelf>`
+
+```csharp
+public abstract class BaseModule<TSelf> : BaseModule where TSelf : BaseModule<TSelf>
+```
 
 | Method | Effect |
 | --- | --- |
@@ -58,4 +70,23 @@ public sealed class FrameCounter : BaseModule<FrameCounter>
 }
 
 var counter = new FrameCounter().WithAddToRenderer(renderer);
+```
+
+Observing input (no consuming):
+
+```csharp
+public sealed class InputLogger : BaseModule<InputLogger>
+{
+    public override void OnUpdate(UpdateContext updateContext) { }
+
+    protected override void OnMouse(MouseEventContext eventContext)
+    {
+        Console.WriteLine($"mouse: {eventContext.Type}");
+    }
+
+    protected override void OnKey(KeyEventContext eventContext)
+    {
+        Console.WriteLine($"key: {eventContext.Type} ({eventContext.KeyCode})");
+    }
+}
 ```

@@ -24,8 +24,8 @@ public interface IModule : IDisposable
     void Start();
     void Stop();
 
-    bool ProcessMouseEvent(MouseEventContext eventContext);
-    bool ProcessKeyEvent(KeyEventContext eventContext);
+    void ProcessMouseEvent(MouseEventContext eventContext);
+    void ProcessKeyEvent(KeyEventContext eventContext);
 
     #endregion
 }

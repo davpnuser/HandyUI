@@ -85,6 +85,10 @@ nav:
   - Getting Started:
     - Installation: getting-started/installation.md
     - Quickstart: getting-started/quickstart.md
+  - Guides:
+    - Index: guides/index.md
+    - All Guides:
+      - Debugging a HandyUI app: guides/debugging.md
   - API Reference:
     - Index: api/index.md
     - Core:

@@ -73,14 +73,34 @@ long-running animations or session timers.
     The current implementation uses a monotonic `Stopwatch`, so
     `TotalTime` keeps ticking during idle frames of the dirty renderer.
 
+    ### `KeyboardFocus`
+
+```csharp
+public bool KeyboardFocus { get; set; } = false;
+```
+
+Whether the renderer treats Tab / Shift+Tab as focus-cycling shortcuts.
+When `false` (the default), Tab is delivered to the focused control (or
+modules) just like any other key. Set `KeyboardFocus = true` to enable
+keyboard navigation:
+
+```csharp
+renderer.KeyboardFocus = true;
+```
+
+!!! tip "Why it's opt-in"
+    Many apps want Tab to mean "insert a tab character" (e.g. code editors
+    with a focused `MultilineTextInput`). Leaving `KeyboardFocus = false`
+    by default lets apps keep the standard tab-in-text behavior. Toggle it
+    when the user enters a form or navigation context.
+
 ## Events
 
 ```csharp
 public event Action? WhenInvalidated;
 ```
 
-Raised on every `Invalidate()`. The Silk.NET adapter subscribes to this to
-wake the pump thread.
+Raised on every `Invalidate()`. Any adapters using HandyUI should subscribe to this event so that invalidation actually works in dirty rendering mode.
 
 ## Methods
 
@@ -157,7 +177,8 @@ public void ProcessMouseEvent(MouseEventContext context);
 
 1. Returns early if `context.MousePosition == null`.
 2. Processes pending controls.
-3. Runs the module input pipeline (first module returning `true` consumes).
+3. Runs the module input pipeline. Modules **observe** each event but cannot
+   consume it - the pipeline always continues to the controls below.
 4. Hit-tests controls (highest `ZIndex` first).
 5. On `MouseDownEvent`: tracks `_pressedControl` and sets or clears focus.
 6. Dispatches recursively into the tree.
@@ -171,10 +192,19 @@ public bool ProcessKeyEvent(KeyEventContext context);
 ```
 
 1. **Ctrl+Shift+G** toggles the profiler (Debug builds).
-2. Runs module input pipeline.
-3. Forwards to focused control.
-4. **Tab** → `FocusNext()` / **Shift+Tab** → `FocusPrevious()`.
-5. Returns `false`.
+2. Runs the module input pipeline (observe-only).
+3. Forwards to the focused control.
+4. If `KeyboardFocus` is `true` and the key is **Tab**:
+   - **Shift+Tab** → `FocusPrevious()`
+   - **Tab** → `FocusNext()`
+5. Returns `true` if any step handled the event; otherwise `false`.
+
+!!! warning "Modules cannot consume input"
+    Unlike controls, modules never block propagation. Their
+    `ProcessMouseEvent` / `ProcessKeyEvent` return `void`, so every event
+    reaches both modules and controls. If you need a component that can
+    swallow input, use an `IControl` with `Focusable = true` (for keys) or a
+    control whose `OnMouse` returns `true`.
 
 ## Focus behavior
 
@@ -212,9 +242,10 @@ Two-frame invalidation. `RenderControls` early-outs when
 
 ### Module pipeline
 
-Modules **do not** get automatic focus. To participate in input, they must
-have `AcceptsInput = true` (default) and return `true` from
-`ProcessMouseEvent` / `ProcessKeyEvent` to consume the event.
+Modules **do not** get input by default. To participate in input, they must
+have `AcceptsInput = true` *(default)*
+
+Modules also **cant** consume inputs.
 
 ### Profiler overlay
 
