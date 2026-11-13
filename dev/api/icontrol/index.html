@@ -497,6 +497,8 @@
       
         
       
+        
+      
     
     
     
@@ -554,6 +556,34 @@
     
   
     Debugging a HandyUI app
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/control-guide-and-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control Guide & Examples
   
 
     
@@ -2812,9 +2842,9 @@ is <code>true</code> when the change was driven by <code>FocusNext()</code> / <c
 (Tab navigation) and <code>false</code> when driven by mouse / <code>RequestFocus()</code>. The
 renderer uses it to draw a focus rectangle only for keyboard focus.</p>
 <h2 id="overrideable-members">Overrideable members<a class="headerlink" href="#overrideable-members" title="Permanent link">&para;</a></h2>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">abstract</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">DoesIntersect</span><span class="p">(</span><span class="n">SKPoint</span><span class="w"> </span><span class="n">point</span><span class="p">);</span><span class="w">   </span><span class="c1">// hit test in local coords</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">abstract</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnDraw</span><span class="p">(</span><span class="n">SKCanvas</span><span class="w"> </span><span class="n">canvas</span><span class="p">);</span><span class="w">         </span><span class="c1">// canvas already translated</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">abstract</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnUpdate</span><span class="p">(</span><span class="n">UpdateContext</span><span class="w"> </span><span class="n">updateContext</span><span class="p">);</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">abstract</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">DoesIntersect</span><span class="p">(</span><span class="n">SKPoint</span><span class="w"> </span><span class="n">point</span><span class="p">);</span><span class="w">     </span><span class="c1">// hit test in local coords</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">abstract</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnDraw</span><span class="p">(</span><span class="n">SKCanvas</span><span class="w"> </span><span class="n">canvas</span><span class="p">);</span><span class="w">     </span><span class="c1">// canvas already translated</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">void</span><span class="w"> </span><span class="nf">OnUpdate</span><span class="p">(</span><span class="n">UpdateContext</span><span class="w"> </span><span class="n">updateContext</span><span class="p">);</span><span class="w">     </span><span class="c1">// not forced anymore</span>
 </span></code></pre></div>
 <h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
 <table>
