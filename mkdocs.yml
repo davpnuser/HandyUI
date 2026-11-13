@@ -89,16 +89,18 @@ nav:
     - Index: api/index.md
     - Core:
       - Abstractions:
-        - IControl: api/icontrol.md
-        - IModule: api/imodule.md
-        - IHostWindow: api/ihostwindow.md
-        - BaseControl: api/base-control.md
-        - BaseModule: api/base-module.md
+        - Interfaces:
+          - IControl: api/icontrol.md
+          - IModule: api/imodule.md
+          - IHostWindow: api/ihostwindow.md
+        - Base Classes:
+          - BaseControl: api/base-control.md
+          - BaseModule: api/base-module.md
       - Components:
         - UIRenderer: api/ui-renderer.md
-        - UpdateContext: api/update-context.md
         - ProfilerControl: api/profiler-control.md
       - Data:
+        - UpdateContext: api/update-context.md
         - Input Contexts: api/contexts.md
         - Tween: api/tween.md
       - Helpers:
