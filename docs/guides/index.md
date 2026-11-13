@@ -1,5 +1,6 @@
 # Guides
 
-There's currently only **one** guide in the HandyUI docs.
-
-That is the [debugging guide](debugging.md).
+| Guide | Purpose |
+| --- | --- |
+| [Debugging Guide](debugging.md) | Teaches how to debug a HandyUI app. |
+<!-- | [Template](template.md) | Template | -->
