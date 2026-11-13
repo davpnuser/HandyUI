@@ -88,29 +88,29 @@ nav:
   - API Reference:
     - Index: api/index.md
     - Core:
-      - UIRenderer: api/ui-renderer.md
-      - ResourceManager: api/resource-manager.md
-      - FontManager: api/font-manager.md
-      - BaseControl: api/base-control.md
-      - BaseModule: api/base-module.md
-    - Interfaces:
-      - IControl: api/icontrol.md
-      - IModule: api/imodule.md
-    - Animation:
-      - Tweener: api/tweener.md
-    - Theming:
-      - Theme: api/theme.md
-      - ThemeManager: api/theme-manager.md
-    - Data:
-      - Input Contexts: api/contexts.md
-    - Enums:
-      - BorderDirection: api/border-direction.md
-      - StretchMode: api/stretch-mode.md
-    - Helpers:
-      - SKColorHelper: api/sk-color-helper.md
-      - SKRectHelper: api/sk-rect-helper.md
+      - Abstractions:
+        - IControl: api/icontrol.md
+        - IModule: api/imodule.md
+        - IHostWindow: api/ihostwindow.md
+        - BaseControl: api/base-control.md
+        - BaseModule: api/base-module.md
+      - Components:
+        - UIRenderer: api/ui-renderer.md
+        - UpdateContext: api/update-context.md
+        - ProfilerControl: api/profiler-control.md
+      - Data:
+        - Input Contexts: api/contexts.md
+        - Tween: api/tween.md
+      - Helpers:
+        - TweenManager: api/tween-manager.md
+        - ThemeManager: api/theme-manager.md
+        - FontManager: api/font-manager.md
+        - ResourceManager: api/resource-manager.md
+        - SkiaSharp Extensions: api/sk-extensions.md
+      - Enums: api/enums.md
     - Controls:
       - Overview: api/controls/index.md
+      - Enums: api/controls/enums.md
       - Button: api/controls/button.md
       - CheckBox: api/controls/check-box.md
       - Frame: api/controls/frame.md
@@ -135,7 +135,6 @@ nav:
       - VectorExtensions: api/vector-extensions.md
   - Extras:
     - Branding: extras/branding.md
-
 extra:
   version:
     provider: mike
