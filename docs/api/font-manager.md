@@ -1,9 +1,8 @@
 # `FontManager`
 
-`HandyUI.Core.Components.FontManager`
+`HandyUI.Core.Helpers.FontManager`
 
-Loads `SKTypeface` fonts from disk or embedded resources, caches them, and
-exposes a shared default font used by every built-in control.
+Loads and caches `SKTypeface` fonts from disk or embedded resources.
 
 ```csharp
 public static class FontManager
@@ -25,74 +24,27 @@ public static class FontManager
 }
 ```
 
-## Properties
-
 ### `DefaultFont`
 
-```csharp
-public static SKTypeface DefaultFont { get; set; }
-```
-
-The font used by every built-in control when you don't provide a typeface
-explicitly. Defaults to the embedded `Resources/Roboto.ttf`; falls back to
-`SKTypeface.Default` if the resource can't be loaded.
-
-Setting `DefaultFont` to `null` throws `ArgumentNullException`.
+Lazily resolves the embedded `Resources/Roboto.ttf`; falls back to
+`SKTypeface.Default` if missing. Every built-in control uses this unless you
+assign `Typeface` explicitly.
 
 ```csharp
 FontManager.DefaultFont = FontManager.GetTypeface("Fonts/Inter-Regular.ttf");
 ```
 
-## Methods
+### `GetTypeface` / `TryGetTypeface`
 
-### `GetTypeface(...)`
+Cached. `index` selects a face within a collection (`.ttc`).
+`GetTypeface` throws `FileNotFoundException` on failure; `TryGetTypeface`
+returns `false`.
 
-```csharp
-public static SKTypeface GetTypeface(
-    string relativePath, int index = 0,
-    IEnumerable<Assembly>? additionalAssemblies = null);
-```
+### `SetDefaultFont`
 
-Returns a cached `SKTypeface` loaded from `relativePath`. Throws
-`FileNotFoundException` if the file isn't found or isn't a valid font.
+Convenience wrapper - loads the font and sets `DefaultFont`.
 
-`index` selects a face within a font collection (`.ttc`).
+### `ClearCache`
 
-```csharp
-var inter = FontManager.GetTypeface("Fonts/Inter-Bold.ttf");
-```
-
-### `TryGetTypeface(...)`
-
-```csharp
-public static bool TryGetTypeface(
-    string relativePath, out SKTypeface? typeface,
-    int index = 0, IEnumerable<Assembly>? additionalAssemblies = null);
-```
-
-Like `GetTypeface` but returns `false` instead of throwing.
-
-### `SetDefaultFont(...)`
-
-```csharp
-public static bool SetDefaultFont(
-    string relativePath, int index = 0,
-    IEnumerable<Assembly>? additionalAssemblies = null);
-```
-
-Convenience wrapper: loads the font and, if successful, assigns it to
-`DefaultFont`. Returns `false` on failure.
-
-### `ClearCache()`
-
-```csharp
-public static void ClearCache();
-```
-
-Empties the typeface cache. Live `SKTypeface` references held by controls are
-unaffected; new lookups will reload from disk.
-
-!!! tip "Resource loading"
-    `FontManager` uses [`ResourceManager`](resource-manager.md) internally,
-    so anything `ResourceManager.GetResourceByPath` can find, `FontManager`
-    can load.
+Empties the cache. Live `SKTypeface` references held by controls are
+unaffected.

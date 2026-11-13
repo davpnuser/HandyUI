@@ -1,9 +1,8 @@
 # `BaseModule`
 
-`HandyUI.Core.Base.BaseModule`
+`HandyUI.Core.Abstractions.Base.BaseModule`
 
-Base class for **logic-only** components. Modules tick once per frame via
-`UIRenderer.UpdateModules` but do not draw.
+Base class for logic-only modules.
 
 ```csharp
 public abstract class BaseModule : IModule
@@ -11,68 +10,42 @@ public abstract class BaseModule : IModule
 
 ## Properties
 
-### `IsEnabled`
-
 ```csharp
-public bool IsEnabled { get; protected set; }
+public string? Name         { get; set; }
+public bool    Enabled      { get; set; } = true;
+public bool    AcceptsInput { get; set; } = true;
+public bool    IsDisposed   { get; private set; }
 ```
-
-Read-only outside the module. `true` while running. Call `Start()` / `Stop()`
-to change it - that's also what triggers the `OnStart` / `OnStop` hooks.
 
 ## Methods
 
-### `Start()`
-
 ```csharp
-public void Start();
-```
+public abstract void OnUpdate(UpdateContext updateContext);
 
-Sets `IsEnabled = true` and calls `OnStart()`.
-
-### `Stop()`
-
-```csharp
-public void Stop();
-```
-
-Sets `IsEnabled = false` and calls `OnStop()`.
-
-### `OnUpdate(float)`
-
-```csharp
-public abstract void OnUpdate(float deltaTime);
-```
-
-Called once per frame while enabled.
-
-## Virtual hooks
-
-```csharp
 protected virtual void OnStart() { }
 protected virtual void OnStop()  { }
 protected virtual void OnDispose() { }
-```
 
-## Disposal
+protected virtual bool OnMouse(MouseEventContext eventContext) => false;
+protected virtual bool OnKey(KeyEventContext eventContext) => false;
 
-```csharp
+public void Start();   // Enabled = true, OnStart()
+public void Stop();    // Enabled = false, OnStop()
+
+public bool ProcessMouseEvent(MouseEventContext eventContext);
+public bool ProcessKeyEvent(KeyEventContext eventContext);
+
 public void Dispose();   // idempotent
 ```
 
-Override `OnDispose` to clean up resources.
-
-## Fluent API: `BaseModule<TSelf>`
-
-```csharp
-public abstract class BaseModule<TSelf> : BaseModule
-    where TSelf : BaseModule<TSelf>
-```
+## Fluent builder: `BaseModule<TSelf>`
 
 | Method | Effect |
 | --- | --- |
-| `WithIsEnabled(bool)` | Sets `IsEnabled` directly (bypasses `OnStart`/`OnStop`). |
-| `WithAddToRenderer(UIRenderer)` | `renderer.AddModule(this)`. |
+| `DoAndReturn(Action<TSelf>)` | Chains arbitrary mutation. |
+| `WithName(string)` | `Name` |
+| `WithEnabled(bool)` | `Enabled` |
+| `WithAddToRenderer(UIRenderer)` | `renderer.AddModule(this)` |
 
 ## Example
 
@@ -81,11 +54,8 @@ public sealed class FrameCounter : BaseModule<FrameCounter>
 {
     public int Frames { get; private set; }
 
-    protected override void OnStart() => Console.WriteLine("started");
-
-    public override void OnUpdate(float dt) => Frames++;
+    public override void OnUpdate(UpdateContext updateContext) => Frames++;
 }
 
 var counter = new FrameCounter().WithAddToRenderer(renderer);
-counter.Start();
 ```

@@ -2,9 +2,8 @@
 
 `HandyUI.Controls.Controls.Frame`
 
-A rounded rectangle with a background fill, optional border, elevation
-shadow, and click/hover events. Useful as a panel, card, container, or
-custom title bar.
+Rounded rectangle with optional background, border, elevation shadow, and
+click / hover events.
 
 ```csharp
 public class Frame : BaseControl<Frame>
@@ -12,16 +11,16 @@ public class Frame : BaseControl<Frame>
 
 ## Properties
 
-| Property | Type | Default | Description |
-| --- | --- | --- | --- |
-| `Width` / `Height` | `float` | `100f` | Frame size (auto-sizes when set to `0`). |
-| `CornerRadius` | `float` | `4f` | |
-| `Elevation` | `int` | `1` | Shadow offset. |
-| `HasBorder` | `bool` | `true` | Draw the border. |
-| `BorderWidth` | `float` | `1f` | |
-| `BorderDirection` | `BorderDirection` | `Inside` | See [`BorderDirection`](../border-direction.md). |
-| `HasShadow` | `bool` | `true` | Draw the elevation shadow. |
-| `HasBackground` | `bool` | `true` | Draw the fill. Set `false` for transparent containers. |
+| Property | Type | Default |
+| --- | --- | --- |
+| `Width` / `Height` | `float` | `100f` |
+| `CornerRadius` | `float` | `4f` |
+| `Elevation` | `int` | `1` |
+| `HasBorder` | `bool` | `true` |
+| `BorderWidth` | `float` | `1f` |
+| `BorderDirection` | `BorderDirection` | `Inside` |
+| `HasShadow` | `bool` | `true` |
+| `HasBackground` | `bool` | `true` |
 
 ## Events
 
@@ -34,54 +33,37 @@ public event Action? WhenHoverExited;
 public event Action<float, float>? WhenSizeChanged;
 ```
 
-`WhenSizeChanged` receives `(Width, Height)` after the frame resizes.
+`WhenSizeChanged` receives `(Width, Height)` after resizes.
 
 ## Methods
 
-### `OnMouse(MouseEventContext)` - override hook
-
-```csharp
-protected override bool OnMouse(MouseEventContext ctx);
-```
-
-Raises `WhenMouseDown` / `WhenMouseUp` / `WhenClicked` while hovered.
+Standard overrides. `OnMouse` fires down / up / click while hovered.
+`OnChildAdded` invalidates so the frame redraws its background behind new
+children.
 
 ## Fluent API
 
 ```csharp
-public Frame WithWidth(float width);
-public Frame WithHeight(float height);
-public Frame WithSize(float width, float height);
-public Frame WithSize(SKSize size);
-public Frame WithCornerRadius(float radius);
-public Frame WithElevation(int elevation);
-public Frame WithHasBorder(bool hasBorder);
-public Frame WithHasShadow(bool hasShadow);
-public Frame WithHasBackground(bool hasBackground);
-public Frame WithBorderWidth(float width);
-public Frame WithBorderDirection(BorderDirection dir);
-
-public Frame WithWhenMouseDown(Action handler);
-public Frame WithWhenMouseUp(Action handler);
-public Frame WithWhenClicked(Action handler);
-public Frame WithWhenHoverEntered(Action handler);
-public Frame WithWhenHoverExited(Action handler);
-public Frame WithWhenSizeChanged(Action<float, float> handler);
+WithWidth, WithHeight, WithSize(float, float), WithSize(SKSize),
+WithCornerRadius, WithElevation, WithHasBorder, WithHasShadow,
+WithHasBackground, WithBorderWidth, WithBorderDirection,
+WithWhenMouseDown, WithWhenMouseUp, WithWhenClicked,
+WithWhenHoverEntered, WithWhenHoverExited, WithWhenSizeChanged
 ```
 
 ## Example
 
 ```csharp
+// Card with elevation + border.
 var card = new Frame()
     .WithSize(320, 180)
     .WithCornerRadius(8)
     .WithElevation(3)
     .WithBorderWidth(1)
-    .WithWhenClicked(() => OpenSettings())
     .WithLocation(40, 40)
     .WithAddToRenderer(renderer);
 
-// Transparent container:
+// Transparent container.
 var overlay = new Frame()
     .WithSize(400, 300)
     .WithHasBackground(false)
@@ -91,7 +73,6 @@ var overlay = new Frame()
 ```
 
 !!! tip "Custom title bar"
-    Set `HasBackground = false` and `HasBorder = false` on a `Frame` placed
-    at the top of a `HandyWindow` with `IsTitleBarVisible = false`, then
-    handle `WhenMouseDown` by calling `window.BeginDrag` for OS-driven
-    dragging.
+    For a HandyWindow with `IsTitleBarVisible = false`, add the top strip
+    of the window to `window.DragRegions` - see
+    [`HandyWindow → DragRegions`](../handy-window.md#dragregions).

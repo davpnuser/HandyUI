@@ -1,5 +1,4 @@
-﻿using HandyUI.Core.Base;
-using SkiaSharp;
+﻿using SkiaSharp;
 
 namespace HandyUI.TestApp.Controls;
 
@@ -61,15 +60,9 @@ public class FpsLabelControl : BaseControl
         }
     }
 
-    public override void OnDraw(SKCanvas canvas)
-    {
-        canvas.DrawText(_fpsText, 0, -_font.Metrics.Ascent, SKTextAlign.Left, _font, _paint);
-    }
+    public override void OnDraw(SKCanvas canvas) => canvas.DrawText(_fpsText, 0, -_font.Metrics.Ascent, SKTextAlign.Left, _font, _paint);
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
-    {
-        return clientPoint != null && Bounds.Contains((SKPoint)clientPoint);
-    }
+    public override bool DoesIntersect(SKPoint? clientPoint) => clientPoint != null && Bounds.Contains((SKPoint)clientPoint);
 
     private void UpdateBounds()
     {

@@ -14,10 +14,13 @@ public static class RendererHelper
 
         return window.Invoke(() =>
         {
-            var adapter = new RendererAdapter(window.InternalWindow!, useDirtyRendering);
+            window.UseDirtyRendering = useDirtyRendering;
+            var adapter = new RendererAdapter(window);
             window.RendererAdapter = adapter;
             ThemeHelper.RegisterWindow(window);
-            return adapter.InitializeAndGetRenderer();
+            var renderer = adapter.InitializeAndGetRenderer();
+            window.Renderer = renderer;
+            return renderer;
         });
     }
 }

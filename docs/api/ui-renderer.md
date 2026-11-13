@@ -2,34 +2,23 @@
 
 `HandyUI.Core.Components.UIRenderer`
 
-The heart of HandyUI. Owns root controls and modules, dispatches mouse and
-keyboard input into the control tree, and runs the render pass. Also hosts
-the shared [`Tweener`](tweener.md) used by built-in controls for animations.
+The render loop, input dispatcher, focus manager, and module host. It
+targets [`IHostWindow`](ihostwindow.md) rather than a concrete window - the
+Silk.NET package wires it up via [`RendererHelper.Attach`](silknet-helpers.md#rendererhelper).
 
 ```csharp
 public class UIRenderer : IDisposable
 ```
 
-!!! tip "Thread safety"
-    `AddRootControl`, `RemoveRootControl`, `AddModule`, `RemoveModule`, and
-    `Invalidate` are all thread-safe.
-
 ## Constructor
 
 ```csharp
-public UIRenderer(bool useDirtyRendering = true)
+public UIRenderer(IHostWindow host);
 ```
 
-| Parameter | Default | Description |
-| --- | --- | --- |
-| `useDirtyRendering` | `true` | When `true`, `RenderControls` returns early until invalidated. Set to `false` for continuous repaint. |
-
-The constructor also:
-
-- subscribes to `ThemeManager.Instance.ThemeChanged` so `BackgroundColor`
-  tracks the theme automatically (unless you've set a custom color);
-- creates a `Tweener`, registers it as a module, and starts it so animations
-  work out of the box.
+The constructor creates the shared [`TweenManager`](tween-manager.md), assigns
+it to `host.TweenManager`, and subscribes to `ThemeManager.ThemeChanged` so
+`BackgroundColor` follows the active theme.
 
 ## Properties
 
@@ -39,37 +28,52 @@ The constructor also:
 public SKColor BackgroundColor { get; set; }
 ```
 
-The canvas clear color. Defaults to `ThemeManager.Instance.BackgroundPrimary`
-and follows theme changes automatically until you assign a different color.
+Defaults to `ThemeManager.Instance.BackgroundPrimary`. Assigning a color that
+differs from the theme marks the value as *custom* - subsequent theme
+changes will no longer overwrite it.
+
+### `TweenManager`
 
 ```csharp
-renderer.BackgroundColor = SKColors.Black;   // stops tracking the theme
+public TweenManager TweenManager { get; }
 ```
 
-### `Tweener`
+The shared animation engine. Registered as a module automatically.
+
+### `FocusedControl`
 
 ```csharp
-public Tweener Tweener { get; }
+public IControl? FocusedControl { get; }
 ```
 
-The animation engine shared with all controls. Built-in controls pull it via
-`Tweener.Current` while they're being updated; you can also start your own
-tweens directly:
+The currently focused control, or `null`.
+
+### `UseProfiler`
 
 ```csharp
-renderer.Tweener.To(0f, 1f, 0.3f, v => myOpacity = v, EaseType.SineOut);
+public bool UseProfiler { get; set; }
 ```
+
+Enables the built-in debug overlay (see [`ProfilerControl`](profiler-control.md)).
+Defaults to `true` in Debug builds, `false` in Release. Can be toggled at
+runtime with `Ctrl+Shift+G`.
+
+### `TotalTime`
+
+```csharp
+public double TotalTime { get; }
+```
+
+Total accumulated seconds of `UpdateModules` time.
 
 ## Events
-
-### `WhenInvalidated`
 
 ```csharp
 public event Action? WhenInvalidated;
 ```
 
-Fires whenever `Invalidate()` is called. `RendererAdapter` uses this to wake
-the pump thread when running in dirty-rendering mode.
+Raised on every `Invalidate()` call. The Silk.NET adapter subscribes to
+this to wake the pump thread.
 
 ## Methods
 
@@ -79,55 +83,19 @@ the pump thread when running in dirty-rendering mode.
 public void Invalidate();
 ```
 
-Marks the renderer dirty for two frames and raises `WhenInvalidated`. Call
-after mutating control state outside the built-in property setters (which
-already invalidate).
+Marks the renderer dirty for two frames and raises `WhenInvalidated`.
+Also calls `_hostWindow.Invalidate()`.
 
-### `AddRootControl(IControl)` / `RemoveRootControl(IControl)`
-
-```csharp
-public void AddRootControl(IControl control);
-public void RemoveRootControl(IControl control);
-```
-
-Queue a control for addition/removal. Attachment happens on the next tick.
-`RemoveRootControl` disposes the control after detaching it.
-
-!!! warning "Ownership"
-    `RemoveRootControl` disposes the control. To hide a control temporarily,
-    set `IsVisible = false`.
-
-### `AddModule(IModule)` / `RemoveModule(IModule)`
+### `AddControl(IControl)` / `RemoveControl(IControl)`
 
 ```csharp
-public void AddModule(IModule module);
-public void RemoveModule(IModule module);
+public void AddControl(IControl control);
+public void RemoveControl(IControl control);
 ```
 
-Queue a module for addition/removal. Removal disposes the module.
-
-### `ProcessMouseEvent(MouseEventContext)`
-
-```csharp
-public void ProcessMouseEvent(MouseEventContext context);
-```
-
-1. Hit-tests root controls (highest `ZIndex` first).
-2. On `MouseDown`, tracks the pressed control and sets focus.
-3. Dispatches the raw event recursively.
-4. On `MouseUp`, synthesizes a `Click` to `_pressedControl` if it's still
-   under the cursor.
-
-Also sets up the shared `Tweener` so controls can animate in `OnMouse`.
-
-### `ProcessKeyEvent(KeyEventContext)`
-
-```csharp
-public bool ProcessKeyEvent(KeyEventContext context);
-```
-
-Forwards to the focused control. Returns the control's return value, or
-`false` if no control is focused / it's invisible / disabled.
+Queue a control for attach/detach. Attachment wires `WhenInvalidated` and
+`WhenFocusRequested`. Removal disposes the control and clears focus / press
+state.
 
 ### `RenderControls(SKCanvas, SKPoint, float)`
 
@@ -135,8 +103,8 @@ Forwards to the focused control. Returns the control's return value, or
 public bool RenderControls(SKCanvas canvas, SKPoint cursorPosition, float deltaTime);
 ```
 
-Processes pending control changes, then draws the tree. Returns `true` if a
-render actually happened.
+Processes pending controls and draws the tree. Returns `false` if the dirty
+renderer skipped the pass (based on `host.UseDirtyRendering`).
 
 ### `UpdateModules(float)`
 
@@ -144,8 +112,18 @@ render actually happened.
 public bool UpdateModules(float deltaTime);
 ```
 
-Ticks every enabled module (`module.OnUpdate(deltaTime)`) while `Tweener` is
-set as current so animations resolve.
+Ticks every enabled module with a fresh `UpdateContext`. Runs regardless
+of dirty-rendering state (the dirty-skip line is commented out) so
+animations and logic always tick.
+
+### `GetControlAt(SKPoint)`
+
+```csharp
+public IControl? GetControlAt(SKPoint clientPosition);
+```
+
+Hit-tests the tree without dispatching an event. Respects `Visible`,
+`Enabled`, and `ClipChildren`.
 
 ### `IsPointOverAnyControl(SKPoint)`
 
@@ -153,29 +131,87 @@ set as current so animations resolve.
 public bool IsPointOverAnyControl(SKPoint clientPosition);
 ```
 
-Runs the hit-test without dispatching an event. Useful for hover detection
-from the host window (e.g. to change cursor shape).
+Convenience wrapper around `GetControlAt(...) != null`.
 
-## Example
+### `FocusNext()` / `FocusPrevious()`
 
 ```csharp
-var renderer = new UIRenderer(useDirtyRendering: false);
-
-renderer.AddRootControl(new Button().WithText("OK").WithAddToRenderer(renderer));
-
-while (running)
-{
-    renderer.UpdateModules(deltaTime);
-    renderer.RenderControls(canvas, mousePos, deltaTime);
-}
+public void FocusNext();
+public void FocusPrevious();
 ```
 
-## Dispose
+Cycles through `Focusable` controls in `ZIndex` order. Called automatically
+by `ProcessKeyEvent` on **Tab** (Shift+Tab = previous).
+
+### `ProcessMouseEvent(MouseEventContext)`
+
+```csharp
+public void ProcessMouseEvent(MouseEventContext context);
+```
+
+Order of processing:
+
+1. Returns early if `context.MousePosition == null`.
+2. Calls `ProcessPendingControls()`.
+3. Runs module input pipeline (stops on first module that returns `true`).
+4. Hit-tests controls (highest `ZIndex` first).
+5. On `MouseDownEvent`: sets `_pressedControl`, sets focus (or clears it).
+6. Dispatches recursively into the tree.
+7. On `MouseUpEvent`: if the pressed control is still under the cursor,
+   synthesizes a `ClickEvent` with the local position.
+
+### `ProcessKeyEvent(KeyEventContext)`
+
+```csharp
+public bool ProcessKeyEvent(KeyEventContext context);
+```
+
+Order of processing:
+
+1. If `UseProfiler && Ctrl+Shift+G` toggles the profiler.
+2. Runs module input pipeline.
+3. If a control is focused and it handles the key, returns `true`.
+4. **Tab** → `FocusNext()` / `FocusPrevious()`.
+5. Returns `false`.
+
+### `Dispose()`
 
 ```csharp
 public void Dispose();
 ```
 
-Disposes every root control recursively, every module, drains pending
-queues, and unsubscribes from `ThemeManager.ThemeChanged`. Safe to call
-multiple times.
+Disposes every control recursively, every module, drains pending queues, and
+unsubscribes from theme changes.
+
+## Behavior
+
+### Focus rectangles
+
+When a control is focused **via keyboard** (`FocusNext`/Tab), `UIRenderer`
+calls `DrawFocusRect()` on it after drawing its subtree. Clicking a control
+switches to non-keyboard focus and the rectangle disappears.
+
+### Dirty rendering
+
+Two-frame invalidation. `RenderControls` early-outs when `host.UseDirtyRendering`
+is `true` and the frame counter is `≤ 0`.
+
+### Module pipeline
+
+Modules **do not** get automatic focus. To participate in input, they must
+`AcceptsInput = true` (default) and return `true` from
+`ProcessMouseEvent`/`ProcessKeyEvent` to consume the event.
+
+## Example
+
+```csharp
+var (window, renderer) =
+    WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default);
+
+renderer.AddControl(
+    new Button()
+        .WithText("Save")
+        .WithWhenClicked(() => Save()));
+
+window.Run();
+```

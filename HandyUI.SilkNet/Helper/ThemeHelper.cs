@@ -1,5 +1,5 @@
-﻿using HandyUI.Core.Enums;
-using HandyUI.Core.Theming;
+﻿using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
 using HandyUI.SilkNet.Components;
 using Microsoft.Win32;
 using SkiaSharp;
@@ -176,10 +176,7 @@ public static class ThemeHelper
             : ThemeMode.Unknown;
     }
 
-    public static Appearance GetAppearance()
-    {
-        return new(GetColor(), GetTheme());
-    }
+    public static Appearance GetAppearance() => new(GetColor(), GetTheme());
 
     private static void ApplyToThemeManager(Appearance appearance)
     {
@@ -224,15 +221,9 @@ public static class ThemeHelper
         return ThemeMode.Unknown;
     }
 
-    private static SKColor GetLinuxAccentColor()
-    {
-        return RunDBusQuery(ReadLinuxAccentColorAsync, FallbackColor);
-    }
+    private static SKColor GetLinuxAccentColor() => RunDBusQuery(ReadLinuxAccentColorAsync, FallbackColor);
 
-    private static ThemeMode GetLinuxTheme()
-    {
-        return RunDBusQuery(ReadLinuxThemeAsync, ThemeMode.Unknown);
-    }
+    private static ThemeMode GetLinuxTheme() => RunDBusQuery(ReadLinuxThemeAsync, ThemeMode.Unknown);
 
     private static T RunDBusQuery<T>(Func<DBusConnection, Task<T>> query, T fallback)
     {
@@ -271,15 +262,9 @@ public static class ThemeHelper
         return reply.GetBodyReader().ReadVariantValue();
     }
 
-    private static async Task<SKColor> ReadLinuxAccentColorAsync(DBusConnection connection)
-    {
-        return ParseAccentColor(await ReadPortalSettingAsync(connection, "accent-color").ConfigureAwait(false));
-    }
+    private static async Task<SKColor> ReadLinuxAccentColorAsync(DBusConnection connection) => ParseAccentColor(await ReadPortalSettingAsync(connection, "accent-color").ConfigureAwait(false));
 
-    private static async Task<ThemeMode> ReadLinuxThemeAsync(DBusConnection connection)
-    {
-        return ParseTheme(await ReadPortalSettingAsync(connection, "color-scheme").ConfigureAwait(false));
-    }
+    private static async Task<ThemeMode> ReadLinuxThemeAsync(DBusConnection connection) => ParseTheme(await ReadPortalSettingAsync(connection, "color-scheme").ConfigureAwait(false));
 
     private static SKColor ParseAccentColor(VariantValue value)
     {
@@ -340,10 +325,7 @@ public static class ThemeHelper
             StopLinuxWatching();
     }
 
-    private static void OnUserPreferenceChanged(object? sender, UserPreferenceChangedEventArgs e)
-    {
-        UpdateAppearance(GetColor(), GetTheme());
-    }
+    private static void OnUserPreferenceChanged(object? sender, UserPreferenceChangedEventArgs e) => UpdateAppearance(GetColor(), GetTheme());
 
     private static async Task StartLinuxWatchingAsync()
     {

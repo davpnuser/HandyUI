@@ -2,7 +2,7 @@
 
 `HandyUI.Controls.Controls.ProgressBar`
 
-A horizontal progress bar in determinate or indeterminate mode.
+Horizontal progress bar. Determinate or indeterminate.
 
 ```csharp
 public class ProgressBar : BaseControl<ProgressBar>
@@ -10,13 +10,13 @@ public class ProgressBar : BaseControl<ProgressBar>
 
 ## Properties
 
-| Property | Type | Default | Description |
-| --- | --- | --- | --- |
-| `Width` / `Height` | `float` | `200f` / `4f` | |
-| `Value` | `float` | `0` | Percentage, clamped to `[0, 100]`. |
-| `IsIndeterminate` | `bool` | `false` | Toggles the sliding-segment animation. |
-| `BarHeight` | `float` | `4f` | Visible bar thickness (centered vertically). |
-| `CornerRadius` | `float` | `2f` | |
+| Property | Type | Default |
+| --- | --- | --- |
+| `Width` / `Height` | `float` | `200f` / `4f` |
+| `Value` | `float` | `0` (clamped to `[0, 100]`) |
+| `IsIndeterminate` | `bool` | `false` |
+| `BarHeight` | `float` | `4f` |
+| `CornerRadius` | `float` | `2f` |
 
 ## Events
 
@@ -26,26 +26,20 @@ public event Action<float>? WhenValueChanged;
 
 ## Methods
 
-`DoesIntersect`, `OnDraw` - standard overrides. `OnUpdate` is a no-op
-(animation is driven by `Tweener`).
+`OnUpdate` drives the indeterminate animation via
+`updateContext.TweenManager`. `OnDraw` renders the fill or sliding segment.
 
 ## Fluent API
 
 ```csharp
-public ProgressBar WithWidth(float width);
-public ProgressBar WithHeight(float height);
-public ProgressBar WithValue(float value);
-public ProgressBar WithIsIndeterminate(bool indeterminate);
-public ProgressBar WithBarHeight(float height);
-public ProgressBar WithCornerRadius(float radius);
-
-public ProgressBar WithWhenValueChanged(Action<float> handler);
+WithWidth, WithHeight, WithValue, WithIsIndeterminate,
+WithBarHeight, WithCornerRadius, WithWhenValueChanged
 ```
 
 ## Example
 
 ```csharp
-var progress = new ProgressBar()
+new ProgressBar()
     .WithWidth(320)
     .WithValue(45)
     .WithBarHeight(6)

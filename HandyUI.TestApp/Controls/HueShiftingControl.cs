@@ -1,6 +1,4 @@
-﻿using HandyUI.Core.Base;
-using HandyUI.Core.Helper;
-using SkiaSharp;
+﻿using SkiaSharp;
 
 namespace HandyUI.TestApp.Controls;
 
@@ -10,15 +8,9 @@ public class HueShiftingControl : BaseControl<HueShiftingControl>
     private float _hue = 0f;
     private readonly SKPaint _paint = new() { Color = SKColors.Red, Style = SKPaintStyle.Fill };
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
-    {
-        return clientPoint != null && Bounds.Contains((SKPoint)clientPoint);
-    }
+    public override bool DoesIntersect(SKPoint? clientPoint) => clientPoint != null && Bounds.Contains((SKPoint)clientPoint);
 
-    public override void OnDraw(SKCanvas canvas)
-    {
-        canvas.DrawRect(Bounds, _paint);
-    }
+    public override void OnDraw(SKCanvas canvas) => canvas.DrawRect(Bounds, _paint);
 
     public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
     {

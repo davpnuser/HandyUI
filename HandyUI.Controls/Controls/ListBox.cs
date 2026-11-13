@@ -1,7 +1,7 @@
-﻿using HandyUI.Core.Base;
+﻿using HandyUI.Core.Abstractions.Base;
+using HandyUI.Core.Abstractions.Interface;
 using HandyUI.Core.Data;
-using HandyUI.Core.Enums;
-using HandyUI.Core.Interface;
+using HandyUI.Core.Data.Enums;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;
@@ -80,12 +80,12 @@ public class ListBox : BaseControl<ListBox>
 
     #region Overrides
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint point)
     {
-        return clientPoint is { } p && Bounds.Contains(p);
+        return Bounds.Contains(point);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(UpdateContext updateContext)
     {
         if (_lastHovered == IsHovered) return;
         _lastHovered = IsHovered;
@@ -95,26 +95,26 @@ public class ListBox : BaseControl<ListBox>
 
     public override void OnDraw(SKCanvas canvas) { }
 
-    protected override void OnChildAdded(IControl control)
+    protected override void OnChildAdded(IControl child)
     {
         RecalculateLayout();
     }
 
-    protected override void OnChildRemoved(IControl control)
+    protected override void OnChildRemoved(IControl child)
     {
         RecalculateLayout();
     }
 
-    protected override bool OnMouse(MouseEventContext ctx)
+    protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (ctx.Type == MouseEventType.Wheel && IsHovered)
+        if (eventContext.Type == MouseEventType.ScrollEvent && IsHovered)
         {
-            var delta = -ctx.WheelDelta / 120f * ScrollSpeed;
+            var delta = -eventContext.WheelDelta / 120f * ScrollSpeed;
             ScrollTo(_scrollOffset + delta);
             return true;
         }
 
-        if (ctx.Type == MouseEventType.Click && IsHovered)
+        if (eventContext.Type == MouseEventType.ClickEvent && IsHovered)
         {
             WhenClicked?.Invoke();
             return true;
@@ -168,7 +168,6 @@ public class ListBox : BaseControl<ListBox>
     public ListBox WithHeight(float height) { Height = height; return Self; }
     public ListBox WithItemSpacing(float spacing) { ItemSpacing = spacing; return Self; }
     public ListBox WithScrollSpeed(float speed) { ScrollSpeed = speed; return Self; }
-
     public ListBox WithWhenClicked(Action handler) { WhenClicked += handler; return Self; }
     public ListBox WithWhenHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
     public ListBox WithWhenHoverExited(Action handler) { WhenHoverExited += handler; return Self; }

@@ -1,8 +1,7 @@
-﻿using HandyUI.Core.Base;
-using HandyUI.Core.Components;
+﻿using HandyUI.Core.Abstractions.Base;
 using HandyUI.Core.Data;
-using HandyUI.Core.Enums;
-using HandyUI.Core.Theming;
+using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;
@@ -84,10 +83,10 @@ public class TextInput : BaseControl<TextInput>
 
     public SKTypeface Typeface
     {
-        get => _font.Typeface ?? FontManager.DefaultFont!;
+        get => _font.Typeface ?? FontManager.DefaultFont;
         set
         {
-            var v = value ?? FontManager.DefaultFont!;
+            var v = value ?? FontManager.DefaultFont;
             if (ReferenceEquals(_font.Typeface, v)) return;
             _font.Typeface = v;
             ResizeToContent();
@@ -152,8 +151,8 @@ public class TextInput : BaseControl<TextInput>
     private float _focusAmount;
     private float _cursorBlink;
     private bool _lastFocused;
-    private TweenHandle _focusTween;
-    private TweenHandle _cursorTween;
+    private Tween? _focusTween;
+    private Tween? _cursorTween;
 
     #endregion
 
@@ -179,18 +178,18 @@ public class TextInput : BaseControl<TextInput>
 
     #region Overrides
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint point)
     {
-        return clientPoint is { } p && Bounds.Contains(p);
+        return Bounds.Contains(point);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(UpdateContext updateContext)
     {
         if (_lastFocused != IsFocused)
         {
             _lastFocused = IsFocused;
-            StartFocusAnimation(IsFocused ? 1f : 0f);
-            if (IsFocused) StartCursorBlink();
+            StartFocusAnimation(updateContext.TweenManager, IsFocused ? 1f : 0f);
+            if (IsFocused) StartCursorBlink(updateContext.TweenManager);
             else StopCursorBlink();
         }
     }
@@ -203,7 +202,7 @@ public class TextInput : BaseControl<TextInput>
 
         var rect = new SKRect(0, 0, w, h);
 
-        _bgPaint.Color = IsEnabled
+        _bgPaint.Color = Enabled
             ? ThemeManager.Instance.SurfaceSecondary
             : ThemeManager.Instance.DisabledSurface;
         canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _bgPaint);
@@ -220,7 +219,7 @@ public class TextInput : BaseControl<TextInput>
             canvas.DrawRoundRect(borderRect, CornerRadius, CornerRadius, _borderPaint);
         }
 
-        _textPaint.Color = IsEnabled
+        _textPaint.Color = Enabled
             ? ThemeManager.Instance.TextPrimary
             : ThemeManager.Instance.TextDisabled;
 
@@ -231,37 +230,36 @@ public class TextInput : BaseControl<TextInput>
         {
             _placeholderPaint.Color = ThemeManager.Instance.TextTertiary;
             canvas.DrawText(Placeholder, HorizontalPadding, textY, SKTextAlign.Left, _font, _placeholderPaint);
+            return;
         }
-        else
+
+        canvas.Save();
+        canvas.ClipRect(new SKRect(HorizontalPadding, 0, w - HorizontalPadding, h));
+
+        if (HasSelection)
         {
-            canvas.Save();
-            canvas.ClipRect(new SKRect(HorizontalPadding, 0, w - HorizontalPadding, h));
-
-            if (HasSelection)
-            {
-                var startX = HorizontalPadding + _font.MeasureText(Text.AsSpan(0, SelectionStart));
-                var endX = HorizontalPadding + _font.MeasureText(Text.AsSpan(0, SelectionEnd));
-                _selectionPaint.Color = ThemeManager.Instance.Accent.WithAlpha(90);
-                canvas.DrawRect(startX, h * 0.2f, endX - startX, h * 0.6f, _selectionPaint);
-            }
-
-            canvas.DrawText(Text, HorizontalPadding, textY, SKTextAlign.Left, _font, _textPaint);
-
-            if (IsFocused && _cursorBlink > 0.5f)
-            {
-                var cursorX = HorizontalPadding + _font.MeasureText(Text.AsSpan(0, Math.Min(_cursorIndex, Text.Length)));
-                _cursorPaint.Color = ThemeManager.Instance.Accent;
-                _cursorPaint.StrokeWidth = 1.5f;
-                canvas.DrawLine(cursorX, h * 0.25f, cursorX, h * 0.75f, _cursorPaint);
-            }
-
-            canvas.Restore();
+            var startX = HorizontalPadding + _font.MeasureText(Text.AsSpan(0, SelectionStart));
+            var endX = HorizontalPadding + _font.MeasureText(Text.AsSpan(0, SelectionEnd));
+            _selectionPaint.Color = ThemeManager.Instance.Accent.WithAlpha(90);
+            canvas.DrawRect(startX, h * 0.2f, endX - startX, h * 0.6f, _selectionPaint);
         }
+
+        canvas.DrawText(Text, HorizontalPadding, textY, SKTextAlign.Left, _font, _textPaint);
+
+        if (IsFocused && _cursorBlink > 0.5f)
+        {
+            var cursorX = HorizontalPadding + _font.MeasureText(Text.AsSpan(0, Math.Min(_cursorIndex, Text.Length)));
+            _cursorPaint.Color = ThemeManager.Instance.Accent;
+            _cursorPaint.StrokeWidth = 1.5f;
+            canvas.DrawLine(cursorX, h * 0.25f, cursorX, h * 0.75f, _cursorPaint);
+        }
+
+        canvas.Restore();
     }
 
-    protected override bool OnMouse(MouseEventContext ctx)
+    protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (ctx.Type == MouseEventType.MouseDown && IsHovered && ctx.ClientPosition is { } p)
+        if (eventContext.Type == MouseEventType.MouseDownEvent && IsHovered && eventContext.MousePosition is { } p)
         {
             RequestFocus();
             _isMouseSelecting = true;
@@ -270,20 +268,20 @@ public class TextInput : BaseControl<TextInput>
             return true;
         }
 
-        if (ctx.Type == MouseEventType.Move && _isMouseSelecting && ctx.ClientPosition is { } mp)
+        if (eventContext.Type == MouseEventType.MoveEvent && _isMouseSelecting && eventContext.MousePosition is { } mp)
         {
             _cursorIndex = IndexFromX(mp.X);
             Invalidate();
             return true;
         }
 
-        if (ctx.Type == MouseEventType.MouseUp && _isMouseSelecting)
+        if (eventContext.Type == MouseEventType.MouseUpEvent && _isMouseSelecting)
         {
             _isMouseSelecting = false;
             return true;
         }
 
-        if (ctx.Type == MouseEventType.Click && IsHovered)
+        if (eventContext.Type == MouseEventType.ClickEvent && IsHovered)
         {
             RequestFocus();
             return true;
@@ -292,49 +290,36 @@ public class TextInput : BaseControl<TextInput>
         return false;
     }
 
-    protected override bool OnKey(KeyEventContext ctx)
+    protected override bool OnKey(KeyEventContext eventContext)
     {
-        if (ctx.Type == KeyEventType.CharInput && ctx.Character != '\0' && !char.IsControl(ctx.Character))
+        if (eventContext.Type == KeyEventType.CharInput && eventContext.Character != '\0' && !char.IsControl(eventContext.Character))
         {
             if (HasSelection) DeleteSelection();
-            Text = Text.Insert(_cursorIndex, ctx.Character.ToString());
+            Text = Text.Insert(_cursorIndex, eventContext.Character.ToString());
             _cursorIndex++;
             _selectionAnchor = _cursorIndex;
             WhenTextChanged?.Invoke(Text);
             return true;
         }
 
-        if (ctx.Type == KeyEventType.KeyDown)
+        if (eventContext.Type != KeyEventType.KeyDown) return false;
+
+        switch (eventContext.KeyCode)
         {
-            switch (ctx.KeyCode)
-            {
-                case 8:
-                    HandleBackspace(ctx);
+            case 8: HandleBackspace(eventContext); return true;
+            case 46: HandleDelete(eventContext); return true;
+            case 37: HandleLeft(eventContext); return true;
+            case 39: HandleRight(eventContext); return true;
+            case 36: HandleHome(eventContext); return true;
+            case 35: HandleEnd(eventContext); return true;
+            case 65:
+                if (eventContext.IsControlPressed)
+                {
+                    _selectionAnchor = 0;
+                    _cursorIndex = Text.Length;
                     return true;
-                case 46:
-                    HandleDelete(ctx);
-                    return true;
-                case 37:
-                    HandleLeft(ctx);
-                    return true;
-                case 39:
-                    HandleRight(ctx);
-                    return true;
-                case 36:
-                    HandleHome(ctx);
-                    return true;
-                case 35:
-                    HandleEnd(ctx);
-                    return true;
-                case 65:
-                    if (ctx.IsControlPressed)
-                    {
-                        _selectionAnchor = 0;
-                        _cursorIndex = Text.Length;
-                        return true;
-                    }
-                    break;
-            }
+                }
+                break;
         }
 
         return false;
@@ -441,7 +426,7 @@ public class TextInput : BaseControl<TextInput>
 
     private void HandleHome(KeyEventContext ctx)
     {
-        var target = 0;
+        const int target = 0;
         if (ctx.IsShiftPressed)
         {
             _cursorIndex = target;
@@ -504,37 +489,32 @@ public class TextInput : BaseControl<TextInput>
         Bounds = new SKRect(0, 0, w, h);
     }
 
-    private void StartFocusAnimation(float target)
+    private void StartFocusAnimation(TweenManager tweener, float target)
     {
-        if (Tweener.Current is not { } tweener) return;
         var current = _focusAmount;
-        _focusTween.Cancel();
+        if (_focusTween is { IsValid: true }) _focusTween.Cancel();
         _focusAmount = current;
         if (Math.Abs(current - target) < 0.001f) return;
         _focusTween = tweener.To(current, target, 0.15f,
             v => { _focusAmount = v; Invalidate(); }, EaseType.SineOut);
     }
 
-    private void StartCursorBlink()
+    private void StartCursorBlink(TweenManager tweener)
     {
-        if (Tweener.Current is not { } tweener) return;
-        _cursorTween.Cancel();
+        if (_cursorTween is { IsValid: true }) _cursorTween.Cancel();
         _cursorBlink = 1f;
         _cursorTween = tweener.To(1f, 0f, 0.5f,
             v => { _cursorBlink = v; Invalidate(); },
             EaseType.Linear,
-            RestartCursorBlink);
-    }
-
-    private void RestartCursorBlink()
-    {
-        if (!IsFocused) return;
-        StartCursorBlink();
+            () =>
+            {
+                if (IsFocused) StartCursorBlink(tweener);
+            });
     }
 
     private void StopCursorBlink()
     {
-        _cursorTween.Cancel();
+        if (_cursorTween is { IsValid: true }) _cursorTween.Cancel();
         _cursorBlink = 0f;
         Invalidate();
     }
@@ -551,7 +531,6 @@ public class TextInput : BaseControl<TextInput>
     public TextInput WithTypeface(SKTypeface? typeface) { Typeface = typeface!; return Self; }
     public TextInput WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
     public TextInput WithPadding(float horizontal, float vertical) { HorizontalPadding = horizontal; VerticalPadding = vertical; return Self; }
-
     public TextInput WithWhenTextChanged(Action<string> handler) { WhenTextChanged += handler; return Self; }
 
     #endregion
@@ -560,8 +539,8 @@ public class TextInput : BaseControl<TextInput>
 
     protected override void OnDispose()
     {
-        _focusTween.Cancel();
-        _cursorTween.Cancel();
+        if (_focusTween is { IsValid: true }) _focusTween.Cancel();
+        if (_cursorTween is { IsValid: true }) _cursorTween.Cancel();
         _font.Dispose();
         _bgPaint.Dispose();
         _textPaint.Dispose();

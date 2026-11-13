@@ -1,103 +1,72 @@
 # API Reference
 
-The public API of HandyUI is split across three packages:
+HandyUI is split across three packages. Each layer builds on the one below.
 
-- **`HandyUI.Core`** - renderer, controls base class, modules, helpers,
-  theming, animation.
-- **`HandyUI.Controls`** - a set of ready-to-use controls built on
-  `HandyUI.Core`.
-- **`HandyUI.SilkNet`** - a windowing adapter that hosts a `UIRenderer`
-  inside a GLFW-backed window.
+| Package | Purpose |
+| --- | --- |
+| **`HandyUI.Core`** | Renderer, controls base, modules, theming, animation, helpers. |
+| **`HandyUI.Controls`** | Ready-made controls built on Core. |
+| **`HandyUI.SilkNet`** | GLFW-backed host window and Win32 integrations. |
+
+The renderer no longer talks to GLFW directly - it targets the abstract
+[`IHostWindow`](ihostwindow.md) interface. `HandyUI.SilkNet.HandyWindow` is the
+reference implementation; any host that implements `IHostWindow` can drive a
+`UIRenderer`.
 
 ## Core
 
 | Type | Summary |
 | --- | --- |
-| [`UIRenderer`](ui-renderer.md) | Render loop, input dispatcher, control/module registry, animation host. |
-| [`ResourceManager`](resource-manager.md) | Loads resources from disk or embedded assembly resources. |
-| [`FontManager`](font-manager.md) | Loads, caches, and exposes `SKTypeface` fonts. |
-| [`BaseControl`](base-control.md) | Base class for all drawable controls. |
-| [`BaseModule`](base-module.md) | Base class for logic-only modules. |
-
-## Interfaces
-
-| Type | Summary |
-| --- | --- |
-| [`IControl`](icontrol.md) | Contract implemented by every control. |
-| [`IModule`](imodule.md) | Contract implemented by every module. |
-
-## Animation
-
-| Type | Summary |
-| --- | --- |
-| [`Tweener`](tweener.md) | Frame-driven float interpolation with easing. |
-| [`TweenHandle`](tweener.md#tweenhandle) | Handle for pausing, reversing, and cancelling a tween. |
-| [`EaseType`](tweener.md#easetype) | Built-in easing curves. |
-
-## Theming
-
-| Type | Summary |
-| --- | --- |
-| [`Theme`](theme.md) | Plain palette record with public `SKColor` fields. |
-| [`ThemeManager`](theme-manager.md) | Singleton theme manager and OKLCH tone generator. |
-| [`ThemeMode`](theme-manager.md#thememode) | `Dark`, `Light`, or `Unknown`. |
-| [`Appearance`](theme-helper.md#appearance) | OS accent color + theme mode. |
-
-## Data
-
-| Type | Summary |
-| --- | --- |
-| [`MouseEventContext`](contexts.md#mouseeventcontext) | Describes a mouse input event. |
-| [`KeyEventContext`](contexts.md#keyeventcontext) | Describes a keyboard input event. |
-
-## Enums
-
-| Type | Summary |
-| --- | --- |
-| [`BorderDirection`](border-direction.md) | Where a stroke is drawn relative to its shape. |
-| [`StretchMode`](stretch-mode.md) | How `Picture` and `PictureButton` fit their image. |
-
-## Helpers
-
-| Type | Summary |
-| --- | --- |
-| [`SKColorHelper`](sk-color-helper.md) | Hue/brightness/transparency/lerp helpers for `SKColor`. |
-| [`SKRectHelper`](sk-rect-helper.md) | Conversions and division helpers for SkiaSharp geometry. |
+| [`IControl`](icontrol.md) | Drawable / focusable interface implemented by every control. |
+| [`IModule`](imodule.md) | Logic-only interface (can process input before controls). |
+| [`IHostWindow`](ihostwindow.md) | Hosting contract that a `UIRenderer` targets. |
+| [`BaseControl`](base-control.md) | Base class for controls (fluent builder in `BaseControl<TSelf>`). |
+| [`BaseModule`](base-module.md) | Base class for modules. |
+| [`UIRenderer`](ui-renderer.md) | Render loop, input dispatcher, focus manager. |
+| [`UpdateContext`](update-context.md) | Per-frame context (tweener, host, delta time). |
+| [`MouseEventContext`](contexts.md#mouseeventcontext) | Mouse event with modifiers, click count, and the shared tweener. |
+| [`KeyEventContext`](contexts.md#keyeventcontext) | Key event with modifiers. |
+| [`Tween`](tween.md) | Handle for pausing / reversing / cancelling an animation. |
+| [`TweenManager`](tween-manager.md) | Host for `Tween` jobs and `Easing` helpers. |
+| [`ThemeManager`](theme-manager.md) | OKLCH palette generator for every built-in control. |
+| [`FontManager`](font-manager.md) | Font loading + caching + default font. |
+| [`ResourceManager`](resource-manager.md) | Disk / embedded resource loader. |
+| [`SkiaSharp Extensions`](sk-extensions.md) | `SKColor`, `SKPoint`, `SKRect`, `SKSize` helpers. |
+| [`Enums`](enums.md) | Shared enums (`EaseType`, `MouseButton`, `CursorType`, …). |
+| [`ProfilerControl`](profiler-control.md) | Built-in debug overlay (`Ctrl+Shift+G`). |
 
 ## Controls
 
-`HandyUI.Controls` - ready-made controls, all deriving from
+All live in `HandyUI.Controls.Controls` and derive from
 [`BaseControl<TSelf>`](base-control.md).
 
-| Type | Summary |
+| Control | Purpose |
 | --- | --- |
 | [`Button`](controls/button.md) | Filled text button with hover and ripple. |
-| [`CheckBox`](controls/check-box.md) | Checkbox with text and animated checkmark. |
-| [`Frame`](controls/frame.md) | Rounded rectangle with elevation, border, shadow. |
-| [`ItemBox`](controls/item-box.md) | Selectable list item with exclusive selection. |
-| [`Label`](controls/label.md) | Non-interactive text label. |
-| [`ListBox`](controls/list-box.md) | Scrollable stack of child controls. |
-| [`MultilineTextInput`](controls/multiline-text-input.md) | Multi-line text editor with selection. |
-| [`Picture`](controls/picture.md) | Non-interactive image with stretch modes. |
-| [`PictureButton`](controls/picture-button.md) | Clickable image with hover and ripple. |
-| [`ProgressBar`](controls/progress-bar.md) | Determinate or indeterminate progress. |
-| [`ScrollFrame`](controls/scroll-frame.md) | Scrollable viewport with auto-hiding scrollbar. |
+| [`CheckBox`](controls/check-box.md) | Box + label with animated checkmark. |
+| [`Frame`](controls/frame.md) | Rounded rectangle with border, elevation, shadow. |
+| [`ItemBox`](controls/item-box.md) | Selectable list item with sibling exclusivity. |
+| [`Label`](controls/label.md) | Static multi-line text. |
+| [`ListBox`](controls/list-box.md) | Auto-laid-out scrolling stack. |
+| [`MultilineTextInput`](controls/multiline-text-input.md) | Multi-line text editor. |
+| [`Picture`](controls/picture.md) | Image with four stretch modes. |
+| [`PictureButton`](controls/picture-button.md) | Clickable image with ripple. |
+| [`ProgressBar`](controls/progress-bar.md) | Determinate / indeterminate progress. |
+| [`ScrollFrame`](controls/scroll-frame.md) | Scroll viewport with fade-out scrollbar. |
 | [`Slider`](controls/slider.md) | Draggable value slider. |
-| [`TextInput`](controls/text-input.md) | Single-line text editor with selection. |
-| [`Toggle`](controls/toggle.md) | On/off switch with animated thumb. |
+| [`TextInput`](controls/text-input.md) | Single-line text editor. |
+| [`Toggle`](controls/toggle.md) | On / off switch. |
 
 ## Silk.NET Adapter
 
-`HandyUI.SilkNet` - the windowing/hosting layer.
-
 | Type | Summary |
 | --- | --- |
-| [`HandyWindow`](handy-window.md) | GLFW-backed window with a pump thread. |
+| [`HandyWindow`](handy-window.md) | GLFW-backed `IHostWindow` implementation. |
 | [`WindowConfiguration`](window-configuration.md) | Options record for `HandyWindow`. |
-| [`TrayIcon`](tray-icon.md) | Notification-area icon with events and context menu. |
+| [`TrayIcon`](tray-icon.md) | Windows notification-area icon. |
 | [`TrayMenuItem`](tray-menu-item.md) | One entry in a tray context menu. |
-| [`ThemeHelper`](theme-helper.md) | Reads OS accent color and dark/light mode. |
+| [`ThemeHelper`](theme-helper.md) | OS accent + dark/light detection. |
 | [`RendererHelper`](silknet-helpers.md#rendererhelper) | Attaches a `UIRenderer` to a `HandyWindow`. |
-| [`WindowHelper`](silknet-helpers.md#windowhelper) | Window/renderer factories and platform tweaks. |
-| [`Win32Helper`](silknet-helpers.md#win32helper) | Native Win32 window tweaks. |
+| [`WindowHelper`](silknet-helpers.md#windowhelper) | Window/renderer factories. |
+| [`Win32Helper`](silknet-helpers.md#win32helper) | Native Win32 access (styles, tray, DPI, drag, icons). |
 | [`VectorExtensions`](vector-extensions.md) | Conversions between SkiaSharp and Silk.NET types. |

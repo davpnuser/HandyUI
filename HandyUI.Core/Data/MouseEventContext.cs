@@ -1,11 +1,17 @@
-﻿using HandyUI.Core.Enums;
+﻿using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
 using SkiaSharp;
 
 namespace HandyUI.Core.Data;
 
-public record MouseEventContext(
-    SKPoint? ClientPosition,
-    MouseEventType Type,
+public readonly record struct MouseEventContext(
+    TweenManager TweenManager,
+    SKPoint? MousePosition,
+    MouseEventType Type = MouseEventType.None,
     MouseButton Button = MouseButton.None,
-    int WheelDelta = 0
+    int WheelDelta = 0,
+    int ClickCount = 1,
+    bool IsControlPressed = false,
+    bool IsShiftPressed = false,
+    bool IsAltPressed = false
 );

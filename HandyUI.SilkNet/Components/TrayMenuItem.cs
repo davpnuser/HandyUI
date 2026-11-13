@@ -29,10 +29,7 @@ public sealed class TrayMenuItem
 
     #region Static Helpers
 
-    public static TrayMenuItem Separator()
-    {
-        return new() { IsSeparator = true };
-    }
+    public static TrayMenuItem Separator() => new() { IsSeparator = true };
 
     #endregion
 }

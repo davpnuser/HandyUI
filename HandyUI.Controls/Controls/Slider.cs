@@ -1,8 +1,7 @@
-﻿using HandyUI.Core.Base;
-using HandyUI.Core.Components;
+﻿using HandyUI.Core.Abstractions.Base;
 using HandyUI.Core.Data;
-using HandyUI.Core.Enums;
-using HandyUI.Core.Theming;
+using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;
@@ -110,7 +109,7 @@ public class Slider : BaseControl<Slider>
     private float _hoverAmount;
     private bool _lastHovered;
     private bool _isDragging;
-    private TweenHandle _hoverTween;
+    private Tween? _hoverTween;
 
     #endregion
 
@@ -131,16 +130,16 @@ public class Slider : BaseControl<Slider>
 
     #region Overrides
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint point)
     {
-        return clientPoint is { } p && Bounds.Contains(p);
+        return Bounds.Contains(point);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(UpdateContext updateContext)
     {
         if (_lastHovered == IsHovered) return;
         _lastHovered = IsHovered;
-        StartHoverAnimation(IsHovered || _isDragging ? 1f : 0f);
+        StartHoverAnimation(updateContext.TweenManager, IsHovered || _isDragging ? 1f : 0f);
     }
 
     public override void OnDraw(SKCanvas canvas)
@@ -169,38 +168,38 @@ public class Slider : BaseControl<Slider>
         if (thumbX > trackLeft)
         {
             var fgRect = new SKRect(trackLeft, trackY, thumbX, trackY + trackH);
-            _trackFgPaint.Color = IsEnabled ? ThemeManager.Instance.Accent : ThemeManager.Instance.TextDisabled;
+            _trackFgPaint.Color = Enabled ? ThemeManager.Instance.Accent : ThemeManager.Instance.TextDisabled;
             canvas.DrawRoundRect(fgRect, trackH * 0.5f, trackH * 0.5f, _trackFgPaint);
         }
 
         _thumbShadowPaint.Color = ThemeManager.Instance.Shadow;
         canvas.DrawCircle(thumbX, cy + 1f, thumbR, _thumbShadowPaint);
 
-        _thumbPaint.Color = IsEnabled ? ThemeManager.Instance.Accent : ThemeManager.Instance.TextDisabled;
+        _thumbPaint.Color = Enabled ? ThemeManager.Instance.Accent : ThemeManager.Instance.TextDisabled;
         canvas.DrawCircle(thumbX, cy, thumbR, _thumbPaint);
     }
 
-    protected override bool OnMouse(MouseEventContext ctx)
+    protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (!IsEnabled) return false;
+        if (!Enabled) return false;
 
-        if (ctx.Type == MouseEventType.MouseDown && IsHovered)
+        if (eventContext.Type == MouseEventType.MouseDownEvent && IsHovered)
         {
             _isDragging = true;
-            UpdateValueFromPoint(ctx.ClientPosition);
+            UpdateValueFromPoint(eventContext.MousePosition);
             return true;
         }
 
-        if (ctx.Type == MouseEventType.Move && _isDragging)
+        if (eventContext.Type == MouseEventType.MoveEvent && _isDragging)
         {
-            UpdateValueFromPoint(ctx.ClientPosition);
+            UpdateValueFromPoint(eventContext.MousePosition);
             return true;
         }
 
-        if (ctx.Type == MouseEventType.MouseUp && _isDragging)
+        if (eventContext.Type == MouseEventType.MouseUpEvent && _isDragging)
         {
             _isDragging = false;
-            if (!IsHovered) StartHoverAnimation(0f);
+            if (!IsHovered) StartHoverAnimation(eventContext.TweenManager, 0f);
             return true;
         }
 
@@ -233,11 +232,10 @@ public class Slider : BaseControl<Slider>
         WhenValueChanged?.Invoke(Value);
     }
 
-    private void StartHoverAnimation(float target)
+    private void StartHoverAnimation(TweenManager tweener, float target)
     {
-        if (Tweener.Current is not { } tweener) return;
         var current = _hoverAmount;
-        _hoverTween.Cancel();
+        if (_hoverTween is { IsValid: true }) _hoverTween.Cancel();
         _hoverAmount = current;
         if (Math.Abs(current - target) < 0.001f) return;
         _hoverTween = tweener.To(current, target, 0.12f,
@@ -255,7 +253,6 @@ public class Slider : BaseControl<Slider>
     public Slider WithValue(float value) { Value = value; return Self; }
     public Slider WithTrackHeight(float height) { TrackHeight = height; return Self; }
     public Slider WithThumbRadius(float radius) { ThumbRadius = radius; return Self; }
-
     public Slider WithWhenValueChanged(Action<float> handler) { WhenValueChanged += handler; return Self; }
 
     #endregion
@@ -264,7 +261,7 @@ public class Slider : BaseControl<Slider>
 
     protected override void OnDispose()
     {
-        _hoverTween.Cancel();
+        if (_hoverTween is { IsValid: true }) _hoverTween.Cancel();
         _trackBgPaint.Dispose();
         _trackFgPaint.Dispose();
         _thumbPaint.Dispose();

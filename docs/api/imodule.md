@@ -1,36 +1,41 @@
 # `IModule`
 
-`HandyUI.Core.Interface.IModule`
+`HandyUI.Core.Abstractions.Interface.IModule`
 
-The contract for logic-only components ticked by the `UIRenderer`.
+Contract for logic-only components. Modules run **before** controls in the
+input pipeline, so a module can consume an event by returning `true` from
+`ProcessMouseEvent` / `ProcessKeyEvent`.
 
 ```csharp
 public interface IModule : IDisposable
-{
-    bool IsEnabled { get; }
-
-    void Start();
-    void Stop();
-
-    void OnUpdate(float deltaTime);
-}
 ```
 
-## Members
-
-| Member | Type | Description |
-| --- | --- | --- |
-| `IsEnabled` | `bool` | Read-only. When `false`, `OnUpdate` is skipped. |
-| `Start()` | `void` | Turns the module on. |
-| `Stop()` | `void` | Turns the module off. |
-| `OnUpdate(float)` | `void` | Per-frame update while enabled. |
-
-## Fluent API: `IModule<TSelf>`
+## Properties
 
 ```csharp
-public interface IModule<TSelf> : IModule where TSelf : IModule<TSelf>
-{
-    TSelf WithIsEnabled(bool enabled);
-    TSelf WithAddToRenderer(UIRenderer renderer);
-}
+string? Name        { get; set; }
+bool    AcceptsInput { get; set; }   // default: true
+bool    Enabled      { get; set; }   // default: true
+bool    IsDisposed   { get; }
 ```
+
+### `AcceptsInput`
+
+When `false`, `UIRenderer` skips the module during the input pipeline (the
+module still ticks in `UpdateModules`). Set this on modules that only need
+to animate.
+
+## Methods
+
+```csharp
+abstract void OnUpdate(UpdateContext updateContext);
+
+void Start();   // sets Enabled = true, calls OnStart()
+void Stop();    // sets Enabled = false, calls OnStop()
+
+bool ProcessMouseEvent(MouseEventContext eventContext);
+bool ProcessKeyEvent(KeyEventContext eventContext);
+```
+
+`ProcessMouseEvent` / `ProcessKeyEvent` short-circuit to `false` when
+`Enabled` is `false` or `AcceptsInput` is `false`.

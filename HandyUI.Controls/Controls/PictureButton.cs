@@ -1,9 +1,8 @@
 ﻿using HandyUI.Controls.Enums;
-using HandyUI.Core.Base;
-using HandyUI.Core.Components;
+using HandyUI.Core.Abstractions.Base;
 using HandyUI.Core.Data;
-using HandyUI.Core.Enums;
-using HandyUI.Core.Theming;
+using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;
@@ -91,12 +90,12 @@ public class PictureButton : BaseControl<PictureButton>
 
     private float _hoverAmount;
     private bool _lastHovered;
-    private TweenHandle _hoverTween;
+    private Tween? _hoverTween;
 
     private float _rippleProgress;
     private SKPoint _rippleOrigin = SKPoint.Empty;
     private bool _isRippleActive;
-    private TweenHandle _rippleTween;
+    private Tween? _rippleTween;
 
     #endregion
 
@@ -111,16 +110,16 @@ public class PictureButton : BaseControl<PictureButton>
 
     #region Overrides
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint point)
     {
-        return clientPoint is { } p && Bounds.Contains(p);
+        return Bounds.Contains(point);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(UpdateContext updateContext)
     {
         if (_lastHovered == IsHovered) return;
         _lastHovered = IsHovered;
-        StartHoverAnimation(IsHovered ? 1f : 0f);
+        StartHoverAnimation(updateContext.TweenManager, IsHovered ? 1f : 0f);
         if (IsHovered) WhenHoverEntered?.Invoke();
         else WhenHoverExited?.Invoke();
     }
@@ -148,9 +147,8 @@ public class PictureButton : BaseControl<PictureButton>
 
         if (CornerRadius > 0.01f)
         {
-            var path = GetClipPath();
             canvas.Save();
-            canvas.ClipPath(path, antialias: true);
+            canvas.ClipPath(GetClipPath(), antialias: true);
             canvas.DrawImage(Image, destRect, _sampling, _imagePaint);
             canvas.Restore();
         }
@@ -185,32 +183,29 @@ public class PictureButton : BaseControl<PictureButton>
             canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _hoverPaint);
         }
 
-        if (!IsEnabled)
+        if (!Enabled)
         {
             _hoverPaint.Color = ThemeManager.Instance.BackgroundPrimary.WithAlpha(140);
             canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _hoverPaint);
         }
     }
 
-    protected override bool OnMouse(MouseEventContext ctx)
+    protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (ctx.Type == MouseEventType.MouseDown && IsHovered && ctx.ClientPosition is { } p)
+        if (eventContext.Type == MouseEventType.MouseDownEvent && IsHovered && eventContext.MousePosition is { } p)
         {
             _rippleOrigin = p;
             _isRippleActive = true;
             _rippleProgress = 0f;
-            _rippleTween.Cancel();
-            if (Tweener.Current is { } tweener)
-            {
-                _rippleTween = tweener.To(0f, 1f, 0.4f,
-                    v => { _rippleProgress = v; Invalidate(); },
-                    EaseType.SineOut,
-                    () => { _isRippleActive = false; Invalidate(); });
-            }
+            if (_rippleTween is { IsValid: true }) _rippleTween.Cancel();
+            _rippleTween = eventContext.TweenManager.To(0f, 1f, 0.4f,
+                v => { _rippleProgress = v; Invalidate(); },
+                EaseType.SineOut,
+                () => { _isRippleActive = false; Invalidate(); });
             return true;
         }
 
-        if (ctx.Type == MouseEventType.Click)
+        if (eventContext.Type == MouseEventType.ClickEvent)
         {
             WhenClicked?.Invoke();
             return true;
@@ -225,18 +220,17 @@ public class PictureButton : BaseControl<PictureButton>
 
     private void ResizeToContent()
     {
-        var contentW = Image?.Width ?? 0f;
-        var contentH = Image?.Height ?? 0f;
+        var contentW = (float)(Image?.Width ?? 0);
+        var contentH = (float)(Image?.Height ?? 0);
         var w = Width > 0f ? Width : contentW;
         var h = Height > 0f ? Height : contentH;
         Bounds = new SKRect(0, 0, w, h);
     }
 
-    private void StartHoverAnimation(float target)
+    private void StartHoverAnimation(TweenManager tweener, float target)
     {
-        if (Tweener.Current is not { } tweener) return;
         var current = _hoverAmount;
-        _hoverTween.Cancel();
+        if (_hoverTween is { IsValid: true }) _hoverTween.Cancel();
         _hoverAmount = current;
         if (Math.Abs(current - target) < 0.001f) return;
         _hoverTween = tweener.To(current, target, 0.15f,
@@ -284,7 +278,6 @@ public class PictureButton : BaseControl<PictureButton>
     public PictureButton WithImage(SKImage? image) { Image = image; return Self; }
     public PictureButton WithStretchMode(StretchMode mode) { StretchMode = mode; return Self; }
     public PictureButton WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
-
     public PictureButton WithWhenClicked(Action handler) { WhenClicked += handler; return Self; }
     public PictureButton WithWhenImageChanged(Action<SKImage?> handler) { WhenImageChanged += handler; return Self; }
     public PictureButton WithWhenHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
@@ -296,8 +289,8 @@ public class PictureButton : BaseControl<PictureButton>
 
     protected override void OnDispose()
     {
-        _hoverTween.Cancel();
-        _rippleTween.Cancel();
+        if (_hoverTween is { IsValid: true }) _hoverTween.Cancel();
+        if (_rippleTween is { IsValid: true }) _rippleTween.Cancel();
         _imagePaint.Dispose();
         _hoverPaint.Dispose();
         _ripplePaint.Dispose();

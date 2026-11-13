@@ -2,7 +2,7 @@
 
 `HandyUI.SilkNet.Data.WindowConfiguration`
 
-An immutable options record for [`HandyWindow`](handy-window.md).
+Options record for [`HandyWindow`](handy-window.md).
 
 ```csharp
 public record WindowConfiguration
@@ -22,29 +22,18 @@ public record WindowConfiguration
 | Property | Default | Description |
 | --- | --- | --- |
 | `MinSize` / `MaxSize` | `null` | Size constraints. |
-| `WindowState` | `Normal` | Initial window state. |
+| `WindowState` | `Normal` | Initial state. |
 | `WindowBorder` | `Resizable` | Border style. |
 | `Opacity` | `1f` | Initial opacity. |
-| `IsCenteredOnStartup` | `false` | Center on the monitor. |
-| `IsVisibleInTaskbar` | `true` | Win32 taskbar visibility. |
+| `IsCenteredOnStartup` | `false` | Center on monitor. |
+| `IsVisibleInTaskbar` | `true` | |
 | `IsResizable` | `true` | |
 | `IsMovable` | `true` | |
 | `IsCloseable` | `true` | |
 | `IsMaximizable` | `true` | |
 | `IsMinimizable` | `true` | |
-| `IsTitleBarVisible` | `true` | Whether the OS title bar is shown. |
-| `Icon` | `null` | Window icon as an `SKImage`. |
-
-### Parent-child
-
-| Property | Default | Description |
-| --- | --- | --- |
-| `SubwindowParent` | `null` | Native parent window. |
-| `ModalParent` | `null` | Modal parent; disables it. |
-
-!!! warning "Mutually exclusive"
-    A window cannot have the same window as both `SubwindowParent` and
-    `ModalParent`. Throws at construction.
+| `IsTitleBarVisible` | `true` | |
+| `Icon` | `null` | `SKImage?` icon. |
 
 ### Rendering
 
@@ -54,40 +43,36 @@ public record WindowConfiguration
 | `VSync` | `true` | |
 | `FramesPerSecond` | `60` | Ignored when `VSync` is on. |
 | `UseDirtyRendering` | `true` | |
-| `InvalidateParentOnMove` | `true` | |
 | `TransparentFrameBuffer` | `false` | |
 
-### OpenGL
+### GLFW
 
 | Property | Default | Description |
 | --- | --- | --- |
-| `SharedContext` | `null` | Share GL resources across windows. |
 | `AutoInitWindow` | `false` | |
 | `AutoInitGlfw` | `true` | |
+| `PumpThreadName` | `null` → `HandyWindow-<Title>` | |
+| `CustomWindowOptions` | `null` | Overrides whole `WindowOptions`. |
 
-### Advanced
-
-| Property | Default | Description |
-| --- | --- | --- |
-| `PumpThreadName` | `null` → `HandyWindow-<Title>` | Name of the pump thread. |
-| `CustomWindowOptions` | `null` | Overrides the whole `WindowOptions`. |
-
-!!! tip "Custom chrome"
-    ```csharp
-    var cfg = WindowConfiguration.Default with
-    {
-        Title = "Chat",
-        Size = new SKSize(420, 700),
-        IsResizable = true,
-        IsTitleBarVisible = false,
-        Icon = SKImage.FromEncodedData("Assets/chat.png")
-    };
-    ```
+!!! info "Removed in v4"
+    `SharedContext`, `SubwindowParent`, `ModalParent`, and
+    `InvalidateParentOnMove` were removed. Use direct Win32 parent/child
+    management if you need modal or sub-windows.
 
 ## Static members
 
-### `Default`
-
 ```csharp
 public static WindowConfiguration Default => new();
+```
+
+## Example
+
+```csharp
+var cfg = WindowConfiguration.Default with
+{
+    Title = "Custom chrome",
+    Size = new SKSize(800, 600),
+    IsTitleBarVisible = false,
+    IsResizable = true
+};
 ```

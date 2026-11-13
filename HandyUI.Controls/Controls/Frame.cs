@@ -1,7 +1,9 @@
-﻿using HandyUI.Core.Base;
+﻿using HandyUI.Controls.Enums;
+using HandyUI.Core.Abstractions.Base;
+using HandyUI.Core.Abstractions.Interface;
 using HandyUI.Core.Data;
-using HandyUI.Core.Enums;
-using HandyUI.Core.Theming;
+using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;
@@ -151,12 +153,12 @@ public class Frame : BaseControl<Frame>
 
     #region Overrides
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint point)
     {
-        return clientPoint is { } p && Bounds.Contains(p);
+        return Bounds.Contains(point);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(UpdateContext updateContext)
     {
         if (_lastHovered == IsHovered) return;
         _lastHovered = IsHovered;
@@ -181,7 +183,7 @@ public class Frame : BaseControl<Frame>
 
         if (HasBackground)
         {
-            _bgPaint.Color = IsEnabled
+            _bgPaint.Color = Enabled
                 ? ThemeManager.Instance.SurfacePrimary
                 : ThemeManager.Instance.DisabledSurface;
             canvas.DrawRoundRect(rect, CornerRadius, CornerRadius, _bgPaint);
@@ -192,12 +194,9 @@ public class Frame : BaseControl<Frame>
             _borderPaint.Color = ThemeManager.Instance.Border;
             _borderPaint.StrokeWidth = BorderWidth;
 
-            var inset = BorderDirection switch
-            {
-                BorderDirection.Center => BorderWidth * 0.5f,
-                BorderDirection.Outside => -BorderWidth * 0.5f,
-                _ => BorderWidth * 0.5f
-            };
+            var inset = BorderDirection == BorderDirection.Outside
+                ? -BorderWidth * 0.5f
+                : BorderWidth * 0.5f;
 
             var borderRect = new SKRect(
                 rect.Left + inset, rect.Top + inset,
@@ -207,23 +206,25 @@ public class Frame : BaseControl<Frame>
         }
     }
 
-    protected override bool OnMouse(MouseEventContext ctx)
+    protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (IsHovered)
-        {
-            if (ctx.Type == MouseEventType.MouseDown)
-                WhenMouseDown?.Invoke();
+        if (!IsHovered) return false;
 
-            if (ctx.Type == MouseEventType.MouseUp)
-                WhenMouseUp?.Invoke();
+        if (eventContext.Type == MouseEventType.MouseDownEvent)
+            WhenMouseDown?.Invoke();
 
-            if (ctx.Type == MouseEventType.Click)
-                WhenClicked?.Invoke();
+        if (eventContext.Type == MouseEventType.MouseUpEvent)
+            WhenMouseUp?.Invoke();
 
-            return true;
-        }
+        if (eventContext.Type == MouseEventType.ClickEvent)
+            WhenClicked?.Invoke();
 
-        return false;
+        return true;
+    }
+
+    protected override void OnChildAdded(IControl child)
+    {
+        Invalidate();
     }
 
     #endregion
@@ -250,7 +251,6 @@ public class Frame : BaseControl<Frame>
     public Frame WithHasBackground(bool hasBackground) { HasBackground = hasBackground; return Self; }
     public Frame WithBorderWidth(float width) { BorderWidth = width; return Self; }
     public Frame WithBorderDirection(BorderDirection dir) { BorderDirection = dir; return Self; }
-
     public Frame WithWhenMouseDown(Action handler) { WhenMouseDown += handler; return Self; }
     public Frame WithWhenMouseUp(Action handler) { WhenMouseUp += handler; return Self; }
     public Frame WithWhenClicked(Action handler) { WhenClicked += handler; return Self; }

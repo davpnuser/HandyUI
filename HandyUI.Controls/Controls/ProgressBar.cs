@@ -1,8 +1,7 @@
-﻿using HandyUI.Core.Base;
-using HandyUI.Core.Components;
+﻿using HandyUI.Core.Abstractions.Base;
 using HandyUI.Core.Data;
-using HandyUI.Core.Enums;
-using HandyUI.Core.Theming;
+using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;
@@ -57,8 +56,11 @@ public class ProgressBar : BaseControl<ProgressBar>
         {
             if (field == value) return;
             field = value;
-            if (value) StartIndeterminate();
-            else StopIndeterminate();
+            if (!value)
+            {
+                if (_indeterminateTween is { IsValid: true }) _indeterminateTween.Cancel();
+                _indeterminateProgress = 0f;
+            }
             Invalidate();
         }
     }
@@ -86,7 +88,7 @@ public class ProgressBar : BaseControl<ProgressBar>
     private readonly SKPaint _bgPaint = new() { IsAntialias = true };
     private readonly SKPaint _fgPaint = new() { IsAntialias = true };
     private float _indeterminateProgress;
-    private TweenHandle _indeterminateTween;
+    private Tween? _indeterminateTween;
 
     #endregion
 
@@ -107,12 +109,21 @@ public class ProgressBar : BaseControl<ProgressBar>
 
     #region Overrides
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint point)
     {
-        return clientPoint is { } p && Bounds.Contains(p);
+        return Bounds.Contains(point);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition) { }
+    public override void OnUpdate(UpdateContext updateContext)
+    {
+        if (!IsIndeterminate) return;
+        if (_indeterminateTween is { IsValid: true }) return;
+
+        _indeterminateTween = updateContext.TweenManager.To(0f, 1f, 1.4f,
+            v => { _indeterminateProgress = v; Invalidate(); },
+            EaseType.Linear,
+            () => { _indeterminateProgress = 0f; Invalidate(); });
+    }
 
     public override void OnDraw(SKCanvas canvas)
     {
@@ -126,7 +137,7 @@ public class ProgressBar : BaseControl<ProgressBar>
         _bgPaint.Color = ThemeManager.Instance.BackgroundTertiary;
         canvas.DrawRoundRect(bgRect, CornerRadius, CornerRadius, _bgPaint);
 
-        _fgPaint.Color = IsEnabled
+        _fgPaint.Color = Enabled
             ? ThemeManager.Instance.Accent
             : ThemeManager.Instance.TextDisabled;
 
@@ -160,28 +171,6 @@ public class ProgressBar : BaseControl<ProgressBar>
         Bounds = new SKRect(0, 0, Width, Height);
     }
 
-    private void StartIndeterminate()
-    {
-        if (Tweener.Current is not { } tweener) return;
-        _indeterminateTween.Cancel();
-        _indeterminateTween = tweener.To(0f, 1f, 1.4f,
-            v => { _indeterminateProgress = v; Invalidate(); },
-            EaseType.Linear,
-            RestartIndeterminate);
-    }
-
-    private void RestartIndeterminate()
-    {
-        if (!IsIndeterminate) return;
-        StartIndeterminate();
-    }
-
-    private void StopIndeterminate()
-    {
-        _indeterminateTween.Cancel();
-        _indeterminateProgress = 0f;
-    }
-
     #endregion
 
     #region Fluent APIs
@@ -192,7 +181,6 @@ public class ProgressBar : BaseControl<ProgressBar>
     public ProgressBar WithIsIndeterminate(bool indeterminate) { IsIndeterminate = indeterminate; return Self; }
     public ProgressBar WithBarHeight(float height) { BarHeight = height; return Self; }
     public ProgressBar WithCornerRadius(float radius) { CornerRadius = radius; return Self; }
-
     public ProgressBar WithWhenValueChanged(Action<float> handler) { WhenValueChanged += handler; return Self; }
 
     #endregion
@@ -201,7 +189,7 @@ public class ProgressBar : BaseControl<ProgressBar>
 
     protected override void OnDispose()
     {
-        _indeterminateTween.Cancel();
+        if (_indeterminateTween is { IsValid: true }) _indeterminateTween.Cancel();
         _bgPaint.Dispose();
         _fgPaint.Dispose();
     }

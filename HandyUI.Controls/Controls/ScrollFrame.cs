@@ -1,9 +1,8 @@
-﻿using HandyUI.Core.Base;
-using HandyUI.Core.Components;
+﻿using HandyUI.Core.Abstractions.Base;
+using HandyUI.Core.Abstractions.Interface;
 using HandyUI.Core.Data;
-using HandyUI.Core.Enums;
-using HandyUI.Core.Interface;
-using HandyUI.Core.Theming;
+using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Helpers;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;
@@ -50,7 +49,7 @@ public class ScrollFrame : BaseControl<ScrollFrame>
     private float _scrollOffset;
     private float _contentHeight;
     private float _scrollbarAlpha;
-    private TweenHandle _scrollbarTween;
+    private Tween? _scrollbarTween;
 
     #endregion
 
@@ -71,12 +70,12 @@ public class ScrollFrame : BaseControl<ScrollFrame>
 
     #region Overrides
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint point)
     {
-        return clientPoint is { } p && Bounds.Contains(p);
+        return Bounds.Contains(point);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition) { }
+    public override void OnUpdate(UpdateContext updateContext) { }
 
     public override void OnDraw(SKCanvas canvas)
     {
@@ -92,32 +91,27 @@ public class ScrollFrame : BaseControl<ScrollFrame>
 
         _scrollbarPaint.Color = ThemeManager.Instance.TextPrimary.WithAlpha((byte)(80 * _scrollbarAlpha));
 
-        var thumbRect = new SKRect(
-            thumbX, thumbY,
-            thumbX + ScrollbarWidth, thumbY + thumbHeight);
+        var thumbRect = new SKRect(thumbX, thumbY, thumbX + ScrollbarWidth, thumbY + thumbHeight);
 
         canvas.DrawRoundRect(thumbRect, ScrollbarWidth * 0.5f, ScrollbarWidth * 0.5f, _scrollbarPaint);
     }
 
-    protected override void OnChildAdded(IControl control)
+    protected override void OnChildAdded(IControl child)
     {
         UpdateContentHeight();
     }
 
-    protected override void OnChildRemoved(IControl control)
+    protected override void OnChildRemoved(IControl child)
     {
         UpdateContentHeight();
     }
 
-    protected override bool OnMouse(MouseEventContext ctx)
+    protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (ctx.Type == MouseEventType.Wheel && IsHovered)
-        {
-            var delta = -ctx.WheelDelta / 120f * ScrollSpeed;
-            ScrollTo(_scrollOffset + delta);
-            return true;
-        }
-        return false;
+        if (eventContext.Type != MouseEventType.ScrollEvent || !IsHovered) return false;
+        var delta = -eventContext.WheelDelta / 120f * ScrollSpeed;
+        ScrollTo(_scrollOffset + delta, eventContext.TweenManager);
+        return true;
     }
 
     #endregion
@@ -140,7 +134,7 @@ public class ScrollFrame : BaseControl<ScrollFrame>
         _contentHeight = max;
     }
 
-    private void ScrollTo(float newOffset)
+    private void ScrollTo(float newOffset, TweenManager tweener)
     {
         var maxOffset = Math.Max(0f, _contentHeight - Bounds.Height);
         newOffset = Math.Clamp(newOffset, 0f, maxOffset);
@@ -153,15 +147,14 @@ public class ScrollFrame : BaseControl<ScrollFrame>
             child.Location = new SKPoint(child.Location.X, child.Location.Y - delta);
 
         WhenScrollChanged?.Invoke(_scrollOffset);
-        ShowScrollbar();
+        ShowScrollbar(tweener);
         Invalidate();
     }
 
-    private void ShowScrollbar()
+    private void ShowScrollbar(TweenManager tweener)
     {
         _scrollbarAlpha = 1f;
-        if (Tweener.Current is not { } tweener) return;
-        _scrollbarTween.Cancel();
+        if (_scrollbarTween is { IsValid: true }) _scrollbarTween.Cancel();
         _scrollbarTween = tweener.To(1f, 0f, 0.8f,
             v => { _scrollbarAlpha = v; Invalidate(); }, EaseType.SineOut);
     }
@@ -174,7 +167,6 @@ public class ScrollFrame : BaseControl<ScrollFrame>
     public ScrollFrame WithHeight(float height) { Height = height; return Self; }
     public ScrollFrame WithScrollSpeed(float speed) { ScrollSpeed = speed; return Self; }
     public ScrollFrame WithScrollbarWidth(float width) { ScrollbarWidth = width; return Self; }
-
     public ScrollFrame WithWhenScrollChanged(Action<float> handler) { WhenScrollChanged += handler; return Self; }
 
     #endregion
@@ -183,7 +175,7 @@ public class ScrollFrame : BaseControl<ScrollFrame>
 
     protected override void OnDispose()
     {
-        _scrollbarTween.Cancel();
+        if (_scrollbarTween is { IsValid: true }) _scrollbarTween.Cancel();
         _scrollbarPaint.Dispose();
     }
 

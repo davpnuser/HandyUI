@@ -1,51 +1,65 @@
 ﻿using HandyUI.Core.Components;
 using HandyUI.Core.Data;
-using HandyUI.Core.Enums;
+using HandyUI.Core.Data.Enums;
+using HandyUI.SilkNet.Components;
 using Silk.NET.Input;
+using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using SkiaSharp;
 using System.Diagnostics;
 using System.Numerics;
+using CursorType = HandyUI.Core.Data.Enums.CursorType;
+using MouseButton = HandyUI.Core.Data.Enums.MouseButton;
 
-internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : IDisposable
+internal sealed class RendererAdapter(HandyWindow window) : IDisposable
 {
     #region Internal Fields
 
-    private readonly IWindow _window = window;
-    private readonly UIRenderer _renderer = new(useDirtyRendering);
-
+    private readonly HandyWindow _window = window;
+    private readonly IWindow _silkWindow = window.InternalWindow!;
+    private readonly UIRenderer _renderer = new(window);
     private readonly Stopwatch _frameStopwatch = Stopwatch.StartNew();
-    private double _lastFrameTime;
 
+    private double _lastFrameTime;
     private SKPoint _currentMousePos = new(-1, -1);
     private int _dirtyFramesRemaining = 2;
     private bool _isDisposed;
 
     private GL? _gl;
-    private GRContext? _grContext;
     private GRBackendRenderTarget? _backendRenderTarget;
     private SKSurface? _skSurface;
     private SKSurface? _offscreenSurface;
     private IInputContext? _inputContext;
+    private IKeyboard? _primaryKeyboard;
 
     private long _lastMouseMoveInvalidateTick = 0;
-    private const long targetMouseTicksPerInvalidate = 60;
+    private const long TargetMouseTicksPerInvalidate = 60;
 
-    internal bool UseDirtyRendering { get; } = useDirtyRendering;
-    internal bool IsInvalidated => _dirtyFramesRemaining > 0;
+    private const long DoubleClickTimeMs = 500;
+    private const float DoubleClickDistanceSq = 16f;
+    private long _lastClickTick;
+    private SKPoint _lastClickPos;
+    private int _currentClickCount = 1;
 
     #endregion
 
-    #region Methods
+    #region Internal Properties
+
+    internal GRContext? DrawingContext { get; private set; }
+    internal bool UseDirtyRendering => _window.UseDirtyRendering;
+    internal bool IsInvalidated => Volatile.Read(ref _dirtyFramesRemaining) > 0;
+
+    #endregion
+
+    #region Initialization
 
     public UIRenderer InitializeAndGetRenderer()
     {
-        _renderer.WhenInvalidated += OnRendererInvalidated;
-        _window.Load += OnWindowLoad;
-        _window.FramebufferResize += OnFramebufferResize;
+        _silkWindow.Load += OnWindowLoad;
+        _silkWindow.FramebufferResize += OnFramebufferResize;
 
-        if (_window.IsInitialized && _gl is null)
+        if (_silkWindow.IsInitialized && _gl is null)
             OnWindowLoad();
 
         return _renderer;
@@ -53,17 +67,19 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
 
     #endregion
 
-    #region Internal Functions
+    #region Invalidate
 
-    #region Rendering/Context Functions
-
-    private void OnRendererInvalidated()
+    internal void Invalidate()
     {
-        _dirtyFramesRemaining = 2;
+        Volatile.Write(ref _dirtyFramesRemaining, 2);
 
         try { Silk.NET.GLFW.Glfw.GetApi().PostEmptyEvent(); }
-        catch { /* do not crash */ }
+        catch { }
     }
+
+    #endregion
+
+    #region Rendering/Context Functions
 
     internal void RenderFrame()
     {
@@ -73,17 +89,11 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
 
     private void MakeContextCurrent()
     {
-        if (_window.GLContext is { IsCurrent: false })
-            _window.GLContext.MakeCurrent();
+        if (_silkWindow.GLContext is { IsCurrent: false })
+            _silkWindow.GLContext.MakeCurrent();
     }
 
-    internal void Invalidate()
-    {
-        _dirtyFramesRemaining = 2;
-        _renderer.Invalidate();
-    }
-
-    private void OnFramebufferResize(Silk.NET.Maths.Vector2D<int> size)
+    private void OnFramebufferResize(Vector2D<int> size)
     {
         if (_gl == null) return;
 
@@ -94,7 +104,7 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
 
     private void CreateRenderTarget(int pixelWidth, int pixelHeight)
     {
-        if (_gl == null || _grContext == null || pixelWidth <= 0 || pixelHeight <= 0) return;
+        if (_gl == null || DrawingContext == null || pixelWidth <= 0 || pixelHeight <= 0) return;
 
         MakeContextCurrent();
 
@@ -108,15 +118,15 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
 
         if (stencilBits == 0) stencilBits = 8;
 
-        var maxSamples = _grContext.GetMaxSurfaceSampleCount(SKColorType.Rgba8888);
+        var maxSamples = DrawingContext.GetMaxSurfaceSampleCount(SKColorType.Rgba8888);
         var sampleCount = Math.Min(samples, maxSamples);
         var fbInfo = new GRGlFramebufferInfo((uint)framebuffer, 0x8058);
 
         _backendRenderTarget = new GRBackendRenderTarget(pixelWidth, pixelHeight, sampleCount, stencilBits, fbInfo);
-        _skSurface = SKSurface.Create(_grContext, _backendRenderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
+        _skSurface = SKSurface.Create(DrawingContext, _backendRenderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
 
         var imageInfo = new SKImageInfo(pixelWidth, pixelHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
-        _offscreenSurface = SKSurface.Create(_grContext, false, imageInfo);
+        _offscreenSurface = SKSurface.Create(DrawingContext, false, imageInfo);
 
         Invalidate();
     }
@@ -134,26 +144,21 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
 
         _renderer.UpdateModules(deltaTime);
 
-        var mustRenderUI = !UseDirtyRendering || _dirtyFramesRemaining > 0;
+        var mustRenderUI = !UseDirtyRendering || Volatile.Read(ref _dirtyFramesRemaining) > 0;
 
         if (mustRenderUI)
         {
-            _offscreenSurface.Canvas.Clear(_renderer.BackgroundColor);
             _renderer.RenderControls(_offscreenSurface.Canvas, _currentMousePos, deltaTime);
             _offscreenSurface.Canvas.Flush();
 
-            if (_dirtyFramesRemaining > 0)
-                _dirtyFramesRemaining--;
+            if (Interlocked.Decrement(ref _dirtyFramesRemaining) < 0)
+                Interlocked.Exchange(ref _dirtyFramesRemaining, 0);
         }
 
         _skSurface.Canvas.Clear(_renderer.BackgroundColor);
-        using (var snapshot = _offscreenSurface.Snapshot())
-        {
-            _skSurface.Canvas.DrawImage(snapshot, 0, 0, SKSamplingOptions.Default);
-        }
-
+        _offscreenSurface.Draw(_skSurface.Canvas, 0, 0, null);
         _skSurface.Canvas.Flush();
-        _grContext?.Flush();
+        DrawingContext?.Flush();
     }
 
     #endregion
@@ -162,19 +167,22 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
 
     private void OnWindowLoad()
     {
+        if (_gl is not null) return;
+
         MakeContextCurrent();
 
-        _gl = GL.GetApi(_window);
+        _gl = GL.GetApi(_silkWindow);
 
         var skiaGlInterface = GRGlInterface.Create(proc =>
-            _window.GLContext!.TryGetProcAddress(proc, out var addr) ? addr : IntPtr.Zero);
+            _silkWindow.GLContext!.TryGetProcAddress(proc, out var addr) ? addr : IntPtr.Zero);
 
-        _grContext = GRContext.CreateGl(skiaGlInterface);
+        DrawingContext = GRContext.CreateGl(skiaGlInterface);
 
-        _inputContext = _window.CreateInput();
+        _inputContext = _silkWindow.CreateInput();
+        _primaryKeyboard = _inputContext.Keyboards.Count > 0 ? _inputContext.Keyboards[0] : null;
         BindInputEvents();
 
-        CreateRenderTarget(_window.FramebufferSize.X, _window.FramebufferSize.Y);
+        CreateRenderTarget(_silkWindow.FramebufferSize.X, _silkWindow.FramebufferSize.Y);
     }
 
     private void BindInputEvents()
@@ -217,17 +225,80 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
         }
     }
 
+    #endregion
+
+    #region Input Helpers
+
+    private (bool IsControl, bool IsShift, bool IsAlt) GetModifierState()
+    {
+        if (_primaryKeyboard is null)
+            return (false, false, false);
+
+        return (
+            _primaryKeyboard.IsKeyPressed(Key.ControlLeft) || _primaryKeyboard.IsKeyPressed(Key.ControlRight),
+            _primaryKeyboard.IsKeyPressed(Key.ShiftLeft) || _primaryKeyboard.IsKeyPressed(Key.ShiftRight),
+            _primaryKeyboard.IsKeyPressed(Key.AltLeft) || _primaryKeyboard.IsKeyPressed(Key.AltRight));
+    }
+
+    private int ComputeClickCount(SKPoint position)
+    {
+        var now = Environment.TickCount64;
+        var elapsed = now - _lastClickTick;
+        var dx = position.X - _lastClickPos.X;
+        var dy = position.Y - _lastClickPos.Y;
+        var distSq = (dx * dx) + (dy * dy);
+
+        _currentClickCount = elapsed <= DoubleClickTimeMs && distSq <= DoubleClickDistanceSq ? Math.Min(_currentClickCount + 1, 3) : 1;
+
+        _lastClickTick = now;
+        _lastClickPos = position;
+        return _currentClickCount;
+    }
+
+    internal void SetCursor(CursorType newCursor)
+    {
+        var mice = _inputContext?.Mice;
+
+        if (mice is null || mice.Count == 0)
+            return;
+
+        var mouse = mice[0];
+        mouse.Cursor.StandardCursor = MapCursor(newCursor);
+    }
+
+    internal CursorType GetCursor()
+    {
+        var mice = _inputContext?.Mice;
+
+        if (mice is null || mice.Count == 0)
+            return CursorType.Default;
+
+        var mouse = mice[0];
+        return MapCursor(mouse.Cursor.StandardCursor);
+    }
+
+    #endregion
+
+    #region Input Handlers
+
     private void OnMouseMove(IMouse mouse, Vector2 position)
     {
         _currentMousePos = new SKPoint(position.X, position.Y);
+        var (isCtrl, isShift, isAlt) = GetModifierState();
+
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            ClientPosition: _currentMousePos,
-            Type: MouseEventType.Move));
+            TweenManager: _window.TweenManager,
+            MousePosition: _currentMousePos,
+            Type: MouseEventType.MoveEvent,
+            ClickCount: _currentClickCount,
+            IsControlPressed: isCtrl,
+            IsShiftPressed: isShift,
+            IsAltPressed: isAlt));
 
         if (UseDirtyRendering)
         {
             var currentTick = Environment.TickCount64;
-            if (currentTick - _lastMouseMoveInvalidateTick >= targetMouseTicksPerInvalidate)
+            if (currentTick - _lastMouseMoveInvalidateTick >= TargetMouseTicksPerInvalidate)
             {
                 _lastMouseMoveInvalidateTick = currentTick;
                 Invalidate();
@@ -241,65 +312,64 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
 
     private void OnMouseDown(IMouse mouse, Silk.NET.Input.MouseButton button)
     {
+        var (isCtrl, isShift, isAlt) = GetModifierState();
+        var clickCount = ComputeClickCount(_currentMousePos);
+
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            ClientPosition: _currentMousePos,
-            Type: MouseEventType.MouseDown,
-            Button: MapButton(button)));
+            TweenManager: _window.TweenManager,
+            MousePosition: _currentMousePos,
+            Type: MouseEventType.MouseDownEvent,
+            Button: MapButton(button),
+            ClickCount: clickCount,
+            IsControlPressed: isCtrl,
+            IsShiftPressed: isShift,
+            IsAltPressed: isAlt));
         Invalidate();
     }
 
     private void OnMouseUp(IMouse mouse, Silk.NET.Input.MouseButton button)
     {
+        var (isCtrl, isShift, isAlt) = GetModifierState();
+
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            ClientPosition: _currentMousePos,
-            Type: MouseEventType.MouseUp,
-            Button: MapButton(button)));
+            TweenManager: _window.TweenManager,
+            MousePosition: _currentMousePos,
+            Type: MouseEventType.MouseUpEvent,
+            Button: MapButton(button),
+            ClickCount: _currentClickCount,
+            IsControlPressed: isCtrl,
+            IsShiftPressed: isShift,
+            IsAltPressed: isAlt));
         Invalidate();
     }
 
     private void OnMouseScroll(IMouse mouse, ScrollWheel scroll)
     {
+        var (isCtrl, isShift, isAlt) = GetModifierState();
+
         _renderer.ProcessMouseEvent(new MouseEventContext(
-            ClientPosition: _currentMousePos,
-            Type: MouseEventType.Wheel,
-            Button: HandyUI.Core.Enums.MouseButton.Middle,
-            WheelDelta: (int)(scroll.Y * 120)));
+            TweenManager: _window.TweenManager,
+            MousePosition: _currentMousePos,
+            Type: MouseEventType.ScrollEvent,
+            Button: MouseButton.Wheel,
+            WheelDelta: (int)(scroll.Y * 120),
+            ClickCount: _currentClickCount,
+            IsControlPressed: isCtrl,
+            IsShiftPressed: isShift,
+            IsAltPressed: isAlt));
         Invalidate();
     }
 
     private void OnKeyDown(IKeyboard keyboard, Key key, int keyCode)
     {
-        var mappedKey = MapKey(key);
-        var isControl = keyboard.IsKeyPressed(Key.ControlLeft) || keyboard.IsKeyPressed(Key.ControlRight);
-        var isShift = keyboard.IsKeyPressed(Key.ShiftLeft) || keyboard.IsKeyPressed(Key.ShiftRight);
-        var isAlt = keyboard.IsKeyPressed(Key.AltLeft) || keyboard.IsKeyPressed(Key.AltRight);
-
         _renderer.ProcessKeyEvent(new KeyEventContext(
+            Tweener: _window.TweenManager,
             Type: KeyEventType.KeyDown,
-            KeyCode: mappedKey,
+            KeyCode: MapKey(key),
             Character: '\0',
-            IsControlPressed: isControl,
-            IsShiftPressed: isShift,
-            IsAltPressed: isAlt));
-
-        char? synthesizedChar = key switch
-        {
-            Key.Tab => '\t',
-            Key.Enter => '\r',
-            Key.Backspace => '\b',
-            _ => null
-        };
-
-        if (synthesizedChar.HasValue)
-        {
-            _renderer.ProcessKeyEvent(new KeyEventContext(
-                Type: KeyEventType.CharInput,
-                KeyCode: (byte)synthesizedChar.Value,
-                Character: synthesizedChar.Value,
-                IsControlPressed: isControl,
-                IsShiftPressed: isShift,
-                IsAltPressed: isAlt));
-        }
+            IsControlPressed: keyboard.IsKeyPressed(Key.ControlLeft) || keyboard.IsKeyPressed(Key.ControlRight),
+            IsShiftPressed: keyboard.IsKeyPressed(Key.ShiftLeft) || keyboard.IsKeyPressed(Key.ShiftRight),
+            IsAltPressed: keyboard.IsKeyPressed(Key.AltLeft) || keyboard.IsKeyPressed(Key.AltRight)));
 
         Invalidate();
     }
@@ -307,6 +377,7 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
     private void OnKeyUp(IKeyboard keyboard, Key key, int keyCode)
     {
         _renderer.ProcessKeyEvent(new KeyEventContext(
+            Tweener: _window.TweenManager,
             Type: KeyEventType.KeyUp,
             KeyCode: MapKey(key),
             Character: '\0',
@@ -320,6 +391,7 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
     private void OnKeyChar(IKeyboard keyboard, char character)
     {
         _renderer.ProcessKeyEvent(new KeyEventContext(
+            Tweener: _window.TweenManager,
             Type: KeyEventType.CharInput,
             KeyCode: (byte)character,
             Character: character,
@@ -331,6 +403,48 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
     }
 
     #endregion
+
+    #region Cursor Mapping
+
+    private static StandardCursor MapCursor(CursorType cursorType)
+    {
+        return cursorType switch
+        {
+            CursorType.Default => StandardCursor.Default,
+            CursorType.Arrow => StandardCursor.Arrow,
+            CursorType.Hand => StandardCursor.Hand,
+            CursorType.IBeam => StandardCursor.IBeam,
+            CursorType.BusyArrow => StandardCursor.WaitArrow,
+            CursorType.Busy => StandardCursor.Wait,
+            CursorType.HResize => StandardCursor.HResize,
+            CursorType.VResize => StandardCursor.VResize,
+            CursorType.NwseResize => StandardCursor.NwseResize,
+            CursorType.NeswResize => StandardCursor.NeswResize,
+            CursorType.ResizeAll => StandardCursor.ResizeAll,
+            CursorType.NotAllowed => StandardCursor.NotAllowed,
+            _ => StandardCursor.Default
+        };
+    }
+
+    private static CursorType MapCursor(StandardCursor standardCursor)
+    {
+        return standardCursor switch
+        {
+            StandardCursor.Default => CursorType.Default,
+            StandardCursor.Arrow => CursorType.Arrow,
+            StandardCursor.Hand => CursorType.Hand,
+            StandardCursor.IBeam => CursorType.IBeam,
+            StandardCursor.WaitArrow => CursorType.BusyArrow,
+            StandardCursor.Wait => CursorType.Busy,
+            StandardCursor.HResize => CursorType.HResize,
+            StandardCursor.VResize => CursorType.VResize,
+            StandardCursor.NwseResize => CursorType.NwseResize,
+            StandardCursor.NeswResize => CursorType.NeswResize,
+            StandardCursor.ResizeAll => CursorType.ResizeAll,
+            StandardCursor.NotAllowed => CursorType.NotAllowed,
+            _ => CursorType.Default
+        };
+    }
 
     #endregion
 
@@ -356,14 +470,14 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
         };
     }
 
-    private static HandyUI.Core.Enums.MouseButton MapButton(Silk.NET.Input.MouseButton button)
+    private static MouseButton MapButton(Silk.NET.Input.MouseButton button)
     {
         return button switch
         {
-            Silk.NET.Input.MouseButton.Left => HandyUI.Core.Enums.MouseButton.Left,
-            Silk.NET.Input.MouseButton.Right => HandyUI.Core.Enums.MouseButton.Right,
-            Silk.NET.Input.MouseButton.Middle => HandyUI.Core.Enums.MouseButton.Middle,
-            _ => HandyUI.Core.Enums.MouseButton.None
+            Silk.NET.Input.MouseButton.Left => MouseButton.Left,
+            Silk.NET.Input.MouseButton.Right => MouseButton.Right,
+            Silk.NET.Input.MouseButton.Middle => MouseButton.Middle,
+            _ => MouseButton.Generic
         };
     }
 
@@ -376,9 +490,8 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
         if (_isDisposed) return;
         _isDisposed = true;
 
-        _renderer.WhenInvalidated -= OnRendererInvalidated;
-        _window.Load -= OnWindowLoad;
-        _window.FramebufferResize -= OnFramebufferResize;
+        _silkWindow.Load -= OnWindowLoad;
+        _silkWindow.FramebufferResize -= OnFramebufferResize;
 
         UnbindInputEvents();
 
@@ -387,7 +500,7 @@ internal sealed class RendererAdapter(IWindow window, bool useDirtyRendering) : 
         _offscreenSurface?.Dispose();
         _skSurface?.Dispose();
         _backendRenderTarget?.Dispose();
-        _grContext?.Dispose();
+        DrawingContext?.Dispose();
         _renderer.Dispose();
         _inputContext?.Dispose();
         _gl?.Dispose();

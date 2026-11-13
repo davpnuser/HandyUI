@@ -2,8 +2,7 @@
 
 `HandyUI.Controls.Controls.PictureButton`
 
-A clickable image with rounded corners, hover brightening, and a click
-ripple.
+Clickable image with rounded corners, hover brightening, and click ripple.
 
 ```csharp
 public class PictureButton : BaseControl<PictureButton>
@@ -11,12 +10,12 @@ public class PictureButton : BaseControl<PictureButton>
 
 ## Properties
 
-| Property | Type | Default | Description |
-| --- | --- | --- | --- |
-| `Width` / `Height` | `float` | `0` | Auto-sized when `0`. |
-| `Image` | `SKImage?` | `null` | |
-| `StretchMode` | `StretchMode` | `Uniform` | |
-| `CornerRadius` | `float` | `4f` | Also shapes the ripple clip. |
+| Property | Type | Default |
+| --- | --- | --- |
+| `Width` / `Height` | `float` | `0` (auto → image size) |
+| `Image` | `SKImage?` | `null` |
+| `StretchMode` | `StretchMode` | `Uniform` |
+| `CornerRadius` | `float` | `4f` |
 
 ## Events
 
@@ -29,30 +28,23 @@ public event Action? WhenHoverExited;
 
 ## Methods
 
-`DoesIntersect`, `OnUpdate`, `OnDraw`, `OnMouse` - standard overrides.
+`OnMouse` starts the ripple on `MouseDownEvent` and fires `WhenClicked` on
+`ClickEvent`.
 
 ## Fluent API
 
 ```csharp
-public PictureButton WithWidth(float width);
-public PictureButton WithHeight(float height);
-public PictureButton WithImage(SKImage? image);
-public PictureButton WithStretchMode(StretchMode mode);
-public PictureButton WithCornerRadius(float radius);
-
-public PictureButton WithWhenClicked(Action handler);
-public PictureButton WithWhenImageChanged(Action<SKImage?> handler);
-public PictureButton WithWhenHoverEntered(Action handler);
-public PictureButton WithWhenHoverExited(Action handler);
+WithWidth, WithHeight, WithImage, WithStretchMode, WithCornerRadius,
+WithWhenClicked, WithWhenImageChanged,
+WithWhenHoverEntered, WithWhenHoverExited
 ```
 
 ## Example
 
 ```csharp
-var iconButton = new PictureButton()
+new PictureButton()
     .WithImage(iconImage)
-    .WithWidth(32)
-    .WithHeight(32)
+    .WithWidth(32).WithHeight(32)
     .WithCornerRadius(16)
     .WithWhenClicked(() => Settings())
     .WithLocation(40, 20)

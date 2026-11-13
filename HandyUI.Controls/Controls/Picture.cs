@@ -1,7 +1,7 @@
 ﻿using HandyUI.Controls.Enums;
-using HandyUI.Core.Base;
+using HandyUI.Core.Abstractions.Base;
 using HandyUI.Core.Data;
-using HandyUI.Core.Enums;
+using HandyUI.Core.Data.Enums;
 using SkiaSharp;
 
 namespace HandyUI.Controls.Controls;
@@ -81,12 +81,12 @@ public class Picture : BaseControl<Picture>
 
     #region Overrides
 
-    public override bool DoesIntersect(SKPoint? clientPoint)
+    public override bool DoesIntersect(SKPoint point)
     {
-        return clientPoint is { } p && Bounds.Contains(p);
+        return Bounds.Contains(point);
     }
 
-    public override void OnUpdate(float deltaTime, SKPoint? clientMousePosition)
+    public override void OnUpdate(UpdateContext updateContext)
     {
         if (_lastHovered == IsHovered) return;
         _lastHovered = IsHovered;
@@ -101,8 +101,8 @@ public class Picture : BaseControl<Picture>
         var h = Bounds.Height;
         if (w <= 0 || h <= 0) return;
 
-        var srcW = Image.Width;
-        var srcH = Image.Height;
+        var srcW = (float)Image.Width;
+        var srcH = (float)Image.Height;
         if (srcW <= 0 || srcH <= 0) return;
 
         var destRect = StretchMode switch
@@ -126,14 +126,11 @@ public class Picture : BaseControl<Picture>
         canvas.DrawImage(Image, destRect, _sampling, _paint);
     }
 
-    protected override bool OnMouse(MouseEventContext ctx)
+    protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (ctx.Type == MouseEventType.Click && IsHovered)
-        {
-            WhenClicked?.Invoke();
-            return true;
-        }
-        return false;
+        if (eventContext.Type != MouseEventType.ClickEvent || !IsHovered) return false;
+        WhenClicked?.Invoke();
+        return true;
     }
 
     #endregion
@@ -142,8 +139,8 @@ public class Picture : BaseControl<Picture>
 
     private void ResizeToContent()
     {
-        var contentW = Image?.Width ?? 0f;
-        var contentH = Image?.Height ?? 0f;
+        var contentW = (float)(Image?.Width ?? 0);
+        var contentH = (float)(Image?.Height ?? 0);
         var w = Width > 0f ? Width : contentW;
         var h = Height > 0f ? Height : contentH;
         Bounds = new SKRect(0, 0, w, h);
@@ -173,7 +170,6 @@ public class Picture : BaseControl<Picture>
     public Picture WithHeight(float height) { Height = height; return Self; }
     public Picture WithImage(SKImage? image) { Image = image; return Self; }
     public Picture WithStretchMode(StretchMode mode) { StretchMode = mode; return Self; }
-
     public Picture WithWhenClicked(Action handler) { WhenClicked += handler; return Self; }
     public Picture WithWhenImageChanged(Action<SKImage?> handler) { WhenImageChanged += handler; return Self; }
     public Picture WithWhenHoverEntered(Action handler) { WhenHoverEntered += handler; return Self; }
