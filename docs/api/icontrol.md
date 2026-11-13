@@ -78,9 +78,9 @@ renderer uses it to draw a focus rectangle only for keyboard focus.
 ## Overrideable members
 
 ```csharp
-abstract bool DoesIntersect(SKPoint point);   // hit test in local coords
-abstract void OnDraw(SKCanvas canvas);         // canvas already translated
-abstract void OnUpdate(UpdateContext updateContext);
+abstract bool DoesIntersect(SKPoint point);     // hit test in local coords
+abstract void OnDraw(SKCanvas canvas);     // canvas already translated
+void OnUpdate(UpdateContext updateContext);     // not forced anymore
 ```
 
 ## Methods

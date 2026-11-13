@@ -89,6 +89,7 @@ nav:
     - Index: guides/index.md
     - All Guides:
       - Debugging a HandyUI app: guides/debugging.md
+      - Control Guide & Examples: guides/control-guide-and-examples.md
   - API Reference:
     - Index: api/index.md
     - Core:

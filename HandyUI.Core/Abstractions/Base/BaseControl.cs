@@ -174,7 +174,7 @@ public abstract class BaseControl : IControl
 
     public abstract bool DoesIntersect(SKPoint point);
     public abstract void OnDraw(SKCanvas canvas);
-    public abstract void OnUpdate(UpdateContext updateContext);
+    public virtual void OnUpdate(UpdateContext updateContext) { }
 
     protected virtual bool OnMouse(MouseEventContext eventContext)
     {

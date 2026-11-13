@@ -40,7 +40,7 @@ public interface IControl : IDisposable
 
     abstract bool DoesIntersect(SKPoint point);
     abstract void OnDraw(SKCanvas canvas);
-    abstract void OnUpdate(UpdateContext updateContext);
+    void OnUpdate(UpdateContext updateContext);
 
     #endregion
 

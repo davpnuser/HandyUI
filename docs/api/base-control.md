@@ -48,7 +48,7 @@ public event Action<IControl?, bool>? WhenFocusRequested;
 ```csharp
 public abstract bool DoesIntersect(SKPoint point);
 public abstract void OnDraw(SKCanvas canvas);
-public abstract void OnUpdate(UpdateContext updateContext);
+public virtual void OnUpdate(UpdateContext updateContext);
 
 protected virtual bool OnMouse(MouseEventContext eventContext) => false;
 protected virtual bool OnKey(KeyEventContext eventContext) => false;
@@ -116,8 +116,6 @@ public sealed class ClickBox : BaseControl<ClickBox>
     public event Action? WhenClicked;
 
     public override bool DoesIntersect(SKPoint point) => Bounds.Contains(point);
-
-    public override void OnUpdate(UpdateContext updateContext) { }
 
     public override void OnDraw(SKCanvas canvas)
     {

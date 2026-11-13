@@ -75,8 +75,6 @@ public class ScrollFrame : BaseControl<ScrollFrame>
         return Bounds.Contains(point);
     }
 
-    public override void OnUpdate(UpdateContext updateContext) { }
-
     public override void OnDraw(SKCanvas canvas)
     {
         if (_contentHeight <= Bounds.Height) return;
