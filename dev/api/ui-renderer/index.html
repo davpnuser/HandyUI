@@ -1094,11 +1094,39 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#dispose" class="md-nav__link">
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#focus-behavior" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dispose()
+        Focus behavior
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Focus behavior">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#focus-rectangles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Focus rectangles
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#synthetic-events-on-focus-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synthetic events on focus change
       
     </span>
   </a>
@@ -1123,17 +1151,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#focus-rectangles" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Focus rectangles
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#dirty-rendering" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1155,6 +1172,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#profiler-overlay" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Profiler overlay
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1165,6 +1193,17 @@
     <span class="md-ellipsis">
       
         Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dispose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dispose
       
     </span>
   </a>
@@ -2728,11 +2767,39 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#dispose" class="md-nav__link">
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#focus-behavior" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dispose()
+        Focus behavior
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Focus behavior">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#focus-rectangles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Focus rectangles
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#synthetic-events-on-focus-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synthetic events on focus change
       
     </span>
   </a>
@@ -2757,17 +2824,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#focus-rectangles" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Focus rectangles
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#dirty-rendering" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2789,6 +2845,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#profiler-overlay" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Profiler overlay
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2799,6 +2866,17 @@
     <span class="md-ellipsis">
       
         Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dispose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dispose
       
     </span>
   </a>
@@ -2827,23 +2905,23 @@
 
 <h1 id="uirenderer"><code>UIRenderer</code><a class="headerlink" href="#uirenderer" title="Permanent link">&para;</a></h1>
 <p><code>HandyUI.Core.Components.UIRenderer</code></p>
-<p>The render loop, input dispatcher, focus manager, and module host. It
-targets <a href="../ihostwindow/"><code>IHostWindow</code></a> rather than a concrete window - the
-Silk.NET package wires it up via <a href="../silknet-helpers/#rendererhelper"><code>RendererHelper.Attach</code></a>.</p>
+<p>The render loop, input dispatcher, focus manager, and module host. Targets
+<a href="../ihostwindow/"><code>IHostWindow</code></a> instead of a concrete window.</p>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">UIRenderer</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">IDisposable</span>
 </span></code></pre></div>
 <h2 id="constructor">Constructor<a class="headerlink" href="#constructor" title="Permanent link">&para;</a></h2>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">public</span><span class="w"> </span><span class="nf">UIRenderer</span><span class="p">(</span><span class="n">IHostWindow</span><span class="w"> </span><span class="n">host</span><span class="p">);</span>
 </span></code></pre></div>
-<p>The constructor creates the shared <a href="../tween-manager/"><code>TweenManager</code></a>, assigns
-it to <code>host.TweenManager</code>, and subscribes to <code>ThemeManager.ThemeChanged</code> so
-<code>BackgroundColor</code> follows the active theme.</p>
+<p>Creates the shared <a href="../tween-manager/"><code>TweenManager</code></a>, assigns it to
+<code>host.TweenManager</code>, subscribes to <code>ThemeManager.ThemeChanged</code>, starts the
+internal <code>TotalTime</code> stopwatch, and detects debug builds to enable the
+profiler by default.</p>
 <h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
 <h3 id="backgroundcolor"><code>BackgroundColor</code><a class="headerlink" href="#backgroundcolor" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">public</span><span class="w"> </span><span class="n">SKColor</span><span class="w"> </span><span class="n">BackgroundColor</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
-<p>Defaults to <code>ThemeManager.Instance.BackgroundPrimary</code>. Assigning a color that
-differs from the theme marks the value as <em>custom</em> - subsequent theme
+<p>Defaults to <code>ThemeManager.Instance.BackgroundPrimary</code>. Assigning a color
+different from the theme marks the value as <em>custom</em> - subsequent theme
 changes will no longer overwrite it.</p>
 <h3 id="tweenmanager"><code>TweenManager</code><a class="headerlink" href="#tweenmanager" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">public</span><span class="w"> </span><span class="n">TweenManager</span><span class="w"> </span><span class="n">TweenManager</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
@@ -2856,47 +2934,54 @@ changes will no longer overwrite it.</p>
 <h3 id="useprofiler"><code>UseProfiler</code><a class="headerlink" href="#useprofiler" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">UseProfiler</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
-<p>Enables the built-in debug overlay (see <a href="../profiler-control/"><code>ProfilerControl</code></a>).
-Defaults to <code>true</code> in Debug builds, <code>false</code> in Release. Can be toggled at
-runtime with <code>Ctrl+Shift+G</code>.</p>
+<p>Toggles the built-in debug overlay. Defaults to <code>true</code> in Debug builds and
+<code>false</code> in Release. Can be toggled at runtime with <strong><code>Ctrl+Shift+G</code></strong>.</p>
 <h3 id="totaltime"><code>TotalTime</code><a class="headerlink" href="#totaltime" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">public</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">TotalTime</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
-<p>Total accumulated seconds of <code>UpdateModules</code> time.</p>
+<p>Total elapsed seconds since the <code>UIRenderer</code> was constructed. Backed by a
+<code>Stopwatch</code> that starts immediately and is <strong>not</strong> reset - it advances even
+while dirty rendering skips paint frames. This makes it suitable for
+long-running animations or session timers.</p>
+<div class="admonition info">
+<p class="admonition-title">Wall-clock time, not tick time</p>
+<p>Earlier versions accumulated <code>TotalTime</code> only inside <code>UpdateModules</code>.
+The current implementation uses a monotonic <code>Stopwatch</code>, so
+<code>TotalTime</code> keeps ticking during idle frames of the dirty renderer.</p>
+</div>
 <h2 id="events">Events<a class="headerlink" href="#events" title="Permanent link">&para;</a></h2>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">public</span><span class="w"> </span><span class="k">event</span><span class="w"> </span><span class="n">Action</span><span class="o">?</span><span class="w"> </span><span class="n">WhenInvalidated</span><span class="p">;</span>
 </span></code></pre></div>
-<p>Raised on every <code>Invalidate()</code> call. The Silk.NET adapter subscribes to
-this to wake the pump thread.</p>
+<p>Raised on every <code>Invalidate()</code>. The Silk.NET adapter subscribes to this to
+wake the pump thread.</p>
 <h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
 <h3 id="invalidate"><code>Invalidate()</code><a class="headerlink" href="#invalidate" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Invalidate</span><span class="p">();</span>
 </span></code></pre></div>
-<p>Marks the renderer dirty for two frames and raises <code>WhenInvalidated</code>.
-Also calls <code>_hostWindow.Invalidate()</code>.</p>
+<p>Marks the renderer dirty for two frames and raises <code>WhenInvalidated</code>. Also
+calls <code>_hostWindow.Invalidate()</code>.</p>
 <h3 id="addcontrolicontrol-removecontrolicontrol"><code>AddControl(IControl)</code> / <code>RemoveControl(IControl)</code><a class="headerlink" href="#addcontrolicontrol-removecontrolicontrol" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">AddControl</span><span class="p">(</span><span class="n">IControl</span><span class="w"> </span><span class="n">control</span><span class="p">);</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">RemoveControl</span><span class="p">(</span><span class="n">IControl</span><span class="w"> </span><span class="n">control</span><span class="p">);</span>
 </span></code></pre></div>
 <p>Queue a control for attach/detach. Attachment wires <code>WhenInvalidated</code> and
-<code>WhenFocusRequested</code>. Removal disposes the control and clears focus / press
-state.</p>
+<code>WhenFocusRequested</code>. Removal clears focus / press state and disposes the
+control.</p>
 <h3 id="rendercontrolsskcanvas-skpoint-float"><code>RenderControls(SKCanvas, SKPoint, float)</code><a class="headerlink" href="#rendercontrolsskcanvas-skpoint-float" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">RenderControls</span><span class="p">(</span><span class="n">SKCanvas</span><span class="w"> </span><span class="n">canvas</span><span class="p">,</span><span class="w"> </span><span class="n">SKPoint</span><span class="w"> </span><span class="n">cursorPosition</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">deltaTime</span><span class="p">);</span>
 </span></code></pre></div>
-<p>Processes pending controls and draws the tree. Returns <code>false</code> if the dirty
-renderer skipped the pass (based on <code>host.UseDirtyRendering</code>).</p>
+<p>Processes pending controls and draws the tree. Returns <code>false</code> if the
+dirty renderer skipped the pass (<code>host.UseDirtyRendering &amp;&amp; frames ≤ 0</code>).</p>
 <h3 id="updatemodulesfloat"><code>UpdateModules(float)</code><a class="headerlink" href="#updatemodulesfloat" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">UpdateModules</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">deltaTime</span><span class="p">);</span>
 </span></code></pre></div>
-<p>Ticks every enabled module with a fresh <code>UpdateContext</code>. Runs regardless
-of dirty-rendering state (the dirty-skip line is commented out) so
-animations and logic always tick.</p>
+<p>Ticks every enabled module with a fresh <code>UpdateContext</code>. Modules always run
+regardless of dirty-rendering state - animations and logic tick every frame.</p>
 <h3 id="getcontrolatskpoint"><code>GetControlAt(SKPoint)</code><a class="headerlink" href="#getcontrolatskpoint" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">public</span><span class="w"> </span><span class="n">IControl</span><span class="o">?</span><span class="w"> </span><span class="n">GetControlAt</span><span class="p">(</span><span class="n">SKPoint</span><span class="w"> </span><span class="n">clientPosition</span><span class="p">);</span>
 </span></code></pre></div>
-<p>Hit-tests the tree without dispatching an event. Respects <code>Visible</code>,
-<code>Enabled</code>, and <code>ClipChildren</code>.</p>
+<p>Hit-tests without dispatching. Respects <code>Visible</code>, <code>Enabled</code>, and
+<code>ClipChildren</code>.</p>
 <h3 id="ispointoveranycontrolskpoint"><code>IsPointOverAnyControl(SKPoint)</code><a class="headerlink" href="#ispointoveranycontrolskpoint" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">IsPointOverAnyControl</span><span class="p">(</span><span class="n">SKPoint</span><span class="w"> </span><span class="n">clientPosition</span><span class="p">);</span>
 </span></code></pre></div>
@@ -2905,61 +2990,97 @@ animations and logic always tick.</p>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">FocusNext</span><span class="p">();</span>
 </span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">FocusPrevious</span><span class="p">();</span>
 </span></code></pre></div>
-<p>Cycles through <code>Focusable</code> controls in <code>ZIndex</code> order. Called automatically
-by <code>ProcessKeyEvent</code> on <strong>Tab</strong> (Shift+Tab = previous).</p>
+<p>Cycles focus through <code>Focusable</code> controls in <code>ZIndex</code> order. Called
+automatically by <code>ProcessKeyEvent</code> on <strong>Tab</strong> (Shift+Tab = previous).</p>
 <h3 id="processmouseeventmouseeventcontext"><code>ProcessMouseEvent(MouseEventContext)</code><a class="headerlink" href="#processmouseeventmouseeventcontext" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ProcessMouseEvent</span><span class="p">(</span><span class="n">MouseEventContext</span><span class="w"> </span><span class="n">context</span><span class="p">);</span>
 </span></code></pre></div>
-<p>Order of processing:</p>
 <ol>
 <li>Returns early if <code>context.MousePosition == null</code>.</li>
-<li>Calls <code>ProcessPendingControls()</code>.</li>
-<li>Runs module input pipeline (stops on first module that returns <code>true</code>).</li>
+<li>Processes pending controls.</li>
+<li>Runs the module input pipeline (first module returning <code>true</code> consumes).</li>
 <li>Hit-tests controls (highest <code>ZIndex</code> first).</li>
-<li>On <code>MouseDownEvent</code>: sets <code>_pressedControl</code>, sets focus (or clears it).</li>
+<li>On <code>MouseDownEvent</code>: tracks <code>_pressedControl</code> and sets or clears focus.</li>
 <li>Dispatches recursively into the tree.</li>
-<li>On <code>MouseUpEvent</code>: if the pressed control is still under the cursor,
-   synthesizes a <code>ClickEvent</code> with the local position.</li>
+<li>On <code>MouseUpEvent</code>: synthesizes a <code>ClickEvent</code> to <code>_pressedControl</code> if it's
+   still under the cursor.</li>
 </ol>
 <h3 id="processkeyeventkeyeventcontext"><code>ProcessKeyEvent(KeyEventContext)</code><a class="headerlink" href="#processkeyeventkeyeventcontext" title="Permanent link">&para;</a></h3>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">ProcessKeyEvent</span><span class="p">(</span><span class="n">KeyEventContext</span><span class="w"> </span><span class="n">context</span><span class="p">);</span>
 </span></code></pre></div>
-<p>Order of processing:</p>
 <ol>
-<li>If <code>UseProfiler &amp;&amp; Ctrl+Shift+G</code> toggles the profiler.</li>
+<li><strong>Ctrl+Shift+G</strong> toggles the profiler (Debug builds).</li>
 <li>Runs module input pipeline.</li>
-<li>If a control is focused and it handles the key, returns <code>true</code>.</li>
-<li><strong>Tab</strong> → <code>FocusNext()</code> / <code>FocusPrevious()</code>.</li>
+<li>Forwards to focused control.</li>
+<li><strong>Tab</strong> → <code>FocusNext()</code> / <strong>Shift+Tab</strong> → <code>FocusPrevious()</code>.</li>
 <li>Returns <code>false</code>.</li>
 </ol>
-<h3 id="dispose"><code>Dispose()</code><a class="headerlink" href="#dispose" title="Permanent link">&para;</a></h3>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Dispose</span><span class="p">();</span>
-</span></code></pre></div>
-<p>Disposes every control recursively, every module, drains pending queues, and
-unsubscribes from theme changes.</p>
-<h2 id="behavior">Behavior<a class="headerlink" href="#behavior" title="Permanent link">&para;</a></h2>
+<h2 id="focus-behavior">Focus behavior<a class="headerlink" href="#focus-behavior" title="Permanent link">&para;</a></h2>
 <h3 id="focus-rectangles">Focus rectangles<a class="headerlink" href="#focus-rectangles" title="Permanent link">&para;</a></h3>
-<p>When a control is focused <strong>via keyboard</strong> (<code>FocusNext</code>/Tab), <code>UIRenderer</code>
-calls <code>DrawFocusRect()</code> on it after drawing its subtree. Clicking a control
+<p>When focus was set by keyboard (<code>FocusNext</code> / Tab), the renderer draws a
+focus rectangle on the focused control after its subtree. Clicking a control
 switches to non-keyboard focus and the rectangle disappears.</p>
+<h3 id="synthetic-events-on-focus-change">Synthetic events on focus change<a class="headerlink" href="#synthetic-events-on-focus-change" title="Permanent link">&para;</a></h3>
+<p>When the focused control changes, <code>SetFocus</code> dispatches two synthetic
+<code>MoveEvent</code>s to keep <code>IsHovered</code> responsive:</p>
+<table>
+<thead>
+<tr>
+<th>Target</th>
+<th><code>MousePosition</code></th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Old focused control</td>
+<td><code>null</code></td>
+<td><code>IsHovered</code> → <code>false</code> (blur)</td>
+</tr>
+<tr>
+<td>New focused control</td>
+<td><code>SKPoint.Empty</code></td>
+<td><code>IsHovered</code> → <code>Bounds.Contains(0, 0)</code></td>
+</tr>
+</tbody>
+</table>
+<p>The events are typed <code>MoveEvent</code> purely as a state-ping - no press or click
+logic fires. Controls can override <code>OnMouse</code> to react to focus state changes
+if they need to.</p>
+<div class="admonition tip">
+<p class="admonition-title">Why this exists</p>
+<p>Without it, a control losing focus could keep rendering its hover
+highlight if the cursor happened to still be over it. Sending a <code>null</code>
+move clears that state deterministically.</p>
+</div>
+<h2 id="behavior">Behavior<a class="headerlink" href="#behavior" title="Permanent link">&para;</a></h2>
 <h3 id="dirty-rendering">Dirty rendering<a class="headerlink" href="#dirty-rendering" title="Permanent link">&para;</a></h3>
-<p>Two-frame invalidation. <code>RenderControls</code> early-outs when <code>host.UseDirtyRendering</code>
-is <code>true</code> and the frame counter is <code>≤ 0</code>.</p>
+<p>Two-frame invalidation. <code>RenderControls</code> early-outs when
+<code>host.UseDirtyRendering</code> is <code>true</code> and the frame counter is <code>≤ 0</code>.</p>
 <h3 id="module-pipeline">Module pipeline<a class="headerlink" href="#module-pipeline" title="Permanent link">&para;</a></h3>
 <p>Modules <strong>do not</strong> get automatic focus. To participate in input, they must
-<code>AcceptsInput = true</code> (default) and return <code>true</code> from
-<code>ProcessMouseEvent</code>/<code>ProcessKeyEvent</code> to consume the event.</p>
+have <code>AcceptsInput = true</code> (default) and return <code>true</code> from
+<code>ProcessMouseEvent</code> / <code>ProcessKeyEvent</code> to consume the event.</p>
+<h3 id="profiler-overlay">Profiler overlay<a class="headerlink" href="#profiler-overlay" title="Permanent link">&para;</a></h3>
+<p>When <code>UseProfiler = true</code>, a <a href="../profiler-control/"><code>ProfilerControl</code></a> is
+created on the first render and assigned <code>ZIndex = 10000</code> so it renders on
+top of every other control.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kt">var</span><span class="w"> </span><span class="p">(</span><span class="n">window</span><span class="p">,</span><span class="w"> </span><span class="n">renderer</span><span class="p">)</span><span class="w"> </span><span class="o">=</span>
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span><span class="n">WindowHelper</span><span class="p">.</span><span class="n">CreateWindowAndGetRenderer</span><span class="p">(</span><span class="n">WindowConfiguration</span><span class="p">.</span><span class="n">Default</span><span class="p">);</span>
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
-</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="n">renderer</span><span class="p">.</span><span class="n">AddControl</span><span class="p">(</span>
-</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">Button</span><span class="p">()</span>
-</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">        </span><span class="p">.</span><span class="n">WithText</span><span class="p">(</span><span class="s">"Save"</span><span class="p">)</span>
-</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">        </span><span class="p">.</span><span class="n">WithWhenClicked</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Save</span><span class="p">()));</span>
-</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>
-</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="n">window</span><span class="p">.</span><span class="n">Run</span><span class="p">();</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kt">var</span><span class="w"> </span><span class="p">(</span><span class="n">window</span><span class="p">,</span><span class="w"> </span><span class="n">renderer</span><span class="p">)</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">    </span><span class="n">WindowHelper</span><span class="p">.</span><span class="n">CreateWindowAndGetRenderer</span><span class="p">(</span><span class="n">WindowConfiguration</span><span class="p">.</span><span class="n">Default</span><span class="p">);</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="n">renderer</span><span class="p">.</span><span class="n">AddControl</span><span class="p">(</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">Button</span><span class="p">()</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">        </span><span class="p">.</span><span class="n">WithText</span><span class="p">(</span><span class="s">"Save"</span><span class="p">)</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">        </span><span class="p">.</span><span class="n">WithWhenClicked</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Save</span><span class="p">()));</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="n">window</span><span class="p">.</span><span class="n">Run</span><span class="p">();</span>
 </span></code></pre></div>
+<h2 id="dispose">Dispose<a class="headerlink" href="#dispose" title="Permanent link">&para;</a></h2>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Dispose</span><span class="p">();</span>
+</span></code></pre></div>
+<p>Disposes every control recursively, every module, drains the pending queues,
+and unsubscribes from <code>ThemeManager.ThemeChanged</code>.</p>
 
 
 

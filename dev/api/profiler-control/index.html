@@ -2349,6 +2349,9 @@ is <code>true</code>, and toggled at runtime with <strong><code>Ctrl+Shift+G</co
 </tr>
 </tbody>
 </table>
+<p>The profiler control is registered with <code>ZIndex = 10000</code>, so it always
+renders above every other control on the renderer. Its top-left position
+is <code>(0, 0)</code> in the client area.</p>
 <h2 id="enabling-programmatically">Enabling programmatically<a class="headerlink" href="#enabling-programmatically" title="Permanent link">&para;</a></h2>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">renderer</span><span class="p">.</span><span class="n">UseProfiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">;</span>
 </span></code></pre></div>
