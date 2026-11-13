@@ -219,9 +219,17 @@ public class UIRenderer : IDisposable
             return;
         }
 
+        var mouseEventContext1 = new MouseEventContext(TweenManager, null, MouseEventType.MoveEvent, MouseButton.None, 0, 0, false, false, false);
+        var mouseEventContext2 = mouseEventContext1 with { MousePosition = SKPoint.Empty };
+
+        FocusedControl?.ProcessMouseEvent(mouseEventContext1);
+
         FocusedControl?.IsFocused = false;
         FocusedControl = control;
         FocusedControl?.IsFocused = true;
+
+        FocusedControl?.ProcessMouseEvent(mouseEventContext2);
+
         _focusFromKeyboard = fromKeyboard;
         Invalidate();
     }

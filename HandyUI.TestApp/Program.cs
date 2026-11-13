@@ -9,8 +9,8 @@ var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(
     {
         Title = "Demo",
         Icon = ResourceManager.GetResourceByPath("Resources/HandyUI-SmallLogo.png", out var iconStream)
-        ? SKImage.FromEncodedData(iconStream)
-        : null
+            ? SKImage.FromEncodedData(iconStream)
+            : null
     });
 
 new Label()
@@ -29,7 +29,7 @@ new Button()
     .WithLocation(15, 75)
     .WithAddToRenderer(renderer);
 
-//a.Focusable = true;
+//a.Focusable = false;
 //b.Focusable = true;
 
 renderer.UseProfiler = true;
