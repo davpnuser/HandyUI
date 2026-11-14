@@ -1,4 +1,4 @@
-# Control Guide & Example
+# Control Guide & Examples
 
 In this guide, i will be **teaching** how to make a **custom HandyUI control** and will be giving an custom control **example**. 
 
@@ -299,6 +299,31 @@ Anyways, about the full control code, here it is.
         {
             _toggledPaint.Dispose();
             _untoggledPaint.Dispose();
+        }
+    }
+    ```
+
+## Even more control examples
+
+??? info "Bare minimum control for drawing"
+    ```csharp linenums="1"
+    public class BareMinimumControl : BaseControl<BareMinimumControl>
+    {
+        private readonly SKPaint _paint = new() { Color = SKColors.White };
+
+        public override bool DoesIntersect(SKPoint point)
+        {
+            return Bounds.Contains(point);
+        }
+
+        public override void OnDraw(SKCanvas canvas)
+        {
+            canvas.DrawRect(Bounds, _paint);
+        }
+
+        protected override void OnDispose()
+        {
+            _paint.Dispose();
         }
     }
     ```

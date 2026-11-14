@@ -322,6 +322,12 @@ public static class Win32Helper
     [DllImport("user32.dll", SetLastError = true)]
     public static extern bool ScreenToClient(nint hWnd, ref POINT lpPoint);
 
+    [DllImport("psapi.dll")]
+    private static extern int EmptyWorkingSet(nint hProcess);
+
+    [DllImport("kernel32.dll")]
+    private static extern nint GetCurrentProcess();
+
     #endregion
 
     #region Cross-bitness Long Wrappers
@@ -570,6 +576,11 @@ public static class Win32Helper
 
         SetWindowPos(hWnd, nint.Zero, 0, 0, 0, 0,
                      SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+    }
+
+    public static void CleanMemory()
+    {
+        _ = EmptyWorkingSet(GetCurrentProcess());
     }
 
     #endregion

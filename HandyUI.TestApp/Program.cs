@@ -4,14 +4,19 @@ using HandyUI.Core.Data.Enums;
 using HandyUI.Core.Helpers;
 using HandyUI.SilkNet.Data;
 using HandyUI.SilkNet.Helper;
+using HandyUI.TestApp.Controls;
 
 var (window, renderer) = WindowHelper.CreateWindowAndGetRenderer(WindowConfiguration.Default);
 
-var a = new Picture()
+var a = new HandyUI_Banner_Control()
+    .WithLocation(15, 15)
+    .WithAddToRenderer(renderer);
+
+var b = new Picture()
     .WithStretchMode(StretchMode.Uniform)
+    .WithLocation(15, 160)
     .WithHeight(250)
     .WithWidth(250)
-    .WithLocation(15, 15)
     .WithAddToRenderer(renderer);
 
 renderer.UseProfiler = true;
@@ -20,7 +25,7 @@ ClipboardManager.Instance.ClipboardUpdated += (type) =>
 {
     if (type == ClipboardItemType.Image)
     {
-        a.Image = ClipboardManager.Instance.ClipboardContentsImage;
+        b.Image = ClipboardManager.Instance.ClipboardContentsImage;
     }
 };
 

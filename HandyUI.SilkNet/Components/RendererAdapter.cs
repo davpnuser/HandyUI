@@ -2,6 +2,7 @@
 using HandyUI.Core.Data;
 using HandyUI.Core.Data.Enums;
 using HandyUI.SilkNet.Components;
+using HandyUI.SilkNet.Helper;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -33,6 +34,11 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
     private IInputContext? _inputContext;
     private IKeyboard? _primaryKeyboard;
 
+    private int _lastFramebufferWidth = -1;
+    private int _lastFramebufferHeight = -1;
+    private int _offscreenAllocWidth = -1;
+    private int _offscreenAllocHeight = -1;
+
     private int _lastRenderTargetWidth = -1;
     private int _lastRenderTargetHeight = -1;
     private int _pendingWidth = -1;
@@ -54,6 +60,7 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
     internal GRContext? DrawingContext { get; private set; }
     internal bool UseDirtyRendering => _window.UseDirtyRendering;
     internal bool IsInvalidated => Volatile.Read(ref _dirtyFramesRemaining) > 0;
+    internal bool IsCacheDirty { get; set; }
 
     #endregion
 
@@ -121,48 +128,63 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
 
     private void CreateRenderTarget(int pixelWidth, int pixelHeight)
     {
-        if (_gl == null || DrawingContext == null || pixelWidth <= 0 || pixelHeight <= 0) return;
-
-        if (pixelWidth == _lastRenderTargetWidth &&
-            pixelHeight == _lastRenderTargetHeight &&
-            _skSurface is not null &&
-            _offscreenSurface is not null)
-        {
+        if (_gl == null || DrawingContext == null || pixelWidth <= 0 || pixelHeight <= 0)
             return;
-        }
+
+        var framebufferChanged =
+            pixelWidth != _lastFramebufferWidth || pixelHeight != _lastFramebufferHeight;
+
+        var offscreenNeedsGrowth =
+            _offscreenSurface is null ||
+            pixelWidth > _offscreenAllocWidth ||
+            pixelHeight > _offscreenAllocHeight;
+
+        if (!framebufferChanged && !offscreenNeedsGrowth)
+            return;
 
         MakeContextCurrent();
 
-        _offscreenSurface?.Dispose();
-        _skSurface?.Dispose();
-        _backendRenderTarget?.Dispose();
-        _offscreenSurface = null;
-        _skSurface = null;
-        _backendRenderTarget = null;
+        if (framebufferChanged)
+        {
+            _backendRenderTarget?.Dispose();
+            _skSurface?.Dispose();
+            _backendRenderTarget = null;
+            _skSurface = null;
 
-        DrawingContext.PurgeUnlockedResources(false);
+            _gl.GetInteger((GetPName)0x8CA6, out var framebuffer);
+            _gl.GetInteger((GetPName)0x0D57, out var stencilBits);
+            _gl.GetInteger((GetPName)0x80A9, out var samples);
+            if (stencilBits == 0) stencilBits = 8;
 
-        _gl.GetInteger((GetPName)0x8CA6, out var framebuffer);
-        _gl.GetInteger((GetPName)0x0D57, out var stencilBits);
-        _gl.GetInteger((GetPName)0x80A9, out var samples);
+            var maxSamples = DrawingContext.GetMaxSurfaceSampleCount(SKColorType.Rgba8888);
+            var sampleCount = Math.Min(samples, maxSamples);
+            var fbInfo = new GRGlFramebufferInfo((uint)framebuffer, 0x8058);
 
-        if (stencilBits == 0) stencilBits = 8;
+            _backendRenderTarget = new GRBackendRenderTarget(pixelWidth, pixelHeight, sampleCount, stencilBits, fbInfo);
+            _skSurface = SKSurface.Create(DrawingContext, _backendRenderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
 
-        var maxSamples = DrawingContext.GetMaxSurfaceSampleCount(SKColorType.Rgba8888);
-        var sampleCount = Math.Min(samples, maxSamples);
-        var fbInfo = new GRGlFramebufferInfo((uint)framebuffer, 0x8058);
+            _lastFramebufferWidth = pixelWidth;
+            _lastFramebufferHeight = pixelHeight;
+        }
 
-        _backendRenderTarget = new GRBackendRenderTarget(pixelWidth, pixelHeight, sampleCount, stencilBits, fbInfo);
-        _skSurface = SKSurface.Create(DrawingContext, _backendRenderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
+        if (offscreenNeedsGrowth)
+        {
+            _offscreenSurface?.Dispose();
+            _offscreenSurface = null;
 
-        var imageInfo = new SKImageInfo(pixelWidth, pixelHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
-        _offscreenSurface = SKSurface.Create(DrawingContext, false, imageInfo);
+            IsCacheDirty = true;
 
-        _lastRenderTargetWidth = pixelWidth;
-        _lastRenderTargetHeight = pixelHeight;
+            var allocWidth = Math.Max(pixelWidth, _offscreenAllocWidth);
+            var allocHeight = Math.Max(pixelHeight, _offscreenAllocHeight);
+
+            var imageInfo = new SKImageInfo(allocWidth, allocHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
+            _offscreenSurface = SKSurface.Create(DrawingContext, false, imageInfo);
+
+            _offscreenAllocWidth = allocWidth;
+            _offscreenAllocHeight = allocHeight;
+        }
 
         _renderer.Invalidate();
-
         Invalidate();
     }
 
@@ -214,6 +236,11 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
             _silkWindow.GLContext!.TryGetProcAddress(proc, out var addr) ? addr : IntPtr.Zero);
 
         DrawingContext = GRContext.CreateGl(skiaGlInterface);
+        //DrawingContext.SetResourceCacheLimit(32 * 1024 * 1024);
+
+        DrawingContext?.Flush();
+        DrawingContext?.PurgeUnlockedResources(false);
+        Win32Helper.CleanMemory();
 
         _inputContext = _silkWindow.CreateInput();
         _primaryKeyboard = _inputContext.Keyboards.Count > 0 ? _inputContext.Keyboards[0] : null;

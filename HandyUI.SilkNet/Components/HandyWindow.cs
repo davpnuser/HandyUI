@@ -428,6 +428,11 @@ public class HandyWindow : IDisposable, IHostWindow
 
     private const nint ModalRenderTimerId = 0x1A2B;
 
+    private volatile bool _inModalLoop;
+    private readonly Stopwatch _modalRenderStopwatch = new();
+    private double _lastModalRenderTime;
+    private double _modalRenderAccumulator;
+
     private readonly bool _centerOnStartup = false;
 
     #endregion
@@ -594,6 +599,8 @@ public class HandyWindow : IDisposable, IHostWindow
             catch { }
             finally { _moveInProgress = false; }
 
+            if (_inModalLoop) return;
+
             if (_moveTick++ == 4)
             {
                 _moveTick = 0;
@@ -623,6 +630,8 @@ public class HandyWindow : IDisposable, IHostWindow
             try { WhenResized?.Invoke(newSize.ToSKSize()); }
             catch { _resizeInProgress = false; }
             finally { _resizeInProgress = false; }
+
+            if (_inModalLoop) return;
 
             if (_resizeTick++ == 4)
             {
@@ -1090,8 +1099,12 @@ public class HandyWindow : IDisposable, IHostWindow
         {
             if (!UseDirtyRendering)
             {
-                var interval = (uint)Math.Max(1, 1000 / Math.Max(1, FramesPerSecond));
-                Win32Helper.SetTimer(hWnd, ModalRenderTimerId, interval, nint.Zero);
+                _inModalLoop = true;
+                _modalRenderAccumulator = 0;
+                _lastModalRenderTime = 0;
+                _modalRenderStopwatch.Restart();
+
+                Win32Helper.SetTimer(hWnd, ModalRenderTimerId, 1, nint.Zero);
             }
 
             return Win32Helper.CallWindowProc(_originalTitleBarWndProc, hWnd, msg, wParam, lParam);
@@ -1099,17 +1112,57 @@ public class HandyWindow : IDisposable, IHostWindow
 
         if (msg == Win32Helper.WM_EXITSIZEMOVE)
         {
-            Win32Helper.KillTimer(hWnd, ModalRenderTimerId);
-
             if (!UseDirtyRendering)
+            {
+                Win32Helper.KillTimer(hWnd, ModalRenderTimerId);
+
                 RenderNow();
+
+                _inModalLoop = false;
+            }
+
+            try
+            {
+                RendererAdapter?.DrawingContext?.Flush();
+                RendererAdapter?.DrawingContext?.PurgeUnlockedResources(false);
+                Win32Helper.CleanMemory();
+            }
+            catch { /* do not crash */ }
 
             return Win32Helper.CallWindowProc(_originalTitleBarWndProc, hWnd, msg, wParam, lParam);
         }
 
         if (msg == Win32Helper.WM_TIMER && wParam == ModalRenderTimerId)
         {
-            RenderNow();
+            if (!UseDirtyRendering && _inModalLoop)
+            {
+                var now = _modalRenderStopwatch.Elapsed.TotalSeconds;
+                var elapsed = now - _lastModalRenderTime;
+                _lastModalRenderTime = now;
+
+                _modalRenderAccumulator += elapsed;
+
+                var targetInterval = 1.0 / Math.Max(1, FramesPerSecond);
+
+                if (_modalRenderAccumulator >= targetInterval)
+                {
+                    _modalRenderAccumulator -= targetInterval;
+                    RenderNow();
+                }
+            }
+
+            if (RendererAdapter?.IsCacheDirty == true)
+            {
+                try
+                {
+                    RendererAdapter?.DrawingContext?.Flush();
+                    RendererAdapter?.DrawingContext?.PurgeUnlockedResources(false);
+                    RendererAdapter?.IsCacheDirty = false;
+                    Win32Helper.CleanMemory();
+                }
+                catch { /* do not crash */ }
+            }
+
             return nint.Zero;
         }
 
