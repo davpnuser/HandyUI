@@ -33,6 +33,11 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
     private IInputContext? _inputContext;
     private IKeyboard? _primaryKeyboard;
 
+    private int _lastRenderTargetWidth = -1;
+    private int _lastRenderTargetHeight = -1;
+    private int _pendingWidth = -1;
+    private int _pendingHeight = -1;
+
     private long _lastMouseMoveInvalidateTick = 0;
     private const long TargetMouseTicksPerInvalidate = 60;
 
@@ -99,18 +104,43 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
 
         MakeContextCurrent();
         _gl.Viewport(0, 0, (uint)size.X, (uint)size.Y);
-        CreateRenderTarget(size.X, size.Y);
+
+        _pendingWidth = size.X;
+        _pendingHeight = size.Y;
+
+        Invalidate();
+    }
+
+    private void EnsureRenderTargetUpToDate()
+    {
+        if (_pendingWidth <= 0 || _pendingHeight <= 0) return;
+        if (_pendingWidth == _lastRenderTargetWidth && _pendingHeight == _lastRenderTargetHeight) return;
+
+        CreateRenderTarget(_pendingWidth, _pendingHeight);
     }
 
     private void CreateRenderTarget(int pixelWidth, int pixelHeight)
     {
         if (_gl == null || DrawingContext == null || pixelWidth <= 0 || pixelHeight <= 0) return;
 
+        if (pixelWidth == _lastRenderTargetWidth &&
+            pixelHeight == _lastRenderTargetHeight &&
+            _skSurface is not null &&
+            _offscreenSurface is not null)
+        {
+            return;
+        }
+
         MakeContextCurrent();
 
         _offscreenSurface?.Dispose();
         _skSurface?.Dispose();
         _backendRenderTarget?.Dispose();
+        _offscreenSurface = null;
+        _skSurface = null;
+        _backendRenderTarget = null;
+
+        DrawingContext.PurgeUnlockedResources(false);
 
         _gl.GetInteger((GetPName)0x8CA6, out var framebuffer);
         _gl.GetInteger((GetPName)0x0D57, out var stencilBits);
@@ -128,11 +158,18 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
         var imageInfo = new SKImageInfo(pixelWidth, pixelHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
         _offscreenSurface = SKSurface.Create(DrawingContext, false, imageInfo);
 
+        _lastRenderTargetWidth = pixelWidth;
+        _lastRenderTargetHeight = pixelHeight;
+
+        _renderer.Invalidate();
+
         Invalidate();
     }
 
     private void OnRender()
     {
+        EnsureRenderTargetUpToDate();
+
         if (_skSurface?.Canvas == null || _offscreenSurface?.Canvas == null) return;
 
         MakeContextCurrent();

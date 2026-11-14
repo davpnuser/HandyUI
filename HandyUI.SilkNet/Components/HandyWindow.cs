@@ -426,6 +426,8 @@ public class HandyWindow : IDisposable, IHostWindow
     private int _resizeTick = 0;
     private bool _resizeInProgress;
 
+    private const nint ModalRenderTimerId = 0x1A2B;
+
     private readonly bool _centerOnStartup = false;
 
     #endregion
@@ -1084,6 +1086,33 @@ public class HandyWindow : IDisposable, IHostWindow
 
     private nint TitleBarWndProc(nint hWnd, uint msg, nint wParam, nint lParam)
     {
+        if (msg == Win32Helper.WM_ENTERSIZEMOVE)
+        {
+            if (!UseDirtyRendering)
+            {
+                var interval = (uint)Math.Max(1, 1000 / Math.Max(1, FramesPerSecond));
+                Win32Helper.SetTimer(hWnd, ModalRenderTimerId, interval, nint.Zero);
+            }
+
+            return Win32Helper.CallWindowProc(_originalTitleBarWndProc, hWnd, msg, wParam, lParam);
+        }
+
+        if (msg == Win32Helper.WM_EXITSIZEMOVE)
+        {
+            Win32Helper.KillTimer(hWnd, ModalRenderTimerId);
+
+            if (!UseDirtyRendering)
+                RenderNow();
+
+            return Win32Helper.CallWindowProc(_originalTitleBarWndProc, hWnd, msg, wParam, lParam);
+        }
+
+        if (msg == Win32Helper.WM_TIMER && wParam == ModalRenderTimerId)
+        {
+            RenderNow();
+            return nint.Zero;
+        }
+
         if (!IsTitleBarVisible)
         {
             if (msg == Win32Helper.WM_GETMINMAXINFO)
