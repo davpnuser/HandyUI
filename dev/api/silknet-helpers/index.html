@@ -1366,6 +1366,8 @@
       
         
       
+        
+      
     
     
     
@@ -1451,6 +1453,34 @@
     
   
     ThemeManager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../clipboard-manager/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ClipboardManager
   
 
     
@@ -2427,6 +2457,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#clipboardhelper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ClipboardHelper
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ClipboardHelper">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ensureinitialized" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EnsureInitialized()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-it-does" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What it does
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#win32helper" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2740,6 +2820,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#clipboardhelper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ClipboardHelper
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ClipboardHelper">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ensureinitialized" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EnsureInitialized()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-it-does" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What it does
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#win32helper" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2891,6 +3021,58 @@ window with <a href="../theme-helper/"><code>ThemeHelper</code></a>, and returns
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">float?</span><span class="w"> </span><span class="n">TryGetOpacity</span><span class="p">(</span><span class="n">IWindow</span><span class="w"> </span><span class="n">window</span><span class="p">);</span>
 </span></code></pre></div>
 <p>Defensive wrappers that swallow exceptions.</p>
+<h2 id="clipboardhelper"><code>ClipboardHelper</code><a class="headerlink" href="#clipboardhelper" title="Permanent link">&para;</a></h2>
+<p><code>HandyUI.SilkNet.Helper.ClipboardHelper</code></p>
+<p>Bridges the OS clipboard to <a href="../clipboard-manager/"><code>ClipboardManager</code></a>. It
+listens for OS clipboard changes, writes them into the shared manager, and
+pushes <code>SetClipboard</code> requests back out to the OS.</p>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ClipboardHelper</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="p">{</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">EnsureInitialized</span><span class="p">();</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="ensureinitialized"><code>EnsureInitialized()</code><a class="headerlink" href="#ensureinitialized" title="Permanent link">&para;</a></h3>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">EnsureInitialized</span><span class="p">();</span>
+</span></code></pre></div>
+<p>Creates the underlying clipboard listener, subscribes it to OS clipboard
+events, and hooks <code>ClipboardManager.Instance.OnClipboardSet</code> so that
+<code>SetClipboard(...)</code> calls from your UI reach the OS.</p>
+<p>Call this <strong>once</strong> during app startup, typically after
+<a href="../theme-helper/#ensureinitialized"><code>ThemeHelper.EnsureInitialized()</code></a>:</p>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">ThemeHelper</span><span class="p">.</span><span class="n">EnsureInitialized</span><span class="p">();</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">ClipboardHelper</span><span class="p">.</span><span class="n">EnsureInitialized</span><span class="p">();</span>
+</span></code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Call once</p>
+<p><code>EnsureInitialized</code> subscribes to <code>ClipboardManager.OnClipboardSet</code> and
+to the clipboard monitor every time it's called. Calling it twice will
+double-fire events and duplicate clipboard writes. Guard with your own
+static flag if you need to re-enter safely:</p>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">_clipboardInit</span><span class="p">;</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">_clipboardInit</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">ClipboardHelper</span><span class="p">.</span><span class="n">EnsureInitialized</span><span class="p">();</span><span class="w"> </span><span class="n">_clipboardInit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span></code></pre></div>
+</div>
+<h3 id="what-it-does">What it does<a class="headerlink" href="#what-it-does" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Inbound</strong> - when the OS clipboard changes:</li>
+<li>Text → sets <code>ClipboardManager.Instance.ClipboardContentsText</code></li>
+<li>Bitmap → converts to <code>SKImage</code> and sets <code>ClipboardManager.Instance.ClipboardContentsImage</code></li>
+<li><strong>Outbound</strong> - when <code>ClipboardManager.OnClipboardSet</code> fires:</li>
+<li>Calls <code>ClipboardService.SetText(text)</code> to write to the OS clipboard</li>
+</ul>
+<h3 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h3>
+<p><code>ClipboardHelper</code> uses two NuGet packages internally:</p>
+<ul>
+<li><strong><code>ClipboardMonitor</code></strong> - cross-platform OS clipboard-change listener</li>
+<li><strong><code>TextCopy</code></strong> - writes text to the OS clipboard</li>
+</ul>
+<p>Both are pulled in by <code>HandyUI.SilkNet</code> - no extra setup required.</p>
+<div class="admonition info">
+<p class="admonition-title">Windows bitmap path</p>
+<p>On Windows 6.1+ (Win7+), bitmaps from the clipboard go through a
+<code>Bitmap</code> → <code>SKImage</code> conversion via <code>LockBits</code>/<code>Bgra8888</code>. On other
+platforms, the image is read from <code>IClipboardImage.Data</code> directly.</p>
+</div>
 <h2 id="win32helper"><code>Win32Helper</code><a class="headerlink" href="#win32helper" title="Permanent link">&para;</a></h2>
 <p><code>HandyUI.SilkNet.Helper.Win32Helper</code></p>
 <p>Low-level Win32 access. Every method is a <strong>no-op</strong> when the handle is
@@ -2979,50 +3161,50 @@ Win32 struct needed for direct <code>user32</code> interaction.</p>
 </tbody>
 </table>
 <h3 id="drag-hit-test">Drag / hit test<a class="headerlink" href="#drag-hit-test" title="Permanent link">&para;</a></h3>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">StartWindowDrag</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hWnd</span><span class="p">);</span><span class="w">   </span><span class="c1">// HTCAPTION drag</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">StartWindowDrag</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hWnd</span><span class="p">);</span><span class="w">   </span><span class="c1">// HTCAPTION drag</span>
 </span></code></pre></div>
 <p>Exports hit-test codes: <code>HTCLIENT</code>, <code>HTLEFT</code>, <code>HTRIGHT</code>, <code>HTTOP</code>,
 <code>HTBOTTOM</code>, <code>HTTOPLEFT</code>, <code>HTTOPRIGHT</code>, <code>HTBOTTOMLEFT</code>, <code>HTBOTTOMRIGHT</code>,
 <code>HTCAPTION</code>.</p>
 <h3 id="dpi">DPI<a class="headerlink" href="#dpi" title="Permanent link">&para;</a></h3>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="nf">GetDC</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hWnd</span><span class="p">);</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w">  </span><span class="nf">ReleaseDC</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hWnd</span><span class="p">,</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="n">hDC</span><span class="p">);</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w">  </span><span class="nf">GetDeviceCaps</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hdc</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">);</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="nf">GetDC</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hWnd</span><span class="p">);</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w">  </span><span class="nf">ReleaseDC</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hWnd</span><span class="p">,</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="n">hDC</span><span class="p">);</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w">  </span><span class="nf">GetDeviceCaps</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hdc</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">);</span>
 </span></code></pre></div>
 <p>With <code>LOGPIXELSX = 88</code>, <code>HORZSIZE = 4</code>, <code>VERTSIZE = 6</code>, and
 <code>USER_DEFAULT_SCREEN_DPI = 96f</code>.</p>
 <h3 id="tray-menu-icons">Tray / menu / icons<a class="headerlink" href="#tray-menu-icons" title="Permanent link">&para;</a></h3>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Shell_NotifyIcon</span><span class="p">(</span><span class="kt">uint</span><span class="w"> </span><span class="n">dwMessage</span><span class="p">,</span><span class="w"> </span><span class="k">ref</span><span class="w"> </span><span class="n">NOTIFYICONDATA</span><span class="w"> </span><span class="n">lpData</span><span class="p">);</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="nf">CreatePopupMenu</span><span class="p">();</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">AppendMenu</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hMenu</span><span class="p">,</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="n">uFlags</span><span class="p">,</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="n">uIDNewItem</span><span class="p">,</span><span class="w"> </span><span class="kt">string?</span><span class="w"> </span><span class="n">lpNewItem</span><span class="p">);</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">DestroyMenu</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hMenu</span><span class="p">);</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="nf">TrackPopupMenu</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hMenu</span><span class="p">,</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="n">uFlags</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nReserved</span><span class="p">,</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="n">hWnd</span><span class="p">,</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="n">prcRect</span><span class="p">);</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">SetMenuDefaultItem</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hMenu</span><span class="p">,</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="n">uItem</span><span class="p">,</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="n">fByPos</span><span class="p">);</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">SetForegroundWindow</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hWnd</span><span class="p">);</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">GetCursorPos</span><span class="p">(</span><span class="k">out</span><span class="w"> </span><span class="n">POINT</span><span class="w"> </span><span class="n">lpPoint</span><span class="p">);</span>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">ScreenToClient</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hWnd</span><span class="p">,</span><span class="w"> </span><span class="k">ref</span><span class="w"> </span><span class="n">POINT</span><span class="w"> </span><span class="n">lpPoint</span><span class="p">);</span>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="nf">CreateHIconFromSKImage</span><span class="p">(</span><span class="n">SKImage</span><span class="w"> </span><span class="n">image</span><span class="p">);</span>
-</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">DestroyIcon</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hIcon</span><span class="p">);</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Shell_NotifyIcon</span><span class="p">(</span><span class="kt">uint</span><span class="w"> </span><span class="n">dwMessage</span><span class="p">,</span><span class="w"> </span><span class="k">ref</span><span class="w"> </span><span class="n">NOTIFYICONDATA</span><span class="w"> </span><span class="n">lpData</span><span class="p">);</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="nf">CreatePopupMenu</span><span class="p">();</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">AppendMenu</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hMenu</span><span class="p">,</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="n">uFlags</span><span class="p">,</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="n">uIDNewItem</span><span class="p">,</span><span class="w"> </span><span class="kt">string?</span><span class="w"> </span><span class="n">lpNewItem</span><span class="p">);</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">DestroyMenu</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hMenu</span><span class="p">);</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="nf">TrackPopupMenu</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hMenu</span><span class="p">,</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="n">uFlags</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nReserved</span><span class="p">,</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="n">hWnd</span><span class="p">,</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="n">prcRect</span><span class="p">);</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">SetMenuDefaultItem</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hMenu</span><span class="p">,</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="n">uItem</span><span class="p">,</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="n">fByPos</span><span class="p">);</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">SetForegroundWindow</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hWnd</span><span class="p">);</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">GetCursorPos</span><span class="p">(</span><span class="k">out</span><span class="w"> </span><span class="n">POINT</span><span class="w"> </span><span class="n">lpPoint</span><span class="p">);</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">ScreenToClient</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hWnd</span><span class="p">,</span><span class="w"> </span><span class="k">ref</span><span class="w"> </span><span class="n">POINT</span><span class="w"> </span><span class="n">lpPoint</span><span class="p">);</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="nf">CreateHIconFromSKImage</span><span class="p">(</span><span class="n">SKImage</span><span class="w"> </span><span class="n">image</span><span class="p">);</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">DestroyIcon</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hIcon</span><span class="p">);</span>
 </span></code></pre></div>
 <p>The tray icon implementation in <code>TrayIcon</code> builds entirely on these.</p>
 <h3 id="timing">Timing<a class="headerlink" href="#timing" title="Permanent link">&para;</a></h3>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="nf">TimeBeginPeriod</span><span class="p">(</span><span class="kt">uint</span><span class="w"> </span><span class="n">uPeriod</span><span class="p">);</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="nf">TimeEndPeriod</span><span class="p">(</span><span class="kt">uint</span><span class="w"> </span><span class="n">uPeriod</span><span class="p">);</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="nf">TimeBeginPeriod</span><span class="p">(</span><span class="kt">uint</span><span class="w"> </span><span class="n">uPeriod</span><span class="p">);</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="nf">TimeEndPeriod</span><span class="p">(</span><span class="kt">uint</span><span class="w"> </span><span class="n">uPeriod</span><span class="p">);</span>
 </span></code></pre></div>
 <p><code>HandyWindow</code> uses <code>TimeBeginPeriod(1)</code> for its pump loop to keep frame
 timing accurate.</p>
 <h3 id="structs-and-delegate">Structs and delegate<a class="headerlink" href="#structs-and-delegate" title="Permanent link">&para;</a></h3>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="na">[UnmanagedFunctionPointer(CallingConvention.Winapi)]</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">public</span><span class="w"> </span><span class="k">delegate</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="nf">WndProc</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hWnd</span><span class="p">,</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="n">wParam</span><span class="p">,</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="n">lParam</span><span class="p">);</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="k">public</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">NOTIFYICONDATA</span><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="err">…</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="k">public</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ICONINFO</span><span class="w">          </span><span class="p">{</span><span class="w"> </span><span class="err">…</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="k">public</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">POINT</span><span class="w">             </span><span class="p">{</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">Y</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="k">public</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">RECT</span><span class="w">              </span><span class="p">{</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Left</span><span class="p">,</span><span class="w"> </span><span class="n">Top</span><span class="p">,</span><span class="w"> </span><span class="n">Right</span><span class="p">,</span><span class="w"> </span><span class="n">Bottom</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="k">public</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">MONITORINFO</span><span class="w">       </span><span class="p">{</span><span class="w"> </span><span class="err">…</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="k">public</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">MINMAXINFO</span><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="err">…</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="k">public</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">NCCALCSIZE_PARAMS</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">…</span><span class="w"> </span><span class="p">}</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="na">[UnmanagedFunctionPointer(CallingConvention.Winapi)]</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">public</span><span class="w"> </span><span class="k">delegate</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="nf">WndProc</span><span class="p">(</span><span class="k">nint</span><span class="w"> </span><span class="n">hWnd</span><span class="p">,</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="n">wParam</span><span class="p">,</span><span class="w"> </span><span class="k">nint</span><span class="w"> </span><span class="n">lParam</span><span class="p">);</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="k">public</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">NOTIFYICONDATA</span><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="err">…</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="k">public</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ICONINFO</span><span class="w">          </span><span class="p">{</span><span class="w"> </span><span class="err">…</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="k">public</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">POINT</span><span class="w">             </span><span class="p">{</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">Y</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="k">public</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">RECT</span><span class="w">              </span><span class="p">{</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Left</span><span class="p">,</span><span class="w"> </span><span class="n">Top</span><span class="p">,</span><span class="w"> </span><span class="n">Right</span><span class="p">,</span><span class="w"> </span><span class="n">Bottom</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="k">public</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">MONITORINFO</span><span class="w">       </span><span class="p">{</span><span class="w"> </span><span class="err">…</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="k">public</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">MINMAXINFO</span><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="err">…</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="k">public</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">NCCALCSIZE_PARAMS</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">…</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
 <h2 id="internal-helpers">Internal helpers<a class="headerlink" href="#internal-helpers" title="Permanent link">&para;</a></h2>
 <ul>

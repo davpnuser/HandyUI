@@ -1366,6 +1366,8 @@
       
         
       
+        
+      
     
     
     
@@ -1451,6 +1453,34 @@
     
   
     ThemeManager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clipboard-manager/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ClipboardManager
   
 
     
@@ -2152,6 +2182,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#clipboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Clipboard
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Clipboard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#copy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Copy()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cut" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cut()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#paste" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Paste()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keyboard-shortcuts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keyboard shortcuts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#fluent-api" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2645,6 +2736,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#clipboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Clipboard
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Clipboard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#copy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Copy()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cut" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cut()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#paste" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Paste()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keyboard-shortcuts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keyboard shortcuts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#fluent-api" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2777,18 +2929,73 @@ assignment.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="clipboard">Clipboard<a class="headerlink" href="#clipboard" title="Permanent link">&para;</a></h2>
+<p><code>TextInput</code> supports cut / copy / paste through the host clipboard via
+<a href="../../clipboard-manager/"><code>ClipboardManager</code></a>.</p>
+<h3 id="copy"><code>Copy()</code><a class="headerlink" href="#copy" title="Permanent link">&para;</a></h3>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Copy</span><span class="p">();</span>
+</span></code></pre></div>
+<p>Copies the current selection to <code>ClipboardManager.Instance.SetClipboard(...)</code>.
+No-op when there's no selection.</p>
+<h3 id="cut"><code>Cut()</code><a class="headerlink" href="#cut" title="Permanent link">&para;</a></h3>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Cut</span><span class="p">();</span>
+</span></code></pre></div>
+<p>Copies the selection, then deletes it. Raises <code>WhenTextChanged</code>.</p>
+<h3 id="paste"><code>Paste()</code><a class="headerlink" href="#paste" title="Permanent link">&para;</a></h3>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Paste</span><span class="p">();</span>
+</span></code></pre></div>
+<p>Reads <code>ClipboardManager.Instance.ClipboardContentsText</code>, <strong>sanitizes it to a
+single line</strong> (line breaks → spaces, tabs → four spaces), and inserts it at
+the cursor. If there's a selection, it's replaced. No-op when the clipboard
+is empty or contains only whitespace after sanitization.</p>
+<div class="admonition info">
+<p class="admonition-title">Single-line enforcement</p>
+<p>Unlike <a href="../multiline-text-input/"><code>MultilineTextInput</code></a>, <code>TextInput</code>
+sanitizes multi-line clipboard text on paste. A <code>"foo\nbar"</code> clipboard
+paste becomes <code>"foo bar"</code>.</p>
+</div>
+<h3 id="keyboard-shortcuts">Keyboard shortcuts<a class="headerlink" href="#keyboard-shortcuts" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Shortcut</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ctrl+C</strong> / <strong>Ctrl+Insert</strong></td>
+<td><code>Copy()</code></td>
+</tr>
+<tr>
+<td><strong>Ctrl+X</strong> / <strong>Shift+Delete</strong></td>
+<td><code>Cut()</code></td>
+</tr>
+<tr>
+<td><strong>Ctrl+V</strong> / <strong>Shift+Insert</strong></td>
+<td><code>Paste()</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition info">
+<p class="admonition-title">Requires <code>ClipboardHelper</code></p>
+<p>Clipboard methods only work when the host has initialized the OS
+bridge - see
+<a href="../../silknet-helpers/#clipboardhelper"><code>ClipboardHelper.EnsureInitialized()</code></a>
+(Silk.NET) or your own host equivalent.</p>
+</div>
 <h2 id="fluent-api">Fluent API<a class="headerlink" href="#fluent-api" title="Permanent link">&para;</a></h2>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">WithWidth</span><span class="p">,</span><span class="w"> </span><span class="n">WithHeight</span><span class="p">,</span><span class="w"> </span><span class="n">WithText</span><span class="p">,</span><span class="w"> </span><span class="n">WithPlaceholder</span><span class="p">,</span><span class="w"> </span><span class="n">WithFontSize</span><span class="p">,</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">WithTypeface</span><span class="p">,</span><span class="w"> </span><span class="n">WithCornerRadius</span><span class="p">,</span><span class="w"> </span><span class="n">WithPadding</span><span class="p">,</span><span class="w"> </span><span class="n">WithWhenTextChanged</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">WithWidth</span><span class="p">,</span><span class="w"> </span><span class="n">WithHeight</span><span class="p">,</span><span class="w"> </span><span class="n">WithText</span><span class="p">,</span><span class="w"> </span><span class="n">WithPlaceholder</span><span class="p">,</span><span class="w"> </span><span class="n">WithFontSize</span><span class="p">,</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">WithTypeface</span><span class="p">,</span><span class="w"> </span><span class="n">WithCornerRadius</span><span class="p">,</span><span class="w"> </span><span class="n">WithPadding</span><span class="p">,</span><span class="w"> </span><span class="n">WithWhenTextChanged</span>
 </span></code></pre></div>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">new</span><span class="w"> </span><span class="nf">TextInput</span><span class="p">()</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="p">.</span><span class="n">WithWidth</span><span class="p">(</span><span class="mi">260</span><span class="p">)</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="p">.</span><span class="n">WithPlaceholder</span><span class="p">(</span><span class="s">"Search…"</span><span class="p">)</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="p">.</span><span class="n">WithCornerRadius</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="p">.</span><span class="n">WithWhenTextChanged</span><span class="p">(</span><span class="n">q</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Results</span><span class="p">.</span><span class="n">Filter</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="p">.</span><span class="n">WithLocation</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span><span class="w"> </span><span class="mi">24</span><span class="p">)</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="p">.</span><span class="n">WithAddToRenderer</span><span class="p">(</span><span class="n">renderer</span><span class="p">);</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">new</span><span class="w"> </span><span class="nf">TextInput</span><span class="p">()</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="p">.</span><span class="n">WithWidth</span><span class="p">(</span><span class="mi">260</span><span class="p">)</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="p">.</span><span class="n">WithPlaceholder</span><span class="p">(</span><span class="s">"Search…"</span><span class="p">)</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="p">.</span><span class="n">WithCornerRadius</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="p">.</span><span class="n">WithWhenTextChanged</span><span class="p">(</span><span class="n">q</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Results</span><span class="p">.</span><span class="n">Filter</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="p">.</span><span class="n">WithLocation</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span><span class="w"> </span><span class="mi">24</span><span class="p">)</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="p">.</span><span class="n">WithAddToRenderer</span><span class="p">(</span><span class="n">renderer</span><span class="p">);</span>
 </span></code></pre></div>
 
 
