@@ -41,6 +41,72 @@ public static float? TryGetOpacity(IWindow window);
 
 Defensive wrappers that swallow exceptions.
 
+## `ClipboardHelper`
+
+`HandyUI.SilkNet.Helper.ClipboardHelper`
+
+Bridges the OS clipboard to [`ClipboardManager`](clipboard-manager.md). It
+listens for OS clipboard changes, writes them into the shared manager, and
+pushes `SetClipboard` requests back out to the OS.
+
+```csharp
+public static class ClipboardHelper
+{
+    public static void EnsureInitialized();
+}
+```
+
+### `EnsureInitialized()`
+
+```csharp
+public static void EnsureInitialized();
+```
+
+Creates the underlying clipboard listener, subscribes it to OS clipboard
+events, and hooks `ClipboardManager.Instance.OnClipboardSet` so that
+`SetClipboard(...)` calls from your UI reach the OS.
+
+Call this **once** during app startup, typically after
+[`ThemeHelper.EnsureInitialized()`](theme-helper.md#ensureinitialized):
+
+```csharp
+ThemeHelper.EnsureInitialized();
+ClipboardHelper.EnsureInitialized();
+```
+
+!!! warning "Call once"
+    `EnsureInitialized` subscribes to `ClipboardManager.OnClipboardSet` and
+    to the clipboard monitor every time it's called. Calling it twice will
+    double-fire events and duplicate clipboard writes. Guard with your own
+    static flag if you need to re-enter safely:
+
+    ```csharp
+    private static bool _clipboardInit;
+    if (!_clipboardInit) { ClipboardHelper.EnsureInitialized(); _clipboardInit = true; }
+    ```
+
+### What it does
+
+- **Inbound** - when the OS clipboard changes:
+  - Text → sets `ClipboardManager.Instance.ClipboardContentsText`
+  - Bitmap → converts to `SKImage` and sets `ClipboardManager.Instance.ClipboardContentsImage`
+- **Outbound** - when `ClipboardManager.OnClipboardSet` fires:
+  - Calls `ClipboardService.SetText(text)` to write to the OS clipboard
+
+### Dependencies
+
+`ClipboardHelper` uses two NuGet packages internally:
+
+- **`ClipboardMonitor`** - cross-platform OS clipboard-change listener
+- **`TextCopy`** - writes text to the OS clipboard
+
+Both are pulled in by `HandyUI.SilkNet` - no extra setup required.
+
+!!! info "Windows bitmap path"
+    On Windows 6.1+ (Win7+), bitmaps from the clipboard go through a
+    `Bitmap` → `SKImage` conversion via `LockBits`/`Bgra8888`. On other
+    platforms, the image is read from `IClipboardImage.Data` directly.
+
 ## `Win32Helper`
 
 `HandyUI.SilkNet.Helper.Win32Helper`

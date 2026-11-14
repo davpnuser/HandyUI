@@ -41,11 +41,7 @@ public class TextInput : BaseControl<TextInput>
         get;
         set
         {
-            var sanitized = (value ?? string.Empty)
-                .Replace("\r\n", " ")
-                .Replace('\r', ' ')
-                .Replace('\n', ' ')
-                .Replace("\t", "    ");
+            var sanitized = SanitizeSingleLine(value);
             if (field == sanitized) return;
             field = sanitized;
             if (_cursorIndex > field.Length) _cursorIndex = field.Length;
@@ -307,7 +303,10 @@ public class TextInput : BaseControl<TextInput>
         switch (eventContext.KeyCode)
         {
             case 8: HandleBackspace(eventContext); return true;
-            case 46: HandleDelete(eventContext); return true;
+            case 46:
+                if (eventContext.IsShiftPressed && !eventContext.IsControlPressed) { Cut(); return true; }
+                HandleDelete(eventContext);
+                return true;
             case 37: HandleLeft(eventContext); return true;
             case 39: HandleRight(eventContext); return true;
             case 36: HandleHome(eventContext); return true;
@@ -319,6 +318,19 @@ public class TextInput : BaseControl<TextInput>
                     _cursorIndex = Text.Length;
                     return true;
                 }
+                break;
+            case 67:
+                if (eventContext.IsControlPressed) { Copy(); return true; }
+                break;
+            case 88:
+                if (eventContext.IsControlPressed) { Cut(); return true; }
+                break;
+            case 86:
+                if (eventContext.IsControlPressed) { Paste(); return true; }
+                break;
+            case 45:
+                if (eventContext.IsShiftPressed) { Paste(); return true; }
+                if (eventContext.IsControlPressed) { Copy(); return true; }
                 break;
         }
 
@@ -332,6 +344,15 @@ public class TextInput : BaseControl<TextInput>
     private bool HasSelection => _selectionAnchor != _cursorIndex;
     private int SelectionStart => Math.Min(_selectionAnchor, _cursorIndex);
     private int SelectionEnd => Math.Max(_selectionAnchor, _cursorIndex);
+
+    private static string SanitizeSingleLine(string? text)
+    {
+        return (text ?? string.Empty)
+            .Replace("\r\n", " ")
+            .Replace('\r', ' ')
+            .Replace('\n', ' ')
+            .Replace("\t", "    ");
+    }
 
     private void DeleteSelection()
     {
@@ -517,6 +538,40 @@ public class TextInput : BaseControl<TextInput>
         if (_cursorTween is { IsValid: true }) _cursorTween.Cancel();
         _cursorBlink = 0f;
         Invalidate();
+    }
+
+    #endregion
+
+    #region Clipboard
+
+    public void Copy()
+    {
+        if (!HasSelection) return;
+        var selected = Text[SelectionStart..SelectionEnd];
+        ClipboardManager.Instance.SetClipboard(selected);
+    }
+
+    public void Cut()
+    {
+        if (!HasSelection) return;
+        Copy();
+        DeleteSelection();
+        WhenTextChanged?.Invoke(Text);
+    }
+
+    public void Paste()
+    {
+        var pasted = ClipboardManager.Instance.ClipboardContentsText;
+        if (string.IsNullOrEmpty(pasted)) return;
+
+        pasted = SanitizeSingleLine(pasted);
+        if (pasted.Length == 0) return;
+
+        if (HasSelection) DeleteSelection();
+        Text = Text.Insert(_cursorIndex, pasted);
+        _cursorIndex += pasted.Length;
+        _selectionAnchor = _cursorIndex;
+        WhenTextChanged?.Invoke(Text);
     }
 
     #endregion

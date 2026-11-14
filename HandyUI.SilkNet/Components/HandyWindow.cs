@@ -450,6 +450,7 @@ public class HandyWindow : IDisposable, IHostWindow
     {
         PlatformTool.EnsureSupportedPlatform();
         ThemeHelper.EnsureInitialized();
+        ClipboardHelper.EnsureInitialized();
 
         IsMovable = true;
         IsResizable = true;

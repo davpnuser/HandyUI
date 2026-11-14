@@ -111,6 +111,7 @@ nav:
       - Helpers:
         - TweenManager: api/tween-manager.md
         - ThemeManager: api/theme-manager.md
+        - ClipboardManager: api/clipboard-manager.md
         - FontManager: api/font-manager.md
         - ResourceManager: api/resource-manager.md
         - SkiaSharp Extensions: api/sk-extensions.md

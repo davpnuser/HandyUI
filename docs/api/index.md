@@ -29,6 +29,7 @@ reference implementation; any host that implements `IHostWindow` can drive a
 | [`Tween`](tween.md) | Handle for pausing / reversing / cancelling an animation. |
 | [`TweenManager`](tween-manager.md) | Host for `Tween` jobs and `Easing` helpers. |
 | [`ThemeManager`](theme-manager.md) | OKLCH palette generator for every built-in control. |
+| [`ClipboardManager`](clipboard-manager.md) | Shared clipboard state (text + image) with change notifications. |
 | [`FontManager`](font-manager.md) | Font loading + caching + default font. |
 | [`ResourceManager`](resource-manager.md) | Disk / embedded resource loader. |
 | [`SkiaSharp Extensions`](sk-extensions.md) | `SKColor`, `SKPoint`, `SKRect`, `SKSize` helpers. |
@@ -68,5 +69,6 @@ All live in `HandyUI.Controls.Controls` and derive from
 | [`ThemeHelper`](theme-helper.md) | OS accent + dark/light detection. |
 | [`RendererHelper`](silknet-helpers.md#rendererhelper) | Attaches a `UIRenderer` to a `HandyWindow`. |
 | [`WindowHelper`](silknet-helpers.md#windowhelper) | Window/renderer factories. |
+| [`ClipboardHelper`](silknet-helpers.md#clipboardhelper) | OS clipboard bridge for `ClipboardManager`. |
 | [`Win32Helper`](silknet-helpers.md#win32helper) | Native Win32 access (styles, tray, DPI, drag, icons). |
 | [`VectorExtensions`](vector-extensions.md) | Conversions between SkiaSharp and Silk.NET types. |

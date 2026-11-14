@@ -103,3 +103,17 @@ See [`TweenManager → EaseType`](tween-manager.md#easetype).
 ## `TweenStatus`
 
 See [`Tween`](tween.md#tweenstatus).
+
+## `ClipboardItemType`
+
+```csharp
+public enum ClipboardItemType
+{
+    None = 0,
+    Text = 1,
+    Image = 2
+}
+```
+
+Identifies which clipboard payload changed, used by
+[`ClipboardManager.ClipboardUpdated`](clipboard-manager.md#clipboardupdated).
