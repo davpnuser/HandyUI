@@ -12,7 +12,7 @@
         <meta name="author" content="davpnuser">
       
       
-        <link rel="canonical" href="https://davpnuser.github.io/HandyUI/dev/guides/control-guide-and-example/">
+        <link rel="canonical" href="https://davpnuser.github.io/HandyUI/dev/guides/control-guide-and-examples/">
       
       
         <link rel="prev" href="../debugging/">
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#control-guide-example" class="md-skip">
+        <a href="#control-guide-examples" class="md-skip">
           Skip to content
         </a>
       
@@ -719,6 +719,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#even-more-control-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Even more control examples
+      
+    </span>
+  </a>
   
 </li>
       
@@ -2752,6 +2763,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#even-more-control-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Even more control examples
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2772,7 +2794,7 @@
   
 
 
-<h1 id="control-guide-example">Control Guide &amp; Example<a class="headerlink" href="#control-guide-example" title="Permanent link">&para;</a></h1>
+<h1 id="control-guide-examples">Control Guide &amp; Examples<a class="headerlink" href="#control-guide-examples" title="Permanent link">&para;</a></h1>
 <p>In this guide, i will be <strong>teaching</strong> how to make a <strong>custom HandyUI control</strong> and will be giving an custom control <strong>example</strong>. </p>
 <div class="admonition warning">
 <p class="admonition-title">Prerequisites</p>
@@ -3141,6 +3163,48 @@ Yeah. I don't really think there's anything to explain here.</p>
 </span><span id="__span-8-51"><a id="__codelineno-8-51" name="__codelineno-8-51"></a><span class="w">        </span><span class="n">_untoggledPaint</span><span class="p">.</span><span class="n">Dispose</span><span class="p">();</span>
 </span><span id="__span-8-52"><a id="__codelineno-8-52" name="__codelineno-8-52"></a><span class="w">    </span><span class="p">}</span>
 </span><span id="__span-8-53"><a id="__codelineno-8-53" name="__codelineno-8-53"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+</details>
+<h2 id="even-more-control-examples">Even more control examples<a class="headerlink" href="#even-more-control-examples" title="Permanent link">&para;</a></h2>
+<details class="info">
+<summary>Bare minimum control for drawing</summary>
+<div class="language-csharp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-9-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-9-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-9-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-9-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-9-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-9-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-9-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-9-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-9-10">10</a></span>
+<span class="normal"><a href="#__codelineno-9-11">11</a></span>
+<span class="normal"><a href="#__codelineno-9-12">12</a></span>
+<span class="normal"><a href="#__codelineno-9-13">13</a></span>
+<span class="normal"><a href="#__codelineno-9-14">14</a></span>
+<span class="normal"><a href="#__codelineno-9-15">15</a></span>
+<span class="normal"><a href="#__codelineno-9-16">16</a></span>
+<span class="normal"><a href="#__codelineno-9-17">17</a></span>
+<span class="normal"><a href="#__codelineno-9-18">18</a></span>
+<span class="normal"><a href="#__codelineno-9-19">19</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">BareMinimumControl</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BaseControl</span><span class="o">&lt;</span><span class="n">BareMinimumControl</span><span class="o">&gt;</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="p">{</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">SKPaint</span><span class="w"> </span><span class="n">_paint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SKColors</span><span class="p">.</span><span class="n">White</span><span class="w"> </span><span class="p">};</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4"></a>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">DoesIntersect</span><span class="p">(</span><span class="n">SKPoint</span><span class="w"> </span><span class="n">point</span><span class="p">)</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Bounds</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">point</span><span class="p">);</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9"></a>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnDraw</span><span class="p">(</span><span class="n">SKCanvas</span><span class="w"> </span><span class="n">canvas</span><span class="p">)</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12"></a><span class="w">        </span><span class="n">canvas</span><span class="p">.</span><span class="n">DrawRect</span><span class="p">(</span><span class="n">Bounds</span><span class="p">,</span><span class="w"> </span><span class="n">_paint</span><span class="p">);</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14"></a>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15"></a><span class="w">    </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnDispose</span><span class="p">()</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17"></a><span class="w">        </span><span class="n">_paint</span><span class="p">.</span><span class="n">Dispose</span><span class="p">();</span>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
 </details>
 
