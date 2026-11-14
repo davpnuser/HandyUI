@@ -12,7 +12,7 @@
         <meta name="author" content="davpnuser">
       
       
-        <link rel="canonical" href="https://davpnuser.github.io/HandyUI/dev/guides/control-guide-and-examples/">
+        <link rel="canonical" href="https://davpnuser.github.io/HandyUI/dev/guides/control-guide-and-example/">
       
       
         <link rel="prev" href="../debugging/">
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#control-guide-examples" class="md-skip">
+        <a href="#control-guide-example" class="md-skip">
           Skip to content
         </a>
       
@@ -663,10 +663,54 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#step-1-define-the-control-and-its-properties" class="md-nav__link">
+  <a href="#create-the-control" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 1: Define the control and it's properties.
+        Create the control.
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-the-controls-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Define the control's properties.
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inherit-from-basecontrol-and-create-the-overrides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inherit from BaseControl and create the overrides.
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#making-the-control-draw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Making the control draw
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disposing-the-skpaints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disposing the SKPaints.
       
     </span>
   </a>
@@ -2619,10 +2663,54 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#step-1-define-the-control-and-its-properties" class="md-nav__link">
+  <a href="#create-the-control" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 1: Define the control and it's properties.
+        Create the control.
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-the-controls-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Define the control's properties.
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inherit-from-basecontrol-and-create-the-overrides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inherit from BaseControl and create the overrides.
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#making-the-control-draw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Making the control draw
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disposing-the-skpaints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disposing the SKPaints.
       
     </span>
   </a>
@@ -2654,15 +2742,15 @@
   
 
 
-<h1 id="control-guide-examples">Control Guide &amp; Examples<a class="headerlink" href="#control-guide-examples" title="Permanent link">&para;</a></h1>
-<p>In this guide, i will be <strong>teaching</strong> how to make a <strong>custom HandyUI control</strong> and will be giving some custom control <strong>examples</strong>. </p>
+<h1 id="control-guide-example">Control Guide &amp; Example<a class="headerlink" href="#control-guide-example" title="Permanent link">&para;</a></h1>
+<p>In this guide, i will be <strong>teaching</strong> how to make a <strong>custom HandyUI control</strong> and will be giving an custom control <strong>example</strong>. </p>
 <div class="admonition warning">
 <p class="admonition-title">Prerequisites</p>
 <p>First of all, <strong>you will need</strong> a .NET 10 project preferably using C#.<br>
 Second of all, <strong>you will need</strong> to have HandyUI installed on your .NET project. <em><a href="../../getting-started/installation">(How you can do that)</a></em></p>
 </div>
 <h2 id="anatomy-of-a-handyui-control">Anatomy of a HandyUI Control<a class="headerlink" href="#anatomy-of-a-handyui-control" title="Permanent link">&para;</a></h2>
-<p>Since HandyUI operates as a retained UI Framework without an layout engine, every custom control you build is responsible for three things:</p>
+<p>Since HandyUI operates as a retained UI Framework, every custom control you build is responsible for three things:</p>
 <ul>
 <li>
 <p><strong>1:</strong> <strong>State:</strong> Holding its own properties and turning unnecessary public properties into fields.</p>
@@ -2676,7 +2764,8 @@ Second of all, <strong>you will need</strong> to have HandyUI installed on your 
 </ul>
 <h2 id="step-by-step-building-a-custom-toggle-switch">Step-by-Step: Building a custom Toggle Switch<a class="headerlink" href="#step-by-step-building-a-custom-toggle-switch" title="Permanent link">&para;</a></h2>
 <p>Let's build a simple and interactive ToggleSwitch control from scratch.</p>
-<h3 id="step-1-define-the-control-and-its-properties"><strong>Step 1:</strong> Define the control and it's properties.<a class="headerlink" href="#step-1-define-the-control-and-its-properties" title="Permanent link">&para;</a></h3>
+<hr />
+<h3 id="create-the-control">Create the control.<a class="headerlink" href="#create-the-control" title="Permanent link">&para;</a></h3>
 <p>We will start by <strong>creating a new C# file</strong> called <code>ToggleSwitch.cs</code>. You do not particularly need to name it <code>ToggleSwitch.cs</code> but we will use this as a placeholder for this guide.</p>
 <p>Then, you will <strong>define a class</strong> inside the new <code>ToggleSwitch.cs</code> file we just created.</p>
 <p>Here's what i have created for this guide:</p>
@@ -2688,22 +2777,25 @@ Second of all, <strong>you will need</strong> to have HandyUI installed on your 
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">    </span><span class="c1">// Empty.</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
+<hr />
+<h3 id="define-the-controls-properties">Define the control's properties.<a class="headerlink" href="#define-the-controls-properties" title="Permanent link">&para;</a></h3>
 <p>After that, you can define the control class's properties.</p>
 <p>Here's what we will add:</p>
-<p><div class="language-csharp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
+<div class="language-csharp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
 <span class="normal"><a href="#__codelineno-1-2">2</a></span>
 <span class="normal"><a href="#__codelineno-1-3">3</a></span>
 <span class="normal"><a href="#__codelineno-1-4">4</a></span>
 <span class="normal"><a href="#__codelineno-1-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ToggleSwitch</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="p">{</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">Checked</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">IsToggled</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">event</span><span class="w"> </span><span class="n">Action</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;?</span><span class="w"> </span><span class="n">WhenToggled</span><span class="p">;</span>
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-Now, here comes an <strong>important part</strong>.</p>
+<h3 id="inherit-from-basecontrol-and-create-the-overrides">Inherit from <code>BaseControl</code> and create the overrides.<a class="headerlink" href="#inherit-from-basecontrol-and-create-the-overrides" title="Permanent link">&para;</a></h3>
+<p>Now, here comes an <strong>important part</strong>.</p>
 <p>We will make our newly created class <strong>inherit from</strong> <code>BaseControl</code>.</p>
 <p>Here's how you can do that:</p>
-<p><div class="language-csharp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1"> 1</a></span>
+<div class="language-csharp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-2-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-2-3"> 3</a></span>
 <span class="normal"><a href="#__codelineno-2-4"> 4</a></span>
@@ -2719,26 +2811,308 @@ Now, here comes an <strong>important part</strong>.</p>
 <span class="normal"><a href="#__codelineno-2-14">14</a></span>
 <span class="normal"><a href="#__codelineno-2-15">15</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ToggleSwitch</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BaseControl</span><span class="o">&lt;</span><span class="n">ToggleSwitch</span><span class="o">&gt;</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="p">{</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">Checked</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">IsToggled</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">event</span><span class="w"> </span><span class="n">Action</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;?</span><span class="w"> </span><span class="n">WhenToggled</span><span class="p">;</span>
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5"></a>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnDraw</span><span class="p">(</span><span class="n">SKCanvas</span><span class="w"> </span><span class="n">canvas</span><span class="p">)</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">DoesIntersect</span><span class="p">(</span><span class="n">SKPoint</span><span class="w"> </span><span class="n">point</span><span class="p">)</span>
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="w">    </span><span class="p">{</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="w">        </span><span class="c1">// No drawing code yet.</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">NotImplementedException</span><span class="p">();</span>
 </span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="w">    </span><span class="p">}</span>
 </span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10"></a>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">DoesIntersect</span><span class="p">(</span><span class="n">SKPoint</span><span class="w"> </span><span class="n">point</span><span class="p">)</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnDraw</span><span class="p">(</span><span class="n">SKCanvas</span><span class="w"> </span><span class="n">canvas</span><span class="p">)</span>
 </span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12"></a><span class="w">    </span><span class="p">{</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Bounds</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">point</span><span class="p">);</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13"></a><span class="w">        </span><span class="c1">// No drawing code yet.</span>
 </span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14"></a><span class="w">    </span><span class="p">}</span>
 </span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
-Well, you might now be asking <em>"What does <code>DoesIntersect</code> do and why did you inherit from <code>BaseControl&lt;ToggleSwitch&gt;</code> and not just <code>BaseControl</code> directly?"</em></p>
+<p>Well, you might now be asking;</p>
+<blockquote>
+<p><em>"What does <code>DoesIntersect</code> do and why did you inherit from <code>BaseControl&lt;ToggleSwitch&gt;</code> and not just <code>BaseControl</code> directly?"</em></p>
+</blockquote>
 <div class="admonition info">
 <p class="admonition-title">About the <code>BaseControl&lt;ToggleSwitch&gt;</code> one:</p>
 <p>Well, you can always just use normal BaseControl <strong>BUT</strong> keep in mind that you <strong>can't</strong> use the <strong>fluent APIs</strong> on your control if you dont inherit like that.</p>
 <p>It's called <strong>CRTP</strong> <em>(Curiously Recurring Template Pattern)</em> in programming terms and it basically lets the fluent APIs return your control as your control's type instead of converting it into a generic BaseControl.</p>
 </div>
+<p>After that, things get simpler.</p>
+<hr />
+<p>Anyways, we will now create a override to handle mouse events including clicks.</p>
+<p>This is how you can do that:</p>
+<div class="language-csharp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-3-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-3-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-3-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-3-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-3-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-3-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-3-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-3-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-3-10">10</a></span>
+<span class="normal"><a href="#__codelineno-3-11">11</a></span>
+<span class="normal"><a href="#__codelineno-3-12">12</a></span>
+<span class="normal"><a href="#__codelineno-3-13">13</a></span>
+<span class="normal"><a href="#__codelineno-3-14">14</a></span>
+<span class="normal"><a href="#__codelineno-3-15">15</a></span>
+<span class="normal"><a href="#__codelineno-3-16">16</a></span>
+<span class="normal"><a href="#__codelineno-3-17">17</a></span>
+<span class="normal"><a href="#__codelineno-3-18">18</a></span>
+<span class="normal"><a href="#__codelineno-3-19">19</a></span>
+<span class="normal"><a href="#__codelineno-3-20">20</a></span>
+<span class="normal"><a href="#__codelineno-3-21">21</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ToggleSwitch</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BaseControl</span><span class="o">&lt;</span><span class="n">ToggleSwitch</span><span class="o">&gt;</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="p">{</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">IsToggled</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">event</span><span class="w"> </span><span class="n">Action</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;?</span><span class="w"> </span><span class="n">WhenToggled</span><span class="p">;</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5"></a>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">DoesIntersect</span><span class="p">(</span><span class="n">SKPoint</span><span class="w"> </span><span class="n">point</span><span class="p">)</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">NotImplementedException</span><span class="p">();</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10"></a>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnDraw</span><span class="p">(</span><span class="n">SKCanvas</span><span class="w"> </span><span class="n">canvas</span><span class="p">)</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="w">        </span><span class="c1">// No drawing code yet.</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15"></a>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16"></a><span class="w">    </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">OnMouse</span><span class="p">(</span><span class="n">MouseEventContext</span><span class="w"> </span><span class="n">eventContext</span><span class="p">)</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18"></a><span class="w">        </span><span class="c1">// Nothing to handle yet.</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">false</span><span class="p">;</span>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>You override the protected OnMouse function and then return a bool.</p>
+<div class="admonition info">
+<p class="admonition-title">What does that bool mean?</p>
+<p>Well, it's basically whether your control <strong>consumed the event or not</strong>.<br>
+This can also be worded as whether your control used that event or not.</p>
+</div>
+<hr />
+<p>Now, here comes the fun part. <strong>We will add functionality.</strong></p>
+<div class="admonition info">
+<p class="admonition-title">How do we do that?</p>
+<p>We add our functionality to the empty overrides we added to our control.</p>
+</div>
+<hr />
+<p>First of all, we will make our control handle mouse events.</p>
+<p>That starts with <strong>toggling the switch state</strong> and <strong>respectfully consuming mouse events.</strong></p>
+<p>Here's how we will do that:</p>
+<div class="admonition tip">
+<p class="admonition-title">Looking for the API Reference?</p>
+<p>You can find the API Reference for the mouse/key event contexts on <a href="../../api/contexts">this docs page</a>.</p>
+</div>
+<div class="language-csharp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-4-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-4-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-4-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-4-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-4-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-4-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-4-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-4-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-4-10">10</a></span>
+<span class="normal"><a href="#__codelineno-4-11">11</a></span>
+<span class="normal"><a href="#__codelineno-4-12">12</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">OnMouse</span><span class="p">(</span><span class="n">MouseEventContext</span><span class="w"> </span><span class="n">eventContext</span><span class="p">)</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="p">{</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">    </span><span class="c1">// Handle clicks</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">eventContext</span><span class="p">.</span><span class="n">Type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MouseEventType</span><span class="p">.</span><span class="n">ClickEvent</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">eventContext</span><span class="p">.</span><span class="n">Button</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MouseButton</span><span class="p">.</span><span class="n">Left</span><span class="p">)</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="w">        </span><span class="n">IsToggled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">!</span><span class="n">IsToggled</span><span class="p">;</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="w">        </span><span class="n">WhenToggled</span><span class="o">?.</span><span class="n">Invoke</span><span class="p">(</span><span class="n">IsToggled</span><span class="p">);</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">true</span><span class="p">;</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10"></a>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">false</span><span class="p">;</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>After that, you might be asking; </p>
+<blockquote>
+<p><em>"But, well, what about drawing the actual control?"</em></p>
+</blockquote>
+<p>Yep. We're right on that.</p>
+<hr />
+<h3 id="making-the-control-draw">Making the control draw<a class="headerlink" href="#making-the-control-draw" title="Permanent link">&para;</a></h3>
+<p>We will start with defining two <code>SKPaint</code>s so that we can actually draw the two toggled states.</p>
+<div class="language-csharp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span>
+<span class="normal"><a href="#__codelineno-5-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">SKPaint</span><span class="w"> </span><span class="n">_toggledPaint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ThemeManager</span><span class="p">.</span><span class="n">Instance</span><span class="p">.</span><span class="n">SurfacePrimary</span><span class="w"> </span><span class="p">};</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">SKPaint</span><span class="w"> </span><span class="n">_untoggledPaint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ThemeManager</span><span class="p">.</span><span class="n">Instance</span><span class="p">.</span><span class="n">DisabledSurface</span><span class="w"> </span><span class="p">};</span>
+</span></code></pre></div></td></tr></table></div>
+<blockquote>
+<p><em>Well, that is a big mouthful, <strong>isn't it?</strong></em></p>
+</blockquote>
+<p>Yes, it is. And i will explain it to you.</p>
+<p>First of all, we define the SKPaint with this part:<br><code>private readonly SKPaint _toggledPaint</code><br>
+Then, we can continue by creating the paint with this part:<br><code>_toggledPaint = new()</code><br>
+After that, we finally assign the color to the SKPaint:<br>
+<code>{Color = ThemeManager.Instance.TextPrimary }</code></p>
+<div class="admonition tip">
+<p class="admonition-title">You aren't required to use the ThemeManager.</p>
+<p>Yep, that's right. You <strong>aren't forced</strong> to use the ThemeManager.
+I just recommend using it because it gives OS-accent-color based theme colors.
+You can always just use a color like <code>SKColors.Black</code>.</p>
+</div>
+<hr />
+<p>Now, we will actually draw.</p>
+<p>For real, i swear.</p>
+<p>No more filler.</p>
+<hr />
+<p>Here's how:</p>
+<div class="language-csharp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-6-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-6-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-6-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-6-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-6-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-6-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-6-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-6-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-6-10">10</a></span>
+<span class="normal"><a href="#__codelineno-6-11">11</a></span>
+<span class="normal"><a href="#__codelineno-6-12">12</a></span>
+<span class="normal"><a href="#__codelineno-6-13">13</a></span>
+<span class="normal"><a href="#__codelineno-6-14">14</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnDraw</span><span class="p">(</span><span class="n">SKCanvas</span><span class="w"> </span><span class="n">canvas</span><span class="p">)</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="p">{</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">    </span><span class="c1">// Check the control state and branch depending on the current state.</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">IsToggled</span><span class="p">)</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="w">        </span><span class="c1">// Draw the toggled state</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="w">        </span><span class="n">canvas</span><span class="p">.</span><span class="n">DrawRect</span><span class="p">(</span><span class="n">Bounds</span><span class="p">,</span><span class="w"> </span><span class="n">_toggledPaint</span><span class="p">);</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9"></a><span class="w">    </span><span class="k">else</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11"></a><span class="w">        </span><span class="c1">// Draw the untoggled state</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12"></a><span class="w">        </span><span class="n">canvas</span><span class="p">.</span><span class="n">DrawRect</span><span class="p">(</span><span class="n">Bounds</span><span class="p">,</span><span class="w"> </span><span class="n">_untoggledPaint</span><span class="p">);</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>That's really all there is to drawing the control.</p>
+<p>Oh, wait, we <strong>forgot about something</strong>, didn't we?</p>
+<hr />
+<h3 id="disposing-the-skpaints">Disposing the <code>SKPaint</code>s.<a class="headerlink" href="#disposing-the-skpaints" title="Permanent link">&para;</a></h3>
+<p>Yes, we forgot about <strong>disposing the <code>SKPaint</code>s.</strong></p>
+<p>Let's quickly do that.</p>
+<hr />
+<p>Create the <code>OnDisposed</code> override like this:</p>
+<p><div class="language-csharp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
+<span class="normal"><a href="#__codelineno-7-2">2</a></span>
+<span class="normal"><a href="#__codelineno-7-3">3</a></span>
+<span class="normal"><a href="#__codelineno-7-4">4</a></span>
+<span class="normal"><a href="#__codelineno-7-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnDispose</span><span class="p">()</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="p">{</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">    </span><span class="n">_toggledPaint</span><span class="p">.</span><span class="n">Dispose</span><span class="p">();</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">    </span><span class="n">_untoggledPaint</span><span class="p">.</span><span class="n">Dispose</span><span class="p">();</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+Yeah. I don't really think there's anything to explain here.</p>
+<p>Anyways, about the full control code, here it is.</p>
+<details class="info">
+<summary>The full control</summary>
+<div class="language-csharp highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-8-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-8-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-8-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-8-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-8-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-8-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-8-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-8-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-8-10">10</a></span>
+<span class="normal"><a href="#__codelineno-8-11">11</a></span>
+<span class="normal"><a href="#__codelineno-8-12">12</a></span>
+<span class="normal"><a href="#__codelineno-8-13">13</a></span>
+<span class="normal"><a href="#__codelineno-8-14">14</a></span>
+<span class="normal"><a href="#__codelineno-8-15">15</a></span>
+<span class="normal"><a href="#__codelineno-8-16">16</a></span>
+<span class="normal"><a href="#__codelineno-8-17">17</a></span>
+<span class="normal"><a href="#__codelineno-8-18">18</a></span>
+<span class="normal"><a href="#__codelineno-8-19">19</a></span>
+<span class="normal"><a href="#__codelineno-8-20">20</a></span>
+<span class="normal"><a href="#__codelineno-8-21">21</a></span>
+<span class="normal"><a href="#__codelineno-8-22">22</a></span>
+<span class="normal"><a href="#__codelineno-8-23">23</a></span>
+<span class="normal"><a href="#__codelineno-8-24">24</a></span>
+<span class="normal"><a href="#__codelineno-8-25">25</a></span>
+<span class="normal"><a href="#__codelineno-8-26">26</a></span>
+<span class="normal"><a href="#__codelineno-8-27">27</a></span>
+<span class="normal"><a href="#__codelineno-8-28">28</a></span>
+<span class="normal"><a href="#__codelineno-8-29">29</a></span>
+<span class="normal"><a href="#__codelineno-8-30">30</a></span>
+<span class="normal"><a href="#__codelineno-8-31">31</a></span>
+<span class="normal"><a href="#__codelineno-8-32">32</a></span>
+<span class="normal"><a href="#__codelineno-8-33">33</a></span>
+<span class="normal"><a href="#__codelineno-8-34">34</a></span>
+<span class="normal"><a href="#__codelineno-8-35">35</a></span>
+<span class="normal"><a href="#__codelineno-8-36">36</a></span>
+<span class="normal"><a href="#__codelineno-8-37">37</a></span>
+<span class="normal"><a href="#__codelineno-8-38">38</a></span>
+<span class="normal"><a href="#__codelineno-8-39">39</a></span>
+<span class="normal"><a href="#__codelineno-8-40">40</a></span>
+<span class="normal"><a href="#__codelineno-8-41">41</a></span>
+<span class="normal"><a href="#__codelineno-8-42">42</a></span>
+<span class="normal"><a href="#__codelineno-8-43">43</a></span>
+<span class="normal"><a href="#__codelineno-8-44">44</a></span>
+<span class="normal"><a href="#__codelineno-8-45">45</a></span>
+<span class="normal"><a href="#__codelineno-8-46">46</a></span>
+<span class="normal"><a href="#__codelineno-8-47">47</a></span>
+<span class="normal"><a href="#__codelineno-8-48">48</a></span>
+<span class="normal"><a href="#__codelineno-8-49">49</a></span>
+<span class="normal"><a href="#__codelineno-8-50">50</a></span>
+<span class="normal"><a href="#__codelineno-8-51">51</a></span>
+<span class="normal"><a href="#__codelineno-8-52">52</a></span>
+<span class="normal"><a href="#__codelineno-8-53">53</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="k">using</span><span class="w"> </span><span class="nn">HandyUI.Core.Abstractions.Base</span><span class="p">;</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="k">using</span><span class="w"> </span><span class="nn">HandyUI.Core.Data</span><span class="p">;</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="k">using</span><span class="w"> </span><span class="nn">HandyUI.Core.Data.Enums</span><span class="p">;</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="k">using</span><span class="w"> </span><span class="nn">HandyUI.Core.Helpers</span><span class="p">;</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="k">using</span><span class="w"> </span><span class="nn">SkiaSharp</span><span class="p">;</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6"></a>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ToggleSwitch</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BaseControl</span><span class="o">&lt;</span><span class="n">ToggleSwitch</span><span class="o">&gt;</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8"></a><span class="p">{</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">IsToggled</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">event</span><span class="w"> </span><span class="n">Action</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;?</span><span class="w"> </span><span class="n">WhenToggled</span><span class="p">;</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11"></a>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12"></a><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">SKPaint</span><span class="w"> </span><span class="n">_toggledPaint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ThemeManager</span><span class="p">.</span><span class="n">Instance</span><span class="p">.</span><span class="n">SurfacePrimary</span><span class="w"> </span><span class="p">};</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13"></a><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">SKPaint</span><span class="w"> </span><span class="n">_untoggledPaint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ThemeManager</span><span class="p">.</span><span class="n">Instance</span><span class="p">.</span><span class="n">DisabledSurface</span><span class="w"> </span><span class="p">};</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14"></a>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">DoesIntersect</span><span class="p">(</span><span class="n">SKPoint</span><span class="w"> </span><span class="n">point</span><span class="p">)</span>
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17"></a><span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">NotImplementedException</span><span class="p">();</span>
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19"></a>
+</span><span id="__span-8-20"><a id="__codelineno-8-20" name="__codelineno-8-20"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnDraw</span><span class="p">(</span><span class="n">SKCanvas</span><span class="w"> </span><span class="n">canvas</span><span class="p">)</span>
+</span><span id="__span-8-21"><a id="__codelineno-8-21" name="__codelineno-8-21"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-8-22"><a id="__codelineno-8-22" name="__codelineno-8-22"></a><span class="w">        </span><span class="c1">// Check the control state and branch depending on the current state.</span>
+</span><span id="__span-8-23"><a id="__codelineno-8-23" name="__codelineno-8-23"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">IsToggled</span><span class="p">)</span>
+</span><span id="__span-8-24"><a id="__codelineno-8-24" name="__codelineno-8-24"></a><span class="w">        </span><span class="p">{</span>
+</span><span id="__span-8-25"><a id="__codelineno-8-25" name="__codelineno-8-25"></a><span class="w">            </span><span class="c1">// Draw the toggled state</span>
+</span><span id="__span-8-26"><a id="__codelineno-8-26" name="__codelineno-8-26"></a><span class="w">            </span><span class="n">canvas</span><span class="p">.</span><span class="n">DrawRect</span><span class="p">(</span><span class="n">Bounds</span><span class="p">,</span><span class="w"> </span><span class="n">_toggledPaint</span><span class="p">);</span>
+</span><span id="__span-8-27"><a id="__codelineno-8-27" name="__codelineno-8-27"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-8-28"><a id="__codelineno-8-28" name="__codelineno-8-28"></a><span class="w">        </span><span class="k">else</span>
+</span><span id="__span-8-29"><a id="__codelineno-8-29" name="__codelineno-8-29"></a><span class="w">        </span><span class="p">{</span>
+</span><span id="__span-8-30"><a id="__codelineno-8-30" name="__codelineno-8-30"></a><span class="w">            </span><span class="c1">// Draw the untoggled state</span>
+</span><span id="__span-8-31"><a id="__codelineno-8-31" name="__codelineno-8-31"></a><span class="w">            </span><span class="n">canvas</span><span class="p">.</span><span class="n">DrawRect</span><span class="p">(</span><span class="n">Bounds</span><span class="p">,</span><span class="w"> </span><span class="n">_untoggledPaint</span><span class="p">);</span>
+</span><span id="__span-8-32"><a id="__codelineno-8-32" name="__codelineno-8-32"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-8-33"><a id="__codelineno-8-33" name="__codelineno-8-33"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-8-34"><a id="__codelineno-8-34" name="__codelineno-8-34"></a>
+</span><span id="__span-8-35"><a id="__codelineno-8-35" name="__codelineno-8-35"></a><span class="w">    </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">OnMouse</span><span class="p">(</span><span class="n">MouseEventContext</span><span class="w"> </span><span class="n">eventContext</span><span class="p">)</span>
+</span><span id="__span-8-36"><a id="__codelineno-8-36" name="__codelineno-8-36"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-8-37"><a id="__codelineno-8-37" name="__codelineno-8-37"></a><span class="w">        </span><span class="c1">// Handle clicks</span>
+</span><span id="__span-8-38"><a id="__codelineno-8-38" name="__codelineno-8-38"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">eventContext</span><span class="p">.</span><span class="n">Type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MouseEventType</span><span class="p">.</span><span class="n">ClickEvent</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">eventContext</span><span class="p">.</span><span class="n">Button</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MouseButton</span><span class="p">.</span><span class="n">Left</span><span class="p">)</span>
+</span><span id="__span-8-39"><a id="__codelineno-8-39" name="__codelineno-8-39"></a><span class="w">        </span><span class="p">{</span>
+</span><span id="__span-8-40"><a id="__codelineno-8-40" name="__codelineno-8-40"></a><span class="w">            </span><span class="n">IsToggled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">!</span><span class="n">IsToggled</span><span class="p">;</span>
+</span><span id="__span-8-41"><a id="__codelineno-8-41" name="__codelineno-8-41"></a><span class="w">            </span><span class="n">WhenToggled</span><span class="o">?.</span><span class="n">Invoke</span><span class="p">(</span><span class="n">IsToggled</span><span class="p">);</span>
+</span><span id="__span-8-42"><a id="__codelineno-8-42" name="__codelineno-8-42"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">true</span><span class="p">;</span>
+</span><span id="__span-8-43"><a id="__codelineno-8-43" name="__codelineno-8-43"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-8-44"><a id="__codelineno-8-44" name="__codelineno-8-44"></a>
+</span><span id="__span-8-45"><a id="__codelineno-8-45" name="__codelineno-8-45"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">false</span><span class="p">;</span>
+</span><span id="__span-8-46"><a id="__codelineno-8-46" name="__codelineno-8-46"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-8-47"><a id="__codelineno-8-47" name="__codelineno-8-47"></a>
+</span><span id="__span-8-48"><a id="__codelineno-8-48" name="__codelineno-8-48"></a><span class="w">    </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnDispose</span><span class="p">()</span>
+</span><span id="__span-8-49"><a id="__codelineno-8-49" name="__codelineno-8-49"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-8-50"><a id="__codelineno-8-50" name="__codelineno-8-50"></a><span class="w">        </span><span class="n">_toggledPaint</span><span class="p">.</span><span class="n">Dispose</span><span class="p">();</span>
+</span><span id="__span-8-51"><a id="__codelineno-8-51" name="__codelineno-8-51"></a><span class="w">        </span><span class="n">_untoggledPaint</span><span class="p">.</span><span class="n">Dispose</span><span class="p">();</span>
+</span><span id="__span-8-52"><a id="__codelineno-8-52" name="__codelineno-8-52"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-8-53"><a id="__codelineno-8-53" name="__codelineno-8-53"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+</details>
 
 
 
