@@ -8,6 +8,17 @@ public static class Win32Helper
 {
     #region Constants
 
+    public const uint CF_TEXT = 1;
+    public const uint CF_DIB = 8;
+    public const uint CF_UNICODETEXT = 13;
+    public const uint CF_HDROP = 15;
+    public const uint CF_DIBV5 = 17;
+
+    public const uint GMEM_MOVEABLE = 0x0002;
+
+    public const uint WM_QUIT = 0x0012;
+    public const uint WM_CLIPBOARDUPDATE = 0x031D;
+
     private const int GWL_STYLE = -16;
     private const int GWL_EXSTYLE = -20;
     public const int GWLP_WNDPROC = -4;
@@ -189,9 +200,100 @@ public static class Win32Helper
         public nint lppos;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct BITMAPINFOHEADER
+    {
+        public uint biSize;
+        public int biWidth;
+        public int biHeight;
+        public ushort biPlanes;
+        public ushort biBitCount;
+        public uint biCompression;
+        public uint biSizeImage;
+        public int biXPelsPerMeter;
+        public int biYPelsPerMeter;
+        public uint biClrUsed;
+        public uint biClrImportant;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct DROPFILES
+    {
+        public uint pFiles;
+        public POINT pt;
+        public int fNC;
+        public int fWide;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct MSG
+    {
+        public nint hwnd;
+        public uint message;
+        public nint wParam;
+        public nint lParam;
+        public uint time;
+        public POINT pt;
+        public uint lPrivate;
+    }
+
     #endregion
 
     #region Native Methods
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool OpenClipboard(nint hWndNewOwner);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool CloseClipboard();
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool EmptyClipboard();
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern nint GetClipboardData(uint uFormat);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern nint SetClipboardData(uint uFormat, nint hMem);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool IsClipboardFormatAvailable(uint format);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool AddClipboardFormatListener(nint hwnd);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool RemoveClipboardFormatListener(nint hwnd);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern nint GlobalAlloc(uint uFlags, UIntPtr dwBytes);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern nint GlobalLock(nint hMem);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern bool GlobalUnlock(nint hMem);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern nint GlobalFree(nint hMem);
+
+    [DllImport("shell32.dll", EntryPoint = "DragQueryFileW", CharSet = CharSet.Unicode, SetLastError = true)]
+    public static extern uint DragQueryFile(nint hDrop, uint iFile, [Out] char[]? lpszFile, uint cch);
+
+    [DllImport("user32.dll")]
+    public static extern int GetMessage(out MSG lpMsg, nint hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
+
+    [DllImport("user32.dll")]
+    public static extern bool TranslateMessage(ref MSG lpMsg);
+
+    [DllImport("user32.dll")]
+    public static extern nint DispatchMessage(ref MSG lpMsg);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool PostThreadMessage(uint idThread, uint Msg, nint wParam, nint lParam);
+
+    [DllImport("kernel32.dll")]
+    public static extern uint GetCurrentThreadId();
 
     [DllImport("user32.dll", EntryPoint = "GetWindowLongW", SetLastError = true)]
     private static extern int GetWindowLong32(nint hWnd, int nIndex);
