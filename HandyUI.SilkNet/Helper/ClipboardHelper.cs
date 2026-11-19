@@ -1,4 +1,5 @@
 ﻿using ClipboardMonitor.Core.Enums;
+using ClipboardMonitor.Core.EventArguments;
 using ClipboardMonitor.Core.Factories;
 using ClipboardMonitor.Core.Interfaces;
 using HandyUI.Core.Helpers;
@@ -21,7 +22,7 @@ public static class ClipboardHelper
         ClipboardManager.Instance.OnClipboardSet += OnClipboardSet;
     }
 
-    private static void ClipboardChanged(object? sender, ClipboardMonitor.Core.EventArguments.ClipboardChangedEventArgs e)
+    private static void ClipboardChanged(object? sender, ClipboardChangedEventArgs e)
     {
         if (e.DataType == ClipboardDataType.TEXT && !string.IsNullOrEmpty(e.ClipboardText))
         {

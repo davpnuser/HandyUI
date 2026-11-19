@@ -517,6 +517,24 @@ public class HandyWindow : IDisposable, IHostWindow
         WhenInvalidated?.Invoke();
     }
 
+    public void CleanMemory(bool allResources = false)
+    {
+        RendererAdapter?.DrawingContext?.Flush();
+        if (allResources)
+        {
+            RendererAdapter?.DrawingContext?.PurgeResources();
+            SKGraphics.PurgeAllCaches();
+            GC.WaitForPendingFinalizers();
+            GC.Collect(2, GCCollectionMode.Aggressive, true, true);
+        }
+        else
+        {
+            RendererAdapter?.DrawingContext?.PurgeUnlockedResources(false);
+        }
+        RendererAdapter?.IsCacheDirty = false;
+        Win32Helper.CleanMemory();
+    }
+
     #region Pumping
 
     private void PumpLoop(WindowConfiguration windowConfiguration, WindowOptions windowOptions)
@@ -1153,13 +1171,7 @@ public class HandyWindow : IDisposable, IHostWindow
 
             if (RendererAdapter?.IsCacheDirty == true)
             {
-                try
-                {
-                    RendererAdapter?.DrawingContext?.Flush();
-                    RendererAdapter?.DrawingContext?.PurgeUnlockedResources(false);
-                    RendererAdapter?.IsCacheDirty = false;
-                    Win32Helper.CleanMemory();
-                }
+                try { CleanMemory(); }
                 catch { /* do not crash */ }
             }
 

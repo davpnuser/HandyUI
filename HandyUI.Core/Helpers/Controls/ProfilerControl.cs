@@ -45,20 +45,23 @@ internal class ProfilerControl : BaseControl<ProfilerControl>
     private SKRect _vSyncButtonBounds;
     private SKRect _increaseFpsButtonBounds;
     private SKRect _decreaseFpsButtonBounds;
+    private SKRect _triggerMemoryCleansingButtonBounds;
 
     private bool _wantToToggleDirtyRendering = false;
     private bool _wantToToggleVSync = false;
     private bool _wantToIncreaseTargetFps = false;
     private bool _wantToDecreaseTargetFps = false;
+    private bool _wantToTriggerMemoryCleansing = false;
 
     internal ProfilerControl()
     {
-        Bounds = new SKRect(0, 0, 220, 370);
-        _graphBounds = new(0, 200, Bounds.Width, Bounds.Height - 120);
+        Bounds = new SKRect(0, 0, 220, 400);
+        _graphBounds = new(0, 200, Bounds.Width, Bounds.Height - 150);
         _diReButtonBounds = new(0, 250, 220, 280);
         _vSyncButtonBounds = new(0, 280, 220, 310);
         _increaseFpsButtonBounds = new(0, 310, 220, 340);
         _decreaseFpsButtonBounds = new(0, 340, 220, 370);
+        _triggerMemoryCleansingButtonBounds = new(0, 370, 220, 400);
     }
 
     public override bool DoesIntersect(SKPoint point)
@@ -88,6 +91,7 @@ internal class ProfilerControl : BaseControl<ProfilerControl>
         canvas.DrawText("Toggle V-Sync", 5, 301, SKTextAlign.Left, _font, _fgPaint);
         canvas.DrawText("Inc. Target FPS", 5, 331, SKTextAlign.Left, _font, _fgPaint);
         canvas.DrawText("Dec. Target FPS", 5, 361, SKTextAlign.Left, _font, _fgPaint);
+        canvas.DrawText("Clean Memory", 5, 391, SKTextAlign.Left, _font, _fgPaint);
 
         var targetMs = (_targetFps > 0) ? (1000f / _targetFps) : 13.33f;
         var maxMs = 33.33f;
@@ -195,6 +199,11 @@ internal class ProfilerControl : BaseControl<ProfilerControl>
             _wantToDecreaseTargetFps = false;
             updateContext.Host.FramesPerSecond -= 5;
         }
+        if (_wantToTriggerMemoryCleansing)
+        {
+            _wantToTriggerMemoryCleansing = false;
+            updateContext.Host.CleanMemory(true);
+        }
     }
 
     protected override bool OnMouse(MouseEventContext eventContext)
@@ -215,6 +224,8 @@ internal class ProfilerControl : BaseControl<ProfilerControl>
                 _wantToIncreaseTargetFps = true;
             else if (_decreaseFpsButtonBounds.Contains(nnpoint))
                 _wantToDecreaseTargetFps = true;
+            else if (_triggerMemoryCleansingButtonBounds.Contains(nnpoint))
+                _wantToTriggerMemoryCleansing = true;
         }
 
         return false;

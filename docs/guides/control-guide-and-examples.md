@@ -142,7 +142,7 @@ That starts with **toggling the switch state** and **respectfully consuming mous
 Here's how we will do that:
 
 !!! tip "Looking for the API Reference?"
-    You can find the API Reference for the mouse/key event contexts on [this docs page](../../api/contexts).
+    You can find the API Reference for the mouse/key event contexts on [this docs page](../../api/contexts.md).
 
 ```csharp linenums="1"
 protected override bool OnMouse(MouseEventContext eventContext)

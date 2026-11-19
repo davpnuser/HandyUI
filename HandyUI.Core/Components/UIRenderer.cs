@@ -221,7 +221,7 @@ public class UIRenderer : IDisposable
             return;
         }
 
-        var mouseEventContext1 = new MouseEventContext(TweenManager, null, MouseEventType.MoveEvent, MouseButton.None, 0, 0, false, false, false);
+        var mouseEventContext1 = new MouseEventContext(_hostWindow, TweenManager, null, MouseEventType.MoveEvent, MouseButton.None, 0, 0, false, false, false);
         var mouseEventContext2 = mouseEventContext1 with { MousePosition = SKPoint.Empty };
 
         FocusedControl?.ProcessMouseEvent(mouseEventContext1);

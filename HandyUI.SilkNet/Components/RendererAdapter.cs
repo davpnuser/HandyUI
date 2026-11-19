@@ -36,13 +36,11 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
 
     private int _lastFramebufferWidth = -1;
     private int _lastFramebufferHeight = -1;
-    private int _offscreenAllocWidth = -1;
-    private int _offscreenAllocHeight = -1;
-
-    private int _lastRenderTargetWidth = -1;
-    private int _lastRenderTargetHeight = -1;
     private int _pendingWidth = -1;
     private int _pendingHeight = -1;
+
+    private int _offscreenAllocWidth = -1;
+    private int _offscreenAllocHeight = -1;
 
     private long _lastMouseMoveInvalidateTick = 0;
     private const long TargetMouseTicksPerInvalidate = 60;
@@ -121,7 +119,7 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
     private void EnsureRenderTargetUpToDate()
     {
         if (_pendingWidth <= 0 || _pendingHeight <= 0) return;
-        if (_pendingWidth == _lastRenderTargetWidth && _pendingHeight == _lastRenderTargetHeight) return;
+        if (_pendingWidth == _lastFramebufferWidth && _pendingHeight == _lastFramebufferWidth) return;
 
         CreateRenderTarget(_pendingWidth, _pendingHeight);
     }
@@ -236,7 +234,7 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
             _silkWindow.GLContext!.TryGetProcAddress(proc, out var addr) ? addr : IntPtr.Zero);
 
         DrawingContext = GRContext.CreateGl(skiaGlInterface);
-        //DrawingContext.SetResourceCacheLimit(32 * 1024 * 1024);
+        //DrawingContext.SetResourceCacheLimit(32 * 1024 * 1024); <- Uncomment this to enable cache size limits.
 
         DrawingContext?.Flush();
         DrawingContext?.PurgeUnlockedResources(false);
@@ -351,6 +349,7 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
         var (isCtrl, isShift, isAlt) = GetModifierState();
 
         _renderer.ProcessMouseEvent(new MouseEventContext(
+            _window,
             TweenManager: _window.TweenManager,
             MousePosition: _currentMousePos,
             Type: MouseEventType.MoveEvent,
@@ -380,6 +379,7 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
         var clickCount = ComputeClickCount(_currentMousePos);
 
         _renderer.ProcessMouseEvent(new MouseEventContext(
+            _window,
             TweenManager: _window.TweenManager,
             MousePosition: _currentMousePos,
             Type: MouseEventType.MouseDownEvent,
@@ -396,6 +396,7 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
         var (isCtrl, isShift, isAlt) = GetModifierState();
 
         _renderer.ProcessMouseEvent(new MouseEventContext(
+            _window,
             TweenManager: _window.TweenManager,
             MousePosition: _currentMousePos,
             Type: MouseEventType.MouseUpEvent,
@@ -412,6 +413,7 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
         var (isCtrl, isShift, isAlt) = GetModifierState();
 
         _renderer.ProcessMouseEvent(new MouseEventContext(
+            _window,
             TweenManager: _window.TweenManager,
             MousePosition: _currentMousePos,
             Type: MouseEventType.ScrollEvent,
@@ -427,6 +429,7 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
     private void OnKeyDown(IKeyboard keyboard, Key key, int keyCode)
     {
         _renderer.ProcessKeyEvent(new KeyEventContext(
+            _window,
             Tweener: _window.TweenManager,
             Type: KeyEventType.KeyDown,
             KeyCode: MapKey(key),
@@ -441,6 +444,7 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
     private void OnKeyUp(IKeyboard keyboard, Key key, int keyCode)
     {
         _renderer.ProcessKeyEvent(new KeyEventContext(
+            _window,
             Tweener: _window.TweenManager,
             Type: KeyEventType.KeyUp,
             KeyCode: MapKey(key),
@@ -455,6 +459,7 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
     private void OnKeyChar(IKeyboard keyboard, char character)
     {
         _renderer.ProcessKeyEvent(new KeyEventContext(
+            _window,
             Tweener: _window.TweenManager,
             Type: KeyEventType.CharInput,
             KeyCode: (byte)character,

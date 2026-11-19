@@ -40,6 +40,7 @@ public interface IHostWindow
     #region Methods
 
     void Invalidate();
+    void CleanMemory(bool allResources = true);
 
     #endregion
 }

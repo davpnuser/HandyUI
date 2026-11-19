@@ -2,7 +2,9 @@
 
 public static class ColorEngine
 {
-    //public static (byte R, byte G, byte B) GetToneRgb(float baseR, float baseG, float baseB, int requestedTone)
+    #region Legacy tone RGB function
+
+    //public static (byte R, byte G, byte B) GetToneRgbLegacy(float baseR, float baseG, float baseB, int requestedTone)
     //{
     //    const int maxTone = 900;
     //    const int minTone = 0;
@@ -15,6 +17,8 @@ public static class ColorEngine
 
     //    return OklchToRgb(targetL, targetC, h);
     //}
+
+    #endregion
 
     public static (byte R, byte G, byte B) GetToneRgb(float baseR, float baseG, float baseB, int requestedTone)
     {
@@ -81,8 +85,12 @@ public static class ColorEngine
     }
 
     private static float SrgbToLinear(float c)
-        => c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
+    {
+        return c <= 0.04045f ? c / 12.92f : MathF.Pow((c + 0.055f) / 1.055f, 2.4f);
+    }
 
     private static float LinearToSrgb(float c)
-        => c <= 0.0031308f ? c * 12.92f : (1.055f * MathF.Pow(c, 1f / 2.4f)) - 0.055f;
+    {
+        return c <= 0.0031308f ? c * 12.92f : (1.055f * MathF.Pow(c, 1f / 2.4f)) - 0.055f;
+    }
 }

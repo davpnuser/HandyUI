@@ -681,7 +681,6 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         var pasted = ClipboardManager.Instance.ClipboardContentsText;
         if (string.IsNullOrEmpty(pasted)) return;
 
-        // Normalize line endings so GetLineCol / line height math stays correct.
         pasted = pasted.Replace("\r\n", "\n").Replace('\r', '\n');
         if (pasted.Length == 0) return;
 

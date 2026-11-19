@@ -3,7 +3,7 @@
 `HandyUI.Core.Data.MouseEventContext` and `KeyEventContext`.
 
 Both are `readonly record struct` and carry a reference to the current
-[`TweenManager`](tween-manager.md). Controls that need to start a tween from
+[`TweenManager`](tween-manager.md) and [host window](ihostwindow.md). Controls that need to start a tween from
 inside `OnMouse` / `OnKey` can use `eventContext.TweenManager` directly:
 
 ```csharp
@@ -19,6 +19,7 @@ protected override bool OnMouse(MouseEventContext eventContext)
 
 ```csharp
 public readonly record struct MouseEventContext(
+    IHostWindow Host,
     TweenManager TweenManager,
     SKPoint? MousePosition,
     MouseEventType Type = MouseEventType.None,
@@ -33,6 +34,7 @@ public readonly record struct MouseEventContext(
 
 | Field | Meaning |
 | --- | --- |
+| `Host` | Current host window. |
 | `TweenManager` | Current animation engine. |
 | `MousePosition` | Local cursor position, or `null` when the subtree is clipped. |
 | `Type` | See [`MouseEventType`](enums.md#mouseeventtype). |
@@ -57,6 +59,7 @@ public readonly record struct MouseEventContext(
 
 ```csharp
 public readonly record struct KeyEventContext(
+    IHostWindow Host,
     TweenManager Tweener,
     KeyEventType Type = KeyEventType.None,
     int? KeyCode = null,
@@ -69,6 +72,7 @@ public readonly record struct KeyEventContext(
 
 | Field | Meaning |
 | --- | --- |
+| `Host` | Current host window. |
 | `Tweener` | Current animation engine. |
 | `Type` | `KeyDown`, `KeyUp`, or `CharInput`. |
 | `KeyCode` | Virtual key code. `null` for `CharInput`. |

@@ -1,10 +1,12 @@
-﻿using HandyUI.Core.Data.Enums;
+﻿using HandyUI.Core.Abstractions.Interface;
+using HandyUI.Core.Data.Enums;
 using HandyUI.Core.Helpers;
 using SkiaSharp;
 
 namespace HandyUI.Core.Data;
 
 public readonly record struct MouseEventContext(
+    IHostWindow Host,
     TweenManager TweenManager,
     SKPoint? MousePosition,
     MouseEventType Type = MouseEventType.None,
