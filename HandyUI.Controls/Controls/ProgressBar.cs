@@ -119,7 +119,7 @@ public class ProgressBar : BaseControl<ProgressBar>
         if (!IsIndeterminate) return;
         if (_indeterminateTween is { IsValid: true }) return;
 
-        _indeterminateTween = updateContext.TweenManager.To(0f, 1f, 1.4f,
+        _indeterminateTween = updateContext.EventData.TweenManager.To(0f, 1f, 1.4f,
             v => { _indeterminateProgress = v; Invalidate(); },
             EaseType.Linear,
             () => { _indeterminateProgress = 0f; Invalidate(); });

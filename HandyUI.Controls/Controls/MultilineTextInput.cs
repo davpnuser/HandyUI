@@ -184,10 +184,10 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
     {
         if (_lastFocused == IsFocused) return;
         _lastFocused = IsFocused;
-        StartFocusAnimation(updateContext.TweenManager, IsFocused ? 1f : 0f);
+        StartFocusAnimation(updateContext.EventData.TweenManager, IsFocused ? 1f : 0f);
         if (IsFocused)
         {
-            StartCursorBlink(updateContext.TweenManager);
+            StartCursorBlink(updateContext.EventData.TweenManager);
             WhenFocusGained?.Invoke();
         }
         else
@@ -271,7 +271,7 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
 
     protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (eventContext.Type == MouseEventType.MouseDownEvent && IsHovered && eventContext.MousePosition is { } p)
+        if (eventContext.Type == MouseEventType.DownEvent && IsHovered && eventContext.MousePosition is { } p)
         {
             RequestFocus();
             _isMouseSelecting = true;
@@ -287,7 +287,7 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
             return true;
         }
 
-        if (eventContext.Type == MouseEventType.MouseUpEvent && _isMouseSelecting)
+        if (eventContext.Type == MouseEventType.UpEvent && _isMouseSelecting)
         {
             _isMouseSelecting = false;
             return true;
@@ -314,7 +314,7 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
             return true;
         }
 
-        if (eventContext.Type != KeyEventType.KeyDown) return false;
+        if (eventContext.Type != KeyEventType.Down) return false;
 
         switch (eventContext.KeyCode)
         {
@@ -327,7 +327,7 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
                 return true;
             case 8: HandleBackspace(eventContext); return true;
             case 46:
-                if (eventContext.IsShiftPressed && !eventContext.IsControlPressed) { Cut(); return true; }
+                if (eventContext.ModifierKeys.HasFlag(ModifierKeys.Shift) && !eventContext.ModifierKeys.HasFlag(ModifierKeys.Control)) { Cut(); return true; }
                 HandleDelete(eventContext);
                 return true;
             case 37: HandleLeft(eventContext); return true;
@@ -337,7 +337,7 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
             case 36: HandleHome(eventContext); return true;
             case 35: HandleEnd(eventContext); return true;
             case 65:
-                if (eventContext.IsControlPressed)
+                if (eventContext.ModifierKeys.HasFlag(ModifierKeys.Control))
                 {
                     _selectionAnchor = 0;
                     _cursorIndex = Text.Length;
@@ -345,17 +345,17 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
                 }
                 break;
             case 67:
-                if (eventContext.IsControlPressed) { Copy(); return true; }
+                if (eventContext.ModifierKeys.HasFlag(ModifierKeys.Control)) { Copy(); return true; }
                 break;
             case 88:
-                if (eventContext.IsControlPressed) { Cut(); return true; }
+                if (eventContext.ModifierKeys.HasFlag(ModifierKeys.Control)) { Cut(); return true; }
                 break;
             case 86:
-                if (eventContext.IsControlPressed) { Paste(); return true; }
+                if (eventContext.ModifierKeys.HasFlag(ModifierKeys.Control)) { Paste(); return true; }
                 break;
             case 45:
-                if (eventContext.IsShiftPressed) { Paste(); return true; }
-                if (eventContext.IsControlPressed) { Copy(); return true; }
+                if (eventContext.ModifierKeys.HasFlag(ModifierKeys.Shift)) { Paste(); return true; }
+                if (eventContext.ModifierKeys.HasFlag(ModifierKeys.Control)) { Copy(); return true; }
                 break;
         }
 
@@ -417,7 +417,7 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         {
             DeleteSelection();
         }
-        else if (ctx.IsControlPressed)
+        else if (ctx.ModifierKeys.HasFlag(ModifierKeys.Control))
         {
             var prev = PrevWordBoundary(_cursorIndex);
             if (prev < _cursorIndex)
@@ -442,7 +442,7 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         {
             DeleteSelection();
         }
-        else if (ctx.IsControlPressed)
+        else if (ctx.ModifierKeys.HasFlag(ModifierKeys.Control))
         {
             var next = NextWordBoundary(_cursorIndex);
             if (next > _cursorIndex) Text = Text.Remove(_cursorIndex, next - _cursorIndex);
@@ -458,8 +458,8 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
 
     private void HandleLeft(KeyEventContext ctx)
     {
-        var newPos = ctx.IsControlPressed ? PrevWordBoundary(_cursorIndex) : Math.Max(0, _cursorIndex - 1);
-        if (ctx.IsShiftPressed)
+        var newPos = ctx.ModifierKeys.HasFlag(ModifierKeys.Control) ? PrevWordBoundary(_cursorIndex) : Math.Max(0, _cursorIndex - 1);
+        if (ctx.ModifierKeys.HasFlag(ModifierKeys.Shift))
         {
             _cursorIndex = newPos;
         }
@@ -473,8 +473,8 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
 
     private void HandleRight(KeyEventContext ctx)
     {
-        var newPos = ctx.IsControlPressed ? NextWordBoundary(_cursorIndex) : Math.Min(Text.Length, _cursorIndex + 1);
-        if (ctx.IsShiftPressed)
+        var newPos = ctx.ModifierKeys.HasFlag(ModifierKeys.Control) ? NextWordBoundary(_cursorIndex) : Math.Min(Text.Length, _cursorIndex + 1);
+        if (ctx.ModifierKeys.HasFlag(ModifierKeys.Shift))
         {
             _cursorIndex = newPos;
         }
@@ -491,7 +491,7 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         var lines = Text.Split('\n');
         var (line, col) = GetLineCol(_cursorIndex, lines);
         _cursorIndex = line > 0 ? LineColToIndex(Math.Max(0, line - 1), col, lines) : 0;
-        if (!ctx.IsShiftPressed) _selectionAnchor = _cursorIndex;
+        if (!ctx.ModifierKeys.HasFlag(ModifierKeys.Shift)) _selectionAnchor = _cursorIndex;
         Invalidate();
     }
 
@@ -500,15 +500,15 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
         var lines = Text.Split('\n');
         var (line, col) = GetLineCol(_cursorIndex, lines);
         _cursorIndex = line < lines.Length - 1 ? LineColToIndex(line + 1, col, lines) : Text.Length;
-        if (!ctx.IsShiftPressed) _selectionAnchor = _cursorIndex;
+        if (!ctx.ModifierKeys.HasFlag(ModifierKeys.Shift)) _selectionAnchor = _cursorIndex;
         Invalidate();
     }
 
     private void HandleHome(KeyEventContext ctx)
     {
         var lines = Text.Split('\n');
-        var target = ctx.IsControlPressed ? 0 : LineColToIndex(GetLineCol(_cursorIndex, lines).Line, 0, lines);
-        if (ctx.IsShiftPressed)
+        var target = ctx.ModifierKeys.HasFlag(ModifierKeys.Control) ? 0 : LineColToIndex(GetLineCol(_cursorIndex, lines).Line, 0, lines);
+        if (ctx.ModifierKeys.HasFlag(ModifierKeys.Shift))
         {
             _cursorIndex = target;
         }
@@ -520,8 +520,8 @@ public class MultilineTextInput : BaseControl<MultilineTextInput>
     {
         var lines = Text.Split('\n');
         var (line, _) = GetLineCol(_cursorIndex, lines);
-        var target = ctx.IsControlPressed ? Text.Length : LineColToIndex(line, lines[line].Length, lines);
-        if (ctx.IsShiftPressed)
+        var target = ctx.ModifierKeys.HasFlag(ModifierKeys.Control) ? Text.Length : LineColToIndex(line, lines[line].Length, lines);
+        if (ctx.ModifierKeys.HasFlag(ModifierKeys.Shift))
         {
             _cursorIndex = target;
         }

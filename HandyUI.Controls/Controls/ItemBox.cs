@@ -167,7 +167,7 @@ public class ItemBox : BaseControl<ItemBox>
         if (_lastHovered != IsHovered)
         {
             _lastHovered = IsHovered;
-            StartHoverAnimation(updateContext.TweenManager, IsHovered ? 1f : 0f);
+            StartHoverAnimation(updateContext.EventData.TweenManager, IsHovered ? 1f : 0f);
             if (IsHovered) WhenHoverEntered?.Invoke();
             else WhenHoverExited?.Invoke();
         }
@@ -180,7 +180,7 @@ public class ItemBox : BaseControl<ItemBox>
             _selectAmount = current;
             if (Math.Abs(current - target) > 0.001f)
             {
-                _selectTween = updateContext.TweenManager.To(current, target, 0.15f,
+                _selectTween = updateContext.EventData.TweenManager.To(current, target, 0.15f,
                     v => { _selectAmount = v; Invalidate(); }, EaseType.SineOut);
             }
         }
@@ -228,7 +228,7 @@ public class ItemBox : BaseControl<ItemBox>
 
     protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (eventContext.Type != MouseEventType.MouseDownEvent || !IsHovered) return false;
+        if (eventContext.Type != MouseEventType.DownEvent || !IsHovered) return false;
 
         var newState = !IsSelected;
         if (newState)

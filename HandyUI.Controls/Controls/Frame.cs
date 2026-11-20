@@ -2,7 +2,6 @@
 using HandyUI.Core.Abstractions.Base;
 using HandyUI.Core.Abstractions.Interface;
 using HandyUI.Core.Data;
-using HandyUI.Core.Data.Enums;
 using HandyUI.Core.Data.Input;
 using HandyUI.Core.Helpers;
 using SkiaSharp;
@@ -211,10 +210,10 @@ public class Frame : BaseControl<Frame>
     {
         if (!IsHovered) return false;
 
-        if (eventContext.Type == MouseEventType.MouseDownEvent)
+        if (eventContext.Type == MouseEventType.DownEvent)
             WhenMouseDown?.Invoke();
 
-        if (eventContext.Type == MouseEventType.MouseUpEvent)
+        if (eventContext.Type == MouseEventType.UpEvent)
             WhenMouseUp?.Invoke();
 
         if (eventContext.Type == MouseEventType.ClickEvent)

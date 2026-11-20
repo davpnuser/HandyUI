@@ -16,5 +16,5 @@ public enum EventType
 public readonly record struct EventData(
     IHostWindow HostWindow,
     TweenManager TweenManager,
-    TimeSpan TotalTime
+    double TotalTime
 );

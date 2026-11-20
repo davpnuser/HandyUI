@@ -1,6 +1,7 @@
 ﻿using HandyUI.Core.Abstractions.Interface;
 using HandyUI.Core.Components;
-using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Data;
+using HandyUI.Core.Data.Input;
 using HandyUI.Core.Helpers;
 using HandyUI.SilkNet.Data;
 using HandyUI.SilkNet.Extensions;
@@ -117,9 +118,7 @@ public class HandyWindow : IDisposable, IHostWindow
 
     public bool IsForeground => _isForeground;
 
-    public DeviceType DeviceType => DeviceType.Desktop;
-
-    public DisplayOrientation Orientation { get; private set; } = DisplayOrientation.Unknown;
+    public DeviceInfo DeviceInfo => new(DeviceType.Desktop, DpiScale);
 
     public float DpiScale
     {
@@ -143,42 +142,6 @@ public class HandyWindow : IDisposable, IHostWindow
             catch
             {
                 return 1f;
-            }
-            finally
-            {
-                _ = Win32Helper.ReleaseDC(hwnd, hdc);
-            }
-        }
-    }
-
-    public float DisplayDist
-    {
-        get
-        {
-            if (!OperatingSystem.IsWindows())
-                return 0f;
-
-            if (InternalWindow?.Native?.Win32?.Hwnd is not nint hwnd || hwnd == nint.Zero)
-                return 0f;
-
-            var hdc = Win32Helper.GetDC(hwnd);
-            if (hdc == nint.Zero)
-                return 0f;
-
-            try
-            {
-                var widthMm = Win32Helper.GetDeviceCaps(hdc, Win32Helper.HORZSIZE);
-                var heightMm = Win32Helper.GetDeviceCaps(hdc, Win32Helper.VERTSIZE);
-
-                if (widthMm <= 0 || heightMm <= 0)
-                    return 0f;
-
-                var diagonalMm = Math.Sqrt(((double)widthMm * widthMm) + ((double)heightMm * heightMm));
-                return (float)(diagonalMm / 25.4);
-            }
-            catch
-            {
-                return 0f;
             }
             finally
             {
@@ -439,9 +402,7 @@ public class HandyWindow : IDisposable, IHostWindow
 
     #region Events
 
-    public event Action<DisplayOrientation>? WhenOrientationChanged;
     public event Action? WhenInvalidated;
-
     public event Action? WhenLoaded;
     public event Action? WhenClosing;
     public event Action<SKPoint>? WhenMoved;
@@ -517,6 +478,11 @@ public class HandyWindow : IDisposable, IHostWindow
         WhenInvalidated?.Invoke();
     }
 
+    public ModifierKeys GetModifierKeys()
+    {
+        return RendererAdapter == null ? ModifierKeys.None : RendererAdapter.GetModifierState();
+    }
+
     public void CleanMemory(bool allResources = false)
     {
         RendererAdapter?.DrawingContext?.Flush();
@@ -554,10 +520,6 @@ public class HandyWindow : IDisposable, IHostWindow
         {
             Size = new SKSize(windowOptions.Size.X, windowOptions.Size.Y);
             SetSizeLimits(windowConfiguration.MinSize, windowConfiguration.MaxSize);
-
-            Orientation = window.Size.X >= window.Size.Y
-                ? DisplayOrientation.Landscape
-                : DisplayOrientation.Portrait;
 
             try { window.IsEventDriven = _useDirtyRendering; }
             catch { }
@@ -632,17 +594,9 @@ public class HandyWindow : IDisposable, IHostWindow
 
         window.Resize += newSize =>
         {
-            var newOrientation = newSize.X >= newSize.Y
-                ? DisplayOrientation.Landscape
-                : DisplayOrientation.Portrait;
+            if (_resizeInProgress)
+                return;
 
-            if (newOrientation != Orientation)
-            {
-                Orientation = newOrientation;
-                WhenOrientationChanged?.Invoke(newOrientation);
-            }
-
-            if (_resizeInProgress) return;
             _resizeInProgress = true;
 
             try { WhenResized?.Invoke(newSize.ToSKSize()); }

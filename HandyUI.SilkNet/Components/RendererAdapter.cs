@@ -1,5 +1,5 @@
 ﻿using HandyUI.Core.Components;
-using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Data;
 using HandyUI.Core.Data.Input;
 using HandyUI.SilkNet.Components;
 using HandyUI.SilkNet.Helper;
@@ -11,7 +11,7 @@ using SkiaSharp;
 using System.Diagnostics;
 using System.Numerics;
 using CursorType = HandyUI.Core.Data.Enums.CursorType;
-using MouseButton = HandyUI.Core.Data.Enums.MouseButton;
+using MouseButton = HandyUI.Core.Data.Input.MouseButton;
 
 internal sealed class RendererAdapter(HandyWindow window) : IDisposable
 {
@@ -291,18 +291,26 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
 
     #region Input Helpers
 
-    private (bool IsControl, bool IsShift, bool IsAlt) GetModifierState()
+    internal ModifierKeys GetModifierState()
     {
         if (_primaryKeyboard is null)
-            return (false, false, false);
+            return ModifierKeys.None;
 
-        return (
-            _primaryKeyboard.IsKeyPressed(Key.ControlLeft) || _primaryKeyboard.IsKeyPressed(Key.ControlRight),
-            _primaryKeyboard.IsKeyPressed(Key.ShiftLeft) || _primaryKeyboard.IsKeyPressed(Key.ShiftRight),
-            _primaryKeyboard.IsKeyPressed(Key.AltLeft) || _primaryKeyboard.IsKeyPressed(Key.AltRight));
+        var modifierKeys = ModifierKeys.None;
+
+        if (_primaryKeyboard.IsKeyPressed(Key.ControlLeft) || _primaryKeyboard.IsKeyPressed(Key.ControlRight))
+            modifierKeys |= ModifierKeys.Control;
+        if (_primaryKeyboard.IsKeyPressed(Key.ShiftLeft) || _primaryKeyboard.IsKeyPressed(Key.ShiftRight))
+            modifierKeys |= ModifierKeys.Shift;
+        if (_primaryKeyboard.IsKeyPressed(Key.AltLeft) || _primaryKeyboard.IsKeyPressed(Key.AltRight))
+            modifierKeys |= ModifierKeys.Alt;
+        if (_primaryKeyboard.IsKeyPressed(Key.SuperLeft) || _primaryKeyboard.IsKeyPressed(Key.SuperRight))
+            modifierKeys |= ModifierKeys.Super;
+
+        return modifierKeys;
     }
 
-    private int ComputeClickCount(SKPoint position)
+    private void ComputeClickCount(SKPoint position)
     {
         var now = Environment.TickCount64;
         var elapsed = now - _lastClickTick;
@@ -314,7 +322,6 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
 
         _lastClickTick = now;
         _lastClickPos = position;
-        return _currentClickCount;
     }
 
     internal void SetCursor(CursorType newCursor)
@@ -343,20 +350,28 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
 
     #region Input Handlers
 
+    #region Mouse
+
+    private MouseEventContext GenerateMouseEventContext(MouseEventType eventType, MouseButton mouseButton)
+    {
+        var modifierKeys = GetModifierState();
+
+        return new MouseEventContext(
+            new EventData(_window, _renderer.TweenManager, _window.TotalTime),
+            eventType,
+            modifierKeys,
+            mouseButton,
+            _currentMousePos,
+            _currentClickCount
+        );
+    }
+
     private void OnMouseMove(IMouse mouse, Vector2 position)
     {
         _currentMousePos = new SKPoint(position.X, position.Y);
-        var (isCtrl, isShift, isAlt) = GetModifierState();
 
-        _renderer.ProcessMouseEvent(new MouseEventContext(
-            _window,
-            TweenManager: _window.TweenManager,
-            MousePosition: _currentMousePos,
-            Type: MouseEventType.MoveEvent,
-            ClickCount: _currentClickCount,
-            IsControlPressed: isCtrl,
-            IsShiftPressed: isShift,
-            IsAltPressed: isAlt));
+        var mouseEvent = GenerateMouseEventContext(MouseEventType.MoveEvent, MouseButton.None);
+        _renderer.ProcessMouseEvent(mouseEvent);
 
         if (UseDirtyRendering)
         {
@@ -375,98 +390,73 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
 
     private void OnMouseDown(IMouse mouse, Silk.NET.Input.MouseButton button)
     {
-        var (isCtrl, isShift, isAlt) = GetModifierState();
-        var clickCount = ComputeClickCount(_currentMousePos);
+        ComputeClickCount(_currentMousePos);
 
-        _renderer.ProcessMouseEvent(new MouseEventContext(
-            _window,
-            TweenManager: _window.TweenManager,
-            MousePosition: _currentMousePos,
-            Type: MouseEventType.MouseDownEvent,
-            Button: MapButton(button),
-            ClickCount: clickCount,
-            IsControlPressed: isCtrl,
-            IsShiftPressed: isShift,
-            IsAltPressed: isAlt));
+        var mouseEvent = GenerateMouseEventContext(MouseEventType.DownEvent, MapButton(button));
+        _renderer.ProcessMouseEvent(mouseEvent);
+
         Invalidate();
     }
 
     private void OnMouseUp(IMouse mouse, Silk.NET.Input.MouseButton button)
     {
-        var (isCtrl, isShift, isAlt) = GetModifierState();
+        ComputeClickCount(_currentMousePos);
 
-        _renderer.ProcessMouseEvent(new MouseEventContext(
-            _window,
-            TweenManager: _window.TweenManager,
-            MousePosition: _currentMousePos,
-            Type: MouseEventType.MouseUpEvent,
-            Button: MapButton(button),
-            ClickCount: _currentClickCount,
-            IsControlPressed: isCtrl,
-            IsShiftPressed: isShift,
-            IsAltPressed: isAlt));
+        var mouseEvent = GenerateMouseEventContext(MouseEventType.UpEvent, MapButton(button));
+        _renderer.ProcessMouseEvent(mouseEvent);
+
         Invalidate();
     }
 
     private void OnMouseScroll(IMouse mouse, ScrollWheel scroll)
     {
-        var (isCtrl, isShift, isAlt) = GetModifierState();
+        var mouseEvent = GenerateMouseEventContext(MouseEventType.ScrollEvent, MouseButton.Wheel) with
+        {
+            WheelDelta = (int)(scroll.Y * 120)
+        };
 
-        _renderer.ProcessMouseEvent(new MouseEventContext(
-            _window,
-            TweenManager: _window.TweenManager,
-            MousePosition: _currentMousePos,
-            Type: MouseEventType.ScrollEvent,
-            Button: MouseButton.Wheel,
-            WheelDelta: (int)(scroll.Y * 120),
-            ClickCount: _currentClickCount,
-            IsControlPressed: isCtrl,
-            IsShiftPressed: isShift,
-            IsAltPressed: isAlt));
+        _renderer.ProcessMouseEvent(mouseEvent);
+
         Invalidate();
+    }
+
+    #endregion
+
+    #region Keyboard
+
+    private KeyEventContext GenerateKeyEventContext(KeyEventType eventType, int keycode = 0, char character = '\0')
+    {
+        var modifierKeys = GetModifierState();
+
+        return new KeyEventContext(
+            new EventData(_window, _renderer.TweenManager, _window.TotalTime),
+            eventType,
+            modifierKeys,
+            keycode,
+            character
+        );
     }
 
     private void OnKeyDown(IKeyboard keyboard, Key key, int keyCode)
     {
-        _renderer.ProcessKeyEvent(new KeyEventContext(
-            _window,
-            Tweener: _window.TweenManager,
-            Type: KeyEventType.KeyDown,
-            KeyCode: MapKey(key),
-            Character: '\0',
-            IsControlPressed: keyboard.IsKeyPressed(Key.ControlLeft) || keyboard.IsKeyPressed(Key.ControlRight),
-            IsShiftPressed: keyboard.IsKeyPressed(Key.ShiftLeft) || keyboard.IsKeyPressed(Key.ShiftRight),
-            IsAltPressed: keyboard.IsKeyPressed(Key.AltLeft) || keyboard.IsKeyPressed(Key.AltRight)));
+        var keyEvent = GenerateKeyEventContext(KeyEventType.Down, MapKey(key), '\0');
+        _renderer.ProcessKeyEvent(keyEvent);
 
         Invalidate();
     }
 
     private void OnKeyUp(IKeyboard keyboard, Key key, int keyCode)
     {
-        _renderer.ProcessKeyEvent(new KeyEventContext(
-            _window,
-            Tweener: _window.TweenManager,
-            Type: KeyEventType.KeyUp,
-            KeyCode: MapKey(key),
-            Character: '\0',
-            IsControlPressed: keyboard.IsKeyPressed(Key.ControlLeft) || keyboard.IsKeyPressed(Key.ControlRight),
-            IsShiftPressed: keyboard.IsKeyPressed(Key.ShiftLeft) || keyboard.IsKeyPressed(Key.ShiftRight),
-            IsAltPressed: keyboard.IsKeyPressed(Key.AltLeft) || keyboard.IsKeyPressed(Key.AltRight)));
+        var keyEvent = GenerateKeyEventContext(KeyEventType.Up, MapKey(key), '\0');
+        _renderer.ProcessKeyEvent(keyEvent);
 
         Invalidate();
     }
 
     private void OnKeyChar(IKeyboard keyboard, char character)
     {
-        _renderer.ProcessKeyEvent(new KeyEventContext(
-            _window,
-            Tweener: _window.TweenManager,
-            Type: KeyEventType.CharInput,
-            KeyCode: (byte)character,
-            Character: character,
-            IsControlPressed: false,
-            IsShiftPressed: false,
-            IsAltPressed: false));
+        var keyEvent = GenerateKeyEventContext(KeyEventType.Down, (byte)character, character);
+        _renderer.ProcessKeyEvent(keyEvent);
 
         Invalidate();
     }
@@ -545,10 +535,12 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
         {
             Silk.NET.Input.MouseButton.Left => MouseButton.Left,
             Silk.NET.Input.MouseButton.Right => MouseButton.Right,
-            Silk.NET.Input.MouseButton.Middle => MouseButton.Middle,
+            Silk.NET.Input.MouseButton.Middle => MouseButton.Wheel,
             _ => MouseButton.Generic
         };
     }
+
+    #endregion
 
     #endregion
 

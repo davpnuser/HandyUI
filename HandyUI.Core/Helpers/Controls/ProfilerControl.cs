@@ -1,6 +1,5 @@
 ﻿using HandyUI.Core.Abstractions.Base;
 using HandyUI.Core.Data;
-using HandyUI.Core.Data.Enums;
 using HandyUI.Core.Data.Input;
 using HandyUI.Core.Helpers.Extensions;
 using SkiaSharp;
@@ -146,20 +145,20 @@ internal class ProfilerControl : BaseControl<ProfilerControl>
             _fps += (instantFps - _fps) * alpha;
         }
 
-        if (_targetFps == 0f || (_targetFps != updateContext.Host.FramesPerSecond))
-            _targetFps = updateContext.Host.FramesPerSecond;
+        if (_targetFps == 0f || (_targetFps != updateContext.EventData.HostWindow.FramesPerSecond))
+            _targetFps = updateContext.EventData.HostWindow.FramesPerSecond;
 
-        if (_vSync != updateContext.Host.VSync)
-            _vSync = updateContext.Host.VSync;
+        if (_vSync != updateContext.EventData.HostWindow.VSync)
+            _vSync = updateContext.EventData.HostWindow.VSync;
 
-        if (_useDirtyRendering != updateContext.Host.UseDirtyRendering)
-            _useDirtyRendering = updateContext.Host.UseDirtyRendering;
+        if (_useDirtyRendering != updateContext.EventData.HostWindow.UseDirtyRendering)
+            _useDirtyRendering = updateContext.EventData.HostWindow.UseDirtyRendering;
 
-        if (_isForeground != updateContext.Host.IsForeground)
-            _isForeground = updateContext.Host.IsForeground;
+        if (_isForeground != updateContext.EventData.HostWindow.IsForeground)
+            _isForeground = updateContext.EventData.HostWindow.IsForeground;
 
-        if (_currentCursor != updateContext.Host.Cursor.ToString())
-            _currentCursor = updateContext.Host.Cursor.ToString();
+        if (_currentCursor != updateContext.EventData.HostWindow.Cursor.ToString())
+            _currentCursor = updateContext.EventData.HostWindow.Cursor.ToString();
 
         if (IsHovered && !IsMouseDown && _bgPaint.Color != _hoveredColor)
             _bgPaint.Color = _hoveredColor;
@@ -173,7 +172,7 @@ internal class ProfilerControl : BaseControl<ProfilerControl>
         else if (!_useDirtyRendering && _header != "HandyUI Profiler")
             _header = "HandyUI Profiler";
 
-        _totalTime = updateContext.Host.TotalTime;
+        _totalTime = updateContext.EventData.TotalTime;
 
         _memory = (float)(GC.GetTotalMemory(false) / (1024.0 * 1024.0));
         _gen0 = GC.CollectionCount(0);
@@ -183,27 +182,27 @@ internal class ProfilerControl : BaseControl<ProfilerControl>
         if (_wantToToggleDirtyRendering)
         {
             _wantToToggleDirtyRendering = false;
-            updateContext.Host.UseDirtyRendering = !updateContext.Host.UseDirtyRendering;
+            updateContext.EventData.HostWindow.UseDirtyRendering = !updateContext.EventData.HostWindow.UseDirtyRendering;
         }
         if (_wantToToggleVSync)
         {
             _wantToToggleVSync = false;
-            updateContext.Host.VSync = !updateContext.Host.VSync;
+            updateContext.EventData.HostWindow.VSync = !updateContext.EventData.HostWindow.VSync;
         }
         if (_wantToIncreaseTargetFps)
         {
             _wantToIncreaseTargetFps = false;
-            updateContext.Host.FramesPerSecond += 5;
+            updateContext.EventData.HostWindow.FramesPerSecond += 5;
         }
         if (_wantToDecreaseTargetFps)
         {
             _wantToDecreaseTargetFps = false;
-            updateContext.Host.FramesPerSecond -= 5;
+            updateContext.EventData.HostWindow.FramesPerSecond -= 5;
         }
         if (_wantToTriggerMemoryCleansing)
         {
             _wantToTriggerMemoryCleansing = false;
-            updateContext.Host.CleanMemory(true);
+            updateContext.EventData.HostWindow.CleanMemory(true);
         }
     }
 

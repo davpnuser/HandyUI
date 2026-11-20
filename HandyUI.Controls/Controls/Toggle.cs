@@ -192,7 +192,7 @@ public class Toggle : BaseControl<Toggle>
         if (_lastHovered != IsHovered)
         {
             _lastHovered = IsHovered;
-            StartHoverAnimation(updateContext.TweenManager, IsHovered ? 1f : 0f);
+            StartHoverAnimation(updateContext.EventData.TweenManager, IsHovered ? 1f : 0f);
         }
 
         if (_pendingToggleTarget is { } target)
@@ -203,7 +203,7 @@ public class Toggle : BaseControl<Toggle>
             _toggleAmount = current;
             if (Math.Abs(current - target) > 0.001f)
             {
-                _toggleTween = updateContext.TweenManager.To(current, target, 0.2f,
+                _toggleTween = updateContext.EventData.TweenManager.To(current, target, 0.2f,
                     v => { _toggleAmount = v; Invalidate(); }, EaseType.CubicOut);
             }
         }

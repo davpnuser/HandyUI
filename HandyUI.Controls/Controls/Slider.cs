@@ -140,7 +140,7 @@ public class Slider : BaseControl<Slider>
     {
         if (_lastHovered == IsHovered) return;
         _lastHovered = IsHovered;
-        StartHoverAnimation(updateContext.TweenManager, IsHovered || _isDragging ? 1f : 0f);
+        StartHoverAnimation(updateContext.EventData.TweenManager, IsHovered || _isDragging ? 1f : 0f);
     }
 
     public override void OnDraw(SKCanvas canvas)
@@ -184,7 +184,7 @@ public class Slider : BaseControl<Slider>
     {
         if (!Enabled) return false;
 
-        if (eventContext.Type == MouseEventType.MouseDownEvent && IsHovered)
+        if (eventContext.Type == MouseEventType.DownEvent && IsHovered)
         {
             _isDragging = true;
             UpdateValueFromPoint(eventContext.MousePosition);
@@ -197,10 +197,10 @@ public class Slider : BaseControl<Slider>
             return true;
         }
 
-        if (eventContext.Type == MouseEventType.MouseUpEvent && _isDragging)
+        if (eventContext.Type == MouseEventType.UpEvent && _isDragging)
         {
             _isDragging = false;
-            if (!IsHovered) StartHoverAnimation(eventContext.TweenManager, 0f);
+            if (!IsHovered) StartHoverAnimation(eventContext.EventData.TweenManager, 0f);
             return true;
         }
 

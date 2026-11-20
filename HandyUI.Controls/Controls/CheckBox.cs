@@ -176,7 +176,7 @@ public class CheckBox : BaseControl<CheckBox>
     {
         if (_lastHovered == IsHovered) return;
         _lastHovered = IsHovered;
-        StartHoverAnimation(updateContext.TweenManager, IsHovered ? 1f : 0f);
+        StartHoverAnimation(updateContext.EventData.TweenManager, IsHovered ? 1f : 0f);
     }
 
     public override void OnDraw(SKCanvas canvas)

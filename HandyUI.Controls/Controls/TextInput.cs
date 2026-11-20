@@ -185,8 +185,8 @@ public class TextInput : BaseControl<TextInput>
         if (_lastFocused != IsFocused)
         {
             _lastFocused = IsFocused;
-            StartFocusAnimation(updateContext.TweenManager, IsFocused ? 1f : 0f);
-            if (IsFocused) StartCursorBlink(updateContext.TweenManager);
+            StartFocusAnimation(updateContext.EventData.TweenManager, IsFocused ? 1f : 0f);
+            if (IsFocused) StartCursorBlink(updateContext.EventData.TweenManager);
             else StopCursorBlink();
         }
     }
@@ -256,7 +256,7 @@ public class TextInput : BaseControl<TextInput>
 
     protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (eventContext.Type == MouseEventType.MouseDownEvent && IsHovered && eventContext.MousePosition is { } p)
+        if (eventContext.Type == MouseEventType.DownEvent && IsHovered && eventContext.MousePosition is { } p)
         {
             RequestFocus();
             _isMouseSelecting = true;
@@ -272,7 +272,7 @@ public class TextInput : BaseControl<TextInput>
             return true;
         }
 
-        if (eventContext.Type == MouseEventType.MouseUpEvent && _isMouseSelecting)
+        if (eventContext.Type == MouseEventType.UpEvent && _isMouseSelecting)
         {
             _isMouseSelecting = false;
             return true;
@@ -299,13 +299,13 @@ public class TextInput : BaseControl<TextInput>
             return true;
         }
 
-        if (eventContext.Type != KeyEventType.KeyDown) return false;
+        if (eventContext.Type != KeyEventType.Down) return false;
 
         switch (eventContext.KeyCode)
         {
             case 8: HandleBackspace(eventContext); return true;
             case 46:
-                if (eventContext.IsShiftPressed && !eventContext.IsControlPressed) { Cut(); return true; }
+                if (eventContext.ModifierKeys.HasFlag(ModifierKeys.Shift) && !eventContext.ModifierKeys.HasFlag(ModifierKeys.Control)) { Cut(); return true; }
                 HandleDelete(eventContext);
                 return true;
             case 37: HandleLeft(eventContext); return true;
@@ -313,7 +313,7 @@ public class TextInput : BaseControl<TextInput>
             case 36: HandleHome(eventContext); return true;
             case 35: HandleEnd(eventContext); return true;
             case 65:
-                if (eventContext.IsControlPressed)
+                if (eventContext.ModifierKeys.HasFlag(ModifierKeys.Control))
                 {
                     _selectionAnchor = 0;
                     _cursorIndex = Text.Length;
@@ -321,17 +321,17 @@ public class TextInput : BaseControl<TextInput>
                 }
                 break;
             case 67:
-                if (eventContext.IsControlPressed) { Copy(); return true; }
+                if (eventContext.ModifierKeys.HasFlag(ModifierKeys.Control)) { Copy(); return true; }
                 break;
             case 88:
-                if (eventContext.IsControlPressed) { Cut(); return true; }
+                if (eventContext.ModifierKeys.HasFlag(ModifierKeys.Control)) { Cut(); return true; }
                 break;
             case 86:
-                if (eventContext.IsControlPressed) { Paste(); return true; }
+                if (eventContext.ModifierKeys.HasFlag(ModifierKeys.Control)) { Paste(); return true; }
                 break;
             case 45:
-                if (eventContext.IsShiftPressed) { Paste(); return true; }
-                if (eventContext.IsControlPressed) { Copy(); return true; }
+                if (eventContext.ModifierKeys.HasFlag(ModifierKeys.Shift)) { Paste(); return true; }
+                if (eventContext.ModifierKeys.HasFlag(ModifierKeys.Control)) { Copy(); return true; }
                 break;
         }
 
@@ -371,7 +371,7 @@ public class TextInput : BaseControl<TextInput>
         {
             DeleteSelection();
         }
-        else if (ctx.IsControlPressed)
+        else if (ctx.ModifierKeys.HasFlag(ModifierKeys.Control))
         {
             var prev = PrevWordBoundary(_cursorIndex);
             if (prev < _cursorIndex)
@@ -396,7 +396,7 @@ public class TextInput : BaseControl<TextInput>
         {
             DeleteSelection();
         }
-        else if (ctx.IsControlPressed)
+        else if (ctx.ModifierKeys.HasFlag(ModifierKeys.Control))
         {
             var next = NextWordBoundary(_cursorIndex);
             if (next > _cursorIndex)
@@ -412,11 +412,11 @@ public class TextInput : BaseControl<TextInput>
 
     private void HandleLeft(KeyEventContext ctx)
     {
-        var newPos = ctx.IsControlPressed
+        var newPos = ctx.ModifierKeys.HasFlag(ModifierKeys.Control)
             ? PrevWordBoundary(_cursorIndex)
             : Math.Max(0, _cursorIndex - 1);
 
-        if (ctx.IsShiftPressed)
+        if (ctx.ModifierKeys.HasFlag(ModifierKeys.Shift))
         {
             _cursorIndex = newPos;
         }
@@ -430,11 +430,11 @@ public class TextInput : BaseControl<TextInput>
 
     private void HandleRight(KeyEventContext ctx)
     {
-        var newPos = ctx.IsControlPressed
+        var newPos = ctx.ModifierKeys.HasFlag(ModifierKeys.Control)
             ? NextWordBoundary(_cursorIndex)
             : Math.Min(Text.Length, _cursorIndex + 1);
 
-        if (ctx.IsShiftPressed)
+        if (ctx.ModifierKeys.HasFlag(ModifierKeys.Shift))
         {
             _cursorIndex = newPos;
         }
@@ -449,7 +449,7 @@ public class TextInput : BaseControl<TextInput>
     private void HandleHome(KeyEventContext ctx)
     {
         const int target = 0;
-        if (ctx.IsShiftPressed)
+        if (ctx.ModifierKeys.HasFlag(ModifierKeys.Shift))
         {
             _cursorIndex = target;
         }
@@ -460,7 +460,7 @@ public class TextInput : BaseControl<TextInput>
     private void HandleEnd(KeyEventContext ctx)
     {
         var target = Text.Length;
-        if (ctx.IsShiftPressed)
+        if (ctx.ModifierKeys.HasFlag(ModifierKeys.Shift))
         {
             _cursorIndex = target;
         }

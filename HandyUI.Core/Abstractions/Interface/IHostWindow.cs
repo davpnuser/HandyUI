@@ -1,6 +1,7 @@
 ﻿using HandyUI.Core.Components;
 using HandyUI.Core.Data;
 using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Data.Input;
 using SkiaSharp;
 
 namespace HandyUI.Core.Abstractions.Interface;
@@ -29,16 +30,15 @@ public interface IHostWindow
 
     #region Events
 
-    event Action<DisplayOrientation>? WhenOrientationChanged;
+    event Action? WhenLoaded;
+    event Action? WhenClosing;
 
     #endregion
 
     #region Methods
 
     void Invalidate();
-
-    //WindowingSupportedFeatures GetSupportedFeatures();
-
+    ModifierKeys GetModifierKeys();
     void CleanMemory(bool allResources = true);
 
     #endregion

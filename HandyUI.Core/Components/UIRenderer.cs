@@ -90,8 +90,6 @@ public class UIRenderer : IDisposable
         TweenManager = new TweenManager();
         _modules.Add(TweenManager);
 
-        host.TweenManager = TweenManager;
-
         BackgroundColor = ThemeManager.Instance.BackgroundPrimary;
         ThemeManager.Instance.ThemeChanged += OnThemeChanged;
 
@@ -221,16 +219,17 @@ public class UIRenderer : IDisposable
             return;
         }
 
-        var mouseEventContext1 = new MouseEventContext(_hostWindow, TweenManager, null, MouseEventType.MoveEvent, MouseButton.None, 0, 0, false, false, false);
-        var mouseEventContext2 = mouseEventContext1 with { MousePosition = SKPoint.Empty };
+        //var eventData = new EventData(_hostWindow, TweenManager, TotalTime);
+        //var mouseEventContext1 = new MouseEventContext(eventData, _hostWindow.GetModifierKeys(), MouseEventType.MoveEvent, MouseButton.None, new SKPoint(-1, -1));
+        //var mouseEventContext2 = mouseEventContext1 with { MousePosition = SKPoint.Empty };
 
-        FocusedControl?.ProcessMouseEvent(mouseEventContext1);
+        //FocusedControl?.ProcessMouseEvent(mouseEventContext1);
 
         FocusedControl?.IsFocused = false;
         FocusedControl = control;
         FocusedControl?.IsFocused = true;
 
-        FocusedControl?.ProcessMouseEvent(mouseEventContext2);
+        //FocusedControl?.ProcessMouseEvent(mouseEventContext2);
 
         _focusFromKeyboard = fromKeyboard;
         Invalidate();
@@ -240,16 +239,8 @@ public class UIRenderer : IDisposable
 
     #region Event Processing
 
-    public void ProcessEvent(EventType eventType)
-    {
-
-    }
-
     public void ProcessMouseEvent(MouseEventContext context)
     {
-        if (context.MousePosition is not { } clientPosition)
-            return;
-
         ProcessPendingControls();
 
         IModule[] moduleSnapshot;
@@ -281,11 +272,11 @@ public class UIRenderer : IDisposable
         IControl? hitControl = null;
         for (var i = rootSnapshot.Length - 1; i >= 0; i--)
         {
-            hitControl = HitTestRecursive(rootSnapshot[i], clientPosition);
+            hitControl = HitTestRecursive(rootSnapshot[i], context.MousePosition);
             if (hitControl != null) break;
         }
 
-        if (context.Type == MouseEventType.MouseDownEvent)
+        if (context.Type == MouseEventType.DownEvent)
         {
             if (_focusFromKeyboard)
             {
@@ -304,11 +295,11 @@ public class UIRenderer : IDisposable
         foreach (var root in rootSnapshot)
             DispatchMouseEventRecursive(root, context);
 
-        if (context.Type == MouseEventType.MouseUpEvent)
+        if (context.Type == MouseEventType.UpEvent)
         {
             if (_pressedControl != null && _pressedControl == hitControl)
             {
-                var localPos = _pressedControl.GetLocalPosition(clientPosition);
+                var localPos = _pressedControl.GetLocalPosition(context.MousePosition);
                 _pressedControl.ProcessMouseEvent(context with
                 {
                     Type = MouseEventType.ClickEvent,
@@ -324,7 +315,11 @@ public class UIRenderer : IDisposable
     {
         if (_isDebuggable)
         {
-            if (_profilerControl is not null && context.Type == KeyEventType.KeyDown && context.IsControlPressed && context.IsShiftPressed && context.KeyCode == 71)
+            if (_profilerControl is not null
+                && context.Type == KeyEventType.Down
+                && context.ModifierKeys.HasFlag(ModifierKeys.Control)
+                && context.ModifierKeys.HasFlag(ModifierKeys.Shift)
+                && context.KeyCode == 71)
             {
                 var profilerState = _profilerControl.Enabled;
                 _profilerControl.Enabled = !profilerState;
@@ -354,9 +349,9 @@ public class UIRenderer : IDisposable
             return true;
         }
 
-        if (KeyboardFocus && context.Type == KeyEventType.KeyDown && context.KeyCode == 9)
+        if (KeyboardFocus && context.Type == KeyEventType.Down && context.KeyCode == 9)
         {
-            if (context.IsShiftPressed)
+            if (context.ModifierKeys.HasFlag(ModifierKeys.Shift))
                 FocusPrevious();
             else
                 FocusNext();
@@ -518,20 +513,18 @@ public class UIRenderer : IDisposable
         return control.DoesIntersect(localCursorPosition) ? control : null;
     }
 
-    private void DispatchMouseEventRecursive(IControl control, MouseEventContext context, bool isMouseClipped = false)
+    private static void DispatchMouseEventRecursive(IControl control, MouseEventContext context, bool isMouseClipped = false)
     {
         if (!control.Visible)
             return;
 
-        if (context.MousePosition is not { } mousePosition)
-            return;
-
-        var localMousePosition = control.GetLocalPosition(mousePosition);
+        var localMousePosition = control.GetLocalPosition(context.MousePosition);
         var clipForSubtree = isMouseClipped || (control.ClipChildren && !control.Bounds.Contains(localMousePosition));
 
-        var effectivePos = (clipForSubtree && control != _pressedControl) ? (SKPoint?)null : localMousePosition;
+        // Only works with MousePosition being SKPoint? (nullable)
+        //var effectivePos = (clipForSubtree && control != _pressedControl) ? (SKPoint?)null : localMousePosition;
 
-        control.ProcessMouseEvent(context with { MousePosition = effectivePos });
+        control.ProcessMouseEvent(context with { MousePosition = localMousePosition });
 
         foreach (var child in control.Children)
             DispatchMouseEventRecursive(child, context, clipForSubtree);
@@ -553,7 +546,9 @@ public class UIRenderer : IDisposable
         canvas.Save();
         canvas.Translate(control.Location.X, control.Location.Y);
 
-        var updateContext = new UpdateContext(TweenManager, _hostWindow, deltaTime);
+        var eventData = new EventData(_hostWindow, TweenManager, TotalTime);
+        // TODO: Fix this shit.
+        var updateContext = new UpdateContext(eventData, _hostWindow.GetModifierKeys(), SKPoint.Empty, deltaTime);
 
         control.OnUpdate(updateContext);
         control.OnDraw(canvas);
@@ -654,7 +649,9 @@ public class UIRenderer : IDisposable
                 if (!module.Enabled)
                     continue;
 
-                var updateContext = new UpdateContext(TweenManager, _hostWindow, deltaTime);
+                var eventData = new EventData(_hostWindow, TweenManager, TotalTime);
+                // TODO: Fix this too.
+                var updateContext = new UpdateContext(eventData, _hostWindow.GetModifierKeys(), SKPoint.Empty, deltaTime);
                 module.OnUpdate(updateContext);
             }
 

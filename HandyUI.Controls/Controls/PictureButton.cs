@@ -120,7 +120,7 @@ public class PictureButton : BaseControl<PictureButton>
     {
         if (_lastHovered == IsHovered) return;
         _lastHovered = IsHovered;
-        StartHoverAnimation(updateContext.TweenManager, IsHovered ? 1f : 0f);
+        StartHoverAnimation(updateContext.EventData.TweenManager, IsHovered ? 1f : 0f);
         if (IsHovered) WhenHoverEntered?.Invoke();
         else WhenHoverExited?.Invoke();
     }
@@ -193,13 +193,13 @@ public class PictureButton : BaseControl<PictureButton>
 
     protected override bool OnMouse(MouseEventContext eventContext)
     {
-        if (eventContext.Type == MouseEventType.MouseDownEvent && IsHovered && eventContext.MousePosition is { } p)
+        if (eventContext.Type == MouseEventType.DownEvent && IsHovered && eventContext.MousePosition is { } p)
         {
             _rippleOrigin = p;
             _isRippleActive = true;
             _rippleProgress = 0f;
             if (_rippleTween is { IsValid: true }) _rippleTween.Cancel();
-            _rippleTween = eventContext.TweenManager.To(0f, 1f, 0.4f,
+            _rippleTween = eventContext.EventData.TweenManager.To(0f, 1f, 0.4f,
                 v => { _rippleProgress = v; Invalidate(); },
                 EaseType.SineOut,
                 () => { _isRippleActive = false; Invalidate(); });

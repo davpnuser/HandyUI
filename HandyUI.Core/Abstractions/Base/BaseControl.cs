@@ -1,7 +1,6 @@
 ﻿using HandyUI.Core.Abstractions.Interface;
 using HandyUI.Core.Components;
 using HandyUI.Core.Data;
-using HandyUI.Core.Data.Enums;
 using HandyUI.Core.Data.Input;
 using HandyUI.Core.Helpers;
 using HandyUI.Core.Helpers.Extensions;
@@ -212,12 +211,11 @@ public abstract class BaseControl : IControl
         if (!Visible || !Enabled)
             return false;
 
-        IsHovered = eventContext.MousePosition != null
-            && Bounds.Contains((SKPoint)eventContext.MousePosition);
+        IsHovered = Bounds.Contains(eventContext.MousePosition);
 
-        if (eventContext.Type == MouseEventType.MouseDownEvent && IsHovered)
+        if (eventContext.Type == MouseEventType.DownEvent && IsHovered)
             IsMouseDown = true;
-        else if (eventContext.Type == MouseEventType.MouseUpEvent)
+        else if (eventContext.Type == MouseEventType.UpEvent)
             IsMouseDown = false;
 
         return OnMouse(eventContext);

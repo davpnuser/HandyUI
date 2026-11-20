@@ -1,6 +1,6 @@
 ﻿using HandyUI.Controls.Controls;
 using HandyUI.Controls.Enums;
-using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Data;
 using HandyUI.Core.Helpers;
 using HandyUI.SilkNet.Data;
 using HandyUI.SilkNet.Helper;

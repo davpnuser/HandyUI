@@ -9,15 +9,7 @@ public enum DeviceType
     Embedded = 4,
 }
 
-public enum DisplayOrientation
-{
-    Unknown = 0,
-    Landscape = 1,
-    Portrait = 2
-}
-
 public readonly record struct DeviceInfo(
     DeviceType DeviceType,
-    DisplayOrientation DisplayOrientation,
     float DPI
 );

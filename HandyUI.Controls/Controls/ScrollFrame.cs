@@ -109,7 +109,7 @@ public class ScrollFrame : BaseControl<ScrollFrame>
     {
         if (eventContext.Type != MouseEventType.ScrollEvent || !IsHovered) return false;
         var delta = -eventContext.WheelDelta / 120f * ScrollSpeed;
-        ScrollTo(_scrollOffset + delta, eventContext.TweenManager);
+        ScrollTo(_scrollOffset + delta, eventContext.EventData.TweenManager);
         return true;
     }
 
