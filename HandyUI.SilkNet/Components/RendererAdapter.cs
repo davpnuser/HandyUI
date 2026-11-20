@@ -1,6 +1,6 @@
 ﻿using HandyUI.Core.Components;
-using HandyUI.Core.Data;
 using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Data.Input;
 using HandyUI.SilkNet.Components;
 using HandyUI.SilkNet.Helper;
 using Silk.NET.Input;

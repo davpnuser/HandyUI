@@ -1,6 +1,6 @@
 ﻿using HandyUI.Core.Components;
+using HandyUI.Core.Data;
 using HandyUI.Core.Data.Enums;
-using HandyUI.Core.Helpers;
 using SkiaSharp;
 
 namespace HandyUI.Core.Abstractions.Interface;
@@ -19,12 +19,8 @@ public interface IHostWindow
     CursorType Cursor { get; set; }
 
     bool IsForeground { get; }
-    DeviceType DeviceType { get; }
-    DisplayOrientation Orientation { get; }
-    float DpiScale { get; }
-    float DisplayDist { get; }
+    DeviceInfo DeviceInfo { get; }
 
-    TweenManager TweenManager { get; set; }
     UIRenderer? Renderer { get; }
 
     double TotalTime { get; }
@@ -40,6 +36,9 @@ public interface IHostWindow
     #region Methods
 
     void Invalidate();
+
+    //WindowingSupportedFeatures GetSupportedFeatures();
+
     void CleanMemory(bool allResources = true);
 
     #endregion

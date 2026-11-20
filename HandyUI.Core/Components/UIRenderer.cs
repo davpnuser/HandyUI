@@ -1,7 +1,7 @@
 ﻿using HandyUI.Core.Abstractions.Base;
 using HandyUI.Core.Abstractions.Interface;
 using HandyUI.Core.Data;
-using HandyUI.Core.Data.Enums;
+using HandyUI.Core.Data.Input;
 using HandyUI.Core.Helpers;
 using HandyUI.Core.Helpers.Controls;
 using SkiaSharp;
@@ -239,6 +239,11 @@ public class UIRenderer : IDisposable
     #endregion
 
     #region Event Processing
+
+    public void ProcessEvent(EventType eventType)
+    {
+
+    }
 
     public void ProcessMouseEvent(MouseEventContext context)
     {

@@ -1,4 +1,5 @@
 ﻿using HandyUI.Core.Data;
+using HandyUI.Core.Data.Input;
 
 namespace HandyUI.Core.Abstractions.Interface;
 
