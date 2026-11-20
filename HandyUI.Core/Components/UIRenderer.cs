@@ -547,8 +547,7 @@ public class UIRenderer : IDisposable
         canvas.Translate(control.Location.X, control.Location.Y);
 
         var eventData = new EventData(_hostWindow, TweenManager, TotalTime);
-        // TODO: Fix this shit.
-        var updateContext = new UpdateContext(eventData, _hostWindow.GetModifierKeys(), SKPoint.Empty, deltaTime);
+        var updateContext = new UpdateContext(eventData, _hostWindow.GetModifierKeys(), cursorPosition, deltaTime);
 
         control.OnUpdate(updateContext);
         control.OnDraw(canvas);
@@ -633,7 +632,7 @@ public class UIRenderer : IDisposable
         }
     }
 
-    public bool UpdateModules(float deltaTime)
+    public bool UpdateModules(float deltaTime, SKPoint cursorPosition)
     {
         ProcessPendingModules();
 
@@ -650,8 +649,7 @@ public class UIRenderer : IDisposable
                     continue;
 
                 var eventData = new EventData(_hostWindow, TweenManager, TotalTime);
-                // TODO: Fix this too.
-                var updateContext = new UpdateContext(eventData, _hostWindow.GetModifierKeys(), SKPoint.Empty, deltaTime);
+                var updateContext = new UpdateContext(eventData, _hostWindow.GetModifierKeys(), cursorPosition, deltaTime);
                 module.OnUpdate(updateContext);
             }
 

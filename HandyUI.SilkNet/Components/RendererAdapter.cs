@@ -199,7 +199,7 @@ internal sealed class RendererAdapter(HandyWindow window) : IDisposable
         deltaTime = Math.Min(deltaTime, 0.25f);
         _lastFrameTime = currentTime;
 
-        _renderer.UpdateModules(deltaTime);
+        _renderer.UpdateModules(deltaTime, _currentMousePos);
 
         var mustRenderUI = !UseDirtyRendering || Volatile.Read(ref _dirtyFramesRemaining) > 0;
 
